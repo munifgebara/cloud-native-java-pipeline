@@ -1,4 +1,4 @@
-package br.com.munif.pagadoria.pagadoria_api;
+package br.com.munif.pagadoria.api;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -33,21 +33,17 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://127.0.0.1:9080/realms/pagadoria
-          # alternativa (se você preferir fixar a URL do jwk):
-          # jwk-set-uri: http://127.0.0.1:8080/realms/pagadoria/protocol/openid-connect/certs
-
-logging:
-  level:
-    org.springframework.security: INFO
-    org.hibernate.SQL: INFO
-    org.hibernate.orm.jdbc.bind: TRACE
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info
   endpoint:
     health:
-      probes:
-        enabled: true
+      show-details: always
+
+logging:
+  level:
+    org.springframework.security: INFO
+
