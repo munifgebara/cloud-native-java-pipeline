@@ -18,6 +18,11 @@ spring:
     enabled: true
     locations: classpath:db/migration
 
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:db/testdata/pessoa.sql
+
   h2:
     console:
       enabled: false
