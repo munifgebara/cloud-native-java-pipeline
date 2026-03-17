@@ -28,7 +28,15 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(EndpointRequest.to("health", "info")).permitAll()
-                        .requestMatchers("/", "/index.html", "/error", "/favicon.ico").permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/index.html",
+                                "/app",
+                                "/app/",
+                                "/app/**",
+                                "/error",
+                                "/favicon.ico"
+                        ).permitAll()
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
