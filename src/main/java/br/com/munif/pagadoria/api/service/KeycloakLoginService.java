@@ -1,5 +1,6 @@
 package br.com.munif.pagadoria.api.service;
 
+import br.com.munif.pagadoria.api.config.KeycloakProperties;
 import br.com.munif.pagadoria.api.dto.LoginRequestDTO;
 import br.com.munif.pagadoria.api.dto.LoginResponseDTO;
 import org.springframework.http.MediaType;
@@ -14,20 +15,23 @@ import java.util.Map;
 public class KeycloakLoginService {
 
     private final RestClient restClient;
+    private final KeycloakProperties keycloakProperties;
 
-    public KeycloakLoginService() {
+    public KeycloakLoginService(KeycloakProperties keycloakProperties) {
         this.restClient = RestClient.builder().build();
+        this.keycloakProperties = keycloakProperties;
     }
 
     public LoginResponseDTO login(LoginRequestDTO request) {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
-        form.add("client_id", "pagadoria-cli");
+        form.add("client_id", keycloakProperties.publicClientId());
         form.add("grant_type", "password");
         form.add("username", request.username());
         form.add("password", request.password());
 
+        @SuppressWarnings("unchecked")
         Map<String, Object> response = restClient.post()
-                .uri("http://127.0.0.1:9080/realms/pagadoria/protocol/openid-connect/token")
+                .uri(keycloakProperties.tokenUrl())
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(form)
                 .retrieve()
