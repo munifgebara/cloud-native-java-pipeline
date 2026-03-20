@@ -1,4 +1,4 @@
-import {Component, OnInit, inject, ChangeDetectorRef} from '@angular/core';
+import {Component, OnInit, inject, ChangeDetectorRef, signal} from '@angular/core';
 import { Router } from '@angular/router';
 
 import { DashboardService, DashboardResumo } from '../../core/dashboard.service';
@@ -19,18 +19,16 @@ export class DashboardComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
 
-  resumo?: DashboardResumo={quantidadePessoas:999};
+  resumo= signal<DashboardResumo|null>(null);
   loading = true;
   errorMessage = '';
 
   ngOnInit(): void {
-    console.log("Executando ngOnInit");
     this.dashboardService.carregarResumo().subscribe({
       next: (resumo) => {
         console.log('Resumo recebido:', resumo);
-        this.resumo = resumo;
+        this.resumo.set(resumo);
         this.loading = false;
-        this.cdr.detectChanges();  //TODO Invstigar porque está sendo necessário, normalmente não precisaria
       },
       error: () => {
         this.errorMessage = 'Não foi possível carregar o dashboard.';
