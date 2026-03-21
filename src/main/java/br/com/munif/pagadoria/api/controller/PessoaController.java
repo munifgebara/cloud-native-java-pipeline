@@ -8,6 +8,7 @@ import br.com.munif.pagadoria.api.dto.PessoaResumoDTO;
 import br.com.munif.pagadoria.api.dto.PessoaUpdateDTO;
 import br.com.munif.pagadoria.api.entity.Pessoa;
 import br.com.munif.pagadoria.api.service.PessoaService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class PessoaController extends SuperController<PessoaResumoDTO, PessoaRes
 
     @Override
     @PostMapping
-    public ResponseEntity<PessoaResponseDTO> criar(@RequestBody PessoaCreateDTO dto) {
+    public ResponseEntity<PessoaResponseDTO> criar(@RequestBody @Valid PessoaCreateDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.criar(dto));
     }
 
@@ -43,9 +44,14 @@ public class PessoaController extends SuperController<PessoaResumoDTO, PessoaRes
         return ResponseEntity.ok(service.listarResumo());
     }
 
+    @GetMapping("/buscar")
+    public ResponseEntity<List<PessoaResumoDTO>> buscarPorNome(@RequestParam String nome) {
+        return ResponseEntity.ok(service.buscarPorNome(nome));
+    }
+
     @Override
     @PutMapping("/{id}")
-    public ResponseEntity<PessoaResponseDTO> atualizar(@PathVariable UUID id, @RequestBody PessoaUpdateDTO dto) {
+    public ResponseEntity<PessoaResponseDTO> atualizar(@PathVariable UUID id, @RequestBody @Valid PessoaUpdateDTO dto) {
         return ResponseEntity.ok(service.atualizar(id, dto));
     }
 
@@ -68,3 +74,4 @@ public class PessoaController extends SuperController<PessoaResumoDTO, PessoaRes
         return ResponseEntity.ok(service.listarRevisoes(id));
     }
 }
+
