@@ -1,13 +1,43 @@
 <div class="login-page">
   <p-card header="Pagadoria">
     <p class="login-text">
-      Base inicial do sistema frontend com Angular + PrimeNG.
+      Entre para acessar o sistema.
     </p>
 
-    <p-button
-      label="Entrar"
-      icon="pi pi-sign-in"
-      (onClick)="entrar()">
-    </p-button>
+    <div class="login-form">
+      <div class="field">
+        <label for="username">Usuário</label>
+        <input
+          pInputText
+          id="username"
+          type="text"
+          [(ngModel)]="username"
+          placeholder="Digite o usuário" />
+      </div>
+
+      <div class="field">
+        <label for="password">Senha</label>
+        <p-password
+          id="password"
+          [(ngModel)]="password"
+          [feedback]="false"
+          [toggleMask]="true"
+          placeholder="Digite a senha"
+          styleClass="w-full">
+        </p-password>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="error-message">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <p-button
+        label="Entrar"
+        icon="pi pi-sign-in"
+        (onClick)="entrar()">
+      </p-button>
+    </div>
   </p-card>
 </div>

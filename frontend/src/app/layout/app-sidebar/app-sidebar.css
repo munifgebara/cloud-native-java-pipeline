@@ -35,6 +35,9 @@
   padding: 12px 14px;
   border-radius: 10px;
   transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .menu a:hover {

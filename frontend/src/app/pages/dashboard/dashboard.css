@@ -10,12 +10,26 @@
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  grid-template-columns: minmax(280px, 360px);
   gap: 20px;
 }
 
-@media (max-width: 900px) {
-  .cards {
-    grid-template-columns: 1fr;
-  }
+.metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.state-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  color: #4b5563;
+}
+
+.state-card.error {
+  color: #b91c1c;
+  background: #fff1f2;
+  border-color: #fecdd3;
 }

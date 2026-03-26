@@ -1,14 +1,22 @@
 <div class="dashboard-page">
   <h1>Dashboard</h1>
-  <p class="subtitle">Estrutura inicial do sistema.</p>
+  <p class="subtitle">Visão geral inicial do sistema.</p>
 
-  <div class="cards">
-    <p-card header="Frontend">
-      <p>Angular novo com PrimeNG configurado.</p>
-    </p-card>
-
-    <p-card header="Próximos passos">
-      <p>Login real, dashboard integrado e CRUD de pessoas.</p>
-    </p-card>
-  </div>
+  @if (loading()) {
+    <div class="state-card">
+      Carregando informações...
+    </div>
+  } @else if (errorMessage()) {
+    <div class="state-card error">
+      {{ errorMessage() }}
+    </div>
+  } @else {
+    <div class="cards">
+      <p-card header="Pessoas cadastradas">
+        <div class="metric-value">
+          {{ resumo()?.quantidadePessoas ?? 0 }}
+        </div>
+      </p-card>
+    </div>
+  }
 </div>
