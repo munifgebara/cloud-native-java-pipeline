@@ -26,17 +26,27 @@ export class LoginComponent {
   username = '';
   password = '';
   errorMessage = signal('');
+  loading = signal(false);
 
   entrar(): void {
     this.errorMessage.set('');
 
-    const ok = this.authService.login(this.username, this.password);
-
-    if (!ok) {
+    if (!this.username.trim() || !this.password.trim()) {
       this.errorMessage.set('Informe usuário e senha.');
       return;
     }
 
-    this.router.navigate(['/dashboard']);
+    this.loading.set(true);
+
+    this.authService.login(this.username, this.password).subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.router.navigate(['/dashboard']);
+      },
+      error: () => {
+        this.loading.set(false);
+        this.errorMessage.set('Usuário ou senha inválidos.');
+      },
+    });
   }
 }
