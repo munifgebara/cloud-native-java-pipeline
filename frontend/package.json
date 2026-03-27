@@ -4,13 +4,14 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --base-href /app/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
   "private": true,
   "packageManager": "npm@11.11.0",
   "dependencies": {
+    "@angular/animations": "^21.2.6",
     "@angular/common": "^21.2.0",
     "@angular/compiler": "^21.2.0",
     "@angular/core": "^21.2.0",

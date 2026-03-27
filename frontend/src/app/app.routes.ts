@@ -3,6 +3,8 @@ import { LoginComponent } from './pages/login/login';
 import { AppLayoutComponent } from './layout/app-layout/app-layout';
 import { DashboardComponent } from './pages/dashboard/dashboard';
 import { authGuard } from './core/auth-guard';
+import { PessoaListComponent } from './pages/pessoas/pessoa-list/pessoa-list';
+import { PessoaFormComponent } from './pages/pessoas/pessoa-form/pessoa-form';
 
 export const routes: Routes = [
   {
@@ -22,6 +24,18 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         component: DashboardComponent,
+      },
+      {
+        path: 'pessoas',
+        component: PessoaListComponent,
+      },
+      {
+        path: 'pessoas/nova',
+        component: PessoaFormComponent,
+      },
+      {
+        path: 'pessoas/:id/editar',
+        component: PessoaFormComponent,
       },
     ],
   },
