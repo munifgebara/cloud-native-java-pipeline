@@ -1,0 +1,75 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h2>Pessoas</h2>
+      <p>Consulta e manutenção de pessoas</p>
+    </div>
+
+    <button
+      pButton
+      type="button"
+      label="Novo"
+      icon="pi pi-plus"
+      (click)="novo()">
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <input
+      pInputText
+      type="text"
+      [(ngModel)]="filtroNome"
+      placeholder="Pesquisar por nome"
+      (keyup.enter)="pesquisar()" />
+
+    <button
+      pButton
+      type="button"
+      label="Pesquisar"
+      icon="pi pi-search"
+      (click)="pesquisar()">
+    </button>
+
+    <button
+      pButton
+      type="button"
+      severity="secondary"
+      label="Limpar"
+      icon="pi pi-times"
+      (click)="filtroNome=''; carregar()">
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="error-box">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <p-table
+    [value]="pessoas()"
+    [loading]="loading()"
+    [tableStyle]="{ 'min-width': '60rem' }">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Nome</th>
+        <th>CPF/CNPJ</th>
+        <th>E-mail</th>
+        <th>Telefone</th>
+        <th style="width: 120px;">Ações</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-pessoa>
+      <tr>
+        <td>{{ pessoa.nome }}</td>
+        <td>{{ pessoa.cpfCnpj }}</td>
+        <td>{{ pessoa.email || '-' }}</td>
+        <td>{{ pessoa.telefonePrincipal || '-' }}</td>
+        <td>
+          <a [routerLink]="['/pessoas', pessoa.id, 'editar']">Editar</a>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

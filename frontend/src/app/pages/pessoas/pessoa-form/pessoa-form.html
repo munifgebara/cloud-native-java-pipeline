@@ -1,0 +1,109 @@
+<p-card>
+  <ng-template pTemplate="title">
+    {{ edicao() ? 'Editar pessoa' : 'Nova pessoa' }}
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    @if (loading()) {
+      <p>Carregando...</p>
+    } @else {
+      <form [formGroup]="form" class="form-grid">
+        @if (errorMessage()) {
+          <div class="message error">
+            {{ errorMessage() }}
+          </div>
+        }
+
+        <div class="field full">
+          <label for="nome">Nome</label>
+          <input id="nome" pInputText formControlName="nome" />
+          @if (campoInvalido('nome')) {
+            <small class="field-error">Nome é obrigatório e deve ter no máximo 150 caracteres.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="cpfCnpj">CPF/CNPJ</label>
+          <input id="cpfCnpj" pInputText formControlName="cpfCnpj" />
+          @if (campoInvalido('cpfCnpj')) {
+            <small class="field-error">Informe um CPF ou CNPJ válido.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input id="email" pInputText formControlName="email" />
+          @if (campoInvalido('email')) {
+            <small class="field-error">Informe um e-mail válido.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="telefonePrincipal">Telefone principal</label>
+          <input id="telefonePrincipal" pInputText formControlName="telefonePrincipal" />
+          @if (campoInvalido('telefonePrincipal')) {
+            <small class="field-error">Telefone deve ter 10 ou 11 dígitos.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="telefoneSecundario">Telefone secundário</label>
+          <input id="telefoneSecundario" pInputText formControlName="telefoneSecundario" />
+          @if (campoInvalido('telefoneSecundario')) {
+            <small class="field-error">Telefone deve ter 10 ou 11 dígitos.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="cep">CEP</label>
+          <input id="cep" pInputText formControlName="cep" />
+          @if (campoInvalido('cep')) {
+            <small class="field-error">CEP deve ter 8 dígitos.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="uf">UF</label>
+          <input id="uf" pInputText formControlName="uf" />
+          @if (campoInvalido('uf')) {
+            <small class="field-error">UF deve ter 2 letras.</small>
+          }
+        </div>
+
+        <div class="field full">
+          <label for="endereco">Endereço</label>
+          <input id="endereco" pInputText formControlName="endereco" />
+        </div>
+
+        <div class="field">
+          <label for="complemento">Complemento</label>
+          <input id="complemento" pInputText formControlName="complemento" />
+        </div>
+
+        <div class="field">
+          <label for="bairro">Bairro</label>
+          <input id="bairro" pInputText formControlName="bairro" />
+        </div>
+
+        <div class="field">
+          <label for="cidade">Cidade</label>
+          <input id="cidade" pInputText formControlName="cidade" />
+        </div>
+
+        <div class="actions full">
+          <a routerLink="/pessoas">Cancelar</a>
+
+          <button
+            pButton
+            type="button"
+            label="Salvar"
+            icon="pi pi-save"
+            (click)="salvar()"
+            [loading]="salvando()">
+          </button>
+        </div>
+      </form>
+    }
+  </ng-template>
+</p-card>
+

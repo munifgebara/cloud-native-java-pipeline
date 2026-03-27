@@ -4,8 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --base-href /app/",
-    "watch": "ng build --watch --configuration development",
+    "build": "ng build --base-href /app/ && cp -r ../src/main/resources/static/app/browser/* ../src/main/resources/static/app/ && rm -rf ../src/main/resources/static/app/browser",    "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
   "private": true,
