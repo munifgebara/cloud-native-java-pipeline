@@ -20,7 +20,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly apiBaseUrl = environment.apiBaseUrl;
 
-  private readonly authenticatedSignal = signal<boolean>(!!localStorage.getItem(ACCESS_TOKEN_KEY));
+  private readonly authenticatedSignal = signal<boolean>(this.hasValidAccessToken());
 
   readonly authenticated = computed(() => this.authenticatedSignal());
 
@@ -47,11 +47,46 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem(ACCESS_TOKEN_KEY);
+    const valid = this.hasValidAccessToken();
+
+    if (!valid) {
+      this.logout();
+    }
+
+    return valid;
   }
 
   getAccessToken(): string | null {
-    return localStorage.getItem(ACCESS_TOKEN_KEY);
+    const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+
+    if (!token || this.isTokenExpired(token)) {
+      this.logout();
+      return null;
+    }
+
+    return token;
+  }
+
+  private hasValidAccessToken(): boolean {
+    const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+    return !!token && !this.isTokenExpired(token);
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const payloadBase64 = token.split('.')[1];
+      const payloadJson = atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'));
+      const payload = JSON.parse(payloadJson);
+      const exp = payload.exp;
+
+      if (!exp) {
+        return true;
+      }
+
+      const nowInSeconds = Math.floor(Date.now() / 1000);
+      return exp <= nowInSeconds;
+    } catch {
+      return true;
+    }
   }
 }
-

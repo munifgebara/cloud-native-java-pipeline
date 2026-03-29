@@ -53,9 +53,6 @@
     <ng-template pTemplate="header">
       <tr>
         <th>Nome</th>
-        <th>CPF/CNPJ</th>
-        <th>E-mail</th>
-        <th>Telefone</th>
         <th style="width: 120px;">Ações</th>
       </tr>
     </ng-template>
@@ -63,9 +60,6 @@
     <ng-template pTemplate="body" let-pessoa>
       <tr>
         <td>{{ pessoa.nome }}</td>
-        <td>{{ pessoa.cpfCnpj }}</td>
-        <td>{{ pessoa.email || '-' }}</td>
-        <td>{{ pessoa.telefonePrincipal || '-' }}</td>
         <td>
           <a [routerLink]="['/pessoas', pessoa.id, 'editar']">Editar</a>
         </td>

@@ -4,6 +4,11 @@ import { AuthService } from './auth';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
+
+  if (req.url.includes('/api/public/')) {
+    return next(req);
+  }
+
   const token = authService.getAccessToken();
 
   if (!token) {
@@ -18,4 +23,3 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq);
 };
-
