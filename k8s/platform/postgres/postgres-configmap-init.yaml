@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+  namespace: platform
+data:
+  init.sql: |
+    SELECT 'CREATE DATABASE pagadoria_dev'
+    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'pagadoria_dev')\gexec
+
+    SELECT 'CREATE DATABASE pagadoria_staging'
+    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'pagadoria_staging')\gexec
+
+    SELECT 'CREATE DATABASE pagadoria_prod'
+    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'pagadoria_prod')\gexec
+  
+  
+
