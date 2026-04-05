@@ -5,8 +5,13 @@ on:
     branches:
       - main
       - staging
-      - 'tarefa/**'
       - 'feature/**'
+      - 'bugfix/**'
+      - 'hotfix/**'
+      - 'chore/**'
+      - 'refactor/**'
+      - 'docs/**'
+      - 'ci/**'
   pull_request:
     branches:
       - main
@@ -32,4 +37,3 @@ jobs:
 
       - name: Build and test
         run: ./mvnw clean verify
-
