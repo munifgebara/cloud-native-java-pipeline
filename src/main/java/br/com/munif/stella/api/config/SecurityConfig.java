@@ -42,7 +42,11 @@ public class SecurityConfig {
                                 "/app/",
                                 "/app/**",
                                 "/error",
-                                "/favicon.ico"
+                                "/favicon.ico",
+                                "/scalar",
+                                "/scalar/**",
+                                "/v3/api-docs",
+                                "/v3/api-docs/**"
                         ).permitAll()
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
