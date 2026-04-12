@@ -7,11 +7,7 @@ COPY .mvn .mvn
 COPY mvnw .
 RUN chmod +x mvnw
 
-# Copia também o frontend antes do package
 COPY frontend frontend
-
-# Se existirem arquivos de config na raiz e o build Angular depender deles,
-# copie também. Se algum não existir, depois ajustamos.
 COPY src src
 
 RUN ./mvnw -DskipTests clean package

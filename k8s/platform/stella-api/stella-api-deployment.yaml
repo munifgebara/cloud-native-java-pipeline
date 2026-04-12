@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
         - name: stella-api
-          image: stella-api:local
-          imagePullPolicy: Never
+          image: ghcr.io/munifgebara/stella-api:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
               name: http
