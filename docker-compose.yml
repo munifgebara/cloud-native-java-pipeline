@@ -5,16 +5,16 @@ services:
     image: postgres:17.9-alpine
     container_name: stella-postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
+      POSTGRES_USER: ${STELLA_POSTGRES_SUPERUSER:-postgres}
+      POSTGRES_PASSWORD: ${STELLA_POSTGRES_SUPERPASSWORD:-postgres}
+      POSTGRES_DB: ${STELLA_POSTGRES_SUPERDB:-postgres}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U ${STELLA_POSTGRES_SUPERUSER:-postgres} -d ${STELLA_POSTGRES_SUPERDB:-postgres}" ]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -29,14 +29,14 @@ services:
         condition: service_healthy
     environment:
       # Admin inicial
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_ADMIN: ${STELLA_KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${STELLA_KEYCLOAK_ADMIN_PASSWORD:-admin}
 
       # Banco (Postgres)
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: keycloak
+      KC_DB_USERNAME: ${STELLA_KEYCLOAK_DB_USERNAME:-keycloak}
+      KC_DB_PASSWORD: ${STELLA_KEYCLOAK_DB_PASSWORD:-keycloak}
 
       # Ajustes úteis para dev/local
       KC_HEALTH_ENABLED: "true"

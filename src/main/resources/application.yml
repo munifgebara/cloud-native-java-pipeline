@@ -6,9 +6,9 @@ spring:
     name: stella-api
 
   datasource:
-    url: jdbc:postgresql://127.0.0.1:5432/stella
-    username: stella
-    password: stella
+    url: ${STELLA_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:5432/stella}
+    username: ${STELLA_DATASOURCE_USERNAME:stella}
+    password: ${STELLA_DATASOURCE_PASSWORD:stella}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -65,6 +65,6 @@ scalar:
   enabled: true
   path: /scalar
   url: /v3/api-docs
-  theme: deepSpace
+  theme: deep_space
   layout: modern
   darkMode: true
