@@ -1,0 +1,115 @@
+apiVersion: v1
+data:
+  stella-realm.json: |
+    {
+      "id": "stella",
+      "realm": "stella",
+      "displayName": "Stella",
+      "enabled": true,
+      "registrationAllowed": false,
+      "loginWithEmailAllowed": true,
+      "duplicateEmailsAllowed": false,
+      "resetPasswordAllowed": true,
+      "editUsernameAllowed": false,
+      "bruteForceProtected": true,
+      "sslRequired": "external",
+      "roles": {
+        "realm": [
+          {
+            "name": "admin",
+            "description": "Administrador do sistema Stella"
+          },
+          {
+            "name": "proprietario",
+            "description": "Proprietário dos itens cadastrados"
+          },
+          {
+            "name": "usuario",
+            "description": "Usuário com acesso de consulta"
+          }
+        ]
+      },
+      "clients": [
+        {
+          "clientId": "stella-api",
+          "name": "Stella API (Resource Server)",
+          "protocol": "openid-connect",
+          "enabled": true,
+          "bearerOnly": true,
+          "publicClient": false,
+          "standardFlowEnabled": false,
+          "directAccessGrantsEnabled": false,
+          "serviceAccountsEnabled": false
+        },
+        {
+          "clientId": "stella-cli",
+          "name": "Stella CLI (Dev/Test)",
+          "protocol": "openid-connect",
+          "enabled": true,
+          "publicClient": true,
+          "standardFlowEnabled": false,
+          "directAccessGrantsEnabled": true,
+          "serviceAccountsEnabled": false
+        }
+      ],
+      "users": [
+        {
+          "username": "admin",
+          "enabled": true,
+          "emailVerified": true,
+          "firstName": "Admin",
+          "lastName": "Stella",
+          "email": "admin@example.local",
+          "credentials": [
+            {
+              "type": "password",
+              "value": "admin123",
+              "temporary": false
+            }
+          ],
+          "realmRoles": [
+            "admin"
+          ]
+        },
+        {
+          "username": "proprietario1",
+          "enabled": true,
+          "emailVerified": true,
+          "firstName": "Proprietario",
+          "lastName": "Demo",
+          "email": "proprietario1@example.local",
+          "credentials": [
+            {
+              "type": "password",
+              "value": "demo123",
+              "temporary": false
+            }
+          ],
+          "realmRoles": [
+            "proprietario"
+          ]
+        },
+        {
+          "username": "usuario1",
+          "enabled": true,
+          "emailVerified": true,
+          "firstName": "Usuario",
+          "lastName": "Demo",
+          "email": "usuario1@example.local",
+          "credentials": [
+            {
+              "type": "password",
+              "value": "demo123",
+              "temporary": false
+            }
+          ],
+          "realmRoles": [
+            "usuario"
+          ]
+        }
+      ]
+    }
+kind: ConfigMap
+metadata:
+  name: keycloak-realm
+  namespace: platform

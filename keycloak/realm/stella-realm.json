@@ -13,20 +13,16 @@
   "roles": {
     "realm": [
       {
-        "name": "ADMIN_STELLA",
-        "description": "Acesso administrativo (stella)"
+        "name": "admin",
+        "description": "Administrador do sistema Stella"
       },
       {
-        "name": "CONTRATANTE",
-        "description": "Contratante (visão total das transações)"
+        "name": "proprietario",
+        "description": "Proprietário dos itens cadastrados"
       },
       {
-        "name": "PAGADOR",
-        "description": "Pagador (acesso às parcelas a pagar/pagas)"
-      },
-      {
-        "name": "FAVORECIDO",
-        "description": "Favorecido (acesso às parcelas a receber/recebidas e solicita antecipação)"
+        "name": "usuario",
+        "description": "Usuário com acesso de consulta"
       }
     ]
   },
@@ -55,12 +51,12 @@
   ],
   "users": [
     {
-      "username": "stella_admin",
+      "username": "admin",
       "enabled": true,
       "emailVerified": true,
       "firstName": "Admin",
       "lastName": "Stella",
-      "email": "stella_admin@example.local",
+      "email": "admin@example.local",
       "credentials": [
         {
           "type": "password",
@@ -69,16 +65,16 @@
         }
       ],
       "realmRoles": [
-        "ADMIN_STELLA"
+        "admin"
       ]
     },
     {
-      "username": "contratante1",
+      "username": "proprietario1",
       "enabled": true,
       "emailVerified": true,
-      "firstName": "Contratante",
+      "firstName": "Proprietario",
       "lastName": "Demo",
-      "email": "contratante1@example.local",
+      "email": "proprietario1@example.local",
       "credentials": [
         {
           "type": "password",
@@ -87,16 +83,16 @@
         }
       ],
       "realmRoles": [
-        "CONTRATANTE"
+        "proprietario"
       ]
     },
     {
-      "username": "pagador1",
+      "username": "usuario1",
       "enabled": true,
       "emailVerified": true,
-      "firstName": "Pagador",
+      "firstName": "Usuario",
       "lastName": "Demo",
-      "email": "pagador1@example.local",
+      "email": "usuario1@example.local",
       "credentials": [
         {
           "type": "password",
@@ -105,25 +101,7 @@
         }
       ],
       "realmRoles": [
-        "PAGADOR"
-      ]
-    },
-    {
-      "username": "favorecido1",
-      "enabled": true,
-      "emailVerified": true,
-      "firstName": "Favorecido",
-      "lastName": "Demo",
-      "email": "favorecido1@example.local",
-      "credentials": [
-        {
-          "type": "password",
-          "value": "demo123",
-          "temporary": false
-        }
-      ],
-      "realmRoles": [
-        "FAVORECIDO"
+        "usuario"
       ]
     }
   ]
