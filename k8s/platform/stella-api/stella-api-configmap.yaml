@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stella-api-config
+  namespace: platform
+data:
+  STELLA_DATASOURCE_URL: jdbc:postgresql://postgres.platform.svc.cluster.local:5432/stella_dev
+  STELLA_DATASOURCE_USERNAME: stella
+  STELLA_KEYCLOAK_BASE_URL: http://keycloak.platform.svc.cluster.local:8080
+  STELLA_KEYCLOAK_REALM: stella
+  STELLA_KEYCLOAK_PUBLIC_CLIENT_ID: stella-cli
+  STELLA_CORS_ALLOWED_ORIGIN_1: http://127.0.0.1:4200
+  STELLA_CORS_ALLOWED_ORIGIN_2: http://localhost:4200

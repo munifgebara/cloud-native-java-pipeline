@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stella-api
+  namespace: platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stella-api
+  template:
+    metadata:
+      labels:
+        app: stella-api
+    spec:
+      containers:
+        - name: stella-api
+          image: stella-api:local
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - configMapRef:
+                name: stella-api-config
+          env:
+            - name: STELLA_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: stella-api-secret
+                  key: STELLA_DATASOURCE_PASSWORD
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 25
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 15
+            timeoutSeconds: 5
+

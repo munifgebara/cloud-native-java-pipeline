@@ -102,3 +102,4 @@ src/main/resources/static/app/
 .DS_Store
 Thumbs.db
 
+/stella-api-local.tar
