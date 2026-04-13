@@ -23,5 +23,6 @@ jobs:
 
       - name: Deploy no Kubernetes
         run: |
-          kubectl apply -f k8s/
-          
+          sudo k3s kubectl apply -f k8s/
+          sudo k3s kubectl rollout status deployment/stella-api -n platform --timeout=120s
+
