@@ -13,9 +13,11 @@ spec:
       labels:
         app: stella-api
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - name: stella-api
-          image: ghcr.io/munifgebara/stella-api:latest
+          image: ghcr.io/munifgebara/stella-api:main
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
