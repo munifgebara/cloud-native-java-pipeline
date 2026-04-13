@@ -1,0 +1,27 @@
+name: CD - Deploy to k3s
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t stella-api:latest .
+
+      - name: Import image no k3s
+        run: |
+          docker save stella-api:latest | sudo k3s ctr images import -
+
+      - name: Deploy no Kubernetes
+        run: |
+          kubectl apply -f k8s/
+          
