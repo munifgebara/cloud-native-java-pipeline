@@ -290,7 +290,18 @@
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>static/index.html</exclude>
+				</excludes>
+			</resource>
+
+			<resource>
+				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
+				<includes>
+					<include>static/index.html</include>
+				</includes>
 			</resource>
 		</resources>
 	</build>
