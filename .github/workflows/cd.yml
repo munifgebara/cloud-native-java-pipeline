@@ -28,6 +28,11 @@ jobs:
             stella-api=ghcr.io/munifgebara/stella-api:${{ github.event.workflow_run.head_sha }} \
             -n platform
 
+      - name: Ver imagem aplicada
+        run: |
+          sudo k3s kubectl get deployment stella-api -n platform -o jsonpath='{.spec.template.spec.containers[0].image}'
+          echo
+
       - name: Aguardar rollout
         run: |
           sudo k3s kubectl rollout status deployment/stella-api -n platform --timeout=180s
