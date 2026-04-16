@@ -1,931 +1,219 @@
 # Stella
 
-Sistema de administração Inventário Pessoal com autenticação OAuth2, API REST e frontend SPA.
+English | [Portuguese (pt-BR)](README.pt-BR.md)
 
-Autor: Munif Gebara Junior
+Stella is a cloud-native personal inventory management project built to demonstrate a full-stack Java platform with modern authentication, containerized local infrastructure, Kubernetes deployment, and CI/CD automation.
 
----
+It was designed with two complementary goals:
 
-## 1. Visão geral
+- portfolio: present an end-to-end software engineering project with backend, frontend, infrastructure, security, and delivery concerns
+- learning: offer a didactic example that students can use to understand how a SPA, a secured API, databases, containers, and deployment pipelines fit together
 
-O projeto Stella é um sistema completo composto por:
+## Overview
 
-- Backend Java com Spring Boot
-- Frontend Angular (SPA)
-- Autenticação com Keycloak (OAuth2 / OpenID Connect / JWT)
-- Banco PostgreSQL
-- Ambiente local com Docker Compose
-- Build integrado frontend + backend
-- Frontend servido pelo próprio Spring em /app
+The application combines:
 
-O objetivo é permitir o gerenciamento de:
+- Spring Boot 4 API with Java 25
+- Angular 21 SPA with PrimeNG
+- Keycloak for OAuth2 / OpenID Connect authentication
+- PostgreSQL with Flyway migrations
+- Docker Compose for local infrastructure
+- Kubernetes manifests for deployment
+- GitHub Actions workflows for CI, image publishing, and deployment
+- Prometheus-ready actuator metrics for observability
 
-- Pessoas
-- Coisas
-- Categorias
-- Empréstimos
-- Entradas
-- Saídas
-- Controle de permissões por role
+Today, the main implemented business flow is the management of people (`pessoas`), alongside login, route protection, and dashboard basics. The repository structure and infrastructure already prepare the project for expanding into broader inventory and operational modules.
 
----
+## Why This Project Matters
 
-## 2. Arquitetura
+Stella is intentionally broader than a CRUD demo. It shows how application code and platform concerns evolve together:
 
-Arquitetura geral do sistema:
+- authentication is externalized through Keycloak instead of being hardcoded in the app
+- frontend and backend are integrated in a single delivery flow
+- the application is packaged for container-based deployment
+- Kubernetes manifests and GitHub Actions push the project toward a production-style workflow
+- actuator and Prometheus support open the door for monitoring and operational maturity
 
+This makes the repository useful both as a portfolio piece and as a teaching reference for students learning cloud-native Java development.
+
+## Architecture
+
+```text
 Browser
-↓
-Angular SPA (/app)
-↓
-Spring Boot API (:8080)
-↓
-Keycloak (:9080) → autenticação
-↓
-PostgreSQL (:5432)
+  -> Angular SPA (/app)
+  -> Spring Boot API (:8080)
+  -> PostgreSQL (:5432)
 
+Authentication flow
+  -> User accesses the SPA
+  -> SPA redirects the user to Keycloak (:9080)
+  -> Keycloak authenticates and issues tokens
+  -> SPA calls the API with a bearer token
+  -> API validates the JWT and processes the request
+```
 
-Fluxo de autenticação:
+## Tech Stack
 
+| Layer | Technology |
+| --- | --- |
+| Backend | Spring Boot 4, Spring Security, Spring Data JPA, Flyway, Actuator |
+| Frontend | Angular 21, PrimeNG, TypeScript |
+| Identity | Keycloak, OAuth2, OpenID Connect, JWT |
+| Database | PostgreSQL |
+| Observability | Micrometer, Prometheus endpoint |
+| Infra | Docker Compose, Kubernetes |
+| CI/CD | GitHub Actions, GHCR |
 
-Browser → Angular
-Angular → Keycloak login
-Keycloak → JWT
-Angular → API (Bearer token)
-API → valida token
-API → PostgreSQL
+## Current Functional Scope
 
+Implemented or already visible in the codebase:
 
-O frontend Angular é compilado e copiado para:
+- login flow integrated with Keycloak
+- protected Angular routes
+- people listing and editing screens
+- Spring Boot REST API secured as a resource server
+- database migrations with Flyway
+- Docker-based local environment
+- Kubernetes deployment assets
+- CI/CD workflow foundation
+- actuator and Prometheus metrics exposure
 
+Planned evolution visible in the backlog:
 
-src/main/resources/static/app
+- broader inventory modules
+- internationalization
+- improved logging and observability integration
+- CEP-based address autofill
+- documentation and onboarding refinements
 
+## Repository Structure
 
-O Spring Boot serve o frontend automaticamente.
+```text
+.
+|-- frontend/                  # Angular SPA
+|-- k8s/                       # Kubernetes manifests
+|-- keycloak/                  # Realm import files
+|-- postgres/                  # Database bootstrap scripts
+|-- src/main/java/             # Spring Boot application code
+|-- src/main/resources/        # Configuration, migrations, static assets
+|-- .github/workflows/         # CI/CD pipelines
+|-- docker-compose.yml         # Local infrastructure
+`-- pom.xml                    # Maven build, frontend integration, tests
+```
 
----
+## Local Development
 
-## 3. Estrutura do projeto
+### Prerequisites
 
+- Java 25
+- Maven Wrapper or Maven 3.9+
+- Node.js 22+ and npm
+- Docker and Docker Compose
 
-stella/
+### 1. Start infrastructure
 
-frontend/
-src/main/java/
-src/main/resources/
-src/main/resources/static/app/
-
-docker-compose.yml
-pom.xml
-README.md
-
-
-Backend:
-
-
-domain
-repository
-service
-controller
-dto
-security
-config
-
-
-Frontend:
-
-
-frontend/
-src/
-angular.json
-package.json
-
-
----
-
-## 4. Portas usadas
-
-| Serviço | Porta | URL |
-|---------|--------|--------|
-| API Spring | 8080 | http://127.0.0.1:8080 |
-| Frontend | 8080 | http://127.0.0.1:8080/app |
-| Keycloak | 9080 | http://127.0.0.1:9080 |
-| PostgreSQL | 5432 | 127.0.0.1:5432 |
-
----
-
-## 5. Requisitos
-
-Instalar:
-
-- Java 21+
-- Maven 3.9+
-- Node 18+
-- Angular CLI
-- Docker
-- Docker Compose
-
-Instalar Angular CLI:
-
-npm install -g @angular/cli
-
-
-Verificar:
-
-
-ng version
-node -v
-mvn -v
-docker -v
-
-
----
-
-## 6. Subir infraestrutura
-
-Na raiz do projeto:
-
-
+```bash
 docker compose up -d
+```
 
+This brings up:
 
-Verificar:
+- PostgreSQL on `127.0.0.1:5432`
+- Keycloak on `http://127.0.0.1:9080`
 
+### 2. Run the backend
 
-docker compose ps
+```bash
+./mvnw spring-boot:run
+```
 
+Windows PowerShell:
 
-Containers esperados:
+```powershell
+.\mvnw.cmd spring-boot:run
+```
 
-- postgres
-- keycloak
+The API runs on `http://127.0.0.1:8080`.
 
----
+### 3. Run the frontend in development mode
 
-## 7. PostgreSQL
-
-Host:
-
-
-127.0.0.1
-
-
-Porta:
-
-
-5432
-
-
-Banco principal:
-
-
-stella
-
-
-Usuário:
-
-
-stella
-
-
-Senha:
-
-
-stella
-
-
-Banco do Keycloak:
-
-
-keycloak
-
-
-Usuário:
-
-
-keycloak
-
-
-Senha:
-
-
-keycloak
-
-
----
-
-## 8. Keycloak
-
-Abrir:
-
-
-http://127.0.0.1:9080
-
-
-Login admin:
-
-
-admin
-admin
-
-
-Realm:
-
-
-stella
-
-
-Roles:
-
-
-ADMIN_STELLA
-CONTRATANTE
-PAGADOR
-FAVORECIDO
-
-
-Usuários:
-
-| usuário | senha | role |
-|---------|--------|--------|
-| stella_admin | admin123 | ADMIN_STELLA |
-| contratante1 | demo123 | CONTRATANTE |
-| pagador1 | demo123 | PAGADOR |
-| favorecido1 | demo123 | FAVORECIDO |
-
-Client API:
-
-
-stella-api
-bearer-only
-
-
-Client CLI:
-
-
-stella-cli
-public
-direct access grants enabled
-
-
----
-
-## 9. Gerar token
-
-
-curl -X POST
-http://127.0.0.1:9080/realms/stella/protocol/openid-connect/token
-
--d "client_id=stella-cli"
--d "username=stella_admin"
--d "password=admin123"
--d "grant_type=password"
-
-
-Resposta contém:
-
-
-access_token
-
-
----
-
-## 10. Usar token
-
-
-curl http://127.0.0.1:8080/api/test
-
--H "Authorization: Bearer TOKEN"
-
-
-## 11. Backend Spring Boot
-
-Rodar pelo IntelliJ ou Maven:
-
-mvn spring-boot:run
-
-Build:
-
-mvn clean package
-
-Jar gerado em:
-
-target/stella.jar
-
-
-application.yml
-
-server:
-port: 8080
-
-spring:
-
-datasource:
-url: jdbc:postgresql://127.0.0.1:5432/stella
-username: stella
-password: stella
-
-jpa:
-hibernate:
-ddl-auto: validate
-
-security:
-oauth2:
-resourceserver:
-jwt:
-issuer-uri: http://127.0.0.1:9080/realms/stella
-
-
---------------------------------------------
-
-## 12. SecurityConfig
-
-Exemplo:
-
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig {
-
-    @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        http
-            .csrf(csrf -> csrf.disable())
-
-            .authorizeHttpRequests(auth -> auth
-
-                .requestMatchers(
-                        "/",
-                        "/app/**",
-                        "/favicon.ico",
-                        "/index.html",
-                        "/static/**"
-                ).permitAll()
-
-                .requestMatchers("/api/**").authenticated()
-
-                .anyRequest().permitAll()
-            )
-
-            .oauth2ResourceServer(oauth ->
-                    oauth.jwt(Customizer.withDefaults())
-            );
-
-        return http.build();
-    }
-}
-
-
-IMPORTANTE
-
-Sem liberar /app/** o Angular dá 401.
-
-
---------------------------------------------
-
-## 13. Forward para SPA Angular
-
-Necessário para rotas do Angular funcionarem.
-
-Exemplo:
-
-@Controller
-public class SpaForwardController {
-
-    @RequestMapping({"/app", "/app/**"})
-    public String forward(HttpServletRequest request) {
-
-        String path = request.getRequestURI();
-
-        if (path.contains(".")) {
-            return null;
-        }
-
-        return "forward:/app/index.html";
-    }
-}
-
-
-Sem isso:
-
-/app/pessoas
-/app/login
-/app/parcelas
-
-dão 404.
-
-
---------------------------------------------
-
-## 14. Frontend Angular
-
-Criado dentro do projeto:
-
-ng new frontend --routing --style=css
-
-
-Estrutura:
-
-frontend/
-src/
-angular.json
-package.json
-tsconfig.json
-
-
-Rodar dev:
-
+```bash
 cd frontend
 npm install
-ng serve
+npm start
+```
 
+The Angular dev server runs on `http://127.0.0.1:4200`.
 
-URL dev:
+### 4. Build the integrated application
 
-http://127.0.0.1:4200
+```bash
+./mvnw clean verify
+```
 
+The Maven build installs frontend dependencies, builds the Angular app, and packages the backend.
 
---------------------------------------------
+## Authentication and Demo Access
 
-## 15. Build Angular dentro do Spring
+Local authentication is handled by Keycloak with the `stella` realm.
 
-O Angular deve gerar arquivos em:
+Default local admin credentials:
 
-src/main/resources/static/app
+- username: `admin`
+- password: `admin`
 
+The project also references application roles such as:
 
-Configurar angular.json
+- `ADMIN_STELLA`
+- `CONTRATANTE`
+- `PAGADOR`
+- `FAVORECIDO`
 
+JWT validation is configured through Spring Security as an OAuth2 resource server.
 
-build.options.outputPath:
+## API and Observability
 
-"outputPath": "../src/main/resources/static/app"
+Useful local endpoints:
 
+- application: `http://127.0.0.1:8080/app`
+- API base: `http://127.0.0.1:8080/api`
+- OpenAPI / Scalar UI: `http://127.0.0.1:8080/scalar`
+- health: `http://127.0.0.1:8080/actuator/health`
+- metrics: `http://127.0.0.1:8080/actuator/metrics`
+- prometheus: `http://127.0.0.1:8080/actuator/prometheus`
 
-Configurar base-href
+## Deployment and Delivery Flow
 
-"baseHref": "/app/"
+The repository already includes the building blocks for a cloud-native delivery workflow:
 
+- `ci.yml` validates the application on pushes and pull requests
+- `publish-stella-api.yml` builds and publishes the container image
+- `cd.yml` updates the Kubernetes deployment after a successful publish
+- `k8s/` stores the manifests used in the cluster
 
-Exemplo:
+This setup helps demonstrate the transition from local development to automated delivery.
 
-"options": {
-"outputPath": "../src/main/resources/static/app",
-"baseHref": "/app/"
-}
+## Learning Notes
 
+Students and reviewers can use this repository to explore:
 
-Isso faz o Angular funcionar dentro do Spring.
+- how a Spring Boot API works as a JWT-protected resource server
+- how Angular and Spring Boot can be delivered together
+- how Flyway keeps database evolution explicit
+- how Docker Compose simplifies local onboarding
+- how GitHub Actions can separate CI, publish, and deploy responsibilities
+- how observability concerns begin with metrics and structured operational thinking
 
+## Roadmap
 
---------------------------------------------
+- expand domain coverage beyond the current people flow
+- improve multilingual support in the UI
+- refine server-side logging and Grafana integration
+- strengthen documentation for contributors and students
+- continue hardening the pipeline for production-like environments
 
-## 16. package.json build customizado
+## Author
 
-Para limpar antes de build:
+Munif Gebara Junior
 
-"scripts": {
-
-"build":
-"rm -rf ../src/main/resources/static/app/* && ng build --base-href /app/"
-
-}
-
-
-Sem limpar, arquivos antigos podem causar erro.
-
-
---------------------------------------------
-
-## 17. Arquivos estáticos
-
-Após build:
-
-src/main/resources/static/app/index.html
-src/main/resources/static/app/main.js
-src/main/resources/static/app/styles.css
-
-
-Spring Boot serve automaticamente.
-
-
-URL:
-
-http://127.0.0.1:8080/app
-
-
---------------------------------------------
-
-## 18. Problemas comuns Angular + Spring
-
-
-### MIME error
-
-Causa:
-
-base-href errado
-
-
-Corrigir:
-
---base-href /app/
-
-
-### JS não carrega
-
-Causa:
-
-outputPath errado
-
-
-### 401 /app
-
-Causa:
-
-Security bloqueando
-
-
-Liberar:
-
-/app/**
-
-
-### Loop forward
-
-Causa:
-
-forward pegando index.html
-
-
-Resolver:
-
-if(path.contains(".")) return null;
-
-
-### 404 ao atualizar página
-
-Causa:
-
-sem forward controller
-
-
---------------------------------------------
-
-## 19. Build integrado com Maven (opcional)
-
-Pode integrar frontend no build.
-
-
-Exemplo plugin:
-
-frontend-maven-plugin
-
-
-Fluxo:
-
-mvn clean package
-
-→ build Angular
-→ copia para static/app
-→ gera jar
-
-
-(usar se necessário)
-
-
---------------------------------------------
-
-## 20. URLs finais
-
-Frontend
-
-http://127.0.0.1:8080/app
-
-API
-
-http://127.0.0.1:8080/api
-
-Keycloak
-
-http://127.0.0.1:9080
-
-Postgres
-
-127.0.0.1:5432
-
-## 21. .gitignore recomendado
-
-Separar backend e frontend.
-
-Exemplo:
-
-####################################
-# Backend - Java / Maven
-####################################
-
-target/
-*.log
-
-.mvn/wrapper/maven-wrapper.jar
-
-!**/src/main/**/target/
-!**/src/test/**/target/
-
-
-####################################
-# IntelliJ
-####################################
-
-.idea/
-*.iml
-*.ipr
-*.iws
-
-
-####################################
-# VSCode
-####################################
-
-.vscode/
-
-
-####################################
-# Angular / Node
-####################################
-
-frontend/node_modules/
-frontend/node/
-frontend/.angular/
-frontend/dist/
-
-
-####################################
-# Angular build dentro do Spring
-####################################
-
-src/main/resources/static/app/
-
-
-####################################
-# OS
-####################################
-
-.DS_Store
-Thumbs.db
-
-
---------------------------------------------
-
-## 22. docker-compose
-
-Arquivo docker-compose.yml deve subir:
-
-- postgres
-- keycloak
-
-Exemplo simplificado:
-
-services:
-
-postgres:
-image: postgres:15
-ports:
-- "5432:5432"
-
-keycloak:
-image: quay.io/keycloak/keycloak
-ports:
-- "9080:8080"
-
-
-Subir:
-
-docker compose up -d
-
-Parar:
-
-docker compose down
-
-
---------------------------------------------
-
-## 23. Fluxo completo do sistema
-
-Login:
-
-Browser → Angular
-Angular → Keycloak
-Keycloak → JWT
-Angular → API
-API → valida token
-API → PostgreSQL
-
-Sem token:
-
-401
-
-
---------------------------------------------
-
-## 24. Fluxo de desenvolvimento
-
-1. subir docker
-
-docker compose up -d
-
-
-2. rodar backend
-
-mvn spring-boot:run
-
-
-3. rodar frontend
-
-cd frontend
-ng serve
-
-
-4. acessar
-
-http://127.0.0.1:4200
-
-
---------------------------------------------
-
-## 25. Fluxo de produção local
-
-1. build frontend
-
-cd frontend
-npm run build
-
-
-2. build backend
-
-mvn clean package
-
-
-3. rodar jar
-
-java -jar target/stella.jar
-
-
-abrir
-
-http://127.0.0.1:8080/app
-
-
---------------------------------------------
-
-## 26. Estrutura recomendada backend
-
-config/
-security/
-controller/
-service/
-repository/
-domain/
-dto/
-
-
---------------------------------------------
-
-## 27. Convenções do projeto
-
-Entidades no singular
-
-Pessoa
-Transacao
-Parcela
-
-
-DTO termina com DTO
-
-PessoaDTO
-
-
-Controller termina com Controller
-
-PessoaController
-
-
-Service termina com Service
-
-
---------------------------------------------
-
-## 28. Convenções Angular
-
-Component:
-
-pessoa-list.component.ts
-
-Service:
-
-pessoa.service.ts
-
-Model:
-
-pessoa.model.ts
-
-
---------------------------------------------
-
-## 29. Problemas comuns
-
-
-401 no Angular
-
-→ liberar /app/**
-
-
-404 ao atualizar rota
-
-→ forward controller
-
-
-JS não carrega
-
-→ base-href errado
-
-
-MIME error
-
-→ outputPath errado
-
-
-CORS
-
-→ configurar Spring
-
-
-Token inválido
-
-→ issuer-uri errado
-
-
---------------------------------------------
-
-## 30. Checklist build
-
-✔ docker rodando  
-✔ postgres rodando  
-✔ keycloak rodando  
-✔ realm criado  
-✔ roles criadas  
-✔ angular build ok  
-✔ static/app gerado  
-✔ forward funcionando  
-✔ security liberado  
-✔ API protegida
-
-
---------------------------------------------
-
-## 31. Checklist deploy
-
-✔ mvn clean package  
-✔ frontend build  
-✔ jar gerado  
-✔ banco acessível  
-✔ keycloak acessível  
-✔ issuer correto  
-✔ portas corretas
-
-
---------------------------------------------
-
-## 32. Boas práticas
-
-Nunca versionar:
-
-node_modules
-dist
-static/app
-target
-
-
-Sempre usar:
-
-127.0.0.1
-não localhost
-
-
-Sempre limpar build Angular
-
-
---------------------------------------------
-
-## 33. Autor
-
-Munif Gebara Junior (munifgebara@gmail.com)
-
-Projeto Stella
-
-Sistema de Inventário Pessoal
-
-
-
-
-
+If you are evaluating this repository as a portfolio project, the strongest signals are the combination of application code, infrastructure, authentication, observability, and delivery workflow in a single learning-oriented system.
