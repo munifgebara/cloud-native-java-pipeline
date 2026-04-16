@@ -22,7 +22,7 @@ The application combines:
 - GitHub Actions workflows for CI, image publishing, and deployment
 - Prometheus-ready actuator metrics for observability
 
-Today, the main implemented business flow is the management of people (`pessoas`), alongside login, route protection, and dashboard basics. The repository structure and infrastructure already prepare the project for expanding into broader inventory and operational modules.
+Today, the main implemented business flow is the management of people (`pessoas`) within the personal inventory context, alongside login, route protection, and dashboard basics. The repository structure and infrastructure already prepare the project for expanding into broader inventory modules such as item ownership, categorization, and tracking.
 
 ## Why This Project Matters
 
@@ -160,14 +160,13 @@ Local authentication is handled by Keycloak with the `stella` realm.
 Default local admin credentials:
 
 - username: `admin`
-- password: `admin`
+- password: `admin123`
 
-The project also references application roles such as:
+Realm users available in the local bootstrap:
 
-- `ADMIN_STELLA`
-- `CONTRATANTE`
-- `PAGADOR`
-- `FAVORECIDO`
+- `admin` - system administrator
+- `proprietario` - inventory owner / primary manager of registered items
+- `usuario` - user with basic access for consultation flows
 
 JWT validation is configured through Spring Security as an OAuth2 resource server.
 

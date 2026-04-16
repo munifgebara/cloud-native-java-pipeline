@@ -22,7 +22,7 @@ A aplicação combina:
 - workflows do GitHub Actions para CI, publicação de imagem e deploy
 - métricas via Actuator prontas para Prometheus
 
-Hoje, o principal fluxo de negócio já implementado é o gerenciamento de pessoas (`pessoas`), junto com login, proteção de rotas e a base do dashboard. A estrutura do repositório e da infraestrutura já prepara o projeto para crescer para módulos mais amplos de inventário e operação.
+Hoje, o principal fluxo de negócio já implementado é o gerenciamento de pessoas (`pessoas`) dentro do contexto de inventário pessoal, junto com login, proteção de rotas e a base do dashboard. A estrutura do repositório e da infraestrutura já prepara o projeto para crescer para módulos mais amplos de inventário, propriedade de itens, categorização e rastreamento.
 
 ## Por Que Este Projeto Importa
 
@@ -160,14 +160,13 @@ A autenticação local é feita pelo Keycloak no realm `stella`.
 Credenciais padrão do admin local:
 
 - usuário: `admin`
-- senha: `admin`
+- senha: `admin123`
 
-O projeto também faz referência a papéis de aplicação como:
+Usuários e papéis disponíveis na carga local do realm:
 
-- `ADMIN_STELLA`
-- `CONTRATANTE`
-- `PAGADOR`
-- `FAVORECIDO`
+- `admin` - administrador do sistema
+- `proprietario` - proprietário e principal gestor dos itens cadastrados
+- `usuario` - usuário com acesso básico para fluxos de consulta
 
 A validação de JWT é configurada no Spring Security como OAuth2 resource server.
 
