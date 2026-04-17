@@ -3,20 +3,422 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stella API</title>
+    <title>Stella | Plataforma de Inventário Pessoal</title>
+    <style>
+        :root {
+            --bg: #f4efe6;
+            --surface: rgba(255, 252, 247, 0.88);
+            --surface-strong: #fffdf9;
+            --text: #1f1a17;
+            --muted: #5f554d;
+            --line: rgba(70, 52, 37, 0.12);
+            --brand: #0f766e;
+            --brand-strong: #115e59;
+            --accent: #d97706;
+            --shadow: 0 18px 50px rgba(31, 26, 23, 0.12);
+            --radius-xl: 28px;
+            --radius-lg: 20px;
+            --radius-md: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(15, 118, 110, 0.18), transparent 28%),
+                radial-gradient(circle at top right, rgba(217, 119, 6, 0.16), transparent 24%),
+                linear-gradient(180deg, #fcfaf6 0%, var(--bg) 100%);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .page {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 32px 0 48px;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            padding: 40px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-xl);
+            background: linear-gradient(135deg, rgba(255, 253, 249, 0.96), rgba(246, 241, 234, 0.94));
+            box-shadow: var(--shadow);
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            inset: auto -70px -70px auto;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(15, 118, 110, 0.22), rgba(15, 118, 110, 0));
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(15, 118, 110, 0.09);
+            color: var(--brand-strong);
+            font-size: 0.88rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 18px 0 16px;
+            max-width: 760px;
+            font-size: clamp(2.4rem, 5vw, 4.5rem);
+            line-height: 0.96;
+            letter-spacing: -0.04em;
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 760px;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: var(--muted);
+        }
+
+        .actions,
+        .link-grid,
+        .cards,
+        .meta-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .actions {
+            margin-top: 28px;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        }
+
+        .action,
+        .link-card,
+        .card,
+        .meta-card {
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 28px rgba(31, 26, 23, 0.06);
+        }
+
+        .action {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 20px;
+            font-weight: 700;
+            transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+        }
+
+        .action:hover,
+        .link-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(15, 118, 110, 0.28);
+            box-shadow: 0 18px 36px rgba(17, 94, 89, 0.12);
+        }
+
+        .action.primary {
+            color: #fff;
+            background: linear-gradient(135deg, var(--brand), var(--brand-strong));
+        }
+
+        .action.secondary {
+            background: var(--surface-strong);
+        }
+
+        .section {
+            margin-top: 26px;
+        }
+
+        .section-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: end;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 1.35rem;
+            letter-spacing: -0.03em;
+        }
+
+        .section-header p {
+            margin: 0;
+            color: var(--muted);
+            max-width: 720px;
+            line-height: 1.6;
+        }
+
+        .cards {
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        .card {
+            padding: 22px;
+        }
+
+        .card h3 {
+            margin: 0 0 10px;
+            font-size: 1rem;
+        }
+
+        .card p,
+        .card li {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .card ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .link-grid {
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        .link-card {
+            display: block;
+            padding: 20px;
+            transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+        }
+
+        .link-type {
+            display: inline-block;
+            margin-bottom: 12px;
+            color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .link-card strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.02rem;
+        }
+
+        .link-card span {
+            color: var(--muted);
+            line-height: 1.55;
+        }
+
+        .meta-grid {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            margin-top: 26px;
+        }
+
+        .meta-card {
+            padding: 18px 20px;
+        }
+
+        .meta-card strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.86rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .meta-card span {
+            font-size: 1rem;
+            font-weight: 700;
+            word-break: break-word;
+        }
+
+        .footer-note {
+            margin-top: 24px;
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 720px) {
+            .page {
+                width: min(100% - 20px, 1180px);
+                padding-top: 18px;
+            }
+
+            .hero {
+                padding: 26px 20px;
+            }
+
+            h1 {
+                font-size: 2.6rem;
+            }
+        }
+    </style>
 </head>
 <body>
-<h1>Stella API</h1>
-<p>Aplicação no ar.</p>
-<ul>
-    <li><a href="/actuator/health">/actuator/health</a></li>
-    <li><a href="/actuator/info">/actuator/info</a></li>
-    <li><a href="/app">APP</a></li>
-</ul>
-<p>Keycloak: http://127.0.0.1:9080/realms/stella</p>
+<main class="page">
+    <section class="hero">
+        <span class="eyebrow">Stella Cloud-Native Platform</span>
+        <h1>Inventário pessoal com API Java, SPA Angular e autenticação moderna.</h1>
+        <p>
+            O Stella é a porta de entrada para um projeto full stack orientado a aprendizado, portfólio e evolução de arquitetura.
+            Aqui você encontra acesso rápido ao app, à documentação técnica, aos endpoints operacionais e aos recursos do ecossistema do projeto.
+        </p>
 
-<p>Publicado em @build.timestamp@</p>
-<p>Versão @project.version@</p>
-<p>Commit @git.commit@</p>
+        <div class="actions">
+            <a class="action primary" href="/app">
+                <span>Acessar aplicação Angular</span>
+                <span>&rarr;</span>
+            </a>
+            <a class="action secondary" href="/scalar">
+                <span>Explorar documentação da API</span>
+                <span>&rarr;</span>
+            </a>
+        </div>
+
+        <div class="meta-grid">
+            <div class="meta-card">
+                <strong>Publicado em</strong>
+                <span>@build.timestamp@</span>
+            </div>
+            <div class="meta-card">
+                <strong>Versão</strong>
+                <span>@project.version@</span>
+            </div>
+            <div class="meta-card">
+                <strong>Commit</strong>
+                <span>@git.commit@</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-header">
+            <h2>Visão rápida do Stella</h2>
+            <p>Uma solução para gestão de inventário pessoal que integra backend Spring Boot, frontend Angular, Keycloak, PostgreSQL, observabilidade e automação de entrega.</p>
+        </div>
+
+        <div class="cards">
+            <article class="card">
+                <h3>Objetivo</h3>
+                <p>Demonstrar um projeto Java moderno com foco em autenticação, organização de domínio, integração frontend/backend e operação em ambientes locais e cloud-native.</p>
+            </article>
+            <article class="card">
+                <h3>Fluxo funcional atual</h3>
+                <p>Hoje o Stella já cobre autenticação, dashboard inicial e gestão de pessoas, criando a base para evoluir o inventário e o rastreamento dos itens do usuário.</p>
+            </article>
+            <article class="card">
+                <h3>Principais tecnologias</h3>
+                <ul>
+                    <li>Spring Boot 4 e Java 25</li>
+                    <li>Angular 21 com PrimeNG</li>
+                    <li>Keycloak com OAuth2 e JWT</li>
+                    <li>PostgreSQL, Flyway e Actuator</li>
+                </ul>
+            </article>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-header">
+            <h2>Arquitetura resumida</h2>
+            <p>A landing continua estática e leve, enquanto o restante do ecossistema entrega autenticação, API, persistência, frontend compilado e observabilidade.</p>
+        </div>
+
+        <div class="cards">
+            <article class="card">
+                <h3>1. Entrada</h3>
+                <p>O navegador acessa esta página e pode seguir para a SPA Angular servida em <code>/app</code>.</p>
+            </article>
+            <article class="card">
+                <h3>2. Aplicação</h3>
+                <p>A SPA conversa com a API Spring Boot, que publica endpoints REST, health checks e documentação dinâmica.</p>
+            </article>
+            <article class="card">
+                <h3>3. Segurança</h3>
+                <p>O login e a emissão de tokens ficam no Keycloak, enquanto a API valida JWTs como resource server.</p>
+            </article>
+            <article class="card">
+                <h3>4. Operação</h3>
+                <p>Banco PostgreSQL, métricas Prometheus, integração com Grafana, Docker Compose, Kubernetes e CI/CD completam o fluxo.</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-header">
+            <h2>Links rápidos</h2>
+            <p>Os links antigos foram preservados e os novos atalhos foram adicionados para concentrar os recursos técnicos e institucionais do projeto.</p>
+        </div>
+
+        <div class="link-grid">
+            <a class="link-card" href="/app">
+                <span class="link-type">Aplicação</span>
+                <strong>App Angular</strong>
+                <span>Acesso ao frontend principal do Stella.</span>
+            </a>
+            <a class="link-card" href="/scalar">
+                <span class="link-type">API</span>
+                <strong>Documentação dinâmica</strong>
+                <span>Interface da documentação OpenAPI publicada pela aplicação.</span>
+            </a>
+            <a class="link-card" href="/actuator/health">
+                <span class="link-type">Operação</span>
+                <strong>/actuator/health</strong>
+                <span>Verificação de saúde da aplicação para troubleshooting e monitoramento.</span>
+            </a>
+            <a class="link-card" href="/actuator/info">
+                <span class="link-type">Operação</span>
+                <strong>/actuator/info</strong>
+                <span>Informações adicionais expostas pelo Actuator.</span>
+            </a>
+            <a class="link-card" href="http://127.0.0.1:9080/realms/stella">
+                <span class="link-type">Segurança</span>
+                <strong>Keycloak Realm</strong>
+                <span>Acesso ao realm local do Stella para autenticação e inspeção do ambiente.</span>
+            </a>
+            <a class="link-card" href="http://127.0.0.1:3000" target="_blank" rel="noreferrer">
+                <span class="link-type">Observabilidade</span>
+                <strong>Grafana</strong>
+                <span>Painéis e visualização operacional do ambiente de observabilidade.</span>
+            </a>
+            <a class="link-card" href="https://github.com/munifgebara/cloud-native-java-pipeline" target="_blank" rel="noreferrer">
+                <span class="link-type">Código-fonte</span>
+                <strong>Repositório GitHub</strong>
+                <span>Código, workflows, documentação e histórico de evolução do projeto.</span>
+            </a>
+            <a class="link-card" href="https://github.com/munifgebara" target="_blank" rel="noreferrer">
+                <span class="link-type">Autor</span>
+                <strong>Página do Munif</strong>
+                <span>Perfil público com outros projetos, contexto profissional e presença técnica.</span>
+            </a>
+        </div>
+    </section>
+
+    <p class="footer-note">
+        Esta landing page foi mantida como HTML estático para continuar simples, rápida e fácil de editar.
+        Os campos de publicação e versão acima continuam integrados ao build Maven do projeto.
+    </p>
+</main>
 </body>
 </html>
