@@ -1,4 +1,6 @@
 <div class="page">
+  <p-confirmdialog />
+
   <div class="page-header">
     <div>
       <h2>Pessoas</h2>
@@ -53,7 +55,7 @@
     <ng-template pTemplate="header">
       <tr>
         <th>Nome</th>
-        <th style="width: 120px;">Ações</th>
+        <th style="width: 220px;">Ações</th>
       </tr>
     </ng-template>
 
@@ -61,7 +63,29 @@
       <tr>
         <td>{{ pessoa.nome }}</td>
         <td>
-          <a [routerLink]="['/pessoas', pessoa.id, 'editar']">Editar</a>
+          <div class="actions">
+            <button
+              pButton
+              type="button"
+              severity="secondary"
+              text
+              icon="pi pi-pencil"
+              label="Editar"
+              [routerLink]="['/pessoas', pessoa.id, 'editar']">
+            </button>
+
+            <button
+              pButton
+              type="button"
+              severity="danger"
+              text
+              icon="pi pi-trash"
+              label="Excluir"
+              [loading]="deletingId() === pessoa.id"
+              [disabled]="loading() || deletingId() !== null"
+              (click)="confirmarExclusao(pessoa)">
+            </button>
+          </div>
         </td>
       </tr>
     </ng-template>
