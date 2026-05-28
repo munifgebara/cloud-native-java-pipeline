@@ -23,3 +23,9 @@
   background: #ffe8e8;
   color: #9f1239;
 }
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
