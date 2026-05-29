@@ -15,18 +15,18 @@
     <footer class="layout-footer">
       <div class="footer-primary">
         <div>
-          <strong>Stella</strong>
-          <p>Plataforma de inventario pessoal com API Java, frontend Angular e autenticacao moderna.</p>
+          <strong>{{ 'app.name' | translate }}</strong>
+          <p>{{ 'layout.footer.description' | translate }}</p>
         </div>
 
         <div>
-          <strong>Projeto</strong>
-          <a href="https://github.com/munifgebara/cloud-native-java-pipeline" target="_blank" rel="noreferrer">GitHub do projeto</a>
+          <strong>{{ 'layout.footer.project' | translate }}</strong>
+          <a href="https://github.com/munifgebara/cloud-native-java-pipeline" target="_blank" rel="noreferrer">{{ 'layout.footer.projectGithub' | translate }}</a>
         </div>
 
         <div>
           <strong>Munif</strong>
-          <p>Desenvolvedor, professor e pesquisador. Atuacao em software, ensino superior, pesquisa e consultoria.</p>
+          <p>{{ 'layout.footer.authorDescription' | translate }}</p>
           <div class="footer-links">
             <a href="https://github.com/munifgebara" target="_blank" rel="noreferrer">GitHub</a>
             <a href="https://munif.com.br" target="_blank" rel="noreferrer">munif.com.br</a>
@@ -36,9 +36,9 @@
       </div>
 
       <div class="footer-secondary">
-        <span>&copy; {{ currentYear }} Stella</span>
-        <span>Maringa, PR, Brasil</span>
-        <span>Projeto cloud-native para estudo, portfolio e evolucao continua.</span>
+        <span>&copy; {{ currentYear }} {{ 'app.name' | translate }}</span>
+        <span>{{ 'layout.footer.location' | translate }}</span>
+        <span>{{ 'layout.footer.studyProject' | translate }}</span>
       </div>
     </footer>
   </div>

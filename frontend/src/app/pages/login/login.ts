@@ -6,6 +6,8 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { AuthService } from '../../core/auth';
+import { I18nService, TranslatePipe } from '../../core/i18n/i18n';
+import { LanguageSelectorComponent } from '../../shared/language-selector/language-selector';
 
 @Component({
   selector: 'app-login',
@@ -15,12 +17,15 @@ import { AuthService } from '../../core/auth';
     ButtonModule,
     InputTextModule,
     PasswordModule,
+    TranslatePipe,
+    LanguageSelectorComponent,
   ],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
 export class LoginComponent {
   private readonly authService = inject(AuthService);
+  private readonly i18n = inject(I18nService);
   private readonly router = inject(Router);
 
   username = '';
@@ -32,7 +37,7 @@ export class LoginComponent {
     this.errorMessage.set('');
 
     if (!this.username.trim() || !this.password.trim()) {
-      this.errorMessage.set('Informe usuário e senha.');
+      this.errorMessage.set(this.i18n.translate('login.required'));
       return;
     }
 
@@ -45,7 +50,7 @@ export class LoginComponent {
       },
       error: () => {
         this.loading.set(false);
-        this.errorMessage.set('Usuário ou senha inválidos.');
+        this.errorMessage.set(this.i18n.translate('login.invalid'));
       },
     });
   }

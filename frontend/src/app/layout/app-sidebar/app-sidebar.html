@@ -1,18 +1,18 @@
 <div class="sidebar">
   <div class="brand">
-    <div class="brand-title">Stella</div>
-    <div class="brand-subtitle">Administração</div>
+    <div class="brand-title">{{ 'app.name' | translate }}</div>
+    <div class="brand-subtitle">{{ 'layout.admin' | translate }}</div>
   </div>
 
   <nav class="menu">
     <a routerLink="/dashboard" routerLinkActive="active">
       <i class="pi pi-home"></i>
-      <span>Dashboard</span>
+      <span>{{ 'layout.menu.dashboard' | translate }}</span>
     </a>
 
     <a routerLink="/pessoas" routerLinkActive="active">
       <i class="pi pi-users"></i>
-      <span>Pessoas</span>
+      <span>{{ 'layout.menu.people' | translate }}</span>
     </a>
   </nav>
 </div>

@@ -1,0 +1,11 @@
+<label class="language-selector">
+  <span>{{ 'language.label' | translate }}</span>
+  <select
+    [ngModel]="i18n.language()"
+    (ngModelChange)="changeLanguage($event)"
+    [attr.aria-label]="'language.label' | translate">
+    @for (option of i18n.languageOptions(); track option.value) {
+      <option [value]="option.value">{{ option.label }}</option>
+    }
+  </select>
+</label>

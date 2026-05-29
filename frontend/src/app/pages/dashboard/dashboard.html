@@ -1,10 +1,10 @@
 <div class="dashboard-page">
-  <h1>Dashboard</h1>
-  <p class="subtitle">Visão geral inicial do sistema.</p>
+  <h1>{{ 'dashboard.title' | translate }}</h1>
+  <p class="subtitle">{{ 'dashboard.subtitle' | translate }}</p>
 
   @if (loading()) {
     <div class="state-card">
-      Carregando informações...
+      {{ 'dashboard.loading' | translate }}
     </div>
   } @else if (errorMessage()) {
     <div class="state-card error">
@@ -12,12 +12,12 @@
     </div>
   } @else {
     <div class="cards">
-      <p-card header="Pessoas cadastradas">
-        <a class="metric-link" routerLink="/pessoas" aria-label="Ir para a listagem de pessoas">
+      <p-card [header]="'dashboard.peopleCount' | translate">
+        <a class="metric-link" routerLink="/pessoas" [attr.aria-label]="'dashboard.peopleListAria' | translate">
           <div class="metric-value">
             {{ resumo()?.quantidadePessoas ?? 0 }}
           </div>
-          <span class="metric-caption">Abrir cadastro e listagem de pessoas</span>
+          <span class="metric-caption">{{ 'dashboard.openPeople' | translate }}</span>
         </a>
       </p-card>
     </div>

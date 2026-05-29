@@ -1,13 +1,17 @@
 <div class="topbar">
   <div class="title-area">
-    <div class="title">Stella</div>
-    <div class="subtitle">Sistema de Inventario Pessoal</div>
+    <div class="title">{{ 'app.name' | translate }}</div>
+    <div class="subtitle">{{ 'app.subtitle' | translate }}</div>
   </div>
 
-  <p-button
-    label="Sair"
-    icon="pi pi-sign-out"
-    severity="secondary"
-    (onClick)="sair()">
-  </p-button>
+  <div class="topbar-actions">
+    <app-language-selector />
+
+    <p-button
+      [label]="'layout.logout' | translate"
+      icon="pi pi-sign-out"
+      severity="secondary"
+      (onClick)="sair()">
+    </p-button>
+  </div>
 </div>

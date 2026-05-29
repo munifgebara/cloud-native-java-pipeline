@@ -3,14 +3,14 @@
 
   <div class="page-header">
     <div>
-      <h2>Pessoas</h2>
-      <p>Consulta e manutenção de pessoas</p>
+      <h2>{{ 'people.title' | translate }}</h2>
+      <p>{{ 'people.subtitle' | translate }}</p>
     </div>
 
     <button
       pButton
       type="button"
-      label="Novo"
+      [label]="'common.new' | translate"
       icon="pi pi-plus"
       (click)="novo()">
     </button>
@@ -21,13 +21,13 @@
       pInputText
       type="text"
       [(ngModel)]="filtroNome"
-      placeholder="Pesquisar por nome"
+      [placeholder]="'people.searchByName' | translate"
       (keyup.enter)="pesquisar()" />
 
     <button
       pButton
       type="button"
-      label="Pesquisar"
+      [label]="'common.search' | translate"
       icon="pi pi-search"
       (click)="pesquisar()">
     </button>
@@ -36,7 +36,7 @@
       pButton
       type="button"
       severity="secondary"
-      label="Limpar"
+      [label]="'common.clear' | translate"
       icon="pi pi-times"
       (click)="filtroNome=''; carregar()">
     </button>
@@ -54,8 +54,8 @@
     [tableStyle]="{ 'min-width': '60rem' }">
     <ng-template pTemplate="header">
       <tr>
-        <th>Nome</th>
-        <th style="width: 220px;">Ações</th>
+        <th>{{ 'common.name' | translate }}</th>
+        <th style="width: 220px;">{{ 'common.actions' | translate }}</th>
       </tr>
     </ng-template>
 
@@ -70,7 +70,7 @@
               severity="secondary"
               text
               icon="pi pi-pencil"
-              label="Editar"
+              [label]="'common.edit' | translate"
               [routerLink]="['/pessoas', pessoa.id, 'editar']">
             </button>
 
@@ -80,7 +80,7 @@
               severity="danger"
               text
               icon="pi pi-trash"
-              label="Excluir"
+              [label]="'people.delete' | translate"
               [loading]="deletingId() === pessoa.id"
               [disabled]="loading() || deletingId() !== null"
               (click)="confirmarExclusao(pessoa)">

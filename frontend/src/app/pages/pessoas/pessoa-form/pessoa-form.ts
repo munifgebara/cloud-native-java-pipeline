@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, of, switchMap, tap } from 'rxjs';
 import { CepService } from '../../../core/cep/cep';
+import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 import { PessoaService } from '../../../core/pessoa/pessoa';
 import {
   somenteDigitos,
@@ -40,7 +41,7 @@ function cepValidator(control: AbstractControl): ValidationErrors | null {
 @Component({
   selector: 'app-pessoa-form',
   standalone: true,
-  imports: [ReactiveFormsModule, InputTextModule, ButtonModule, CardModule, RouterLink],
+  imports: [ReactiveFormsModule, InputTextModule, ButtonModule, CardModule, RouterLink, TranslatePipe],
   templateUrl: './pessoa-form.html',
   styleUrl: './pessoa-form.css',
 })
@@ -50,6 +51,7 @@ export class PessoaFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly cepService = inject(CepService);
+  private readonly i18n = inject(I18nService);
   private readonly pessoaService = inject(PessoaService);
 
   id = signal<string | null>(null);
@@ -113,7 +115,7 @@ export class PessoaFormComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.errorMessage.set('Não foi possível carregar a pessoa.');
+        this.errorMessage.set(this.i18n.translate('people.form.loadError'));
         this.loading.set(false);
       },
     });
@@ -124,7 +126,7 @@ export class PessoaFormComponent implements OnInit {
     this.form.markAllAsTouched();
 
     if (this.form.invalid) {
-      this.errorMessage.set('Corrija os campos inválidos antes de salvar.');
+      this.errorMessage.set(this.i18n.translate('people.form.invalidFields'));
       return;
     }
 
@@ -153,7 +155,7 @@ export class PessoaFormComponent implements OnInit {
         },
         error: (err) => {
           this.salvando.set(false);
-          this.errorMessage.set(this.extractError(err, 'Não foi possível atualizar a pessoa.'));
+          this.errorMessage.set(this.extractError(err, this.i18n.translate('people.form.updateError')));
         },
       });
 
@@ -181,7 +183,7 @@ export class PessoaFormComponent implements OnInit {
       },
       error: (err) => {
         this.salvando.set(false);
-        this.errorMessage.set(this.extractError(err, 'Não foi possível criar a pessoa.'));
+        this.errorMessage.set(this.extractError(err, this.i18n.translate('people.form.createError')));
       },
     });
   }
@@ -228,12 +230,12 @@ export class PessoaFormComponent implements OnInit {
         this.ultimoCepConsultado = cep;
 
         if (resultado === 'erro') {
-          this.cepMessage.set('Nao foi possivel consultar o CEP agora. Voce pode preencher o endereco manualmente.');
+          this.cepMessage.set(this.i18n.translate('people.form.cepLookupError'));
           return;
         }
 
         if (!resultado) {
-          this.cepMessage.set('CEP nao encontrado. Confira o valor informado ou preencha o endereco manualmente.');
+          this.cepMessage.set(this.i18n.translate('people.form.cepNotFound'));
           return;
         }
 
@@ -244,7 +246,7 @@ export class PessoaFormComponent implements OnInit {
           uf: resultado.uf,
         });
 
-        this.cepMessage.set('Endereco preenchido automaticamente a partir do CEP.');
+        this.cepMessage.set(this.i18n.translate('people.form.cepFilled'));
       });
   }
 
@@ -267,4 +269,3 @@ export class PessoaFormComponent implements OnInit {
     return err?.error?.message || fallback;
   }
 }
-
