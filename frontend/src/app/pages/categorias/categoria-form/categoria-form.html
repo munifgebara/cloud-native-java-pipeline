@@ -1,0 +1,53 @@
+<p-card>
+  <ng-template pTemplate="title">
+    {{ (edicao() ? 'categories.form.editTitle' : 'categories.form.newTitle') | translate }}
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    @if (loading()) {
+      <p>{{ 'common.loading' | translate }}</p>
+    } @else {
+      <form [formGroup]="form" class="form-grid">
+        @if (errorMessage()) {
+          <div class="message error">
+            {{ errorMessage() }}
+          </div>
+        }
+
+        <div class="field full">
+          <label for="nome">{{ 'common.name' | translate }}</label>
+          <input id="nome" pInputText formControlName="nome" />
+          @if (campoInvalido('nome')) {
+            <small class="field-error">{{ 'categories.form.nameInvalid' | translate }}</small>
+          }
+        </div>
+
+        <div class="field full">
+          <label for="descricao">{{ 'categories.description' | translate }}</label>
+          <textarea id="descricao" pTextarea rows="4" formControlName="descricao"></textarea>
+          @if (campoInvalido('descricao')) {
+            <small class="field-error">{{ 'categories.form.descriptionInvalid' | translate }}</small>
+          }
+        </div>
+
+        <div class="field checkbox-field full">
+          <p-checkbox inputId="ativa" formControlName="ativa" [binary]="true"></p-checkbox>
+          <label for="ativa">{{ 'categories.form.active' | translate }}</label>
+        </div>
+
+        <div class="actions full">
+          <a routerLink="/categorias">{{ 'common.cancel' | translate }}</a>
+
+          <button
+            pButton
+            type="button"
+            [label]="'common.save' | translate"
+            icon="pi pi-save"
+            (click)="salvar()"
+            [loading]="salvando()">
+          </button>
+        </div>
+      </form>
+    }
+  </ng-template>
+</p-card>
