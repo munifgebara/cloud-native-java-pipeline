@@ -5,6 +5,8 @@ import { DashboardComponent } from './pages/dashboard/dashboard';
 import { authGuard } from './core/auth-guard';
 import { PessoaListComponent } from './pages/pessoas/pessoa-list/pessoa-list';
 import { PessoaFormComponent } from './pages/pessoas/pessoa-form/pessoa-form';
+import { CategoriaListComponent } from './pages/categorias/categoria-list/categoria-list';
+import { CategoriaFormComponent } from './pages/categorias/categoria-form/categoria-form';
 
 export const routes: Routes = [
   {
@@ -36,6 +38,18 @@ export const routes: Routes = [
       {
         path: 'pessoas/:id/editar',
         component: PessoaFormComponent,
+      },
+      {
+        path: 'categorias',
+        component: CategoriaListComponent,
+      },
+      {
+        path: 'categorias/nova',
+        component: CategoriaFormComponent,
+      },
+      {
+        path: 'categorias/:id/editar',
+        component: CategoriaFormComponent,
       },
     ],
   },
