@@ -1,28 +1,32 @@
 <div class="login-page">
-  <p-card header="Stella">
+  <div class="login-language">
+    <app-language-selector />
+  </div>
+
+  <p-card [header]="'app.name' | translate">
     <p class="login-text">
-      Entre para acessar o sistema.
+      {{ 'login.access' | translate }}
     </p>
 
     <div class="login-form">
       <div class="field">
-        <label for="username">Usuário</label>
+        <label for="username">{{ 'login.username' | translate }}</label>
         <input
           pInputText
           id="username"
           type="text"
           [(ngModel)]="username"
-          placeholder="Digite o usuário" />
+          [placeholder]="'login.usernamePlaceholder' | translate" />
       </div>
 
       <div class="field">
-        <label for="password">Senha</label>
+        <label for="password">{{ 'login.password' | translate }}</label>
         <p-password
           id="password"
           [(ngModel)]="password"
           [feedback]="false"
           [toggleMask]="true"
-          placeholder="Digite a senha"
+          [placeholder]="'login.passwordPlaceholder' | translate"
           styleClass="w-full">
         </p-password>
       </div>
@@ -34,7 +38,7 @@
       }
 
       <p-button
-        label="Entrar"
+        [label]="'login.submit' | translate"
         icon="pi pi-sign-in"
         (onClick)="entrar()">
       </p-button>

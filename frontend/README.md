@@ -36,6 +36,22 @@ ng build
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
+## Internationalization
+
+The application uses the local i18n service in `src/app/core/i18n/i18n.ts`.
+
+Supported languages are `pt-BR`, `en`, and `es`. Portuguese (`pt-BR`) is the default language and fallback when a translation key is missing in another language.
+
+Translation files are stored in `src/app/core/i18n/translations/`. Add new visible UI text as a key in `pt-br.ts` first, then provide the matching keys in `en.ts` and `es.ts`. Use module-oriented names such as `people.form.createError` or `layout.footer.projectGithub`.
+
+Templates should use the standalone pipe:
+
+```html
+{{ 'people.title' | translate }}
+```
+
+TypeScript code should inject `I18nService` and call `translate()` for messages produced outside templates. The selected language is persisted in `localStorage` under `stella.language`.
+
 ## Running unit tests
 
 To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:

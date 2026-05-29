@@ -7,11 +7,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { PessoaResumo, PessoaService } from '../../../core/pessoa/pessoa';
+import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
 @Component({
   selector: 'app-pessoa-list',
   standalone: true,
-  imports: [FormsModule, TableModule, ButtonModule, InputTextModule, ConfirmDialogModule, RouterLink],
+  imports: [FormsModule, TableModule, ButtonModule, InputTextModule, ConfirmDialogModule, RouterLink, TranslatePipe],
   providers: [ConfirmationService],
   templateUrl: './pessoa-list.html',
   styleUrl: './pessoa-list.css',
@@ -20,6 +21,7 @@ export class PessoaListComponent implements OnInit {
   private readonly pessoaService = inject(PessoaService);
   private readonly router = inject(Router);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly i18n = inject(I18nService);
 
   pessoas = signal<PessoaResumo[]>([]);
   loading = signal(false);
@@ -41,7 +43,7 @@ export class PessoaListComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.errorMessage.set('Não foi possível carregar as pessoas.');
+        this.errorMessage.set(this.i18n.translate('people.loadError'));
         this.loading.set(false);
       },
     });
@@ -64,7 +66,7 @@ export class PessoaListComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.errorMessage.set('Não foi possível pesquisar as pessoas.');
+        this.errorMessage.set(this.i18n.translate('people.searchError'));
         this.loading.set(false);
       },
     });
@@ -78,11 +80,11 @@ export class PessoaListComponent implements OnInit {
     this.errorMessage.set('');
 
     this.confirmationService.confirm({
-      header: 'Confirmar exclusão',
-      message: `Deseja excluir ${pessoa.nome}?`,
+      header: this.i18n.translate('people.deleteConfirmTitle'),
+      message: this.i18n.translate('people.deleteConfirmMessage', { name: pessoa.nome }),
       icon: 'pi pi-exclamation-triangle',
-      rejectLabel: 'Cancelar',
-      acceptLabel: 'Excluir',
+      rejectLabel: this.i18n.translate('common.cancel'),
+      acceptLabel: this.i18n.translate('people.delete'),
       rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => this.excluir(pessoa),
@@ -98,7 +100,7 @@ export class PessoaListComponent implements OnInit {
         this.deletingId.set(null);
       },
       error: () => {
-        this.errorMessage.set('Não foi possível excluir a pessoa.');
+        this.errorMessage.set(this.i18n.translate('people.deleteError'));
         this.deletingId.set(null);
       },
     });

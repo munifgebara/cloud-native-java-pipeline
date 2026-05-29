@@ -6,6 +6,12 @@
   background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
 }
 
+.login-language {
+  position: fixed;
+  top: 20px;
+  right: 24px;
+}
+
 :host ::ng-deep .p-card {
   width: 100%;
   max-width: 420px;

@@ -17,3 +17,23 @@
   font-size: 0.9rem;
   color: #6b7280;
 }
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+@media (max-width: 640px) {
+  .topbar {
+    padding: 0 16px;
+  }
+
+  .subtitle {
+    display: none;
+  }
+
+  .topbar-actions {
+    gap: 10px;
+  }
+}
