@@ -216,3 +216,60 @@ Students and reviewers can use this repository to explore:
 Munif Gebara Junior
 
 If you are evaluating this repository as a portfolio project, the strongest signals are the combination of application code, infrastructure, authentication, observability, and delivery workflow in a single learning-oriented system.
+
+
+## Roadmap de Implementação do Módulo de Inventário
+
+A implementação deve priorizar sempre a menor fase aberta e, dentro dela, as issues marcadas como `ready`.
+
+### Ordem Recomendada
+
+1. `#26` Criar cadastro de locais hierárquicos para armazenagem dos itens
+2. `#27` Criar cadastro de item mestre do inventário
+3. `#31` Criar cadastro de instâncias de item
+4. `#33` Definir status operacional das instâncias de item
+5. `#32` Criar listagem e filtros de itens e instâncias
+6. `#34` Implementar movimentações de entrada de instâncias
+7. `#35` Implementar movimentações de saída de instâncias
+8. `#36` Implementar transferência de instâncias entre locais
+9. `#38` Implementar empréstimo de instâncias para pessoas
+10. `#39` Implementar devolução de instâncias emprestadas
+11. `#37` Criar histórico consolidado da instância do item
+12. `#40` Validar regras de negócio de inventário, movimentação e empréstimo
+13. `#29` Integrar o Stella ao MinIO para armazenamento de imagens dos itens
+14. `#30` Adicionar imagem principal ao cadastro de item mestre
+15. `#41` Expandir o dashboard com indicadores do inventário
+16. `#28` Adicionar ícones predefinidos ao cadastro de categorias
+17. `#42` Adicionar testes automatizados ao módulo de inventário
+
+### Implementação por Fases
+
+#### Fase 1 - Núcleo do Inventário
+- `#26` Criar cadastro de locais hierárquicos para armazenagem dos itens
+- `#27` Criar cadastro de item mestre do inventário
+- `#31` Criar cadastro de instâncias de item
+- `#33` Definir status operacional das instâncias de item
+- `#32` Criar listagem e filtros de itens e instâncias
+
+#### Fase 2 - Movimentações
+- `#34` Implementar movimentações de entrada de instâncias
+- `#35` Implementar movimentações de saída de instâncias
+- `#36` Implementar transferência de instâncias entre locais
+
+#### Fase 3 - Empréstimos e Regras
+- `#38` Implementar empréstimo de instâncias para pessoas
+- `#39` Implementar devolução de instâncias emprestadas
+- `#37` Criar histórico consolidado da instância do item
+- `#40` Validar regras de negócio de inventário, movimentação e empréstimo
+
+#### Fase 4 - Mídia com MinIO
+- `#29` Integrar o Stella ao MinIO para armazenamento de imagens dos itens
+- `#30` Adicionar imagem principal ao cadastro de item mestre
+
+#### Fase 5 - Dashboard e Qualidade
+- `#41` Expandir o dashboard com indicadores do inventário
+- `#28` Adicionar ícones predefinidos ao cadastro de categorias
+- `#42` Adicionar testes automatizados ao módulo de inventário
+
+
+
