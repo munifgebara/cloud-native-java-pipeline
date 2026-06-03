@@ -7,6 +7,7 @@ import br.com.munif.stella.api.dto.InstanciaItemUpdateDTO;
 import br.com.munif.stella.api.entity.Categoria;
 import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.ItemMestre;
+import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 
 public final class InstanciaItemMapper {
 
@@ -22,6 +23,7 @@ public final class InstanciaItemMapper {
         instancia.setIdentificador(dto.identificador());
         instancia.setPatrimonio(dto.patrimonio());
         instancia.setNumeroSerie(dto.numeroSerie());
+        instancia.setStatusOperacional(statusOrDefault(dto.statusOperacional()));
         instancia.setObservacoes(dto.observacoes());
         if (dto.ativa() != null) {
             instancia.setAtivo(dto.ativa());
@@ -37,6 +39,7 @@ public final class InstanciaItemMapper {
         entity.setIdentificador(dto.identificador());
         entity.setPatrimonio(dto.patrimonio());
         entity.setNumeroSerie(dto.numeroSerie());
+        entity.setStatusOperacional(statusOrDefault(dto.statusOperacional()));
         entity.setObservacoes(dto.observacoes());
         if (dto.ativa() != null) {
             entity.setAtivo(dto.ativa());
@@ -60,6 +63,7 @@ public final class InstanciaItemMapper {
                 entity.getIdentificador(),
                 entity.getPatrimonio(),
                 entity.getNumeroSerie(),
+                entity.getStatusOperacional(),
                 entity.getObservacoes(),
                 entity.isAtivo()
         );
@@ -81,7 +85,12 @@ public final class InstanciaItemMapper {
                 entity.getIdentificador(),
                 entity.getPatrimonio(),
                 entity.getNumeroSerie(),
+                entity.getStatusOperacional(),
                 entity.isAtivo()
         );
+    }
+
+    private static StatusOperacionalInstancia statusOrDefault(StatusOperacionalInstancia status) {
+        return status == null ? StatusOperacionalInstancia.DISPONIVEL : status;
     }
 }

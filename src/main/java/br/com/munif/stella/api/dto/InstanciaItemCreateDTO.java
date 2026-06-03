@@ -1,5 +1,6 @@
 package br.com.munif.stella.api.dto;
 
+import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -17,6 +18,8 @@ public record InstanciaItemCreateDTO(
 
         @Size(max = 150, message = "Número de série deve ter no máximo 150 caracteres.")
         String numeroSerie,
+
+        StatusOperacionalInstancia statusOperacional,
 
         @Size(max = 1000, message = "Observações devem ter no máximo 1000 caracteres.")
         String observacoes,

@@ -6,7 +6,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
-import { InstanciaItemService } from '../../../core/instancia-item/instancia-item';
+import { InstanciaItemService, StatusOperacionalInstancia } from '../../../core/instancia-item/instancia-item';
 import { ItemMestreResumo, ItemMestreService } from '../../../core/item-mestre/item-mestre';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
@@ -30,6 +30,7 @@ export class InstanciaItemFormComponent implements OnInit {
   loading = signal(false);
   salvando = signal(false);
   errorMessage = signal('');
+  statusOptions: StatusOperacionalInstancia[] = ['DISPONIVEL', 'EM_MOVIMENTACAO', 'EMPRESTADO', 'INATIVO'];
 
   readonly edicao = computed(() => !!this.id());
 
@@ -38,6 +39,7 @@ export class InstanciaItemFormComponent implements OnInit {
     identificador: ['', [Validators.maxLength(100)]],
     patrimonio: ['', [Validators.maxLength(100)]],
     numeroSerie: ['', [Validators.maxLength(150)]],
+    statusOperacional: ['DISPONIVEL' as StatusOperacionalInstancia, [Validators.required]],
     observacoes: ['', [Validators.maxLength(1000)]],
     ativa: [true],
   });
@@ -60,6 +62,7 @@ export class InstanciaItemFormComponent implements OnInit {
           identificador: instancia.identificador ?? '',
           patrimonio: instancia.patrimonio ?? '',
           numeroSerie: instancia.numeroSerie ?? '',
+          statusOperacional: instancia.statusOperacional ?? 'DISPONIVEL',
           observacoes: instancia.observacoes ?? '',
           ativa: instancia.ativa,
         });
@@ -87,6 +90,7 @@ export class InstanciaItemFormComponent implements OnInit {
       identificador: this.nullIfBlank(valor.identificador),
       patrimonio: this.nullIfBlank(valor.patrimonio),
       numeroSerie: this.nullIfBlank(valor.numeroSerie),
+      statusOperacional: valor.statusOperacional ?? 'DISPONIVEL',
       observacoes: this.nullIfBlank(valor.observacoes),
       ativa: !!valor.ativa,
     };
@@ -128,6 +132,10 @@ export class InstanciaItemFormComponent implements OnInit {
   campoInvalido(nome: keyof typeof this.form.controls): boolean {
     const campo = this.form.controls[nome];
     return !!campo && campo.invalid && (campo.touched || campo.dirty);
+  }
+
+  statusLabel(status: StatusOperacionalInstancia): string {
+    return this.i18n.translate(`itemInstances.status.${status}`);
   }
 
   private carregarItensMestre(): void {

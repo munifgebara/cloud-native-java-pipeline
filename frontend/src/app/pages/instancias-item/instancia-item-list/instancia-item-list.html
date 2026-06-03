@@ -79,8 +79,15 @@
         <td>
           <p-tag
             [value]="statusLabel(instancia)"
-            [severity]="instancia.ativa ? 'success' : 'secondary'">
+            [severity]="statusSeverity(instancia.statusOperacional)">
           </p-tag>
+          @if (!instancia.ativa) {
+            <p-tag
+              class="inactive-tag"
+              [value]="'itemInstances.inactive' | translate"
+              severity="secondary">
+            </p-tag>
+          }
         </td>
         <td>
           <div class="actions">
