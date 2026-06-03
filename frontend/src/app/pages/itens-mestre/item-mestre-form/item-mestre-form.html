@@ -1,0 +1,71 @@
+<p-card>
+  <ng-template pTemplate="title">
+    {{ (edicao() ? 'masterItems.form.editTitle' : 'masterItems.form.newTitle') | translate }}
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    @if (loading()) {
+      <p>{{ 'common.loading' | translate }}</p>
+    } @else {
+      <form [formGroup]="form" class="form-grid">
+        @if (errorMessage()) {
+          <div class="message error">
+            {{ errorMessage() }}
+          </div>
+        }
+
+        <div class="field full">
+          <label for="nome">{{ 'common.name' | translate }}</label>
+          <input id="nome" pInputText formControlName="nome" />
+          @if (campoInvalido('nome')) {
+            <small class="field-error">{{ 'masterItems.form.nameInvalid' | translate }}</small>
+          }
+        </div>
+
+        <div class="field full">
+          <label for="categoriaId">{{ 'masterItems.form.category' | translate }}</label>
+          <select id="categoriaId" formControlName="categoriaId">
+            <option value="">{{ 'masterItems.form.noCategory' | translate }}</option>
+            @for (categoria of categorias(); track categoria.id) {
+              <option [value]="categoria.id">{{ categoria.nome }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field full">
+          <label for="descricao">{{ 'masterItems.description' | translate }}</label>
+          <textarea id="descricao" pTextarea rows="4" formControlName="descricao"></textarea>
+          @if (campoInvalido('descricao')) {
+            <small class="field-error">{{ 'masterItems.form.descriptionInvalid' | translate }}</small>
+          }
+        </div>
+
+        <div class="field full">
+          <label for="observacoes">{{ 'masterItems.notes' | translate }}</label>
+          <textarea id="observacoes" pTextarea rows="5" formControlName="observacoes"></textarea>
+          @if (campoInvalido('observacoes')) {
+            <small class="field-error">{{ 'masterItems.form.notesInvalid' | translate }}</small>
+          }
+        </div>
+
+        <div class="field checkbox-field full">
+          <p-checkbox inputId="ativa" formControlName="ativa" [binary]="true"></p-checkbox>
+          <label for="ativa">{{ 'masterItems.form.active' | translate }}</label>
+        </div>
+
+        <div class="actions full">
+          <a routerLink="/itens-mestre">{{ 'common.cancel' | translate }}</a>
+
+          <button
+            pButton
+            type="button"
+            [label]="'common.save' | translate"
+            icon="pi pi-save"
+            (click)="salvar()"
+            [loading]="salvando()">
+          </button>
+        </div>
+      </form>
+    }
+  </ng-template>
+</p-card>
