@@ -70,6 +70,35 @@ export class InstanciaItemService {
     });
   }
 
+  filtrar(
+    identificacao?: string | null,
+    itemMestre?: string | null,
+    categoriaId?: string | null,
+    statusOperacional?: StatusOperacionalInstancia | null
+  ): Observable<InstanciaItemResumo[]> {
+    const params: Record<string, string> = {};
+    const identificacaoTratada = (identificacao ?? '').trim();
+    const itemMestreTratado = (itemMestre ?? '').trim();
+
+    if (identificacaoTratada) {
+      params['identificacao'] = identificacaoTratada;
+    }
+
+    if (itemMestreTratado) {
+      params['itemMestre'] = itemMestreTratado;
+    }
+
+    if (categoriaId) {
+      params['categoriaId'] = categoriaId;
+    }
+
+    if (statusOperacional) {
+      params['statusOperacional'] = statusOperacional;
+    }
+
+    return this.http.get<InstanciaItemResumo[]>(`${this.baseUrl}/filtrar`, { params });
+  }
+
   buscarPorId(id: string): Observable<InstanciaItemResponse> {
     return this.http.get<InstanciaItemResponse>(`${this.baseUrl}/${id}`);
   }

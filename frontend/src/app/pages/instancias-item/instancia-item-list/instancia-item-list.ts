@@ -7,7 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { categoriaIconClass } from '../../../core/categoria/categoria';
+import { CategoriaResumo, CategoriaService, categoriaIconClass } from '../../../core/categoria/categoria';
 import { InstanciaItemResumo, InstanciaItemService, StatusOperacionalInstancia } from '../../../core/instancia-item/instancia-item';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
@@ -21,17 +21,24 @@ import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 })
 export class InstanciaItemListComponent implements OnInit {
   private readonly instanciaItemService = inject(InstanciaItemService);
+  private readonly categoriaService = inject(CategoriaService);
   private readonly router = inject(Router);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly i18n = inject(I18nService);
 
   instancias = signal<InstanciaItemResumo[]>([]);
+  categorias = signal<CategoriaResumo[]>([]);
   loading = signal(false);
   deletingId = signal<string | null>(null);
   errorMessage = signal('');
-  filtroIdentificador = '';
+  filtroIdentificacao = '';
+  filtroItemMestre = '';
+  filtroCategoriaId = '';
+  filtroStatus: StatusOperacionalInstancia | '' = '';
+  statusOptions: StatusOperacionalInstancia[] = ['DISPONIVEL', 'EM_MOVIMENTACAO', 'EMPRESTADO', 'INATIVO'];
 
   ngOnInit(): void {
+    this.carregarCategorias();
     this.carregar();
   }
 
@@ -52,17 +59,15 @@ export class InstanciaItemListComponent implements OnInit {
   }
 
   pesquisar(): void {
-    const identificador = this.filtroIdentificador.trim();
-
-    if (!identificador) {
-      this.carregar();
-      return;
-    }
-
     this.loading.set(true);
     this.errorMessage.set('');
 
-    this.instanciaItemService.buscarPorIdentificador(identificador).subscribe({
+    this.instanciaItemService.filtrar(
+      this.filtroIdentificacao,
+      this.filtroItemMestre,
+      this.filtroCategoriaId,
+      this.filtroStatus || null
+    ).subscribe({
       next: (dados) => {
         this.instancias.set(dados);
         this.loading.set(false);
@@ -72,6 +77,14 @@ export class InstanciaItemListComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  limparFiltros(): void {
+    this.filtroIdentificacao = '';
+    this.filtroItemMestre = '';
+    this.filtroCategoriaId = '';
+    this.filtroStatus = '';
+    this.carregar();
   }
 
   novo(): void {
@@ -113,6 +126,17 @@ export class InstanciaItemListComponent implements OnInit {
 
   nomeInstancia(instancia: InstanciaItemResumo): string {
     return instancia.identificador || instancia.patrimonio || instancia.numeroSerie || instancia.itemMestreNome;
+  }
+
+  statusOptionLabel(status: StatusOperacionalInstancia): string {
+    return this.i18n.translate(`itemInstances.status.${status}`);
+  }
+
+  private carregarCategorias(): void {
+    this.categoriaService.listar().subscribe({
+      next: (categorias) => this.categorias.set(categorias),
+      error: () => this.errorMessage.set(this.i18n.translate('itemInstances.categoryLoadError')),
+    });
   }
 
   private excluir(instancia: InstanciaItemResumo): void {

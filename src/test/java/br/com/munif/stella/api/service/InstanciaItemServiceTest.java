@@ -139,6 +139,20 @@ class InstanciaItemServiceTest {
         assertThat(service.buscarPorIdentificador(" NB ")).hasSize(1);
     }
 
+    @Test
+    void deveFiltrarPorIdentificacaoItemMestreCategoriaEStatus() {
+        UUID categoriaId = UUID.randomUUID();
+        InstanciaItem instancia = instancia(UUID.randomUUID(), "NB-001", itemMestre(UUID.randomUUID(), "Notebook", true));
+
+        when(repository.filtrarAtivas("NB", "Notebook", categoriaId, StatusOperacionalInstancia.DISPONIVEL)).thenReturn(List.of(instancia));
+
+        var resposta = service.filtrar(" NB ", " Notebook ", categoriaId, StatusOperacionalInstancia.DISPONIVEL);
+
+        assertThat(resposta).hasSize(1);
+        assertThat(resposta.getFirst().identificador()).isEqualTo("NB-001");
+        assertThat(resposta.getFirst().statusOperacional()).isEqualTo(StatusOperacionalInstancia.DISPONIVEL);
+    }
+
     private InstanciaItem instancia(UUID id, String identificador, ItemMestre itemMestre) {
         InstanciaItem instancia = new InstanciaItem();
         instancia.setId(id);

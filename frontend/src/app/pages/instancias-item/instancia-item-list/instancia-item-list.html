@@ -20,9 +20,30 @@
     <input
       pInputText
       type="text"
-      [(ngModel)]="filtroIdentificador"
-      [placeholder]="'itemInstances.searchByIdentifier' | translate"
+      [(ngModel)]="filtroIdentificacao"
+      [placeholder]="'itemInstances.searchByIdentification' | translate"
       (keyup.enter)="pesquisar()" />
+
+    <input
+      pInputText
+      type="text"
+      [(ngModel)]="filtroItemMestre"
+      [placeholder]="'itemInstances.searchByMasterItem' | translate"
+      (keyup.enter)="pesquisar()" />
+
+    <select [(ngModel)]="filtroCategoriaId" (change)="pesquisar()">
+      <option value="">{{ 'itemInstances.allCategories' | translate }}</option>
+      @for (categoria of categorias(); track categoria.id) {
+        <option [value]="categoria.id">{{ categoria.nome }}</option>
+      }
+    </select>
+
+    <select [(ngModel)]="filtroStatus" (change)="pesquisar()">
+      <option value="">{{ 'itemInstances.allStatuses' | translate }}</option>
+      @for (status of statusOptions; track status) {
+        <option [value]="status">{{ statusOptionLabel(status) }}</option>
+      }
+    </select>
 
     <button
       pButton
@@ -38,7 +59,7 @@
       severity="secondary"
       [label]="'common.clear' | translate"
       icon="pi pi-times"
-      (click)="filtroIdentificador=''; carregar()">
+      (click)="limparFiltros()">
     </button>
   </div>
 

@@ -57,6 +57,11 @@ public class ItemMestreController extends SuperController<ItemMestreResumoDTO, I
         return ResponseEntity.ok(service.buscarPorNome(nome));
     }
 
+    @GetMapping("/filtrar")
+    public ResponseEntity<List<ItemMestreResumoDTO>> filtrar(@RequestParam(required = false) String nome, @RequestParam(required = false) UUID categoriaId) {
+        return ResponseEntity.ok(service.filtrar(nome, categoriaId));
+    }
+
     @Override
     @PutMapping("/{id}")
     public ResponseEntity<ItemMestreResponseDTO> atualizar(@PathVariable UUID id, @RequestBody @Valid ItemMestreUpdateDTO dto) {

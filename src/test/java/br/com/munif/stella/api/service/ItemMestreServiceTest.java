@@ -129,6 +129,20 @@ class ItemMestreServiceTest {
         assertThat(service.buscarPorNome(" Furadeira ")).hasSize(1);
     }
 
+    @Test
+    void deveFiltrarPorNomeECategoria() {
+        UUID categoriaId = UUID.randomUUID();
+        Categoria categoria = categoria(categoriaId, "Eletronicos", "eletronicos", true);
+        ItemMestre item = item(UUID.randomUUID(), "Notebook", categoria);
+
+        when(repository.filtrarAtivos("Notebook", categoriaId)).thenReturn(List.of(item));
+
+        var resposta = service.filtrar(" Notebook ", categoriaId);
+
+        assertThat(resposta).hasSize(1);
+        assertThat(resposta.getFirst().nome()).isEqualTo("Notebook");
+    }
+
     private ItemMestre item(UUID id, String nome, Categoria categoria) {
         ItemMestre item = new ItemMestre();
         item.setId(id);

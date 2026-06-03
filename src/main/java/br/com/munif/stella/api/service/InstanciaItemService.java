@@ -9,6 +9,7 @@ import br.com.munif.stella.api.dto.InstanciaItemResumoDTO;
 import br.com.munif.stella.api.dto.InstanciaItemUpdateDTO;
 import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.ItemMestre;
+import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 import br.com.munif.stella.api.mapper.InstanciaItemMapper;
 import br.com.munif.stella.api.repository.InstanciaItemRepository;
 import br.com.munif.stella.api.repository.ItemMestreRepository;
@@ -72,6 +73,18 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
         }
 
         return repository.findByAtivoTrueAndIdentificadorContainingIgnoreCaseOrderByIdentificadorAsc(valor).stream()
+                .map(InstanciaItemMapper::toResumoDTO)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<InstanciaItemResumoDTO> filtrar(String identificacao, String itemMestre, UUID categoriaId, StatusOperacionalInstancia statusOperacional) {
+        return repository.filtrarAtivas(
+                        ValidacoesBR.trimToNull(identificacao),
+                        ValidacoesBR.trimToNull(itemMestre),
+                        categoriaId,
+                        statusOperacional
+                ).stream()
                 .map(InstanciaItemMapper::toResumoDTO)
                 .toList();
     }

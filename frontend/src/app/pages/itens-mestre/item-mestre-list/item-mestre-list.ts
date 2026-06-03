@@ -7,7 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { categoriaIconClass } from '../../../core/categoria/categoria';
+import { CategoriaResumo, CategoriaService, categoriaIconClass } from '../../../core/categoria/categoria';
 import { ItemMestreResumo, ItemMestreService } from '../../../core/item-mestre/item-mestre';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
@@ -21,17 +21,21 @@ import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 })
 export class ItemMestreListComponent implements OnInit {
   private readonly itemMestreService = inject(ItemMestreService);
+  private readonly categoriaService = inject(CategoriaService);
   private readonly router = inject(Router);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly i18n = inject(I18nService);
 
   itens = signal<ItemMestreResumo[]>([]);
+  categorias = signal<CategoriaResumo[]>([]);
   loading = signal(false);
   deletingId = signal<string | null>(null);
   errorMessage = signal('');
   filtroNome = '';
+  filtroCategoriaId = '';
 
   ngOnInit(): void {
+    this.carregarCategorias();
     this.carregar();
   }
 
@@ -52,17 +56,10 @@ export class ItemMestreListComponent implements OnInit {
   }
 
   pesquisar(): void {
-    const nome = this.filtroNome.trim();
-
-    if (!nome) {
-      this.carregar();
-      return;
-    }
-
     this.loading.set(true);
     this.errorMessage.set('');
 
-    this.itemMestreService.buscarPorNome(nome).subscribe({
+    this.itemMestreService.filtrar(this.filtroNome, this.filtroCategoriaId).subscribe({
       next: (dados) => {
         this.itens.set(dados);
         this.loading.set(false);
@@ -72,6 +69,12 @@ export class ItemMestreListComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  limparFiltros(): void {
+    this.filtroNome = '';
+    this.filtroCategoriaId = '';
+    this.carregar();
   }
 
   novo(): void {
@@ -99,6 +102,13 @@ export class ItemMestreListComponent implements OnInit {
 
   iconClass(item: ItemMestreResumo): string {
     return categoriaIconClass(item.categoriaIcone);
+  }
+
+  private carregarCategorias(): void {
+    this.categoriaService.listar().subscribe({
+      next: (categorias) => this.categorias.set(categorias),
+      error: () => this.errorMessage.set(this.i18n.translate('masterItems.categoryLoadError')),
+    });
   }
 
   private excluir(item: ItemMestreResumo): void {
