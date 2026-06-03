@@ -11,6 +11,8 @@ import { LocalListComponent } from './pages/locais/local-list/local-list';
 import { LocalFormComponent } from './pages/locais/local-form/local-form';
 import { ItemMestreListComponent } from './pages/itens-mestre/item-mestre-list/item-mestre-list';
 import { ItemMestreFormComponent } from './pages/itens-mestre/item-mestre-form/item-mestre-form';
+import { InstanciaItemListComponent } from './pages/instancias-item/instancia-item-list/instancia-item-list';
+import { InstanciaItemFormComponent } from './pages/instancias-item/instancia-item-form/instancia-item-form';
 
 export const routes: Routes = [
   {
@@ -78,6 +80,18 @@ export const routes: Routes = [
       {
         path: 'itens-mestre/:id/editar',
         component: ItemMestreFormComponent,
+      },
+      {
+        path: 'instancias-item',
+        component: InstanciaItemListComponent,
+      },
+      {
+        path: 'instancias-item/nova',
+        component: InstanciaItemFormComponent,
+      },
+      {
+        path: 'instancias-item/:id/editar',
+        component: InstanciaItemFormComponent,
       },
     ],
   },

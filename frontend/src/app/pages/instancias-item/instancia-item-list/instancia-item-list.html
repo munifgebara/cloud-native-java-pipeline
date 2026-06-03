@@ -1,0 +1,113 @@
+<div class="page">
+  <p-confirmdialog />
+
+  <div class="page-header">
+    <div>
+      <h2>{{ 'itemInstances.title' | translate }}</h2>
+      <p>{{ 'itemInstances.subtitle' | translate }}</p>
+    </div>
+
+    <button
+      pButton
+      type="button"
+      [label]="'common.new' | translate"
+      icon="pi pi-plus"
+      (click)="novo()">
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <input
+      pInputText
+      type="text"
+      [(ngModel)]="filtroIdentificador"
+      [placeholder]="'itemInstances.searchByIdentifier' | translate"
+      (keyup.enter)="pesquisar()" />
+
+    <button
+      pButton
+      type="button"
+      [label]="'common.search' | translate"
+      icon="pi pi-search"
+      (click)="pesquisar()">
+    </button>
+
+    <button
+      pButton
+      type="button"
+      severity="secondary"
+      [label]="'common.clear' | translate"
+      icon="pi pi-times"
+      (click)="filtroIdentificador=''; carregar()">
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="error-box">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <p-table
+    [value]="instancias()"
+    [loading]="loading()"
+    [tableStyle]="{ 'min-width': '82rem' }">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>{{ 'itemInstances.identifier' | translate }}</th>
+        <th>{{ 'itemInstances.masterItem' | translate }}</th>
+        <th>{{ 'itemInstances.assetTag' | translate }}</th>
+        <th>{{ 'itemInstances.serialNumber' | translate }}</th>
+        <th style="width: 140px;">{{ 'itemInstances.status' | translate }}</th>
+        <th style="width: 220px;">{{ 'common.actions' | translate }}</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-instancia>
+      <tr>
+        <td>{{ nomeInstancia(instancia) }}</td>
+        <td>
+          <span class="master-item-name">
+            <span class="category-icon">
+              <i [class]="iconClass(instancia)"></i>
+            </span>
+            <span>{{ instancia.itemMestreNome }}</span>
+          </span>
+        </td>
+        <td>{{ instancia.patrimonio || '-' }}</td>
+        <td>{{ instancia.numeroSerie || '-' }}</td>
+        <td>
+          <p-tag
+            [value]="statusLabel(instancia)"
+            [severity]="instancia.ativa ? 'success' : 'secondary'">
+          </p-tag>
+        </td>
+        <td>
+          <div class="actions">
+            <button
+              pButton
+              type="button"
+              severity="secondary"
+              text
+              icon="pi pi-pencil"
+              [label]="'common.edit' | translate"
+              [routerLink]="['/instancias-item', instancia.id, 'editar']">
+            </button>
+
+            <button
+              pButton
+              type="button"
+              severity="danger"
+              text
+              icon="pi pi-trash"
+              [label]="'itemInstances.delete' | translate"
+              [loading]="deletingId() === instancia.id"
+              [disabled]="loading() || deletingId() !== null"
+              (click)="confirmarExclusao(instancia)">
+            </button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
