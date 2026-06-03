@@ -46,3 +46,7 @@
   background: #eef2ff;
   color: #3730a3;
 }
+
+.inactive-tag {
+  margin-left: 0.4rem;
+}

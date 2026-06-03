@@ -5,6 +5,7 @@ import br.com.munif.stella.api.dto.InstanciaItemUpdateDTO;
 import br.com.munif.stella.api.entity.Categoria;
 import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.ItemMestre;
+import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 import br.com.munif.stella.api.repository.InstanciaItemRepository;
 import br.com.munif.stella.api.repository.ItemMestreRepository;
 import jakarta.persistence.EntityManager;
@@ -54,6 +55,7 @@ class InstanciaItemServiceTest {
                 "  NB-001  ",
                 "  PAT-001  ",
                 "  SN-123  ",
+                null,
                 "  Unidade do financeiro  ",
                 true
         ));
@@ -66,16 +68,18 @@ class InstanciaItemServiceTest {
         assertThat(instanciaSalva.getIdentificador()).isEqualTo("NB-001");
         assertThat(instanciaSalva.getPatrimonio()).isEqualTo("PAT-001");
         assertThat(instanciaSalva.getNumeroSerie()).isEqualTo("SN-123");
+        assertThat(instanciaSalva.getStatusOperacional()).isEqualTo(StatusOperacionalInstancia.DISPONIVEL);
         assertThat(instanciaSalva.getObservacoes()).isEqualTo("Unidade do financeiro");
         assertThat(resposta.itemMestreId()).isEqualTo(itemMestreId);
         assertThat(resposta.itemMestreNome()).isEqualTo("Notebook Dell Latitude 5440");
+        assertThat(resposta.statusOperacional()).isEqualTo(StatusOperacionalInstancia.DISPONIVEL);
     }
 
     @Test
     void deveImpedirInstanciaSemIdentificacaoIndividual() {
         UUID itemMestreId = UUID.randomUUID();
 
-        assertThatThrownBy(() -> service.criar(new InstanciaItemCreateDTO(itemMestreId, " ", null, null, null, true)))
+        assertThatThrownBy(() -> service.criar(new InstanciaItemCreateDTO(itemMestreId, " ", null, null, null, null, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("identificador");
 
@@ -90,7 +94,7 @@ class InstanciaItemServiceTest {
 
         when(itemMestreRepository.findById(itemMestreId)).thenReturn(Optional.of(itemMestre));
 
-        assertThatThrownBy(() -> service.criar(new InstanciaItemCreateDTO(itemMestreId, "NB-001", null, null, null, true)))
+        assertThatThrownBy(() -> service.criar(new InstanciaItemCreateDTO(itemMestreId, "NB-001", null, null, null, null, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Item mestre deve estar ativo");
 
@@ -108,11 +112,20 @@ class InstanciaItemServiceTest {
         when(itemMestreRepository.findById(itemMestreId)).thenReturn(Optional.of(itemMestre));
         when(repository.save(any(InstanciaItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.atualizar(id, new InstanciaItemUpdateDTO(itemMestreId, " NB-002 ", null, " SN-999 ", null, false));
+        var resposta = service.atualizar(id, new InstanciaItemUpdateDTO(
+                itemMestreId,
+                " NB-002 ",
+                null,
+                " SN-999 ",
+                StatusOperacionalInstancia.EM_MOVIMENTACAO,
+                null,
+                false
+        ));
 
         assertThat(resposta.itemMestreNome()).isEqualTo("Notebook novo");
         assertThat(resposta.identificador()).isEqualTo("NB-002");
         assertThat(resposta.numeroSerie()).isEqualTo("SN-999");
+        assertThat(resposta.statusOperacional()).isEqualTo(StatusOperacionalInstancia.EM_MOVIMENTACAO);
         assertThat(resposta.ativa()).isFalse();
     }
 

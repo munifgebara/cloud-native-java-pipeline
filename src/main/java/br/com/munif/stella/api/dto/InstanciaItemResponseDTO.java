@@ -1,5 +1,7 @@
 package br.com.munif.stella.api.dto;
 
+import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
+
 import java.util.UUID;
 
 public record InstanciaItemResponseDTO(
@@ -12,6 +14,7 @@ public record InstanciaItemResponseDTO(
         String identificador,
         String patrimonio,
         String numeroSerie,
+        StatusOperacionalInstancia statusOperacional,
         String observacoes,
         boolean ativa
 ) {}

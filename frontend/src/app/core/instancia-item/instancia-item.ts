@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+export type StatusOperacionalInstancia = 'DISPONIVEL' | 'EM_MOVIMENTACAO' | 'EMPRESTADO' | 'INATIVO';
+
 export interface InstanciaItemResumo {
   id: string;
   itemMestreId: string;
@@ -12,6 +14,7 @@ export interface InstanciaItemResumo {
   identificador: string | null;
   patrimonio: string | null;
   numeroSerie: string | null;
+  statusOperacional: StatusOperacionalInstancia;
   ativa: boolean;
 }
 
@@ -25,6 +28,7 @@ export interface InstanciaItemResponse {
   identificador: string | null;
   patrimonio: string | null;
   numeroSerie: string | null;
+  statusOperacional: StatusOperacionalInstancia;
   observacoes: string | null;
   ativa: boolean;
 }
@@ -34,6 +38,7 @@ export interface InstanciaItemCreateRequest {
   identificador?: string | null;
   patrimonio?: string | null;
   numeroSerie?: string | null;
+  statusOperacional?: StatusOperacionalInstancia | null;
   observacoes?: string | null;
   ativa?: boolean | null;
 }
@@ -43,6 +48,7 @@ export interface InstanciaItemUpdateRequest {
   identificador?: string | null;
   patrimonio?: string | null;
   numeroSerie?: string | null;
+  statusOperacional?: StatusOperacionalInstancia | null;
   observacoes?: string | null;
   ativa?: boolean | null;
 }

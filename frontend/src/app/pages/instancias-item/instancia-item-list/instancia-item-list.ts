@@ -8,7 +8,7 @@ import { TagModule } from 'primeng/tag';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { categoriaIconClass } from '../../../core/categoria/categoria';
-import { InstanciaItemResumo, InstanciaItemService } from '../../../core/instancia-item/instancia-item';
+import { InstanciaItemResumo, InstanciaItemService, StatusOperacionalInstancia } from '../../../core/instancia-item/instancia-item';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
 @Component({
@@ -94,7 +94,17 @@ export class InstanciaItemListComponent implements OnInit {
   }
 
   statusLabel(instancia: InstanciaItemResumo): string {
-    return instancia.ativa ? this.i18n.translate('itemInstances.active') : this.i18n.translate('itemInstances.inactive');
+    return this.i18n.translate(`itemInstances.status.${instancia.statusOperacional}`);
+  }
+
+  statusSeverity(status: StatusOperacionalInstancia): 'success' | 'info' | 'warn' | 'secondary' {
+    const severities: Record<StatusOperacionalInstancia, 'success' | 'info' | 'warn' | 'secondary'> = {
+      DISPONIVEL: 'success',
+      EM_MOVIMENTACAO: 'info',
+      EMPRESTADO: 'warn',
+      INATIVO: 'secondary',
+    };
+    return severities[status];
   }
 
   iconClass(instancia: InstanciaItemResumo): string {
