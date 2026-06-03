@@ -1,0 +1,82 @@
+<p-card>
+  <ng-template pTemplate="title">
+    {{ (edicao() ? 'itemInstances.form.editTitle' : 'itemInstances.form.newTitle') | translate }}
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    @if (loading()) {
+      <p>{{ 'common.loading' | translate }}</p>
+    } @else {
+      <form [formGroup]="form" class="form-grid">
+        @if (errorMessage()) {
+          <div class="message error">
+            {{ errorMessage() }}
+          </div>
+        }
+
+        <div class="field full">
+          <label for="itemMestreId">{{ 'itemInstances.form.masterItem' | translate }}</label>
+          <select id="itemMestreId" formControlName="itemMestreId">
+            <option value="">{{ 'itemInstances.form.selectMasterItem' | translate }}</option>
+            @for (item of itensMestre(); track item.id) {
+              <option [value]="item.id">{{ item.nome }}</option>
+            }
+          </select>
+          @if (campoInvalido('itemMestreId')) {
+            <small class="field-error">{{ 'itemInstances.form.masterItemInvalid' | translate }}</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="identificador">{{ 'itemInstances.identifier' | translate }}</label>
+          <input id="identificador" pInputText formControlName="identificador" />
+          @if (campoInvalido('identificador')) {
+            <small class="field-error">{{ 'itemInstances.form.identifierInvalid' | translate }}</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="patrimonio">{{ 'itemInstances.assetTag' | translate }}</label>
+          <input id="patrimonio" pInputText formControlName="patrimonio" />
+          @if (campoInvalido('patrimonio')) {
+            <small class="field-error">{{ 'itemInstances.form.assetTagInvalid' | translate }}</small>
+          }
+        </div>
+
+        <div class="field full">
+          <label for="numeroSerie">{{ 'itemInstances.serialNumber' | translate }}</label>
+          <input id="numeroSerie" pInputText formControlName="numeroSerie" />
+          @if (campoInvalido('numeroSerie')) {
+            <small class="field-error">{{ 'itemInstances.form.serialNumberInvalid' | translate }}</small>
+          }
+        </div>
+
+        <div class="field full">
+          <label for="observacoes">{{ 'itemInstances.notes' | translate }}</label>
+          <textarea id="observacoes" pTextarea rows="5" formControlName="observacoes"></textarea>
+          @if (campoInvalido('observacoes')) {
+            <small class="field-error">{{ 'itemInstances.form.notesInvalid' | translate }}</small>
+          }
+        </div>
+
+        <div class="field checkbox-field full">
+          <p-checkbox inputId="ativa" formControlName="ativa" [binary]="true"></p-checkbox>
+          <label for="ativa">{{ 'itemInstances.form.active' | translate }}</label>
+        </div>
+
+        <div class="actions full">
+          <a routerLink="/instancias-item">{{ 'common.cancel' | translate }}</a>
+
+          <button
+            pButton
+            type="button"
+            [label]="'common.save' | translate"
+            icon="pi pi-save"
+            (click)="salvar()"
+            [loading]="salvando()">
+          </button>
+        </div>
+      </form>
+    }
+  </ng-template>
+</p-card>
