@@ -1,0 +1,47 @@
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.field select {
+  min-height: 2.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0 0.75rem;
+  background: #fff;
+  color: #111827;
+}
+
+.checkbox-field {
+  flex-direction: row;
+  align-items: center;
+}
+
+.full {
+  grid-column: 1 / -1;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.field-error {
+  color: #b91c1c;
+}
+
+.message.error {
+  grid-column: 1 / -1;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: #ffe8e8;
+  color: #9f1239;
+}

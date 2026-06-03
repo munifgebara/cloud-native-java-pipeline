@@ -1,0 +1,108 @@
+<div class="page">
+  <p-confirmdialog />
+
+  <div class="page-header">
+    <div>
+      <h2>{{ 'locations.title' | translate }}</h2>
+      <p>{{ 'locations.subtitle' | translate }}</p>
+    </div>
+
+    <button
+      pButton
+      type="button"
+      [label]="'common.new' | translate"
+      icon="pi pi-plus"
+      (click)="novo()">
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <input
+      pInputText
+      type="text"
+      [(ngModel)]="filtroNome"
+      [placeholder]="'locations.searchByName' | translate"
+      (keyup.enter)="pesquisar()" />
+
+    <button
+      pButton
+      type="button"
+      [label]="'common.search' | translate"
+      icon="pi pi-search"
+      (click)="pesquisar()">
+    </button>
+
+    <button
+      pButton
+      type="button"
+      severity="secondary"
+      [label]="'common.clear' | translate"
+      icon="pi pi-times"
+      (click)="filtroNome=''; carregar()">
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="error-box">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <p-table
+    [value]="locais()"
+    [loading]="loading()"
+    [tableStyle]="{ 'min-width': '72rem' }">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>{{ 'common.name' | translate }}</th>
+        <th>{{ 'locations.path' | translate }}</th>
+        <th>{{ 'locations.parent' | translate }}</th>
+        <th style="width: 140px;">{{ 'locations.status' | translate }}</th>
+        <th style="width: 220px;">{{ 'common.actions' | translate }}</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-local>
+      <tr>
+        <td>
+          <span class="hierarchy-name" [style.padding-left]="indent(local)">
+            {{ local.nome }}
+          </span>
+        </td>
+        <td>{{ local.caminho }}</td>
+        <td>{{ local.paiNome || '-' }}</td>
+        <td>
+          <p-tag
+            [value]="statusLabel(local)"
+            [severity]="local.ativa ? 'success' : 'secondary'">
+          </p-tag>
+        </td>
+        <td>
+          <div class="actions">
+            <button
+              pButton
+              type="button"
+              severity="secondary"
+              text
+              icon="pi pi-pencil"
+              [label]="'common.edit' | translate"
+              [routerLink]="['/locais', local.id, 'editar']">
+            </button>
+
+            <button
+              pButton
+              type="button"
+              severity="danger"
+              text
+              icon="pi pi-trash"
+              [label]="'locations.delete' | translate"
+              [loading]="deletingId() === local.id"
+              [disabled]="loading() || deletingId() !== null"
+              (click)="confirmarExclusao(local)">
+            </button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

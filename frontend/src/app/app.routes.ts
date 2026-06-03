@@ -7,6 +7,8 @@ import { PessoaListComponent } from './pages/pessoas/pessoa-list/pessoa-list';
 import { PessoaFormComponent } from './pages/pessoas/pessoa-form/pessoa-form';
 import { CategoriaListComponent } from './pages/categorias/categoria-list/categoria-list';
 import { CategoriaFormComponent } from './pages/categorias/categoria-form/categoria-form';
+import { LocalListComponent } from './pages/locais/local-list/local-list';
+import { LocalFormComponent } from './pages/locais/local-form/local-form';
 
 export const routes: Routes = [
   {
@@ -50,6 +52,18 @@ export const routes: Routes = [
       {
         path: 'categorias/:id/editar',
         component: CategoriaFormComponent,
+      },
+      {
+        path: 'locais',
+        component: LocalListComponent,
+      },
+      {
+        path: 'locais/novo',
+        component: LocalFormComponent,
+      },
+      {
+        path: 'locais/:id/editar',
+        component: LocalFormComponent,
       },
     ],
   },
