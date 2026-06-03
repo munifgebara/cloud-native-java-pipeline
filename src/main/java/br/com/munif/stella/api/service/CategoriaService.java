@@ -8,6 +8,7 @@ import br.com.munif.stella.api.dto.CategoriaResponseDTO;
 import br.com.munif.stella.api.dto.CategoriaResumoDTO;
 import br.com.munif.stella.api.dto.CategoriaUpdateDTO;
 import br.com.munif.stella.api.entity.Categoria;
+import br.com.munif.stella.api.entity.CategoriaIcone;
 import br.com.munif.stella.api.mapper.CategoriaMapper;
 import br.com.munif.stella.api.repository.CategoriaRepository;
 import jakarta.persistence.EntityManager;
@@ -92,5 +93,14 @@ public class CategoriaService extends SuperService<Categoria, CategoriaRepositor
     private void normalizarCampos(Categoria categoria) {
         categoria.setNome(ValidacoesBR.trimToNull(categoria.getNome()));
         categoria.setDescricao(ValidacoesBR.trimToNull(categoria.getDescricao()));
+        categoria.setIcone(normalizarIcone(categoria.getIcone()));
+    }
+
+    private String normalizarIcone(String icone) {
+        String valor = ValidacoesBR.trimToNull(icone);
+        if (!CategoriaIcone.isChaveValida(valor)) {
+            throw new IllegalArgumentException("Ícone de categoria inválido.");
+        }
+        return valor;
     }
 }

@@ -19,6 +19,7 @@ public final class CategoriaMapper {
         Categoria categoria = new Categoria();
         categoria.setNome(dto.nome());
         categoria.setDescricao(dto.descricao());
+        categoria.setIcone(dto.icone());
         if (dto.ativa() != null) {
             categoria.setAtivo(dto.ativa());
         }
@@ -32,6 +33,7 @@ public final class CategoriaMapper {
 
         entity.setNome(dto.nome());
         entity.setDescricao(dto.descricao());
+        entity.setIcone(dto.icone());
         if (dto.ativa() != null) {
             entity.setAtivo(dto.ativa());
         }
@@ -46,6 +48,7 @@ public final class CategoriaMapper {
                 entity.getId(),
                 entity.getNome(),
                 entity.getDescricao(),
+                entity.getIcone(),
                 entity.isAtivo()
         );
     }
@@ -59,6 +62,7 @@ public final class CategoriaMapper {
                 entity.getId(),
                 entity.getNome(),
                 entity.getDescricao(),
+                entity.getIcone(),
                 entity.isAtivo()
         );
     }

@@ -10,6 +10,16 @@
   gap: 0.35rem;
 }
 
+.field-label {
+  font-weight: 600;
+}
+
+.icon-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .checkbox-field {
   flex-direction: row;
   align-items: center;

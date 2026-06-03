@@ -22,4 +22,7 @@ public class Categoria extends Entidade {
 
     @Column(name = "descricao", length = 500)
     private String descricao;
+
+    @Column(name = "icone", length = 50)
+    private String icone;
 }

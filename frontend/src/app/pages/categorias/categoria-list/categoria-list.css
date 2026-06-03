@@ -29,3 +29,20 @@
   gap: 0.5rem;
   align-items: center;
 }
+
+.category-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.category-icon {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: #eef2ff;
+  color: #3730a3;
+}

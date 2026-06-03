@@ -6,7 +6,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
-import { CategoriaService } from '../../../core/categoria/categoria';
+import { CATEGORIA_ICONE_OPTIONS, CategoriaService } from '../../../core/categoria/categoria';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
 @Component({
@@ -27,12 +27,14 @@ export class CategoriaFormComponent implements OnInit {
   loading = signal(false);
   salvando = signal(false);
   errorMessage = signal('');
+  readonly icones = CATEGORIA_ICONE_OPTIONS;
 
   readonly edicao = computed(() => !!this.id());
 
   form = this.fb.group({
     nome: ['', [Validators.required, Validators.maxLength(150)]],
     descricao: ['', [Validators.maxLength(500)]],
+    icone: [null as string | null],
     ativa: [true],
   });
 
@@ -51,6 +53,7 @@ export class CategoriaFormComponent implements OnInit {
         this.form.patchValue({
           nome: categoria.nome ?? '',
           descricao: categoria.descricao ?? '',
+          icone: categoria.icone ?? null,
           ativa: categoria.ativa,
         });
         this.loading.set(false);
@@ -77,6 +80,7 @@ export class CategoriaFormComponent implements OnInit {
     const payload = {
       nome: valor.nome?.trim() ?? '',
       descricao: this.nullIfBlank(valor.descricao),
+      icone: valor.icone ?? null,
       ativa: !!valor.ativa,
     };
 
@@ -110,6 +114,11 @@ export class CategoriaFormComponent implements OnInit {
   campoInvalido(nome: keyof typeof this.form.controls): boolean {
     const campo = this.form.controls[nome];
     return !!campo && campo.invalid && (campo.touched || campo.dirty);
+  }
+
+  selecionarIcone(icone: string | null): void {
+    this.form.controls.icone.setValue(icone);
+    this.form.controls.icone.markAsDirty();
   }
 
   private nullIfBlank(value: string | null | undefined): string | null {
