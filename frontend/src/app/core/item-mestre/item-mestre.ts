@@ -57,6 +57,21 @@ export class ItemMestreService {
     });
   }
 
+  filtrar(nome?: string | null, categoriaId?: string | null): Observable<ItemMestreResumo[]> {
+    const params: Record<string, string> = {};
+    const nomeTratado = (nome ?? '').trim();
+
+    if (nomeTratado) {
+      params['nome'] = nomeTratado;
+    }
+
+    if (categoriaId) {
+      params['categoriaId'] = categoriaId;
+    }
+
+    return this.http.get<ItemMestreResumo[]>(`${this.baseUrl}/filtrar`, { params });
+  }
+
   buscarPorId(id: string): Observable<ItemMestreResponse> {
     return this.http.get<ItemMestreResponse>(`${this.baseUrl}/${id}`);
   }

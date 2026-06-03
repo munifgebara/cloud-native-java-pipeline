@@ -17,6 +17,20 @@
   flex-wrap: wrap;
 }
 
+.toolbar input,
+.toolbar select {
+  min-width: 14rem;
+}
+
+.toolbar select {
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #0f172a;
+}
+
 .error-box {
   padding: 0.75rem 1rem;
   border-radius: 8px;

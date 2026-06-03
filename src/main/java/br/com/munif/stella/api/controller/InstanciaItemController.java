@@ -7,6 +7,7 @@ import br.com.munif.stella.api.dto.InstanciaItemResponseDTO;
 import br.com.munif.stella.api.dto.InstanciaItemResumoDTO;
 import br.com.munif.stella.api.dto.InstanciaItemUpdateDTO;
 import br.com.munif.stella.api.entity.InstanciaItem;
+import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 import br.com.munif.stella.api.service.InstanciaItemService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -55,6 +56,16 @@ public class InstanciaItemController extends SuperController<InstanciaItemResumo
     @GetMapping("/buscar")
     public ResponseEntity<List<InstanciaItemResumoDTO>> buscarPorIdentificador(@RequestParam String identificador) {
         return ResponseEntity.ok(service.buscarPorIdentificador(identificador));
+    }
+
+    @GetMapping("/filtrar")
+    public ResponseEntity<List<InstanciaItemResumoDTO>> filtrar(
+            @RequestParam(required = false) String identificacao,
+            @RequestParam(required = false) String itemMestre,
+            @RequestParam(required = false) UUID categoriaId,
+            @RequestParam(required = false) StatusOperacionalInstancia statusOperacional
+    ) {
+        return ResponseEntity.ok(service.filtrar(identificacao, itemMestre, categoriaId, statusOperacional));
     }
 
     @Override

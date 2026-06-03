@@ -75,6 +75,13 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<ItemMestreResumoDTO> filtrar(String nome, UUID categoriaId) {
+        return repository.filtrarAtivos(ValidacoesBR.trimToNull(nome), categoriaId).stream()
+                .map(ItemMestreMapper::toResumoDTO)
+                .toList();
+    }
+
     @Transactional
     public ItemMestreResponseDTO atualizar(UUID id, ItemMestreUpdateDTO dto) {
         ItemMestre item = buscarPorId(id);
