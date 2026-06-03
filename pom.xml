@@ -226,12 +226,12 @@
 										<limit>
 											<counter>LINE</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.1</minimum>
+											<minimum>0.50</minimum>
 										</limit>
 										<limit>
 											<counter>INSTRUCTION</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.1</minimum>
+											<minimum>0.50</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -239,9 +239,9 @@
 								<rule>
 									<element>CLASS</element>
 									<includes>
-										<include>**/*Service</include>
-										<include>**/*Util</include>
-										<include>**/*Validator</include>
+										<include>*Service</include>
+										<include>*Util</include>
+										<include>*Validator</include>
 									</includes>
 									<limits>
 										<limit>
