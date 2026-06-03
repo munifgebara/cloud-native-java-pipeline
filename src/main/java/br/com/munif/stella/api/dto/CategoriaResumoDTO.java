@@ -6,5 +6,6 @@ public record CategoriaResumoDTO(
         UUID id,
         String nome,
         String descricao,
+        String icone,
         boolean ativa
 ) {}

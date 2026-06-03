@@ -11,5 +11,8 @@ public record CategoriaUpdateDTO(
         @Size(max = 500, message = "Descrição deve ter no máximo 500 caracteres.")
         String descricao,
 
+        @Size(max = 50, message = "Ícone deve ter no máximo 50 caracteres.")
+        String icone,
+
         Boolean ativa
 ) {}

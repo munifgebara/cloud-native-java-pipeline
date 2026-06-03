@@ -63,7 +63,14 @@
 
     <ng-template pTemplate="body" let-categoria>
       <tr>
-        <td>{{ categoria.nome }}</td>
+        <td>
+          <span class="category-name">
+            <span class="category-icon">
+              <i [class]="iconClass(categoria)"></i>
+            </span>
+            <span>{{ categoria.nome }}</span>
+          </span>
+        </td>
         <td>{{ categoria.descricao || '-' }}</td>
         <td>
           <p-tag

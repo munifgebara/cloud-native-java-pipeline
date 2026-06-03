@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,7 +38,7 @@ class CategoriaServiceTest {
     void deveCriarCategoriaNormalizandoCampos() {
         when(repository.save(any(Categoria.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.criar(new CategoriaCreateDTO("  Eletronicos  ", "  Itens eletronicos  ", true));
+        var resposta = service.criar(new CategoriaCreateDTO("  Eletronicos  ", "  Itens eletronicos  ", " eletronicos ", true));
 
         ArgumentCaptor<Categoria> captor = ArgumentCaptor.forClass(Categoria.class);
         verify(repository).save(captor.capture());
@@ -45,15 +46,17 @@ class CategoriaServiceTest {
         Categoria categoriaSalva = captor.getValue();
         assertThat(categoriaSalva.getNome()).isEqualTo("Eletronicos");
         assertThat(categoriaSalva.getDescricao()).isEqualTo("Itens eletronicos");
+        assertThat(categoriaSalva.getIcone()).isEqualTo("eletronicos");
         assertThat(categoriaSalva.isAtivo()).isTrue();
         assertThat(resposta.nome()).isEqualTo("Eletronicos");
+        assertThat(resposta.icone()).isEqualTo("eletronicos");
     }
 
     @Test
     void devePermitirCriarCategoriaInativa() {
         when(repository.save(any(Categoria.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.criar(new CategoriaCreateDTO("Livros", null, false));
+        var resposta = service.criar(new CategoriaCreateDTO("Livros", null, null, false));
 
         assertThat(resposta.ativa()).isFalse();
     }
@@ -65,16 +68,25 @@ class CategoriaServiceTest {
         categoria.setId(id);
         categoria.setNome("Antiga");
         categoria.setDescricao("Descricao antiga");
+        categoria.setIcone("livros");
         categoria.setAtivo(true);
 
         when(repository.findById(id)).thenReturn(Optional.of(categoria));
         when(repository.save(any(Categoria.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.atualizar(id, new CategoriaUpdateDTO("  Nova  ", "  Nova descricao  ", false));
+        var resposta = service.atualizar(id, new CategoriaUpdateDTO("  Nova  ", "  Nova descricao  ", " moveis ", false));
 
         assertThat(resposta.nome()).isEqualTo("Nova");
         assertThat(resposta.descricao()).isEqualTo("Nova descricao");
+        assertThat(resposta.icone()).isEqualTo("moveis");
         assertThat(resposta.ativa()).isFalse();
+    }
+
+    @Test
+    void deveRejeitarIconeForaDaListaControlada() {
+        assertThatThrownBy(() -> service.criar(new CategoriaCreateDTO("Livros", null, "classe-css-livre", true)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Ícone");
     }
 
     @Test

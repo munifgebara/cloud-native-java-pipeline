@@ -30,6 +30,33 @@
           }
         </div>
 
+        <div class="field full">
+          <span class="field-label">{{ 'categories.icon' | translate }}</span>
+          <div class="icon-picker">
+            <button
+              pButton
+              type="button"
+              severity="secondary"
+              [outlined]="form.controls.icone.value !== null"
+              [label]="'categories.icons.none' | translate"
+              icon="pi pi-ban"
+              (click)="selecionarIcone(null)">
+            </button>
+
+            @for (icone of icones; track icone.key) {
+              <button
+                pButton
+                type="button"
+                severity="secondary"
+                [outlined]="form.controls.icone.value !== icone.key"
+                [label]="icone.labelKey | translate"
+                [icon]="icone.iconClass"
+                (click)="selecionarIcone(icone.key)">
+              </button>
+            }
+          </div>
+        </div>
+
         <div class="field checkbox-field full">
           <p-checkbox inputId="ativa" formControlName="ativa" [binary]="true"></p-checkbox>
           <label for="ativa">{{ 'categories.form.active' | translate }}</label>

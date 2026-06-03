@@ -7,7 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { CategoriaResumo, CategoriaService } from '../../../core/categoria/categoria';
+import { CategoriaResumo, CategoriaService, categoriaIconClass } from '../../../core/categoria/categoria';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
 @Component({
@@ -94,6 +94,10 @@ export class CategoriaListComponent implements OnInit {
 
   statusLabel(categoria: CategoriaResumo): string {
     return categoria.ativa ? this.i18n.translate('categories.active') : this.i18n.translate('categories.inactive');
+  }
+
+  iconClass(categoria: CategoriaResumo): string {
+    return categoriaIconClass(categoria.icone);
   }
 
   private excluir(categoria: CategoriaResumo): void {
