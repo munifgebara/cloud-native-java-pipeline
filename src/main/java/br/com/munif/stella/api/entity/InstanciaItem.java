@@ -27,6 +27,10 @@ public class InstanciaItem extends Entidade {
     @JoinColumn(name = "item_mestre_id", nullable = false)
     private ItemMestre itemMestre;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "local_armazenamento_id")
+    private LocalArmazenamento localAtual;
+
     @Column(name = "identificador", length = 100)
     private String identificador;
 

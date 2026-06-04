@@ -5,9 +5,11 @@ import br.com.munif.stella.api.dto.InstanciaItemUpdateDTO;
 import br.com.munif.stella.api.entity.Categoria;
 import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.ItemMestre;
+import br.com.munif.stella.api.entity.LocalArmazenamento;
 import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 import br.com.munif.stella.api.repository.InstanciaItemRepository;
 import br.com.munif.stella.api.repository.ItemMestreRepository;
+import br.com.munif.stella.api.repository.LocalArmazenamentoRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,6 +39,9 @@ class InstanciaItemServiceTest {
     private ItemMestreRepository itemMestreRepository;
 
     @Mock
+    private LocalArmazenamentoRepository localArmazenamentoRepository;
+
+    @Mock
     private EntityManager entityManager;
 
     @InjectMocks
@@ -45,13 +50,17 @@ class InstanciaItemServiceTest {
     @Test
     void deveCriarInstanciaComItemMestreNormalizandoCampos() {
         UUID itemMestreId = UUID.randomUUID();
+        UUID localId = UUID.randomUUID();
         ItemMestre itemMestre = itemMestre(itemMestreId, "Notebook Dell Latitude 5440", true);
+        LocalArmazenamento local = local(localId, "Estante A", true);
 
         when(itemMestreRepository.findById(itemMestreId)).thenReturn(Optional.of(itemMestre));
+        when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(local));
         when(repository.save(any(InstanciaItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         var resposta = service.criar(new InstanciaItemCreateDTO(
                 itemMestreId,
+                localId,
                 "  NB-001  ",
                 "  PAT-001  ",
                 "  SN-123  ",
@@ -65,6 +74,7 @@ class InstanciaItemServiceTest {
 
         InstanciaItem instanciaSalva = captor.getValue();
         assertThat(instanciaSalva.getItemMestre()).isEqualTo(itemMestre);
+        assertThat(instanciaSalva.getLocalAtual()).isEqualTo(local);
         assertThat(instanciaSalva.getIdentificador()).isEqualTo("NB-001");
         assertThat(instanciaSalva.getPatrimonio()).isEqualTo("PAT-001");
         assertThat(instanciaSalva.getNumeroSerie()).isEqualTo("SN-123");
@@ -79,7 +89,7 @@ class InstanciaItemServiceTest {
     void deveImpedirInstanciaSemIdentificacaoIndividual() {
         UUID itemMestreId = UUID.randomUUID();
 
-        assertThatThrownBy(() -> service.criar(new InstanciaItemCreateDTO(itemMestreId, " ", null, null, null, null, true)))
+        assertThatThrownBy(() -> service.criar(new InstanciaItemCreateDTO(itemMestreId, null, " ", null, null, null, null, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("identificador");
 
@@ -94,7 +104,7 @@ class InstanciaItemServiceTest {
 
         when(itemMestreRepository.findById(itemMestreId)).thenReturn(Optional.of(itemMestre));
 
-        assertThatThrownBy(() -> service.criar(new InstanciaItemCreateDTO(itemMestreId, "NB-001", null, null, null, null, true)))
+        assertThatThrownBy(() -> service.criar(new InstanciaItemCreateDTO(itemMestreId, null, "NB-001", null, null, null, null, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Item mestre deve estar ativo");
 
@@ -114,6 +124,7 @@ class InstanciaItemServiceTest {
 
         var resposta = service.atualizar(id, new InstanciaItemUpdateDTO(
                 itemMestreId,
+                null,
                 " NB-002 ",
                 null,
                 " SN-999 ",
@@ -174,5 +185,13 @@ class InstanciaItemServiceTest {
         itemMestre.setCategoria(categoria);
         itemMestre.setAtivo(ativo);
         return itemMestre;
+    }
+
+    private LocalArmazenamento local(UUID id, String nome, boolean ativo) {
+        LocalArmazenamento local = new LocalArmazenamento();
+        local.setId(id);
+        local.setNome(nome);
+        local.setAtivo(ativo);
+        return local;
     }
 }

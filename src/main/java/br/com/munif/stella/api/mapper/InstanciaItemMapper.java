@@ -7,6 +7,7 @@ import br.com.munif.stella.api.dto.InstanciaItemUpdateDTO;
 import br.com.munif.stella.api.entity.Categoria;
 import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.ItemMestre;
+import br.com.munif.stella.api.entity.LocalArmazenamento;
 import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 
 public final class InstanciaItemMapper {
@@ -53,6 +54,7 @@ public final class InstanciaItemMapper {
 
         ItemMestre itemMestre = entity.getItemMestre();
         Categoria categoria = itemMestre == null ? null : itemMestre.getCategoria();
+        LocalArmazenamento localAtual = entity.getLocalAtual();
         return new InstanciaItemResponseDTO(
                 entity.getId(),
                 itemMestre == null ? null : itemMestre.getId(),
@@ -60,6 +62,8 @@ public final class InstanciaItemMapper {
                 categoria == null ? null : categoria.getId(),
                 categoria == null ? null : categoria.getNome(),
                 categoria == null ? null : categoria.getIcone(),
+                localAtual == null ? null : localAtual.getId(),
+                localAtual == null ? null : localAtual.getNome(),
                 entity.getIdentificador(),
                 entity.getPatrimonio(),
                 entity.getNumeroSerie(),
@@ -76,12 +80,15 @@ public final class InstanciaItemMapper {
 
         ItemMestre itemMestre = entity.getItemMestre();
         Categoria categoria = itemMestre == null ? null : itemMestre.getCategoria();
+        LocalArmazenamento localAtual = entity.getLocalAtual();
         return new InstanciaItemResumoDTO(
                 entity.getId(),
                 itemMestre == null ? null : itemMestre.getId(),
                 itemMestre == null ? null : itemMestre.getNome(),
                 categoria == null ? null : categoria.getNome(),
                 categoria == null ? null : categoria.getIcone(),
+                localAtual == null ? null : localAtual.getId(),
+                localAtual == null ? null : localAtual.getNome(),
                 entity.getIdentificador(),
                 entity.getPatrimonio(),
                 entity.getNumeroSerie(),
