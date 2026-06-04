@@ -10,6 +10,7 @@ import br.com.munif.stella.api.entity.ItemMestre;
 import br.com.munif.stella.api.service.ItemMestreService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -60,6 +62,11 @@ public class ItemMestreController extends SuperController<ItemMestreResumoDTO, I
     @GetMapping("/filtrar")
     public ResponseEntity<List<ItemMestreResumoDTO>> filtrar(@RequestParam(required = false) String nome, @RequestParam(required = false) UUID categoriaId) {
         return ResponseEntity.ok(service.filtrar(nome, categoriaId));
+    }
+
+    @PostMapping(value = "/{id}/imagem-principal", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ItemMestreResponseDTO> atualizarImagemPrincipal(@PathVariable UUID id, @RequestParam("arquivo") MultipartFile arquivo) {
+        return ResponseEntity.ok(service.atualizarImagemPrincipal(id, arquivo));
     }
 
     @Override

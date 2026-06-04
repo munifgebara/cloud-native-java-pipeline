@@ -27,8 +27,15 @@ spring:
     console:
       enabled: false
 
+stella:
+  minio:
+    endpoint: http://127.0.0.1:9000
+    access-key: minioadmin
+    secret-key: minioadmin
+    bucket: stella-test
+    max-image-size-bytes: 5242880
+
 logging:
   level:
     org.hibernate.SQL: warn
     org.hibernate.orm.jdbc.bind: warn
-

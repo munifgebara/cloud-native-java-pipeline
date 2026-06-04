@@ -30,6 +30,9 @@ export class ItemMestreFormComponent implements OnInit {
   loading = signal(false);
   salvando = signal(false);
   errorMessage = signal('');
+  imagemAtualUrl = signal<string | null>(null);
+  imagemPreviewUrl = signal<string | null>(null);
+  imagemSelecionada = signal<File | null>(null);
 
   readonly edicao = computed(() => !!this.id());
 
@@ -61,6 +64,7 @@ export class ItemMestreFormComponent implements OnInit {
           observacoes: item.observacoes ?? '',
           ativa: item.ativa,
         });
+        this.imagemAtualUrl.set(item.imagemUrl);
         this.loading.set(false);
       },
       error: () => {
@@ -92,10 +96,7 @@ export class ItemMestreFormComponent implements OnInit {
 
     if (this.edicao()) {
       this.itemMestreService.atualizar(this.id()!, payload).subscribe({
-        next: () => {
-          this.salvando.set(false);
-          this.router.navigate(['/itens-mestre']);
-        },
+        next: (item) => this.enviarImagemSeNecessario(item.id),
         error: (err) => {
           this.salvando.set(false);
           this.errorMessage.set(this.extractError(err, this.i18n.translate('masterItems.form.updateError')));
@@ -106,15 +107,39 @@ export class ItemMestreFormComponent implements OnInit {
     }
 
     this.itemMestreService.criar(payload).subscribe({
-      next: () => {
-        this.salvando.set(false);
-        this.router.navigate(['/itens-mestre']);
-      },
+      next: (item) => this.enviarImagemSeNecessario(item.id),
       error: (err) => {
         this.salvando.set(false);
         this.errorMessage.set(this.extractError(err, this.i18n.translate('masterItems.form.createError')));
       },
     });
+  }
+
+  selecionarImagem(event: Event): void {
+    this.errorMessage.set('');
+    const input = event.target as HTMLInputElement;
+    const arquivo = input.files?.[0] ?? null;
+
+    if (!arquivo) {
+      this.imagemSelecionada.set(null);
+      this.imagemPreviewUrl.set(null);
+      return;
+    }
+
+    if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(arquivo.type)) {
+      this.errorMessage.set(this.i18n.translate('masterItems.form.imageInvalidType'));
+      input.value = '';
+      return;
+    }
+
+    if (arquivo.size > 5 * 1024 * 1024) {
+      this.errorMessage.set(this.i18n.translate('masterItems.form.imageTooLarge'));
+      input.value = '';
+      return;
+    }
+
+    this.imagemSelecionada.set(arquivo);
+    this.imagemPreviewUrl.set(URL.createObjectURL(arquivo));
   }
 
   campoInvalido(nome: keyof typeof this.form.controls): boolean {
@@ -126,6 +151,27 @@ export class ItemMestreFormComponent implements OnInit {
     this.categoriaService.listar().subscribe({
       next: (categorias) => this.categorias.set(categorias),
       error: () => this.errorMessage.set(this.i18n.translate('masterItems.form.categoryLoadError')),
+    });
+  }
+
+  private enviarImagemSeNecessario(itemId: string): void {
+    const imagem = this.imagemSelecionada();
+
+    if (!imagem) {
+      this.salvando.set(false);
+      this.router.navigate(['/itens-mestre']);
+      return;
+    }
+
+    this.itemMestreService.atualizarImagemPrincipal(itemId, imagem).subscribe({
+      next: () => {
+        this.salvando.set(false);
+        this.router.navigate(['/itens-mestre']);
+      },
+      error: (err) => {
+        this.salvando.set(false);
+        this.errorMessage.set(this.extractError(err, this.i18n.translate('masterItems.form.imageUploadError')));
+      },
     });
   }
 

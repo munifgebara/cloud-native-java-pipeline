@@ -48,6 +48,11 @@ public class GlobalExceptionHandler {
         return resposta(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, Object>> tratarFalhaInfraestrutura(IllegalStateException ex) {
+        return resposta(HttpStatus.BAD_GATEWAY, ex.getMessage());
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> tratarIntegridade(DataIntegrityViolationException ex) {
         return resposta(HttpStatus.CONFLICT, "Violação de integridade de dados.");

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 export interface ItemMestreResumo {
@@ -10,6 +11,7 @@ export interface ItemMestreResumo {
   categoriaId: string | null;
   categoriaNome: string | null;
   categoriaIcone: string | null;
+  imagemUrl: string | null;
   ativa: boolean;
 }
 
@@ -21,6 +23,9 @@ export interface ItemMestreResponse {
   categoriaId: string | null;
   categoriaNome: string | null;
   categoriaIcone: string | null;
+  imagemUrl: string | null;
+  imagemContentType: string | null;
+  imagemTamanhoBytes: number | null;
   ativa: boolean;
 }
 
@@ -48,13 +53,15 @@ export class ItemMestreService {
   private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/itens-mestre`;
 
   listar(): Observable<ItemMestreResumo[]> {
-    return this.http.get<ItemMestreResumo[]>(this.baseUrl);
+    return this.http.get<ItemMestreResumo[]>(this.baseUrl).pipe(
+      map((itens) => itens.map((item) => this.withAbsoluteImageUrl(item)))
+    );
   }
 
   buscarPorNome(nome: string): Observable<ItemMestreResumo[]> {
     return this.http.get<ItemMestreResumo[]>(`${this.baseUrl}/buscar`, {
       params: { nome },
-    });
+    }).pipe(map((itens) => itens.map((item) => this.withAbsoluteImageUrl(item))));
   }
 
   filtrar(nome?: string | null, categoriaId?: string | null): Observable<ItemMestreResumo[]> {
@@ -69,22 +76,50 @@ export class ItemMestreService {
       params['categoriaId'] = categoriaId;
     }
 
-    return this.http.get<ItemMestreResumo[]>(`${this.baseUrl}/filtrar`, { params });
+    return this.http.get<ItemMestreResumo[]>(`${this.baseUrl}/filtrar`, { params }).pipe(
+      map((itens) => itens.map((item) => this.withAbsoluteImageUrl(item)))
+    );
   }
 
   buscarPorId(id: string): Observable<ItemMestreResponse> {
-    return this.http.get<ItemMestreResponse>(`${this.baseUrl}/${id}`);
+    return this.http.get<ItemMestreResponse>(`${this.baseUrl}/${id}`).pipe(
+      map((item) => this.withAbsoluteImageUrl(item))
+    );
   }
 
   criar(payload: ItemMestreCreateRequest): Observable<ItemMestreResponse> {
-    return this.http.post<ItemMestreResponse>(this.baseUrl, payload);
+    return this.http.post<ItemMestreResponse>(this.baseUrl, payload).pipe(
+      map((item) => this.withAbsoluteImageUrl(item))
+    );
   }
 
   atualizar(id: string, payload: ItemMestreUpdateRequest): Observable<ItemMestreResponse> {
-    return this.http.put<ItemMestreResponse>(`${this.baseUrl}/${id}`, payload);
+    return this.http.put<ItemMestreResponse>(`${this.baseUrl}/${id}`, payload).pipe(
+      map((item) => this.withAbsoluteImageUrl(item))
+    );
+  }
+
+  atualizarImagemPrincipal(id: string, arquivo: File): Observable<ItemMestreResponse> {
+    const formData = new FormData();
+    formData.append('arquivo', arquivo);
+
+    return this.http.post<ItemMestreResponse>(`${this.baseUrl}/${id}/imagem-principal`, formData).pipe(
+      map((item) => this.withAbsoluteImageUrl(item))
+    );
   }
 
   excluir(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  private withAbsoluteImageUrl<T extends { imagemUrl: string | null }>(item: T): T {
+    if (!item.imagemUrl || item.imagemUrl.startsWith('http')) {
+      return item;
+    }
+
+    return {
+      ...item,
+      imagemUrl: `${environment.apiBaseUrl}${item.imagemUrl}`,
+    };
   }
 }

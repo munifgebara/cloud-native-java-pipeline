@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: stella-api
+  servlet:
+    multipart:
+      max-file-size: ${STELLA_MAX_FILE_SIZE:5MB}
+      max-request-size: ${STELLA_MAX_REQUEST_SIZE:5MB}
 
   datasource:
     url: ${STELLA_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:5432/stella}
@@ -43,6 +47,12 @@ stella:
     base-url: ${STELLA_KEYCLOAK_BASE_URL:http://127.0.0.1:9080}
     realm: ${STELLA_KEYCLOAK_REALM:stella}
     public-client-id: ${STELLA_KEYCLOAK_PUBLIC_CLIENT_ID:stella-cli}
+  minio:
+    endpoint: ${STELLA_MINIO_ENDPOINT:http://127.0.0.1:9000}
+    access-key: ${STELLA_MINIO_ACCESS_KEY:minioadmin}
+    secret-key: ${STELLA_MINIO_SECRET_KEY:minioadmin}
+    bucket: ${STELLA_MINIO_BUCKET:stella-itens}
+    max-image-size-bytes: ${STELLA_MINIO_MAX_IMAGE_SIZE_BYTES:5242880}
 
 management:
   endpoints:

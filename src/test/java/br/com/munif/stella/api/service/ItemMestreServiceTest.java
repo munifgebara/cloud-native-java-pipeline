@@ -1,6 +1,7 @@
 package br.com.munif.stella.api.service;
 
 import br.com.munif.stella.api.dto.ItemMestreCreateDTO;
+import br.com.munif.stella.api.dto.ImagemItemMestreDTO;
 import br.com.munif.stella.api.dto.ItemMestreUpdateDTO;
 import br.com.munif.stella.api.entity.Categoria;
 import br.com.munif.stella.api.entity.ItemMestre;
@@ -13,6 +14,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +35,9 @@ class ItemMestreServiceTest {
 
     @Mock
     private CategoriaRepository categoriaRepository;
+
+    @Mock
+    private ImagemItemMestreStorageService imagemStorageService;
 
     @Mock
     private EntityManager entityManager;
@@ -141,6 +146,27 @@ class ItemMestreServiceTest {
 
         assertThat(resposta).hasSize(1);
         assertThat(resposta.getFirst().nome()).isEqualTo("Notebook");
+    }
+
+    @Test
+    void deveAtualizarImagemPrincipalDoItemMestre() {
+        UUID id = UUID.randomUUID();
+        ItemMestre item = item(id, "Notebook", null);
+        item.setImagemBucket("stella-itens");
+        item.setImagemObjectKey("itens-mestre/antiga.jpg");
+        var arquivo = new MockMultipartFile("arquivo", "foto.png", "image/png", new byte[]{1, 2, 3});
+        var imagem = new ImagemItemMestreDTO("stella-itens", "itens-mestre/nova.png", "image/png", 3L);
+
+        when(repository.findById(id)).thenReturn(Optional.of(item));
+        when(imagemStorageService.armazenar(id, arquivo)).thenReturn(imagem);
+        when(repository.save(any(ItemMestre.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var resposta = service.atualizarImagemPrincipal(id, arquivo);
+
+        assertThat(resposta.imagemUrl()).isEqualTo("/api/public/itens-mestre/%s/imagem-principal".formatted(id));
+        assertThat(resposta.imagemContentType()).isEqualTo("image/png");
+        assertThat(resposta.imagemTamanhoBytes()).isEqualTo(3L);
+        verify(imagemStorageService).removerSilenciosamente("stella-itens", "itens-mestre/antiga.jpg");
     }
 
     private ItemMestre item(UUID id, String nome, Categoria categoria) {

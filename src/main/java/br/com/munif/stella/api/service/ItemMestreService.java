@@ -4,6 +4,7 @@ import br.com.munif.comum.dto.RevisaoDTO;
 import br.com.munif.comum.service.SuperService;
 import br.com.munif.comum.utils.validacoes.ValidacoesBR;
 import br.com.munif.stella.api.dto.ItemMestreCreateDTO;
+import br.com.munif.stella.api.dto.ImagemItemMestreDTO;
 import br.com.munif.stella.api.dto.ItemMestreResponseDTO;
 import br.com.munif.stella.api.dto.ItemMestreResumoDTO;
 import br.com.munif.stella.api.dto.ItemMestreUpdateDTO;
@@ -15,7 +16,9 @@ import br.com.munif.stella.api.repository.ItemMestreRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,10 +26,17 @@ import java.util.UUID;
 public class ItemMestreService extends SuperService<ItemMestre, ItemMestreRepository> {
 
     private final CategoriaRepository categoriaRepository;
+    private final ImagemItemMestreStorageService imagemStorageService;
 
-    public ItemMestreService(ItemMestreRepository repository, EntityManager entityManager, CategoriaRepository categoriaRepository) {
+    public ItemMestreService(
+            ItemMestreRepository repository,
+            EntityManager entityManager,
+            CategoriaRepository categoriaRepository,
+            ImagemItemMestreStorageService imagemStorageService
+    ) {
         super(repository, entityManager, ItemMestre.class);
         this.categoriaRepository = categoriaRepository;
+        this.imagemStorageService = imagemStorageService;
     }
 
     @Transactional
@@ -93,6 +103,43 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
 
         ItemMestre salvo = salvar(item);
         return ItemMestreMapper.toResponseDTO(salvo);
+    }
+
+    @Transactional
+    public ItemMestreResponseDTO atualizarImagemPrincipal(UUID id, MultipartFile arquivo) {
+        ItemMestre item = buscarPorId(id);
+        String bucketAnterior = item.getImagemBucket();
+        String objectKeyAnterior = item.getImagemObjectKey();
+
+        ImagemItemMestreDTO imagem = imagemStorageService.armazenar(id, arquivo);
+        item.setImagemBucket(imagem.bucket());
+        item.setImagemObjectKey(imagem.objectKey());
+        item.setImagemContentType(imagem.contentType());
+        item.setImagemTamanhoBytes(imagem.tamanhoBytes());
+
+        ItemMestre salvo = salvar(item);
+        imagemStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
+        return ItemMestreMapper.toResponseDTO(salvo);
+    }
+
+    @Transactional(readOnly = true)
+    public ImagemItemMestreDTO buscarMetadadosImagemPrincipal(UUID id) {
+        ItemMestre item = buscarPorId(id);
+        if (item.getImagemObjectKey() == null) {
+            throw new IllegalArgumentException("Item mestre não possui imagem principal.");
+        }
+        return new ImagemItemMestreDTO(
+                item.getImagemBucket(),
+                item.getImagemObjectKey(),
+                item.getImagemContentType(),
+                item.getImagemTamanhoBytes()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public InputStream abrirImagemPrincipal(UUID id) {
+        ImagemItemMestreDTO imagem = buscarMetadadosImagemPrincipal(id);
+        return imagemStorageService.abrir(imagem.bucket(), imagem.objectKey());
     }
 
     @Transactional

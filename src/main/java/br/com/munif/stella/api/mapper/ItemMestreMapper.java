@@ -54,6 +54,9 @@ public final class ItemMestreMapper {
                 categoria == null ? null : categoria.getId(),
                 categoria == null ? null : categoria.getNome(),
                 categoria == null ? null : categoria.getIcone(),
+                imagemUrl(entity),
+                entity.getImagemContentType(),
+                entity.getImagemTamanhoBytes(),
                 entity.isAtivo()
         );
     }
@@ -71,7 +74,12 @@ public final class ItemMestreMapper {
                 categoria == null ? null : categoria.getId(),
                 categoria == null ? null : categoria.getNome(),
                 categoria == null ? null : categoria.getIcone(),
+                imagemUrl(entity),
                 entity.isAtivo()
         );
+    }
+
+    private static String imagemUrl(ItemMestre entity) {
+        return entity.getImagemObjectKey() == null ? null : "/api/public/itens-mestre/%s/imagem-principal".formatted(entity.getId());
     }
 }

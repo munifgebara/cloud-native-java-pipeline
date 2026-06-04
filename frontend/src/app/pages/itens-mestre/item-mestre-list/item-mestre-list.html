@@ -61,6 +61,7 @@
     [tableStyle]="{ 'min-width': '76rem' }">
     <ng-template pTemplate="header">
       <tr>
+        <th style="width: 88px;">{{ 'masterItems.image' | translate }}</th>
         <th>{{ 'common.name' | translate }}</th>
         <th>{{ 'masterItems.category' | translate }}</th>
         <th>{{ 'masterItems.description' | translate }}</th>
@@ -71,6 +72,15 @@
 
     <ng-template pTemplate="body" let-item>
       <tr>
+        <td>
+          <div class="item-image">
+            @if (item.imagemUrl) {
+              <img [src]="item.imagemUrl" [alt]="item.nome" />
+            } @else {
+              <i class="pi pi-image"></i>
+            }
+          </div>
+        </td>
         <td>{{ item.nome }}</td>
         <td>
           @if (item.categoriaNome) {
