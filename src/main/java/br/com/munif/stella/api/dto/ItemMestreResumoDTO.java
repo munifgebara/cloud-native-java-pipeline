@@ -9,5 +9,6 @@ public record ItemMestreResumoDTO(
         UUID categoriaId,
         String categoriaNome,
         String categoriaIcone,
+        String imagemUrl,
         boolean ativa
 ) {}

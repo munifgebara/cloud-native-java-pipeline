@@ -10,5 +10,8 @@ public record ItemMestreResponseDTO(
         UUID categoriaId,
         String categoriaNome,
         String categoriaIcone,
+        String imagemUrl,
+        String imagemContentType,
+        Long imagemTamanhoBytes,
         boolean ativa
 ) {}
