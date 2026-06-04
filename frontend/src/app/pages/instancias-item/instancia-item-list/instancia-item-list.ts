@@ -44,6 +44,8 @@ export class InstanciaItemListComponent implements OnInit {
   instanciaTransferencia = signal<InstanciaItemResumo | null>(null);
   emprestimoId = signal<string | null>(null);
   instanciaEmprestimo = signal<InstanciaItemResumo | null>(null);
+  devolucaoId = signal<string | null>(null);
+  instanciaDevolucao = signal<InstanciaItemResumo | null>(null);
   errorMessage = signal('');
   saidaMotivo = '';
   saidaObservacao = '';
@@ -52,6 +54,8 @@ export class InstanciaItemListComponent implements OnInit {
   emprestimoPessoaId = '';
   emprestimoPrevisaoDevolucao = '';
   emprestimoObservacao = '';
+  devolucaoLocalRetornoId = '';
+  devolucaoObservacao = '';
   filtroIdentificacao = '';
   filtroItemMestre = '';
   filtroCategoriaId = '';
@@ -259,6 +263,48 @@ export class InstanciaItemListComponent implements OnInit {
     });
   }
 
+  abrirDevolucao(instancia: InstanciaItemResumo): void {
+    this.errorMessage.set('');
+    this.instanciaDevolucao.set(instancia);
+    this.devolucaoLocalRetornoId = '';
+    this.devolucaoObservacao = '';
+  }
+
+  cancelarDevolucao(): void {
+    if (this.devolucaoId()) {
+      return;
+    }
+    this.instanciaDevolucao.set(null);
+    this.devolucaoLocalRetornoId = '';
+    this.devolucaoObservacao = '';
+  }
+
+  registrarDevolucao(): void {
+    const instancia = this.instanciaDevolucao();
+
+    if (!instancia || !this.devolucaoLocalRetornoId) {
+      this.errorMessage.set(this.i18n.translate('itemInstances.returnLocationRequired'));
+      return;
+    }
+
+    this.devolucaoId.set(instancia.id);
+    this.instanciaItemService.registrarDevolucao({
+      instanciaItemId: instancia.id,
+      localRetornoId: this.devolucaoLocalRetornoId,
+      observacao: this.nullIfBlank(this.devolucaoObservacao),
+    }).subscribe({
+      next: () => {
+        this.devolucaoId.set(null);
+        this.cancelarDevolucao();
+        this.pesquisar();
+      },
+      error: (err) => {
+        this.errorMessage.set(this.extractError(err, this.i18n.translate('itemInstances.returnError')));
+        this.devolucaoId.set(null);
+      },
+    });
+  }
+
   statusLabel(instancia: InstanciaItemResumo): string {
     return this.i18n.translate(`itemInstances.status.${instancia.statusOperacional}`);
   }
@@ -293,8 +339,16 @@ export class InstanciaItemListComponent implements OnInit {
     return instancia.ativa && instancia.statusOperacional === 'DISPONIVEL' && !!instancia.localAtualId;
   }
 
+  podeDevolver(instancia: InstanciaItemResumo): boolean {
+    return instancia.ativa && instancia.statusOperacional === 'EMPRESTADO';
+  }
+
   locaisDestino(instancia: InstanciaItemResumo): LocalResumo[] {
     return this.locais().filter((local) => local.ativa && local.id !== instancia.localAtualId);
+  }
+
+  locaisAtivos(): LocalResumo[] {
+    return this.locais().filter((local) => local.ativa);
   }
 
   statusOptionLabel(status: StatusOperacionalInstancia): string {
