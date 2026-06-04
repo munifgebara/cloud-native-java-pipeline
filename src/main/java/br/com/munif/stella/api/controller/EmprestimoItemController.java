@@ -1,6 +1,7 @@
 package br.com.munif.stella.api.controller;
 
 import br.com.munif.stella.api.dto.EmprestimoItemCreateDTO;
+import br.com.munif.stella.api.dto.EmprestimoItemDevolucaoDTO;
 import br.com.munif.stella.api.dto.EmprestimoItemResponseDTO;
 import br.com.munif.stella.api.service.EmprestimoItemService;
 import jakarta.validation.Valid;
@@ -24,5 +25,10 @@ public class EmprestimoItemController {
     @PostMapping
     public ResponseEntity<EmprestimoItemResponseDTO> registrarEmprestimo(@RequestBody @Valid EmprestimoItemCreateDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.registrarEmprestimo(dto));
+    }
+
+    @PostMapping("/devolucao")
+    public ResponseEntity<EmprestimoItemResponseDTO> registrarDevolucao(@RequestBody @Valid EmprestimoItemDevolucaoDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.registrarDevolucao(dto));
     }
 }

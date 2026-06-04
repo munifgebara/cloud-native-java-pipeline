@@ -177,6 +177,62 @@
       </div>
     }
   </p-dialog>
+  <p-dialog
+    [header]="'itemInstances.returnTitle' | translate"
+    [modal]="true"
+    [visible]="!!instanciaDevolucao()"
+    (visibleChange)="!$event && cancelarDevolucao()"
+    [style]="{ width: '32rem' }">
+    @if (instanciaDevolucao(); as instancia) {
+      <div class="movement-dialog">
+        <div>
+          <strong>{{ nomeInstancia(instancia) }}</strong>
+          <p>{{ statusLabel(instancia) }}</p>
+        </div>
+
+        <div class="field">
+          <label for="devolucaoLocalRetornoId">{{ 'itemInstances.returnLocation' | translate }}</label>
+          <select id="devolucaoLocalRetornoId" [(ngModel)]="devolucaoLocalRetornoId">
+            <option value="">{{ 'itemInstances.returnSelectLocation' | translate }}</option>
+            @for (local of locaisAtivos(); track local.id) {
+              <option [value]="local.id">{{ local.caminho }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="devolucaoObservacao">{{ 'itemInstances.notes' | translate }}</label>
+          <textarea
+            id="devolucaoObservacao"
+            pTextarea
+            rows="4"
+            maxlength="1000"
+            [(ngModel)]="devolucaoObservacao"></textarea>
+        </div>
+
+        <div class="dialog-actions">
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            [label]="'common.cancel' | translate"
+            (click)="cancelarDevolucao()"
+            [disabled]="!!devolucaoId()">
+          </button>
+
+          <button
+            pButton
+            type="button"
+            icon="pi pi-undo"
+            [label]="'itemInstances.return' | translate"
+            (click)="registrarDevolucao()"
+            [loading]="devolucaoId() === instancia.id"
+            [disabled]="!devolucaoLocalRetornoId">
+          </button>
+        </div>
+      </div>
+    }
+  </p-dialog>
 
   <div class="page-header">
     <div>
@@ -258,7 +314,7 @@
         <th>{{ 'itemInstances.serialNumber' | translate }}</th>
         <th>{{ 'itemInstances.currentLocation' | translate }}</th>
         <th style="width: 140px;">{{ 'itemInstances.status' | translate }}</th>
-        <th style="width: 650px;">{{ 'common.actions' | translate }}</th>
+        <th style="width: 760px;">{{ 'common.actions' | translate }}</th>
       </tr>
     </ng-template>
 
@@ -299,6 +355,18 @@
               icon="pi pi-history"
               [label]="'itemInstances.history.action' | translate"
               [routerLink]="['/instancias-item', instancia.id, 'historico']">
+            </button>
+
+            <button
+              pButton
+              type="button"
+              severity="secondary"
+              text
+              icon="pi pi-undo"
+              [label]="'itemInstances.return' | translate"
+              [disabled]="!podeDevolver(instancia) || !!devolucaoId()"
+              [loading]="devolucaoId() === instancia.id"
+              (click)="abrirDevolucao(instancia)">
             </button>
 
             <button

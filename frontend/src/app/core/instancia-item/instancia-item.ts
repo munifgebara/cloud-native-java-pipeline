@@ -87,6 +87,12 @@ export interface EmprestimoItemRequest {
   observacao?: string | null;
 }
 
+export interface DevolucaoItemRequest {
+  instanciaItemId: string;
+  localRetornoId: string;
+  observacao?: string | null;
+}
+
 export interface EmprestimoItemResponse {
   id: string;
   instanciaItemId: string;
@@ -190,6 +196,10 @@ export class InstanciaItemService {
 
   registrarEmprestimo(payload: EmprestimoItemRequest): Observable<EmprestimoItemResponse> {
     return this.http.post<EmprestimoItemResponse>(`${environment.apiBaseUrl}/api/v0/emprestimos-item`, payload);
+  }
+
+  registrarDevolucao(payload: DevolucaoItemRequest): Observable<EmprestimoItemResponse> {
+    return this.http.post<EmprestimoItemResponse>(`${environment.apiBaseUrl}/api/v0/emprestimos-item/devolucao`, payload);
   }
 
   atualizar(id: string, payload: InstanciaItemUpdateRequest): Observable<InstanciaItemResponse> {

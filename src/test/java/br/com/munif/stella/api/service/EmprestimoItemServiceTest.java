@@ -1,6 +1,7 @@
 package br.com.munif.stella.api.service;
 
 import br.com.munif.stella.api.dto.EmprestimoItemCreateDTO;
+import br.com.munif.stella.api.dto.EmprestimoItemDevolucaoDTO;
 import br.com.munif.stella.api.entity.EmprestimoItem;
 import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.ItemMestre;
@@ -9,6 +10,7 @@ import br.com.munif.stella.api.entity.Pessoa;
 import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 import br.com.munif.stella.api.repository.EmprestimoItemRepository;
 import br.com.munif.stella.api.repository.InstanciaItemRepository;
+import br.com.munif.stella.api.repository.LocalArmazenamentoRepository;
 import br.com.munif.stella.api.repository.PessoaRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
@@ -40,6 +42,9 @@ class EmprestimoItemServiceTest {
 
     @Mock
     private PessoaRepository pessoaRepository;
+
+    @Mock
+    private LocalArmazenamentoRepository localArmazenamentoRepository;
 
     @Mock
     private EntityManager entityManager;
@@ -125,6 +130,57 @@ class EmprestimoItemServiceTest {
         verify(repository, never()).save(any(EmprestimoItem.class));
     }
 
+    @Test
+    void deveRegistrarDevolucaoEncerrandoEmprestimoEAtualizandoInstancia() {
+        UUID instanciaId = UUID.randomUUID();
+        UUID localId = UUID.randomUUID();
+        InstanciaItem instancia = instancia(instanciaId, StatusOperacionalInstancia.EMPRESTADO, true, null);
+        Pessoa pessoa = pessoa(UUID.randomUUID(), "Maria Silva", true);
+        LocalArmazenamento localRetorno = local(localId, "Biblioteca");
+        EmprestimoItem emprestimo = emprestimo(instancia, pessoa);
+
+        when(repository.findByInstanciaItemIdAndDataDevolucaoIsNull(instanciaId)).thenReturn(Optional.of(emprestimo));
+        when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(localRetorno));
+        when(instanciaItemRepository.save(any(InstanciaItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.save(any(EmprestimoItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var resposta = service.registrarDevolucao(new EmprestimoItemDevolucaoDTO(
+                instanciaId,
+                localId,
+                "  Devolvido sem avarias  "
+        ));
+
+        ArgumentCaptor<InstanciaItem> instanciaCaptor = ArgumentCaptor.forClass(InstanciaItem.class);
+        ArgumentCaptor<EmprestimoItem> emprestimoCaptor = ArgumentCaptor.forClass(EmprestimoItem.class);
+        verify(instanciaItemRepository).save(instanciaCaptor.capture());
+        verify(repository).save(emprestimoCaptor.capture());
+
+        InstanciaItem instanciaAtualizada = instanciaCaptor.getValue();
+        assertThat(instanciaAtualizada.getStatusOperacional()).isEqualTo(StatusOperacionalInstancia.DISPONIVEL);
+        assertThat(instanciaAtualizada.getLocalAtual()).isEqualTo(localRetorno);
+
+        EmprestimoItem emprestimoAtualizado = emprestimoCaptor.getValue();
+        assertThat(emprestimoAtualizado.getDataDevolucao()).isNotNull();
+        assertThat(emprestimoAtualizado.getObservacao()).isEqualTo("Devolvido sem avarias");
+        assertThat(resposta.dataDevolucao()).isNotNull();
+        assertThat(resposta.instanciaItemId()).isEqualTo(instanciaId);
+    }
+
+    @Test
+    void deveImpedirDevolucaoSemEmprestimoAberto() {
+        UUID instanciaId = UUID.randomUUID();
+        UUID localId = UUID.randomUUID();
+
+        when(repository.findByInstanciaItemIdAndDataDevolucaoIsNull(instanciaId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.registrarDevolucao(new EmprestimoItemDevolucaoDTO(instanciaId, localId, null)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("empréstimo aberto");
+
+        verify(instanciaItemRepository, never()).save(any(InstanciaItem.class));
+        verify(repository, never()).save(any(EmprestimoItem.class));
+    }
+
     private InstanciaItem instancia(UUID id, StatusOperacionalInstancia status, boolean ativa, LocalArmazenamento local) {
         InstanciaItem instancia = new InstanciaItem();
         instancia.setId(id);
@@ -150,5 +206,14 @@ class EmprestimoItemServiceTest {
         local.setNome(nome);
         local.setAtivo(true);
         return local;
+    }
+
+    private EmprestimoItem emprestimo(InstanciaItem instancia, Pessoa pessoa) {
+        EmprestimoItem emprestimo = new EmprestimoItem();
+        emprestimo.setId(UUID.randomUUID());
+        emprestimo.setInstanciaItem(instancia);
+        emprestimo.setPessoa(pessoa);
+        emprestimo.setObservacao("Emprestimo inicial");
+        return emprestimo;
     }
 }
