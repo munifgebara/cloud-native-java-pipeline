@@ -8,6 +8,8 @@ import java.util.UUID;
 
 public interface EmprestimoItemRepository extends SuperRepository<EmprestimoItem> {
 
+    boolean existsByInstanciaItemId(UUID instanciaItemId);
+
     boolean existsByInstanciaItemIdAndDataDevolucaoIsNull(UUID instanciaItemId);
 
     Optional<EmprestimoItem> findByInstanciaItemIdAndDataDevolucaoIsNull(UUID instanciaItemId);

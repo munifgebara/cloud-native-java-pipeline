@@ -181,6 +181,24 @@ class EmprestimoItemServiceTest {
         verify(repository, never()).save(any(EmprestimoItem.class));
     }
 
+    @Test
+    void deveImpedirDevolucaoQuandoInstanciaNaoEstaEmprestada() {
+        UUID instanciaId = UUID.randomUUID();
+        UUID localId = UUID.randomUUID();
+        InstanciaItem instancia = instancia(instanciaId, StatusOperacionalInstancia.DISPONIVEL, true, null);
+        EmprestimoItem emprestimo = emprestimo(instancia, pessoa(UUID.randomUUID(), "Maria Silva", true));
+
+        when(repository.findByInstanciaItemIdAndDataDevolucaoIsNull(instanciaId)).thenReturn(Optional.of(emprestimo));
+        when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(local(localId, "Biblioteca")));
+
+        assertThatThrownBy(() -> service.registrarDevolucao(new EmprestimoItemDevolucaoDTO(instanciaId, localId, null)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("deve estar emprestada");
+
+        verify(instanciaItemRepository, never()).save(any(InstanciaItem.class));
+        verify(repository, never()).save(any(EmprestimoItem.class));
+    }
+
     private InstanciaItem instancia(UUID id, StatusOperacionalInstancia status, boolean ativa, LocalArmazenamento local) {
         InstanciaItem instancia = new InstanciaItem();
         instancia.setId(id);
