@@ -13,6 +13,7 @@ import { ItemMestreListComponent } from './pages/itens-mestre/item-mestre-list/i
 import { ItemMestreFormComponent } from './pages/itens-mestre/item-mestre-form/item-mestre-form';
 import { InstanciaItemListComponent } from './pages/instancias-item/instancia-item-list/instancia-item-list';
 import { InstanciaItemFormComponent } from './pages/instancias-item/instancia-item-form/instancia-item-form';
+import { InstanciaItemHistoricoComponent } from './pages/instancias-item/instancia-item-historico/instancia-item-historico';
 
 export const routes: Routes = [
   {
@@ -88,6 +89,10 @@ export const routes: Routes = [
       {
         path: 'instancias-item/nova',
         component: InstanciaItemFormComponent,
+      },
+      {
+        path: 'instancias-item/:id/historico',
+        component: InstanciaItemHistoricoComponent,
       },
       {
         path: 'instancias-item/:id/editar',

@@ -193,7 +193,7 @@
         <th>{{ 'itemInstances.serialNumber' | translate }}</th>
         <th>{{ 'itemInstances.currentLocation' | translate }}</th>
         <th style="width: 140px;">{{ 'itemInstances.status' | translate }}</th>
-        <th style="width: 440px;">{{ 'common.actions' | translate }}</th>
+        <th style="width: 540px;">{{ 'common.actions' | translate }}</th>
       </tr>
     </ng-template>
 
@@ -226,6 +226,16 @@
         </td>
         <td>
           <div class="actions">
+            <button
+              pButton
+              type="button"
+              severity="secondary"
+              text
+              icon="pi pi-history"
+              [label]="'itemInstances.history.action' | translate"
+              [routerLink]="['/instancias-item', instancia.id, 'historico']">
+            </button>
+
             <button
               pButton
               type="button"
