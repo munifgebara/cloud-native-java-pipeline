@@ -9,6 +9,7 @@ import br.com.munif.stella.api.entity.LocalArmazenamento;
 import br.com.munif.stella.api.entity.MovimentacaoItem;
 import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 import br.com.munif.stella.api.entity.TipoMovimentacaoItem;
+import br.com.munif.stella.api.repository.EmprestimoItemRepository;
 import br.com.munif.stella.api.repository.InstanciaItemRepository;
 import br.com.munif.stella.api.repository.ItemMestreRepository;
 import br.com.munif.stella.api.repository.LocalArmazenamentoRepository;
@@ -46,6 +47,9 @@ class InstanciaItemServiceTest {
 
     @Mock
     private MovimentacaoItemRepository movimentacaoItemRepository;
+
+    @Mock
+    private EmprestimoItemRepository emprestimoItemRepository;
 
     @Mock
     private EntityManager entityManager;
@@ -144,6 +148,88 @@ class InstanciaItemServiceTest {
         assertThat(resposta.numeroSerie()).isEqualTo("SN-999");
         assertThat(resposta.statusOperacional()).isEqualTo(StatusOperacionalInstancia.EM_MOVIMENTACAO);
         assertThat(resposta.ativa()).isFalse();
+    }
+
+    @Test
+    void deveImpedirInstanciaDisponivelSemLocalAtual() {
+        UUID id = UUID.randomUUID();
+        UUID itemMestreId = UUID.randomUUID();
+        InstanciaItem instancia = instancia(id, "NB-001", itemMestre(UUID.randomUUID(), "Antigo", true));
+        ItemMestre itemMestre = itemMestre(itemMestreId, "Notebook novo", true);
+
+        when(repository.findById(id)).thenReturn(Optional.of(instancia));
+        when(itemMestreRepository.findById(itemMestreId)).thenReturn(Optional.of(itemMestre));
+
+        assertThatThrownBy(() -> service.atualizar(id, new InstanciaItemUpdateDTO(
+                itemMestreId,
+                null,
+                "NB-001",
+                null,
+                null,
+                StatusOperacionalInstancia.DISPONIVEL,
+                null,
+                true
+        )))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("disponível deve possuir local atual");
+
+        verify(repository, never()).save(any(InstanciaItem.class));
+    }
+
+    @Test
+    void deveImpedirInstanciaEmprestadaComLocalAtual() {
+        UUID id = UUID.randomUUID();
+        UUID itemMestreId = UUID.randomUUID();
+        UUID localId = UUID.randomUUID();
+        InstanciaItem instancia = instancia(id, "NB-001", itemMestre(UUID.randomUUID(), "Antigo", true));
+        ItemMestre itemMestre = itemMestre(itemMestreId, "Notebook novo", true);
+        LocalArmazenamento local = local(localId, "Biblioteca", true);
+
+        when(repository.findById(id)).thenReturn(Optional.of(instancia));
+        when(itemMestreRepository.findById(itemMestreId)).thenReturn(Optional.of(itemMestre));
+        when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(local));
+
+        assertThatThrownBy(() -> service.atualizar(id, new InstanciaItemUpdateDTO(
+                itemMestreId,
+                localId,
+                "NB-001",
+                null,
+                null,
+                StatusOperacionalInstancia.EMPRESTADO,
+                null,
+                true
+        )))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("emprestada não deve possuir local atual");
+
+        verify(repository, never()).save(any(InstanciaItem.class));
+    }
+
+    @Test
+    void deveImpedirExclusaoLogicaDeInstanciaComMovimentacao() {
+        UUID id = UUID.randomUUID();
+
+        when(movimentacaoItemRepository.existsByInstanciaItemId(id)).thenReturn(true);
+
+        assertThatThrownBy(() -> service.excluirLogicamente(id))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("histórico operacional");
+
+        verify(repository, never()).save(any(InstanciaItem.class));
+    }
+
+    @Test
+    void deveImpedirExclusaoLogicaDeInstanciaComEmprestimo() {
+        UUID id = UUID.randomUUID();
+
+        when(movimentacaoItemRepository.existsByInstanciaItemId(id)).thenReturn(false);
+        when(emprestimoItemRepository.existsByInstanciaItemId(id)).thenReturn(true);
+
+        assertThatThrownBy(() -> service.excluirLogicamente(id))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("histórico operacional");
+
+        verify(repository, never()).save(any(InstanciaItem.class));
     }
 
     @Test

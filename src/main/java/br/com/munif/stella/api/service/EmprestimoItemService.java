@@ -48,15 +48,12 @@ public class EmprestimoItemService extends SuperService<EmprestimoItem, Empresti
         Pessoa pessoa = pessoaRepository.findById(dto.pessoaId())
                 .orElseThrow(() -> new IllegalArgumentException("Pessoa não encontrada."));
 
-        if (!instancia.isAtivo()) {
-            throw new IllegalArgumentException("Instância deve estar ativa para registrar empréstimo.");
-        }
-        if (instancia.getStatusOperacional() != StatusOperacionalInstancia.DISPONIVEL) {
-            throw new IllegalArgumentException("Apenas instâncias disponíveis podem ser emprestadas.");
-        }
-        if (instancia.getLocalAtual() == null) {
-            throw new IllegalArgumentException("Instância deve possuir local atual para registrar empréstimo.");
-        }
+        InstanciaItemRegras.exigirDisponivelComLocal(
+                instancia,
+                "Instância deve estar ativa para registrar empréstimo.",
+                "Apenas instâncias disponíveis podem ser emprestadas.",
+                "Instância deve possuir local atual para registrar empréstimo."
+        );
         if (!pessoa.isAtivo()) {
             throw new IllegalArgumentException("Pessoa deve estar ativa para registrar empréstimo.");
         }
@@ -84,9 +81,7 @@ public class EmprestimoItemService extends SuperService<EmprestimoItem, Empresti
         InstanciaItem instancia = emprestimo.getInstanciaItem();
         LocalArmazenamento localRetorno = buscarLocalAtivo(dto.localRetornoId());
 
-        if (instancia.getStatusOperacional() != StatusOperacionalInstancia.EMPRESTADO) {
-            throw new IllegalArgumentException("Instância deve estar emprestada para registrar devolução.");
-        }
+        InstanciaItemRegras.exigirEmprestada(instancia, "Instância deve estar emprestada para registrar devolução.");
 
         emprestimo.setDataDevolucao(Instant.now());
         String observacao = ValidacoesBR.trimToNull(dto.observacao());

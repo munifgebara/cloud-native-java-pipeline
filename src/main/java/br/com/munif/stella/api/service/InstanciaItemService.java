@@ -14,6 +14,7 @@ import br.com.munif.stella.api.entity.LocalArmazenamento;
 import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 import br.com.munif.stella.api.mapper.InstanciaItemMapper;
 import br.com.munif.stella.api.mapper.MovimentacaoItemMapper;
+import br.com.munif.stella.api.repository.EmprestimoItemRepository;
 import br.com.munif.stella.api.repository.InstanciaItemRepository;
 import br.com.munif.stella.api.repository.ItemMestreRepository;
 import br.com.munif.stella.api.repository.LocalArmazenamentoRepository;
@@ -31,18 +32,21 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
     private final ItemMestreRepository itemMestreRepository;
     private final LocalArmazenamentoRepository localArmazenamentoRepository;
     private final MovimentacaoItemRepository movimentacaoItemRepository;
+    private final EmprestimoItemRepository emprestimoItemRepository;
 
     public InstanciaItemService(
             InstanciaItemRepository repository,
             EntityManager entityManager,
             ItemMestreRepository itemMestreRepository,
             LocalArmazenamentoRepository localArmazenamentoRepository,
-            MovimentacaoItemRepository movimentacaoItemRepository
+            MovimentacaoItemRepository movimentacaoItemRepository,
+            EmprestimoItemRepository emprestimoItemRepository
     ) {
         super(repository, entityManager, InstanciaItem.class);
         this.itemMestreRepository = itemMestreRepository;
         this.localArmazenamentoRepository = localArmazenamentoRepository;
         this.movimentacaoItemRepository = movimentacaoItemRepository;
+        this.emprestimoItemRepository = emprestimoItemRepository;
     }
 
     @Transactional
@@ -52,6 +56,7 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
         validarIdentificacao(instancia);
         instancia.setItemMestre(buscarItemMestreAtivo(dto.itemMestreId()));
         instancia.setLocalAtual(buscarLocalAtivo(dto.localAtualId()));
+        InstanciaItemRegras.validarCoerenciaStatusLocal(instancia);
 
         InstanciaItem salva = salvar(instancia);
         if (Boolean.FALSE.equals(dto.ativa())) {
@@ -128,6 +133,7 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
         validarIdentificacao(instancia);
         instancia.setItemMestre(itemMestre);
         instancia.setLocalAtual(buscarLocalAtivo(dto.localAtualId()));
+        InstanciaItemRegras.validarCoerenciaStatusLocal(instancia);
 
         InstanciaItem salva = salvar(instancia);
         return InstanciaItemMapper.toResponseDTO(salva);
@@ -135,6 +141,9 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
 
     @Transactional
     public void excluirLogicamente(UUID id) {
+        if (movimentacaoItemRepository.existsByInstanciaItemId(id) || emprestimoItemRepository.existsByInstanciaItemId(id)) {
+            throw new IllegalArgumentException("Instância com histórico operacional não pode ser excluída. Use a operação de saída para retirada de inventário.");
+        }
         excluir(id);
     }
 

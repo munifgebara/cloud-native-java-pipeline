@@ -8,5 +8,7 @@ import java.util.UUID;
 
 public interface MovimentacaoItemRepository extends SuperRepository<MovimentacaoItem> {
 
+    boolean existsByInstanciaItemId(UUID instanciaItemId);
+
     List<MovimentacaoItem> findByInstanciaItemIdOrderByDataMovimentacaoAscCriadoEmAsc(UUID instanciaItemId);
 }

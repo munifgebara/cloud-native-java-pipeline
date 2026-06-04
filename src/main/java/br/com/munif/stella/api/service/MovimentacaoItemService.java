@@ -71,16 +71,12 @@ public class MovimentacaoItemService extends SuperService<MovimentacaoItem, Movi
     public MovimentacaoItemResponseDTO registrarSaida(MovimentacaoSaidaCreateDTO dto) {
         InstanciaItem instancia = instanciaItemRepository.findById(dto.instanciaItemId())
                 .orElseThrow(() -> new IllegalArgumentException("Instância não encontrada."));
-
-        if (!instancia.isAtivo()) {
-            throw new IllegalArgumentException("Instância deve estar ativa para registrar saída.");
-        }
-        if (instancia.getStatusOperacional() != StatusOperacionalInstancia.DISPONIVEL) {
-            throw new IllegalArgumentException("Apenas instâncias disponíveis podem registrar saída.");
-        }
-        if (instancia.getLocalAtual() == null) {
-            throw new IllegalArgumentException("Instância deve possuir local atual para registrar saída.");
-        }
+        InstanciaItemRegras.exigirDisponivelComLocal(
+                instancia,
+                "Instância deve estar ativa para registrar saída.",
+                "Apenas instâncias disponíveis podem registrar saída.",
+                "Instância deve possuir local atual para registrar saída."
+        );
 
         LocalArmazenamento localOrigem = instancia.getLocalAtual();
         String motivo = ValidacoesBR.trimToNull(dto.motivo());
@@ -106,16 +102,12 @@ public class MovimentacaoItemService extends SuperService<MovimentacaoItem, Movi
     public MovimentacaoItemResponseDTO registrarTransferencia(MovimentacaoTransferenciaCreateDTO dto) {
         InstanciaItem instancia = instanciaItemRepository.findById(dto.instanciaItemId())
                 .orElseThrow(() -> new IllegalArgumentException("Instância não encontrada."));
-
-        if (!instancia.isAtivo()) {
-            throw new IllegalArgumentException("Instância deve estar ativa para registrar transferência.");
-        }
-        if (instancia.getStatusOperacional() != StatusOperacionalInstancia.DISPONIVEL) {
-            throw new IllegalArgumentException("Apenas instâncias disponíveis podem ser transferidas.");
-        }
-        if (instancia.getLocalAtual() == null) {
-            throw new IllegalArgumentException("Instância deve possuir local atual para registrar transferência.");
-        }
+        InstanciaItemRegras.exigirDisponivelComLocal(
+                instancia,
+                "Instância deve estar ativa para registrar transferência.",
+                "Apenas instâncias disponíveis podem ser transferidas.",
+                "Instância deve possuir local atual para registrar transferência."
+        );
 
         LocalArmazenamento localOrigem = instancia.getLocalAtual();
         LocalArmazenamento localDestino = buscarLocalAtivo(dto.localDestinoId());
