@@ -1,5 +1,6 @@
 package br.com.munif.stella.api.entity;
 
 public enum TipoMovimentacaoItem {
-    ENTRADA
+    ENTRADA,
+    SAIDA
 }

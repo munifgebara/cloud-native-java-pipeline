@@ -1,6 +1,7 @@
 package br.com.munif.stella.api.service;
 
 import br.com.munif.stella.api.dto.MovimentacaoEntradaCreateDTO;
+import br.com.munif.stella.api.dto.MovimentacaoSaidaCreateDTO;
 import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.ItemMestre;
 import br.com.munif.stella.api.entity.LocalArmazenamento;
@@ -95,6 +96,7 @@ class MovimentacaoItemServiceTest {
         assertThat(movimentacao.getTipo()).isEqualTo(TipoMovimentacaoItem.ENTRADA);
         assertThat(movimentacao.getInstanciaItem()).isEqualTo(instancia);
         assertThat(movimentacao.getLocalDestino()).isEqualTo(local);
+        assertThat(movimentacao.getLocalOrigem()).isNull();
         assertThat(movimentacao.getObservacao()).isEqualTo("Entrada inicial");
         assertThat(resposta.tipo()).isEqualTo(TipoMovimentacaoItem.ENTRADA);
         assertThat(resposta.localDestinoId()).isEqualTo(localId);
@@ -116,6 +118,63 @@ class MovimentacaoItemServiceTest {
         verify(repository, never()).save(any(MovimentacaoItem.class));
     }
 
+    @Test
+    void deveRegistrarSaidaAtualizandoInstanciaELocalOrigem() {
+        UUID instanciaId = UUID.randomUUID();
+        UUID localId = UUID.randomUUID();
+        LocalArmazenamento local = local(localId, "Biblioteca", true);
+        InstanciaItem instancia = instancia(instanciaId, local, StatusOperacionalInstancia.DISPONIVEL, true);
+
+        when(instanciaItemRepository.findById(instanciaId)).thenReturn(Optional.of(instancia));
+        when(instanciaItemRepository.save(any(InstanciaItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.save(any(MovimentacaoItem.class))).thenAnswer(invocation -> {
+            MovimentacaoItem movimentacao = invocation.getArgument(0);
+            movimentacao.setId(UUID.randomUUID());
+            return movimentacao;
+        });
+
+        var resposta = service.registrarSaida(new MovimentacaoSaidaCreateDTO(
+                instanciaId,
+                "  Retirada para manutenção  ",
+                "  Equipamento enviado ao técnico  "
+        ));
+
+        ArgumentCaptor<InstanciaItem> instanciaCaptor = ArgumentCaptor.forClass(InstanciaItem.class);
+        ArgumentCaptor<MovimentacaoItem> movimentacaoCaptor = ArgumentCaptor.forClass(MovimentacaoItem.class);
+        verify(instanciaItemRepository).save(instanciaCaptor.capture());
+        verify(repository).save(movimentacaoCaptor.capture());
+
+        InstanciaItem instanciaAtualizada = instanciaCaptor.getValue();
+        assertThat(instanciaAtualizada.getLocalAtual()).isNull();
+        assertThat(instanciaAtualizada.getStatusOperacional()).isEqualTo(StatusOperacionalInstancia.EM_MOVIMENTACAO);
+
+        MovimentacaoItem movimentacao = movimentacaoCaptor.getValue();
+        assertThat(movimentacao.getTipo()).isEqualTo(TipoMovimentacaoItem.SAIDA);
+        assertThat(movimentacao.getInstanciaItem()).isEqualTo(instancia);
+        assertThat(movimentacao.getLocalOrigem()).isEqualTo(local);
+        assertThat(movimentacao.getLocalDestino()).isNull();
+        assertThat(movimentacao.getMotivo()).isEqualTo("Retirada para manutenção");
+        assertThat(movimentacao.getObservacao()).isEqualTo("Equipamento enviado ao técnico");
+        assertThat(resposta.tipo()).isEqualTo(TipoMovimentacaoItem.SAIDA);
+        assertThat(resposta.localOrigemId()).isEqualTo(localId);
+        assertThat(resposta.localDestinoId()).isNull();
+    }
+
+    @Test
+    void deveImpedirSaidaDeInstanciaIndisponivel() {
+        UUID instanciaId = UUID.randomUUID();
+        InstanciaItem instancia = instancia(instanciaId, local(UUID.randomUUID(), "Biblioteca", true), StatusOperacionalInstancia.EMPRESTADO, true);
+
+        when(instanciaItemRepository.findById(instanciaId)).thenReturn(Optional.of(instancia));
+
+        assertThatThrownBy(() -> service.registrarSaida(new MovimentacaoSaidaCreateDTO(instanciaId, "Retirada", null)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("disponíveis");
+
+        verify(instanciaItemRepository, never()).save(any(InstanciaItem.class));
+        verify(repository, never()).save(any(MovimentacaoItem.class));
+    }
+
     private ItemMestre itemMestre(UUID id, boolean ativo) {
         ItemMestre itemMestre = new ItemMestre();
         itemMestre.setId(id);
@@ -130,5 +189,16 @@ class MovimentacaoItemServiceTest {
         local.setNome(nome);
         local.setAtivo(ativo);
         return local;
+    }
+
+    private InstanciaItem instancia(UUID id, LocalArmazenamento local, StatusOperacionalInstancia status, boolean ativa) {
+        InstanciaItem instancia = new InstanciaItem();
+        instancia.setId(id);
+        instancia.setItemMestre(itemMestre(UUID.randomUUID(), true));
+        instancia.setLocalAtual(local);
+        instancia.setIdentificador("LIV-001");
+        instancia.setStatusOperacional(status);
+        instancia.setAtivo(ativa);
+        return instancia;
     }
 }

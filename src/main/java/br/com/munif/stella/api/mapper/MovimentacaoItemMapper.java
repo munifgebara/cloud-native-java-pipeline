@@ -16,15 +16,19 @@ public final class MovimentacaoItemMapper {
         }
 
         InstanciaItem instancia = entity.getInstanciaItem();
-        LocalArmazenamento local = entity.getLocalDestino();
+        LocalArmazenamento localOrigem = entity.getLocalOrigem();
+        LocalArmazenamento localDestino = entity.getLocalDestino();
         return new MovimentacaoItemResponseDTO(
                 entity.getId(),
                 entity.getTipo(),
                 entity.getDataMovimentacao(),
                 instancia == null ? null : instancia.getId(),
                 identificacao(instancia),
-                local == null ? null : local.getId(),
-                local == null ? null : local.getNome(),
+                localOrigem == null ? null : localOrigem.getId(),
+                localOrigem == null ? null : localOrigem.getNome(),
+                localDestino == null ? null : localDestino.getId(),
+                localDestino == null ? null : localDestino.getNome(),
+                entity.getMotivo(),
                 entity.getObservacao()
         );
     }

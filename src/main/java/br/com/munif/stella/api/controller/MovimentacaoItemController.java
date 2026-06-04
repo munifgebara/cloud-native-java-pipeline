@@ -2,6 +2,7 @@ package br.com.munif.stella.api.controller;
 
 import br.com.munif.stella.api.dto.MovimentacaoEntradaCreateDTO;
 import br.com.munif.stella.api.dto.MovimentacaoItemResponseDTO;
+import br.com.munif.stella.api.dto.MovimentacaoSaidaCreateDTO;
 import br.com.munif.stella.api.service.MovimentacaoItemService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -24,5 +25,10 @@ public class MovimentacaoItemController {
     @PostMapping("/entrada")
     public ResponseEntity<MovimentacaoItemResponseDTO> registrarEntrada(@RequestBody @Valid MovimentacaoEntradaCreateDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.registrarEntrada(dto));
+    }
+
+    @PostMapping("/saida")
+    public ResponseEntity<MovimentacaoItemResponseDTO> registrarSaida(@RequestBody @Valid MovimentacaoSaidaCreateDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.registrarSaida(dto));
     }
 }

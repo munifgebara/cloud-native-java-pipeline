@@ -4,7 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 import { TagModule } from 'primeng/tag';
+import { DialogModule } from 'primeng/dialog';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { CategoriaResumo, CategoriaService, categoriaIconClass } from '../../../core/categoria/categoria';
@@ -14,7 +16,7 @@ import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 @Component({
   selector: 'app-instancia-item-list',
   standalone: true,
-  imports: [FormsModule, TableModule, ButtonModule, InputTextModule, TagModule, ConfirmDialogModule, RouterLink, TranslatePipe],
+  imports: [FormsModule, TableModule, ButtonModule, InputTextModule, TextareaModule, TagModule, DialogModule, ConfirmDialogModule, RouterLink, TranslatePipe],
   providers: [ConfirmationService],
   templateUrl: './instancia-item-list.html',
   styleUrl: './instancia-item-list.css',
@@ -30,7 +32,11 @@ export class InstanciaItemListComponent implements OnInit {
   categorias = signal<CategoriaResumo[]>([]);
   loading = signal(false);
   deletingId = signal<string | null>(null);
+  saidaId = signal<string | null>(null);
+  instanciaSaida = signal<InstanciaItemResumo | null>(null);
   errorMessage = signal('');
+  saidaMotivo = '';
+  saidaObservacao = '';
   filtroIdentificacao = '';
   filtroItemMestre = '';
   filtroCategoriaId = '';
@@ -106,6 +112,49 @@ export class InstanciaItemListComponent implements OnInit {
     });
   }
 
+  abrirSaida(instancia: InstanciaItemResumo): void {
+    this.errorMessage.set('');
+    this.instanciaSaida.set(instancia);
+    this.saidaMotivo = '';
+    this.saidaObservacao = '';
+  }
+
+  cancelarSaida(): void {
+    if (this.saidaId()) {
+      return;
+    }
+    this.instanciaSaida.set(null);
+    this.saidaMotivo = '';
+    this.saidaObservacao = '';
+  }
+
+  registrarSaida(): void {
+    const instancia = this.instanciaSaida();
+    const motivo = this.saidaMotivo.trim();
+
+    if (!instancia || !motivo) {
+      this.errorMessage.set(this.i18n.translate('itemInstances.exitReasonRequired'));
+      return;
+    }
+
+    this.saidaId.set(instancia.id);
+    this.instanciaItemService.registrarSaida({
+      instanciaItemId: instancia.id,
+      motivo,
+      observacao: this.nullIfBlank(this.saidaObservacao),
+    }).subscribe({
+      next: () => {
+        this.saidaId.set(null);
+        this.cancelarSaida();
+        this.pesquisar();
+      },
+      error: (err) => {
+        this.errorMessage.set(this.extractError(err, this.i18n.translate('itemInstances.exitError')));
+        this.saidaId.set(null);
+      },
+    });
+  }
+
   statusLabel(instancia: InstanciaItemResumo): string {
     return this.i18n.translate(`itemInstances.status.${instancia.statusOperacional}`);
   }
@@ -126,6 +175,10 @@ export class InstanciaItemListComponent implements OnInit {
 
   nomeInstancia(instancia: InstanciaItemResumo): string {
     return instancia.identificador || instancia.patrimonio || instancia.numeroSerie || instancia.itemMestreNome;
+  }
+
+  podeRegistrarSaida(instancia: InstanciaItemResumo): boolean {
+    return instancia.ativa && instancia.statusOperacional === 'DISPONIVEL' && !!instancia.localAtualId;
   }
 
   statusOptionLabel(status: StatusOperacionalInstancia): string {
@@ -152,5 +205,14 @@ export class InstanciaItemListComponent implements OnInit {
         this.deletingId.set(null);
       },
     });
+  }
+
+  private nullIfBlank(value: string | null | undefined): string | null {
+    const v = (value ?? '').trim();
+    return v ? v : null;
+  }
+
+  private extractError(err: any, fallback: string): string {
+    return err?.error?.erro || err?.error?.message || fallback;
   }
 }

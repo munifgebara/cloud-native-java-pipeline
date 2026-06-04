@@ -68,14 +68,23 @@ export interface MovimentacaoEntradaRequest {
   observacao?: string | null;
 }
 
+export interface MovimentacaoSaidaRequest {
+  instanciaItemId: string;
+  motivo: string;
+  observacao?: string | null;
+}
+
 export interface MovimentacaoItemResponse {
   id: string;
-  tipo: 'ENTRADA';
+  tipo: 'ENTRADA' | 'SAIDA';
   dataMovimentacao: string;
   instanciaItemId: string;
   instanciaIdentificacao: string | null;
-  localDestinoId: string;
-  localDestinoNome: string;
+  localOrigemId: string | null;
+  localOrigemNome: string | null;
+  localDestinoId: string | null;
+  localDestinoNome: string | null;
+  motivo: string | null;
   observacao: string | null;
 }
 
@@ -135,6 +144,10 @@ export class InstanciaItemService {
 
   registrarEntrada(payload: MovimentacaoEntradaRequest): Observable<MovimentacaoItemResponse> {
     return this.http.post<MovimentacaoItemResponse>(`${environment.apiBaseUrl}/api/v0/movimentacoes-item/entrada`, payload);
+  }
+
+  registrarSaida(payload: MovimentacaoSaidaRequest): Observable<MovimentacaoItemResponse> {
+    return this.http.post<MovimentacaoItemResponse>(`${environment.apiBaseUrl}/api/v0/movimentacoes-item/saida`, payload);
   }
 
   atualizar(id: string, payload: InstanciaItemUpdateRequest): Observable<InstanciaItemResponse> {

@@ -11,7 +11,10 @@ public record MovimentacaoItemResponseDTO(
         Instant dataMovimentacao,
         UUID instanciaItemId,
         String instanciaIdentificacao,
+        UUID localOrigemId,
+        String localOrigemNome,
         UUID localDestinoId,
         String localDestinoNome,
+        String motivo,
         String observacao
 ) {}
