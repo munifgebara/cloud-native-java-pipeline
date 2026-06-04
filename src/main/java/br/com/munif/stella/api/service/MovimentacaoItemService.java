@@ -4,6 +4,7 @@ import br.com.munif.comum.service.SuperService;
 import br.com.munif.comum.utils.validacoes.ValidacoesBR;
 import br.com.munif.stella.api.dto.MovimentacaoEntradaCreateDTO;
 import br.com.munif.stella.api.dto.MovimentacaoItemResponseDTO;
+import br.com.munif.stella.api.dto.MovimentacaoSaidaCreateDTO;
 import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.ItemMestre;
 import br.com.munif.stella.api.entity.LocalArmazenamento;
@@ -60,6 +61,41 @@ public class MovimentacaoItemService extends SuperService<MovimentacaoItem, Movi
         movimentacao.setTipo(TipoMovimentacaoItem.ENTRADA);
         movimentacao.setInstanciaItem(instanciaSalva);
         movimentacao.setLocalDestino(instanciaSalva.getLocalAtual());
+        movimentacao.setObservacao(ValidacoesBR.trimToNull(dto.observacao()));
+
+        return MovimentacaoItemMapper.toResponseDTO(salvar(movimentacao));
+    }
+
+    @Transactional
+    public MovimentacaoItemResponseDTO registrarSaida(MovimentacaoSaidaCreateDTO dto) {
+        InstanciaItem instancia = instanciaItemRepository.findById(dto.instanciaItemId())
+                .orElseThrow(() -> new IllegalArgumentException("Instância não encontrada."));
+
+        if (!instancia.isAtivo()) {
+            throw new IllegalArgumentException("Instância deve estar ativa para registrar saída.");
+        }
+        if (instancia.getStatusOperacional() != StatusOperacionalInstancia.DISPONIVEL) {
+            throw new IllegalArgumentException("Apenas instâncias disponíveis podem registrar saída.");
+        }
+        if (instancia.getLocalAtual() == null) {
+            throw new IllegalArgumentException("Instância deve possuir local atual para registrar saída.");
+        }
+
+        LocalArmazenamento localOrigem = instancia.getLocalAtual();
+        String motivo = ValidacoesBR.trimToNull(dto.motivo());
+        if (motivo == null) {
+            throw new IllegalArgumentException("Motivo é obrigatório.");
+        }
+
+        instancia.setLocalAtual(null);
+        instancia.setStatusOperacional(StatusOperacionalInstancia.EM_MOVIMENTACAO);
+        instanciaItemRepository.save(instancia);
+
+        MovimentacaoItem movimentacao = new MovimentacaoItem();
+        movimentacao.setTipo(TipoMovimentacaoItem.SAIDA);
+        movimentacao.setInstanciaItem(instancia);
+        movimentacao.setLocalOrigem(localOrigem);
+        movimentacao.setMotivo(motivo);
         movimentacao.setObservacao(ValidacoesBR.trimToNull(dto.observacao()));
 
         return MovimentacaoItemMapper.toResponseDTO(salvar(movimentacao));

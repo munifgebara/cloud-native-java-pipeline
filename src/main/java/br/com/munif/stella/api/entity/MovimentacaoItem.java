@@ -36,9 +36,16 @@ public class MovimentacaoItem extends Entidade {
     @JoinColumn(name = "instancia_item_id", nullable = false)
     private InstanciaItem instanciaItem;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "local_destino_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "local_origem_id")
+    private LocalArmazenamento localOrigem;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "local_destino_id")
     private LocalArmazenamento localDestino;
+
+    @Column(name = "motivo", length = 200)
+    private String motivo;
 
     @Column(name = "observacao", length = 1000)
     private String observacao;

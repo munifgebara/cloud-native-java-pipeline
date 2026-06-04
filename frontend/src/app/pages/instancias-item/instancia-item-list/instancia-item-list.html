@@ -1,5 +1,61 @@
 <div class="page">
   <p-confirmdialog />
+  <p-dialog
+    [header]="'itemInstances.exitTitle' | translate"
+    [modal]="true"
+    [visible]="!!instanciaSaida()"
+    (visibleChange)="!$event && cancelarSaida()"
+    [style]="{ width: '32rem' }">
+    @if (instanciaSaida(); as instancia) {
+      <div class="exit-dialog">
+        <div>
+          <strong>{{ nomeInstancia(instancia) }}</strong>
+          <p>{{ instancia.localAtualNome }}</p>
+        </div>
+
+        <div class="field">
+          <label for="saidaMotivo">{{ 'itemInstances.exitReason' | translate }}</label>
+          <input
+            id="saidaMotivo"
+            pInputText
+            type="text"
+            maxlength="200"
+            [(ngModel)]="saidaMotivo" />
+        </div>
+
+        <div class="field">
+          <label for="saidaObservacao">{{ 'itemInstances.notes' | translate }}</label>
+          <textarea
+            id="saidaObservacao"
+            pTextarea
+            rows="4"
+            maxlength="1000"
+            [(ngModel)]="saidaObservacao"></textarea>
+        </div>
+
+        <div class="dialog-actions">
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            [label]="'common.cancel' | translate"
+            (click)="cancelarSaida()"
+            [disabled]="!!saidaId()">
+          </button>
+
+          <button
+            pButton
+            type="button"
+            icon="pi pi-sign-out"
+            [label]="'itemInstances.exit' | translate"
+            (click)="registrarSaida()"
+            [loading]="saidaId() === instancia.id"
+            [disabled]="!saidaMotivo.trim()">
+          </button>
+        </div>
+      </div>
+    }
+  </p-dialog>
 
   <div class="page-header">
     <div>
@@ -81,7 +137,7 @@
         <th>{{ 'itemInstances.serialNumber' | translate }}</th>
         <th>{{ 'itemInstances.currentLocation' | translate }}</th>
         <th style="width: 140px;">{{ 'itemInstances.status' | translate }}</th>
-        <th style="width: 220px;">{{ 'common.actions' | translate }}</th>
+        <th style="width: 330px;">{{ 'common.actions' | translate }}</th>
       </tr>
     </ng-template>
 
@@ -114,6 +170,18 @@
         </td>
         <td>
           <div class="actions">
+            <button
+              pButton
+              type="button"
+              severity="secondary"
+              text
+              icon="pi pi-sign-out"
+              [label]="'itemInstances.exit' | translate"
+              [disabled]="!podeRegistrarSaida(instancia) || !!saidaId()"
+              [loading]="saidaId() === instancia.id"
+              (click)="abrirSaida(instancia)">
+            </button>
+
             <button
               pButton
               type="button"

@@ -42,6 +42,7 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .master-item-name {
@@ -63,4 +64,32 @@
 
 .inactive-tag {
   margin-left: 0.4rem;
+}
+
+.exit-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.exit-dialog p {
+  margin: 0.25rem 0 0;
+  color: #475569;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
 }
