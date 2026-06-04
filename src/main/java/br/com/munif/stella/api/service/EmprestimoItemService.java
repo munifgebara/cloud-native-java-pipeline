@@ -1,0 +1,71 @@
+package br.com.munif.stella.api.service;
+
+import br.com.munif.comum.service.SuperService;
+import br.com.munif.comum.utils.validacoes.ValidacoesBR;
+import br.com.munif.stella.api.dto.EmprestimoItemCreateDTO;
+import br.com.munif.stella.api.dto.EmprestimoItemResponseDTO;
+import br.com.munif.stella.api.entity.EmprestimoItem;
+import br.com.munif.stella.api.entity.InstanciaItem;
+import br.com.munif.stella.api.entity.Pessoa;
+import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
+import br.com.munif.stella.api.mapper.EmprestimoItemMapper;
+import br.com.munif.stella.api.repository.EmprestimoItemRepository;
+import br.com.munif.stella.api.repository.InstanciaItemRepository;
+import br.com.munif.stella.api.repository.PessoaRepository;
+import jakarta.persistence.EntityManager;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class EmprestimoItemService extends SuperService<EmprestimoItem, EmprestimoItemRepository> {
+
+    private final InstanciaItemRepository instanciaItemRepository;
+    private final PessoaRepository pessoaRepository;
+
+    public EmprestimoItemService(
+            EmprestimoItemRepository repository,
+            EntityManager entityManager,
+            InstanciaItemRepository instanciaItemRepository,
+            PessoaRepository pessoaRepository
+    ) {
+        super(repository, entityManager, EmprestimoItem.class);
+        this.instanciaItemRepository = instanciaItemRepository;
+        this.pessoaRepository = pessoaRepository;
+    }
+
+    @Transactional
+    public EmprestimoItemResponseDTO registrarEmprestimo(EmprestimoItemCreateDTO dto) {
+        InstanciaItem instancia = instanciaItemRepository.findById(dto.instanciaItemId())
+                .orElseThrow(() -> new IllegalArgumentException("Instância não encontrada."));
+        Pessoa pessoa = pessoaRepository.findById(dto.pessoaId())
+                .orElseThrow(() -> new IllegalArgumentException("Pessoa não encontrada."));
+
+        if (!instancia.isAtivo()) {
+            throw new IllegalArgumentException("Instância deve estar ativa para registrar empréstimo.");
+        }
+        if (instancia.getStatusOperacional() != StatusOperacionalInstancia.DISPONIVEL) {
+            throw new IllegalArgumentException("Apenas instâncias disponíveis podem ser emprestadas.");
+        }
+        if (instancia.getLocalAtual() == null) {
+            throw new IllegalArgumentException("Instância deve possuir local atual para registrar empréstimo.");
+        }
+        if (!pessoa.isAtivo()) {
+            throw new IllegalArgumentException("Pessoa deve estar ativa para registrar empréstimo.");
+        }
+        if (repository.existsByInstanciaItemIdAndDataDevolucaoIsNull(instancia.getId())) {
+            throw new IllegalArgumentException("Já existe empréstimo aberto para esta instância.");
+        }
+
+        instancia.setLocalAtual(null);
+        instancia.setStatusOperacional(StatusOperacionalInstancia.EMPRESTADO);
+        instanciaItemRepository.save(instancia);
+
+        EmprestimoItem emprestimo = new EmprestimoItem();
+        emprestimo.setInstanciaItem(instancia);
+        emprestimo.setPessoa(pessoa);
+        emprestimo.setPrevisaoDevolucao(dto.previsaoDevolucao());
+        emprestimo.setObservacao(ValidacoesBR.trimToNull(dto.observacao()));
+
+        return EmprestimoItemMapper.toResponseDTO(salvar(emprestimo));
+    }
+}
