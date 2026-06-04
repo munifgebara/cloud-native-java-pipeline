@@ -80,6 +80,25 @@ export interface MovimentacaoTransferenciaRequest {
   observacao?: string | null;
 }
 
+export interface EmprestimoItemRequest {
+  instanciaItemId: string;
+  pessoaId: string;
+  previsaoDevolucao?: string | null;
+  observacao?: string | null;
+}
+
+export interface EmprestimoItemResponse {
+  id: string;
+  instanciaItemId: string;
+  instanciaIdentificacao: string | null;
+  pessoaId: string;
+  pessoaNome: string;
+  dataEmprestimo: string;
+  previsaoDevolucao: string | null;
+  dataDevolucao: string | null;
+  observacao: string | null;
+}
+
 export interface MovimentacaoItemResponse {
   id: string;
   tipo: 'ENTRADA' | 'SAIDA' | 'TRANSFERENCIA';
@@ -167,6 +186,10 @@ export class InstanciaItemService {
 
   registrarTransferencia(payload: MovimentacaoTransferenciaRequest): Observable<MovimentacaoItemResponse> {
     return this.http.post<MovimentacaoItemResponse>(`${environment.apiBaseUrl}/api/v0/movimentacoes-item/transferencia`, payload);
+  }
+
+  registrarEmprestimo(payload: EmprestimoItemRequest): Observable<EmprestimoItemResponse> {
+    return this.http.post<EmprestimoItemResponse>(`${environment.apiBaseUrl}/api/v0/emprestimos-item`, payload);
   }
 
   atualizar(id: string, payload: InstanciaItemUpdateRequest): Observable<InstanciaItemResponse> {

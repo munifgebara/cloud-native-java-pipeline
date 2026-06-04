@@ -112,6 +112,71 @@
       </div>
     }
   </p-dialog>
+  <p-dialog
+    [header]="'itemInstances.loanTitle' | translate"
+    [modal]="true"
+    [visible]="!!instanciaEmprestimo()"
+    (visibleChange)="!$event && cancelarEmprestimo()"
+    [style]="{ width: '32rem' }">
+    @if (instanciaEmprestimo(); as instancia) {
+      <div class="movement-dialog">
+        <div>
+          <strong>{{ nomeInstancia(instancia) }}</strong>
+          <p>{{ instancia.localAtualNome }}</p>
+        </div>
+
+        <div class="field">
+          <label for="emprestimoPessoaId">{{ 'itemInstances.loanPerson' | translate }}</label>
+          <select id="emprestimoPessoaId" [(ngModel)]="emprestimoPessoaId">
+            <option value="">{{ 'itemInstances.loanSelectPerson' | translate }}</option>
+            @for (pessoa of pessoas(); track pessoa.id) {
+              <option [value]="pessoa.id">{{ pessoa.nome }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="emprestimoPrevisaoDevolucao">{{ 'itemInstances.loanExpectedReturn' | translate }}</label>
+          <input
+            id="emprestimoPrevisaoDevolucao"
+            pInputText
+            type="date"
+            [(ngModel)]="emprestimoPrevisaoDevolucao" />
+        </div>
+
+        <div class="field">
+          <label for="emprestimoObservacao">{{ 'itemInstances.notes' | translate }}</label>
+          <textarea
+            id="emprestimoObservacao"
+            pTextarea
+            rows="4"
+            maxlength="1000"
+            [(ngModel)]="emprestimoObservacao"></textarea>
+        </div>
+
+        <div class="dialog-actions">
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            [label]="'common.cancel' | translate"
+            (click)="cancelarEmprestimo()"
+            [disabled]="!!emprestimoId()">
+          </button>
+
+          <button
+            pButton
+            type="button"
+            icon="pi pi-share-alt"
+            [label]="'itemInstances.loan' | translate"
+            (click)="registrarEmprestimo()"
+            [loading]="emprestimoId() === instancia.id"
+            [disabled]="!emprestimoPessoaId">
+          </button>
+        </div>
+      </div>
+    }
+  </p-dialog>
 
   <div class="page-header">
     <div>
@@ -193,7 +258,7 @@
         <th>{{ 'itemInstances.serialNumber' | translate }}</th>
         <th>{{ 'itemInstances.currentLocation' | translate }}</th>
         <th style="width: 140px;">{{ 'itemInstances.status' | translate }}</th>
-        <th style="width: 540px;">{{ 'common.actions' | translate }}</th>
+        <th style="width: 650px;">{{ 'common.actions' | translate }}</th>
       </tr>
     </ng-template>
 
@@ -234,6 +299,18 @@
               icon="pi pi-history"
               [label]="'itemInstances.history.action' | translate"
               [routerLink]="['/instancias-item', instancia.id, 'historico']">
+            </button>
+
+            <button
+              pButton
+              type="button"
+              severity="secondary"
+              text
+              icon="pi pi-share-alt"
+              [label]="'itemInstances.loan' | translate"
+              [disabled]="!podeEmprestar(instancia) || !!emprestimoId()"
+              [loading]="emprestimoId() === instancia.id"
+              (click)="abrirEmprestimo(instancia)">
             </button>
 
             <button

@@ -12,6 +12,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { CategoriaResumo, CategoriaService, categoriaIconClass } from '../../../core/categoria/categoria';
 import { InstanciaItemResumo, InstanciaItemService, StatusOperacionalInstancia } from '../../../core/instancia-item/instancia-item';
 import { LocalResumo, LocalService } from '../../../core/local/local';
+import { PessoaResumo, PessoaService } from '../../../core/pessoa/pessoa';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
 @Component({
@@ -26,6 +27,7 @@ export class InstanciaItemListComponent implements OnInit {
   private readonly instanciaItemService = inject(InstanciaItemService);
   private readonly categoriaService = inject(CategoriaService);
   private readonly localService = inject(LocalService);
+  private readonly pessoaService = inject(PessoaService);
   private readonly router = inject(Router);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly i18n = inject(I18nService);
@@ -33,17 +35,23 @@ export class InstanciaItemListComponent implements OnInit {
   instancias = signal<InstanciaItemResumo[]>([]);
   categorias = signal<CategoriaResumo[]>([]);
   locais = signal<LocalResumo[]>([]);
+  pessoas = signal<PessoaResumo[]>([]);
   loading = signal(false);
   deletingId = signal<string | null>(null);
   saidaId = signal<string | null>(null);
   instanciaSaida = signal<InstanciaItemResumo | null>(null);
   transferenciaId = signal<string | null>(null);
   instanciaTransferencia = signal<InstanciaItemResumo | null>(null);
+  emprestimoId = signal<string | null>(null);
+  instanciaEmprestimo = signal<InstanciaItemResumo | null>(null);
   errorMessage = signal('');
   saidaMotivo = '';
   saidaObservacao = '';
   transferenciaLocalDestinoId = '';
   transferenciaObservacao = '';
+  emprestimoPessoaId = '';
+  emprestimoPrevisaoDevolucao = '';
+  emprestimoObservacao = '';
   filtroIdentificacao = '';
   filtroItemMestre = '';
   filtroCategoriaId = '';
@@ -53,6 +61,7 @@ export class InstanciaItemListComponent implements OnInit {
   ngOnInit(): void {
     this.carregarCategorias();
     this.carregarLocais();
+    this.carregarPessoas();
     this.carregar();
   }
 
@@ -205,6 +214,51 @@ export class InstanciaItemListComponent implements OnInit {
     });
   }
 
+  abrirEmprestimo(instancia: InstanciaItemResumo): void {
+    this.errorMessage.set('');
+    this.instanciaEmprestimo.set(instancia);
+    this.emprestimoPessoaId = '';
+    this.emprestimoPrevisaoDevolucao = '';
+    this.emprestimoObservacao = '';
+  }
+
+  cancelarEmprestimo(): void {
+    if (this.emprestimoId()) {
+      return;
+    }
+    this.instanciaEmprestimo.set(null);
+    this.emprestimoPessoaId = '';
+    this.emprestimoPrevisaoDevolucao = '';
+    this.emprestimoObservacao = '';
+  }
+
+  registrarEmprestimo(): void {
+    const instancia = this.instanciaEmprestimo();
+
+    if (!instancia || !this.emprestimoPessoaId) {
+      this.errorMessage.set(this.i18n.translate('itemInstances.loanPersonRequired'));
+      return;
+    }
+
+    this.emprestimoId.set(instancia.id);
+    this.instanciaItemService.registrarEmprestimo({
+      instanciaItemId: instancia.id,
+      pessoaId: this.emprestimoPessoaId,
+      previsaoDevolucao: this.nullIfBlank(this.emprestimoPrevisaoDevolucao),
+      observacao: this.nullIfBlank(this.emprestimoObservacao),
+    }).subscribe({
+      next: () => {
+        this.emprestimoId.set(null);
+        this.cancelarEmprestimo();
+        this.pesquisar();
+      },
+      error: (err) => {
+        this.errorMessage.set(this.extractError(err, this.i18n.translate('itemInstances.loanError')));
+        this.emprestimoId.set(null);
+      },
+    });
+  }
+
   statusLabel(instancia: InstanciaItemResumo): string {
     return this.i18n.translate(`itemInstances.status.${instancia.statusOperacional}`);
   }
@@ -235,6 +289,10 @@ export class InstanciaItemListComponent implements OnInit {
     return instancia.ativa && instancia.statusOperacional === 'DISPONIVEL' && !!instancia.localAtualId;
   }
 
+  podeEmprestar(instancia: InstanciaItemResumo): boolean {
+    return instancia.ativa && instancia.statusOperacional === 'DISPONIVEL' && !!instancia.localAtualId;
+  }
+
   locaisDestino(instancia: InstanciaItemResumo): LocalResumo[] {
     return this.locais().filter((local) => local.ativa && local.id !== instancia.localAtualId);
   }
@@ -254,6 +312,13 @@ export class InstanciaItemListComponent implements OnInit {
     this.localService.listar().subscribe({
       next: (locais) => this.locais.set(locais),
       error: () => this.errorMessage.set(this.i18n.translate('itemInstances.locationLoadError')),
+    });
+  }
+
+  private carregarPessoas(): void {
+    this.pessoaService.listar().subscribe({
+      next: (pessoas) => this.pessoas.set(pessoas),
+      error: () => this.errorMessage.set(this.i18n.translate('itemInstances.personLoadError')),
     });
   }
 
