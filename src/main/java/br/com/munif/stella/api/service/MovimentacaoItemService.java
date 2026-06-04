@@ -5,6 +5,7 @@ import br.com.munif.comum.utils.validacoes.ValidacoesBR;
 import br.com.munif.stella.api.dto.MovimentacaoEntradaCreateDTO;
 import br.com.munif.stella.api.dto.MovimentacaoItemResponseDTO;
 import br.com.munif.stella.api.dto.MovimentacaoSaidaCreateDTO;
+import br.com.munif.stella.api.dto.MovimentacaoTransferenciaCreateDTO;
 import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.ItemMestre;
 import br.com.munif.stella.api.entity.LocalArmazenamento;
@@ -96,6 +97,41 @@ public class MovimentacaoItemService extends SuperService<MovimentacaoItem, Movi
         movimentacao.setInstanciaItem(instancia);
         movimentacao.setLocalOrigem(localOrigem);
         movimentacao.setMotivo(motivo);
+        movimentacao.setObservacao(ValidacoesBR.trimToNull(dto.observacao()));
+
+        return MovimentacaoItemMapper.toResponseDTO(salvar(movimentacao));
+    }
+
+    @Transactional
+    public MovimentacaoItemResponseDTO registrarTransferencia(MovimentacaoTransferenciaCreateDTO dto) {
+        InstanciaItem instancia = instanciaItemRepository.findById(dto.instanciaItemId())
+                .orElseThrow(() -> new IllegalArgumentException("Instância não encontrada."));
+
+        if (!instancia.isAtivo()) {
+            throw new IllegalArgumentException("Instância deve estar ativa para registrar transferência.");
+        }
+        if (instancia.getStatusOperacional() != StatusOperacionalInstancia.DISPONIVEL) {
+            throw new IllegalArgumentException("Apenas instâncias disponíveis podem ser transferidas.");
+        }
+        if (instancia.getLocalAtual() == null) {
+            throw new IllegalArgumentException("Instância deve possuir local atual para registrar transferência.");
+        }
+
+        LocalArmazenamento localOrigem = instancia.getLocalAtual();
+        LocalArmazenamento localDestino = buscarLocalAtivo(dto.localDestinoId());
+        if (localOrigem.getId().equals(localDestino.getId())) {
+            throw new IllegalArgumentException("Local destino deve ser diferente do local atual.");
+        }
+
+        instancia.setLocalAtual(localDestino);
+        instancia.setStatusOperacional(StatusOperacionalInstancia.DISPONIVEL);
+        instanciaItemRepository.save(instancia);
+
+        MovimentacaoItem movimentacao = new MovimentacaoItem();
+        movimentacao.setTipo(TipoMovimentacaoItem.TRANSFERENCIA);
+        movimentacao.setInstanciaItem(instancia);
+        movimentacao.setLocalOrigem(localOrigem);
+        movimentacao.setLocalDestino(localDestino);
         movimentacao.setObservacao(ValidacoesBR.trimToNull(dto.observacao()));
 
         return MovimentacaoItemMapper.toResponseDTO(salvar(movimentacao));
