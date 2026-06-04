@@ -11,6 +11,7 @@ import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { CategoriaResumo, CategoriaService, categoriaIconClass } from '../../../core/categoria/categoria';
 import { InstanciaItemResumo, InstanciaItemService, StatusOperacionalInstancia } from '../../../core/instancia-item/instancia-item';
+import { LocalResumo, LocalService } from '../../../core/local/local';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
 @Component({
@@ -24,19 +25,25 @@ import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 export class InstanciaItemListComponent implements OnInit {
   private readonly instanciaItemService = inject(InstanciaItemService);
   private readonly categoriaService = inject(CategoriaService);
+  private readonly localService = inject(LocalService);
   private readonly router = inject(Router);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly i18n = inject(I18nService);
 
   instancias = signal<InstanciaItemResumo[]>([]);
   categorias = signal<CategoriaResumo[]>([]);
+  locais = signal<LocalResumo[]>([]);
   loading = signal(false);
   deletingId = signal<string | null>(null);
   saidaId = signal<string | null>(null);
   instanciaSaida = signal<InstanciaItemResumo | null>(null);
+  transferenciaId = signal<string | null>(null);
+  instanciaTransferencia = signal<InstanciaItemResumo | null>(null);
   errorMessage = signal('');
   saidaMotivo = '';
   saidaObservacao = '';
+  transferenciaLocalDestinoId = '';
+  transferenciaObservacao = '';
   filtroIdentificacao = '';
   filtroItemMestre = '';
   filtroCategoriaId = '';
@@ -45,6 +52,7 @@ export class InstanciaItemListComponent implements OnInit {
 
   ngOnInit(): void {
     this.carregarCategorias();
+    this.carregarLocais();
     this.carregar();
   }
 
@@ -155,6 +163,48 @@ export class InstanciaItemListComponent implements OnInit {
     });
   }
 
+  abrirTransferencia(instancia: InstanciaItemResumo): void {
+    this.errorMessage.set('');
+    this.instanciaTransferencia.set(instancia);
+    this.transferenciaLocalDestinoId = '';
+    this.transferenciaObservacao = '';
+  }
+
+  cancelarTransferencia(): void {
+    if (this.transferenciaId()) {
+      return;
+    }
+    this.instanciaTransferencia.set(null);
+    this.transferenciaLocalDestinoId = '';
+    this.transferenciaObservacao = '';
+  }
+
+  registrarTransferencia(): void {
+    const instancia = this.instanciaTransferencia();
+
+    if (!instancia || !this.transferenciaLocalDestinoId) {
+      this.errorMessage.set(this.i18n.translate('itemInstances.transferDestinationRequired'));
+      return;
+    }
+
+    this.transferenciaId.set(instancia.id);
+    this.instanciaItemService.registrarTransferencia({
+      instanciaItemId: instancia.id,
+      localDestinoId: this.transferenciaLocalDestinoId,
+      observacao: this.nullIfBlank(this.transferenciaObservacao),
+    }).subscribe({
+      next: () => {
+        this.transferenciaId.set(null);
+        this.cancelarTransferencia();
+        this.pesquisar();
+      },
+      error: (err) => {
+        this.errorMessage.set(this.extractError(err, this.i18n.translate('itemInstances.transferError')));
+        this.transferenciaId.set(null);
+      },
+    });
+  }
+
   statusLabel(instancia: InstanciaItemResumo): string {
     return this.i18n.translate(`itemInstances.status.${instancia.statusOperacional}`);
   }
@@ -181,6 +231,14 @@ export class InstanciaItemListComponent implements OnInit {
     return instancia.ativa && instancia.statusOperacional === 'DISPONIVEL' && !!instancia.localAtualId;
   }
 
+  podeTransferir(instancia: InstanciaItemResumo): boolean {
+    return instancia.ativa && instancia.statusOperacional === 'DISPONIVEL' && !!instancia.localAtualId;
+  }
+
+  locaisDestino(instancia: InstanciaItemResumo): LocalResumo[] {
+    return this.locais().filter((local) => local.ativa && local.id !== instancia.localAtualId);
+  }
+
   statusOptionLabel(status: StatusOperacionalInstancia): string {
     return this.i18n.translate(`itemInstances.status.${status}`);
   }
@@ -189,6 +247,13 @@ export class InstanciaItemListComponent implements OnInit {
     this.categoriaService.listar().subscribe({
       next: (categorias) => this.categorias.set(categorias),
       error: () => this.errorMessage.set(this.i18n.translate('itemInstances.categoryLoadError')),
+    });
+  }
+
+  private carregarLocais(): void {
+    this.localService.listar().subscribe({
+      next: (locais) => this.locais.set(locais),
+      error: () => this.errorMessage.set(this.i18n.translate('itemInstances.locationLoadError')),
     });
   }
 

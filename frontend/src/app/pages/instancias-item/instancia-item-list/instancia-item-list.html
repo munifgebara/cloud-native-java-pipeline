@@ -56,6 +56,62 @@
       </div>
     }
   </p-dialog>
+  <p-dialog
+    [header]="'itemInstances.transferTitle' | translate"
+    [modal]="true"
+    [visible]="!!instanciaTransferencia()"
+    (visibleChange)="!$event && cancelarTransferencia()"
+    [style]="{ width: '32rem' }">
+    @if (instanciaTransferencia(); as instancia) {
+      <div class="movement-dialog">
+        <div>
+          <strong>{{ nomeInstancia(instancia) }}</strong>
+          <p>{{ instancia.localAtualNome }}</p>
+        </div>
+
+        <div class="field">
+          <label for="transferenciaLocalDestinoId">{{ 'itemInstances.transferDestination' | translate }}</label>
+          <select id="transferenciaLocalDestinoId" [(ngModel)]="transferenciaLocalDestinoId">
+            <option value="">{{ 'itemInstances.transferSelectDestination' | translate }}</option>
+            @for (local of locaisDestino(instancia); track local.id) {
+              <option [value]="local.id">{{ local.caminho }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="transferenciaObservacao">{{ 'itemInstances.notes' | translate }}</label>
+          <textarea
+            id="transferenciaObservacao"
+            pTextarea
+            rows="4"
+            maxlength="1000"
+            [(ngModel)]="transferenciaObservacao"></textarea>
+        </div>
+
+        <div class="dialog-actions">
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            [label]="'common.cancel' | translate"
+            (click)="cancelarTransferencia()"
+            [disabled]="!!transferenciaId()">
+          </button>
+
+          <button
+            pButton
+            type="button"
+            icon="pi pi-arrow-right-arrow-left"
+            [label]="'itemInstances.transfer' | translate"
+            (click)="registrarTransferencia()"
+            [loading]="transferenciaId() === instancia.id"
+            [disabled]="!transferenciaLocalDestinoId">
+          </button>
+        </div>
+      </div>
+    }
+  </p-dialog>
 
   <div class="page-header">
     <div>
@@ -137,7 +193,7 @@
         <th>{{ 'itemInstances.serialNumber' | translate }}</th>
         <th>{{ 'itemInstances.currentLocation' | translate }}</th>
         <th style="width: 140px;">{{ 'itemInstances.status' | translate }}</th>
-        <th style="width: 330px;">{{ 'common.actions' | translate }}</th>
+        <th style="width: 440px;">{{ 'common.actions' | translate }}</th>
       </tr>
     </ng-template>
 
@@ -170,6 +226,18 @@
         </td>
         <td>
           <div class="actions">
+            <button
+              pButton
+              type="button"
+              severity="secondary"
+              text
+              icon="pi pi-arrow-right-arrow-left"
+              [label]="'itemInstances.transfer' | translate"
+              [disabled]="!podeTransferir(instancia) || !!transferenciaId()"
+              [loading]="transferenciaId() === instancia.id"
+              (click)="abrirTransferencia(instancia)">
+            </button>
+
             <button
               pButton
               type="button"

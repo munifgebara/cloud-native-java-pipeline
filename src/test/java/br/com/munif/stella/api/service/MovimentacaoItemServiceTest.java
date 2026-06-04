@@ -2,6 +2,7 @@ package br.com.munif.stella.api.service;
 
 import br.com.munif.stella.api.dto.MovimentacaoEntradaCreateDTO;
 import br.com.munif.stella.api.dto.MovimentacaoSaidaCreateDTO;
+import br.com.munif.stella.api.dto.MovimentacaoTransferenciaCreateDTO;
 import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.ItemMestre;
 import br.com.munif.stella.api.entity.LocalArmazenamento;
@@ -170,6 +171,68 @@ class MovimentacaoItemServiceTest {
         assertThatThrownBy(() -> service.registrarSaida(new MovimentacaoSaidaCreateDTO(instanciaId, "Retirada", null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("disponíveis");
+
+        verify(instanciaItemRepository, never()).save(any(InstanciaItem.class));
+        verify(repository, never()).save(any(MovimentacaoItem.class));
+    }
+
+    @Test
+    void deveRegistrarTransferenciaAtualizandoLocalAtual() {
+        UUID instanciaId = UUID.randomUUID();
+        UUID origemId = UUID.randomUUID();
+        UUID destinoId = UUID.randomUUID();
+        LocalArmazenamento origem = local(origemId, "Biblioteca", true);
+        LocalArmazenamento destino = local(destinoId, "Laboratório", true);
+        InstanciaItem instancia = instancia(instanciaId, origem, StatusOperacionalInstancia.DISPONIVEL, true);
+
+        when(instanciaItemRepository.findById(instanciaId)).thenReturn(Optional.of(instancia));
+        when(localArmazenamentoRepository.findById(destinoId)).thenReturn(Optional.of(destino));
+        when(instanciaItemRepository.save(any(InstanciaItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.save(any(MovimentacaoItem.class))).thenAnswer(invocation -> {
+            MovimentacaoItem movimentacao = invocation.getArgument(0);
+            movimentacao.setId(UUID.randomUUID());
+            return movimentacao;
+        });
+
+        var resposta = service.registrarTransferencia(new MovimentacaoTransferenciaCreateDTO(
+                instanciaId,
+                destinoId,
+                "  Transferência para conferência  "
+        ));
+
+        ArgumentCaptor<InstanciaItem> instanciaCaptor = ArgumentCaptor.forClass(InstanciaItem.class);
+        ArgumentCaptor<MovimentacaoItem> movimentacaoCaptor = ArgumentCaptor.forClass(MovimentacaoItem.class);
+        verify(instanciaItemRepository).save(instanciaCaptor.capture());
+        verify(repository).save(movimentacaoCaptor.capture());
+
+        InstanciaItem instanciaAtualizada = instanciaCaptor.getValue();
+        assertThat(instanciaAtualizada.getLocalAtual()).isEqualTo(destino);
+        assertThat(instanciaAtualizada.getStatusOperacional()).isEqualTo(StatusOperacionalInstancia.DISPONIVEL);
+
+        MovimentacaoItem movimentacao = movimentacaoCaptor.getValue();
+        assertThat(movimentacao.getTipo()).isEqualTo(TipoMovimentacaoItem.TRANSFERENCIA);
+        assertThat(movimentacao.getInstanciaItem()).isEqualTo(instancia);
+        assertThat(movimentacao.getLocalOrigem()).isEqualTo(origem);
+        assertThat(movimentacao.getLocalDestino()).isEqualTo(destino);
+        assertThat(movimentacao.getObservacao()).isEqualTo("Transferência para conferência");
+        assertThat(resposta.tipo()).isEqualTo(TipoMovimentacaoItem.TRANSFERENCIA);
+        assertThat(resposta.localOrigemId()).isEqualTo(origemId);
+        assertThat(resposta.localDestinoId()).isEqualTo(destinoId);
+    }
+
+    @Test
+    void deveImpedirTransferenciaParaMesmoLocal() {
+        UUID instanciaId = UUID.randomUUID();
+        UUID localId = UUID.randomUUID();
+        LocalArmazenamento local = local(localId, "Biblioteca", true);
+        InstanciaItem instancia = instancia(instanciaId, local, StatusOperacionalInstancia.DISPONIVEL, true);
+
+        when(instanciaItemRepository.findById(instanciaId)).thenReturn(Optional.of(instancia));
+        when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(local));
+
+        assertThatThrownBy(() -> service.registrarTransferencia(new MovimentacaoTransferenciaCreateDTO(instanciaId, localId, null)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("diferente");
 
         verify(instanciaItemRepository, never()).save(any(InstanciaItem.class));
         verify(repository, never()).save(any(MovimentacaoItem.class));

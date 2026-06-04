@@ -66,13 +66,15 @@
   margin-left: 0.4rem;
 }
 
-.exit-dialog {
+.exit-dialog,
+.movement-dialog {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.exit-dialog p {
+.exit-dialog p,
+.movement-dialog p {
   margin: 0.25rem 0 0;
   color: #475569;
 }
@@ -84,8 +86,18 @@
 }
 
 .field input,
+.field select,
 .field textarea {
   width: 100%;
+}
+
+.field select {
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #0f172a;
 }
 
 .dialog-actions {
