@@ -3,6 +3,7 @@ package br.com.munif.stella.api.controller;
 import br.com.munif.comum.controller.SuperController;
 import br.com.munif.comum.dto.RevisaoDTO;
 import br.com.munif.stella.api.dto.InstanciaItemCreateDTO;
+import br.com.munif.stella.api.dto.InstanciaItemHistoricoDTO;
 import br.com.munif.stella.api.dto.InstanciaItemResponseDTO;
 import br.com.munif.stella.api.dto.InstanciaItemResumoDTO;
 import br.com.munif.stella.api.dto.InstanciaItemUpdateDTO;
@@ -45,6 +46,11 @@ public class InstanciaItemController extends SuperController<InstanciaItemResumo
     @GetMapping("/{id}")
     public ResponseEntity<InstanciaItemResponseDTO> buscarPorId(@PathVariable UUID id) {
         return ResponseEntity.ok(service.buscarResponsePorId(id));
+    }
+
+    @GetMapping("/{id}/historico")
+    public ResponseEntity<InstanciaItemHistoricoDTO> buscarHistorico(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.buscarHistorico(id));
     }
 
     @Override

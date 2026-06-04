@@ -94,6 +94,11 @@ export interface MovimentacaoItemResponse {
   observacao: string | null;
 }
 
+export interface InstanciaItemHistoricoResponse {
+  instancia: InstanciaItemResponse;
+  movimentacoes: MovimentacaoItemResponse[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -142,6 +147,10 @@ export class InstanciaItemService {
 
   buscarPorId(id: string): Observable<InstanciaItemResponse> {
     return this.http.get<InstanciaItemResponse>(`${this.baseUrl}/${id}`);
+  }
+
+  buscarHistorico(id: string): Observable<InstanciaItemHistoricoResponse> {
+    return this.http.get<InstanciaItemHistoricoResponse>(`${this.baseUrl}/${id}/historico`);
   }
 
   criar(payload: InstanciaItemCreateRequest): Observable<InstanciaItemResponse> {

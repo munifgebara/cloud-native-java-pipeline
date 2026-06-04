@@ -4,6 +4,7 @@ import br.com.munif.comum.dto.RevisaoDTO;
 import br.com.munif.comum.service.SuperService;
 import br.com.munif.comum.utils.validacoes.ValidacoesBR;
 import br.com.munif.stella.api.dto.InstanciaItemCreateDTO;
+import br.com.munif.stella.api.dto.InstanciaItemHistoricoDTO;
 import br.com.munif.stella.api.dto.InstanciaItemResponseDTO;
 import br.com.munif.stella.api.dto.InstanciaItemResumoDTO;
 import br.com.munif.stella.api.dto.InstanciaItemUpdateDTO;
@@ -12,9 +13,11 @@ import br.com.munif.stella.api.entity.ItemMestre;
 import br.com.munif.stella.api.entity.LocalArmazenamento;
 import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 import br.com.munif.stella.api.mapper.InstanciaItemMapper;
+import br.com.munif.stella.api.mapper.MovimentacaoItemMapper;
 import br.com.munif.stella.api.repository.InstanciaItemRepository;
 import br.com.munif.stella.api.repository.ItemMestreRepository;
 import br.com.munif.stella.api.repository.LocalArmazenamentoRepository;
+import br.com.munif.stella.api.repository.MovimentacaoItemRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,16 +30,19 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
 
     private final ItemMestreRepository itemMestreRepository;
     private final LocalArmazenamentoRepository localArmazenamentoRepository;
+    private final MovimentacaoItemRepository movimentacaoItemRepository;
 
     public InstanciaItemService(
             InstanciaItemRepository repository,
             EntityManager entityManager,
             ItemMestreRepository itemMestreRepository,
-            LocalArmazenamentoRepository localArmazenamentoRepository
+            LocalArmazenamentoRepository localArmazenamentoRepository,
+            MovimentacaoItemRepository movimentacaoItemRepository
     ) {
         super(repository, entityManager, InstanciaItem.class);
         this.itemMestreRepository = itemMestreRepository;
         this.localArmazenamentoRepository = localArmazenamentoRepository;
+        this.movimentacaoItemRepository = movimentacaoItemRepository;
     }
 
     @Transactional
@@ -59,6 +65,19 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
     @Transactional(readOnly = true)
     public InstanciaItemResponseDTO buscarResponsePorId(UUID id) {
         return InstanciaItemMapper.toResponseDTO(buscarPorId(id));
+    }
+
+    @Transactional(readOnly = true)
+    public InstanciaItemHistoricoDTO buscarHistorico(UUID id) {
+        InstanciaItem instancia = buscarPorId(id);
+        var movimentacoes = movimentacaoItemRepository.findByInstanciaItemIdOrderByDataMovimentacaoAscCriadoEmAsc(id).stream()
+                .map(MovimentacaoItemMapper::toResponseDTO)
+                .toList();
+
+        return new InstanciaItemHistoricoDTO(
+                InstanciaItemMapper.toResponseDTO(instancia),
+                movimentacoes
+        );
     }
 
     @Transactional(readOnly = true)

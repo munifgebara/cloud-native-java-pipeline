@@ -6,10 +6,13 @@ import br.com.munif.stella.api.entity.Categoria;
 import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.ItemMestre;
 import br.com.munif.stella.api.entity.LocalArmazenamento;
+import br.com.munif.stella.api.entity.MovimentacaoItem;
 import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
+import br.com.munif.stella.api.entity.TipoMovimentacaoItem;
 import br.com.munif.stella.api.repository.InstanciaItemRepository;
 import br.com.munif.stella.api.repository.ItemMestreRepository;
 import br.com.munif.stella.api.repository.LocalArmazenamentoRepository;
+import br.com.munif.stella.api.repository.MovimentacaoItemRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,6 +43,9 @@ class InstanciaItemServiceTest {
 
     @Mock
     private LocalArmazenamentoRepository localArmazenamentoRepository;
+
+    @Mock
+    private MovimentacaoItemRepository movimentacaoItemRepository;
 
     @Mock
     private EntityManager entityManager;
@@ -164,6 +170,44 @@ class InstanciaItemServiceTest {
         assertThat(resposta.getFirst().statusOperacional()).isEqualTo(StatusOperacionalInstancia.DISPONIVEL);
     }
 
+    @Test
+    void deveBuscarHistoricoConsolidadoComMovimentacoesOrdenadas() {
+        UUID instanciaId = UUID.randomUUID();
+        LocalArmazenamento origem = local(UUID.randomUUID(), "Biblioteca", true);
+        LocalArmazenamento destino = local(UUID.randomUUID(), "Laboratorio", true);
+        InstanciaItem instancia = instancia(instanciaId, "NB-001", itemMestre(UUID.randomUUID(), "Notebook", true));
+        instancia.setLocalAtual(destino);
+        MovimentacaoItem movimentacao = movimentacao(instancia, origem, destino, TipoMovimentacaoItem.TRANSFERENCIA);
+
+        when(repository.findById(instanciaId)).thenReturn(Optional.of(instancia));
+        when(movimentacaoItemRepository.findByInstanciaItemIdOrderByDataMovimentacaoAscCriadoEmAsc(instanciaId))
+                .thenReturn(List.of(movimentacao));
+
+        var resposta = service.buscarHistorico(instanciaId);
+
+        assertThat(resposta.instancia().id()).isEqualTo(instanciaId);
+        assertThat(resposta.instancia().localAtualId()).isEqualTo(destino.getId());
+        assertThat(resposta.movimentacoes()).hasSize(1);
+        assertThat(resposta.movimentacoes().getFirst().tipo()).isEqualTo(TipoMovimentacaoItem.TRANSFERENCIA);
+        assertThat(resposta.movimentacoes().getFirst().localOrigemId()).isEqualTo(origem.getId());
+        assertThat(resposta.movimentacoes().getFirst().localDestinoId()).isEqualTo(destino.getId());
+    }
+
+    @Test
+    void deveBuscarHistoricoSemMovimentacoes() {
+        UUID instanciaId = UUID.randomUUID();
+        InstanciaItem instancia = instancia(instanciaId, "NB-001", itemMestre(UUID.randomUUID(), "Notebook", true));
+
+        when(repository.findById(instanciaId)).thenReturn(Optional.of(instancia));
+        when(movimentacaoItemRepository.findByInstanciaItemIdOrderByDataMovimentacaoAscCriadoEmAsc(instanciaId))
+                .thenReturn(List.of());
+
+        var resposta = service.buscarHistorico(instanciaId);
+
+        assertThat(resposta.instancia().id()).isEqualTo(instanciaId);
+        assertThat(resposta.movimentacoes()).isEmpty();
+    }
+
     private InstanciaItem instancia(UUID id, String identificador, ItemMestre itemMestre) {
         InstanciaItem instancia = new InstanciaItem();
         instancia.setId(id);
@@ -193,5 +237,16 @@ class InstanciaItemServiceTest {
         local.setNome(nome);
         local.setAtivo(ativo);
         return local;
+    }
+
+    private MovimentacaoItem movimentacao(InstanciaItem instancia, LocalArmazenamento origem, LocalArmazenamento destino, TipoMovimentacaoItem tipo) {
+        MovimentacaoItem movimentacao = new MovimentacaoItem();
+        movimentacao.setId(UUID.randomUUID());
+        movimentacao.setTipo(tipo);
+        movimentacao.setInstanciaItem(instancia);
+        movimentacao.setLocalOrigem(origem);
+        movimentacao.setLocalDestino(destino);
+        movimentacao.setObservacao("Movimento registrado");
+        return movimentacao;
     }
 }

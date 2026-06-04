@@ -1,0 +1,102 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.page-header h2 {
+  margin: 0;
+}
+
+.page-header p {
+  margin: 0.35rem 0 0;
+  color: #475569;
+}
+
+.error-box,
+.empty-box {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+}
+
+.error-box {
+  background: #ffe8e8;
+  color: #9f1239;
+}
+
+.empty-box {
+  background: #f8fafc;
+  color: #475569;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1rem;
+}
+
+.summary-grid div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.summary-grid span,
+.timeline-header span,
+.timeline-content small {
+  color: #64748b;
+}
+
+.timeline-section h3 {
+  margin: 0 0 0.75rem;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: 1.25rem 1fr;
+  gap: 0.75rem;
+}
+
+.marker {
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-top: 0.45rem;
+  border-radius: 999px;
+  background: #2563eb;
+}
+
+.timeline-content {
+  padding: 0.85rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.timeline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.timeline-content p {
+  margin: 0.5rem 0 0;
+}
+
+.timeline-content small {
+  display: block;
+  margin-top: 0.5rem;
+}
