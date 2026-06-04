@@ -8,6 +8,7 @@ import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InstanciaItemService, StatusOperacionalInstancia } from '../../../core/instancia-item/instancia-item';
 import { ItemMestreResumo, ItemMestreService } from '../../../core/item-mestre/item-mestre';
+import { LocalResumo, LocalService } from '../../../core/local/local';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
 @Component({
@@ -24,9 +25,11 @@ export class InstanciaItemFormComponent implements OnInit {
   private readonly i18n = inject(I18nService);
   private readonly instanciaItemService = inject(InstanciaItemService);
   private readonly itemMestreService = inject(ItemMestreService);
+  private readonly localService = inject(LocalService);
 
   id = signal<string | null>(null);
   itensMestre = signal<ItemMestreResumo[]>([]);
+  locais = signal<LocalResumo[]>([]);
   loading = signal(false);
   salvando = signal(false);
   errorMessage = signal('');
@@ -36,6 +39,7 @@ export class InstanciaItemFormComponent implements OnInit {
 
   form = this.fb.group({
     itemMestreId: ['', [Validators.required]],
+    localAtualId: ['', [Validators.required]],
     identificador: ['', [Validators.maxLength(100)]],
     patrimonio: ['', [Validators.maxLength(100)]],
     numeroSerie: ['', [Validators.maxLength(150)]],
@@ -48,6 +52,7 @@ export class InstanciaItemFormComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     this.id.set(id);
     this.carregarItensMestre();
+    this.carregarLocais();
 
     if (!id) {
       return;
@@ -59,6 +64,7 @@ export class InstanciaItemFormComponent implements OnInit {
       next: (instancia) => {
         this.form.patchValue({
           itemMestreId: instancia.itemMestreId ?? '',
+          localAtualId: instancia.localAtualId ?? '',
           identificador: instancia.identificador ?? '',
           patrimonio: instancia.patrimonio ?? '',
           numeroSerie: instancia.numeroSerie ?? '',
@@ -87,6 +93,7 @@ export class InstanciaItemFormComponent implements OnInit {
     const valor = this.form.getRawValue();
     const payload = {
       itemMestreId: valor.itemMestreId ?? '',
+      localAtualId: valor.localAtualId ?? '',
       identificador: this.nullIfBlank(valor.identificador),
       patrimonio: this.nullIfBlank(valor.patrimonio),
       numeroSerie: this.nullIfBlank(valor.numeroSerie),
@@ -117,7 +124,14 @@ export class InstanciaItemFormComponent implements OnInit {
       return;
     }
 
-    this.instanciaItemService.criar(payload).subscribe({
+    this.instanciaItemService.registrarEntrada({
+      itemMestreId: payload.itemMestreId,
+      localDestinoId: payload.localAtualId,
+      identificador: payload.identificador,
+      patrimonio: payload.patrimonio,
+      numeroSerie: payload.numeroSerie,
+      observacao: payload.observacoes,
+    }).subscribe({
       next: () => {
         this.salvando.set(false);
         this.router.navigate(['/instancias-item']);
@@ -142,6 +156,13 @@ export class InstanciaItemFormComponent implements OnInit {
     this.itemMestreService.listar().subscribe({
       next: (itens) => this.itensMestre.set(itens),
       error: () => this.errorMessage.set(this.i18n.translate('itemInstances.form.masterItemLoadError')),
+    });
+  }
+
+  private carregarLocais(): void {
+    this.localService.listar().subscribe({
+      next: (locais) => this.locais.set(locais),
+      error: () => this.errorMessage.set(this.i18n.translate('itemInstances.form.locationLoadError')),
     });
   }
 

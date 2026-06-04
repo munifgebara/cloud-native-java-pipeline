@@ -10,6 +10,8 @@ public record InstanciaItemResumoDTO(
         String itemMestreNome,
         String categoriaNome,
         String categoriaIcone,
+        UUID localAtualId,
+        String localAtualNome,
         String identificador,
         String patrimonio,
         String numeroSerie,

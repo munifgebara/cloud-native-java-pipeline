@@ -1,0 +1,134 @@
+package br.com.munif.stella.api.service;
+
+import br.com.munif.stella.api.dto.MovimentacaoEntradaCreateDTO;
+import br.com.munif.stella.api.entity.InstanciaItem;
+import br.com.munif.stella.api.entity.ItemMestre;
+import br.com.munif.stella.api.entity.LocalArmazenamento;
+import br.com.munif.stella.api.entity.MovimentacaoItem;
+import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
+import br.com.munif.stella.api.entity.TipoMovimentacaoItem;
+import br.com.munif.stella.api.repository.InstanciaItemRepository;
+import br.com.munif.stella.api.repository.ItemMestreRepository;
+import br.com.munif.stella.api.repository.LocalArmazenamentoRepository;
+import br.com.munif.stella.api.repository.MovimentacaoItemRepository;
+import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class MovimentacaoItemServiceTest {
+
+    @Mock
+    private MovimentacaoItemRepository repository;
+
+    @Mock
+    private InstanciaItemRepository instanciaItemRepository;
+
+    @Mock
+    private ItemMestreRepository itemMestreRepository;
+
+    @Mock
+    private LocalArmazenamentoRepository localArmazenamentoRepository;
+
+    @Mock
+    private EntityManager entityManager;
+
+    @InjectMocks
+    private MovimentacaoItemService service;
+
+    @Test
+    void deveRegistrarEntradaCriandoInstanciaDisponivelNoLocalDestino() {
+        UUID itemMestreId = UUID.randomUUID();
+        UUID localId = UUID.randomUUID();
+        ItemMestre itemMestre = itemMestre(itemMestreId, true);
+        LocalArmazenamento local = local(localId, "Biblioteca", true);
+
+        when(itemMestreRepository.findById(itemMestreId)).thenReturn(Optional.of(itemMestre));
+        when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(local));
+        when(instanciaItemRepository.save(any(InstanciaItem.class))).thenAnswer(invocation -> {
+            InstanciaItem instancia = invocation.getArgument(0);
+            instancia.setId(UUID.randomUUID());
+            return instancia;
+        });
+        when(repository.save(any(MovimentacaoItem.class))).thenAnswer(invocation -> {
+            MovimentacaoItem movimentacao = invocation.getArgument(0);
+            movimentacao.setId(UUID.randomUUID());
+            return movimentacao;
+        });
+
+        var resposta = service.registrarEntrada(new MovimentacaoEntradaCreateDTO(
+                itemMestreId,
+                localId,
+                "  LIV-001  ",
+                null,
+                "  SN-001  ",
+                "  Entrada inicial  "
+        ));
+
+        ArgumentCaptor<InstanciaItem> instanciaCaptor = ArgumentCaptor.forClass(InstanciaItem.class);
+        ArgumentCaptor<MovimentacaoItem> movimentacaoCaptor = ArgumentCaptor.forClass(MovimentacaoItem.class);
+        verify(instanciaItemRepository).save(instanciaCaptor.capture());
+        verify(repository).save(movimentacaoCaptor.capture());
+
+        InstanciaItem instancia = instanciaCaptor.getValue();
+        assertThat(instancia.getItemMestre()).isEqualTo(itemMestre);
+        assertThat(instancia.getLocalAtual()).isEqualTo(local);
+        assertThat(instancia.getIdentificador()).isEqualTo("LIV-001");
+        assertThat(instancia.getNumeroSerie()).isEqualTo("SN-001");
+        assertThat(instancia.getStatusOperacional()).isEqualTo(StatusOperacionalInstancia.DISPONIVEL);
+
+        MovimentacaoItem movimentacao = movimentacaoCaptor.getValue();
+        assertThat(movimentacao.getTipo()).isEqualTo(TipoMovimentacaoItem.ENTRADA);
+        assertThat(movimentacao.getInstanciaItem()).isEqualTo(instancia);
+        assertThat(movimentacao.getLocalDestino()).isEqualTo(local);
+        assertThat(movimentacao.getObservacao()).isEqualTo("Entrada inicial");
+        assertThat(resposta.tipo()).isEqualTo(TipoMovimentacaoItem.ENTRADA);
+        assertThat(resposta.localDestinoId()).isEqualTo(localId);
+    }
+
+    @Test
+    void deveImpedirEntradaSemIdentificacaoIndividual() {
+        UUID itemMestreId = UUID.randomUUID();
+        UUID localId = UUID.randomUUID();
+
+        when(itemMestreRepository.findById(itemMestreId)).thenReturn(Optional.of(itemMestre(itemMestreId, true)));
+        when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(local(localId, "Biblioteca", true)));
+
+        assertThatThrownBy(() -> service.registrarEntrada(new MovimentacaoEntradaCreateDTO(itemMestreId, localId, " ", null, null, null)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("identificador");
+
+        verify(instanciaItemRepository, never()).save(any(InstanciaItem.class));
+        verify(repository, never()).save(any(MovimentacaoItem.class));
+    }
+
+    private ItemMestre itemMestre(UUID id, boolean ativo) {
+        ItemMestre itemMestre = new ItemMestre();
+        itemMestre.setId(id);
+        itemMestre.setNome("Livro");
+        itemMestre.setAtivo(ativo);
+        return itemMestre;
+    }
+
+    private LocalArmazenamento local(UUID id, String nome, boolean ativo) {
+        LocalArmazenamento local = new LocalArmazenamento();
+        local.setId(id);
+        local.setNome(nome);
+        local.setAtivo(ativo);
+        return local;
+    }
+}

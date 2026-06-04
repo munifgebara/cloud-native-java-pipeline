@@ -10,6 +10,8 @@ public record InstanciaItemUpdateDTO(
         @NotNull(message = "Item mestre é obrigatório.")
         UUID itemMestreId,
 
+        UUID localAtualId,
+
         @Size(max = 100, message = "Identificador deve ter no máximo 100 caracteres.")
         String identificador,
 

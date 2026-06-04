@@ -11,6 +11,8 @@ export interface InstanciaItemResumo {
   itemMestreNome: string;
   categoriaNome: string | null;
   categoriaIcone: string | null;
+  localAtualId: string | null;
+  localAtualNome: string | null;
   identificador: string | null;
   patrimonio: string | null;
   numeroSerie: string | null;
@@ -25,6 +27,8 @@ export interface InstanciaItemResponse {
   categoriaId: string | null;
   categoriaNome: string | null;
   categoriaIcone: string | null;
+  localAtualId: string | null;
+  localAtualNome: string | null;
   identificador: string | null;
   patrimonio: string | null;
   numeroSerie: string | null;
@@ -35,6 +39,7 @@ export interface InstanciaItemResponse {
 
 export interface InstanciaItemCreateRequest {
   itemMestreId: string;
+  localAtualId?: string | null;
   identificador?: string | null;
   patrimonio?: string | null;
   numeroSerie?: string | null;
@@ -45,12 +50,33 @@ export interface InstanciaItemCreateRequest {
 
 export interface InstanciaItemUpdateRequest {
   itemMestreId: string;
+  localAtualId?: string | null;
   identificador?: string | null;
   patrimonio?: string | null;
   numeroSerie?: string | null;
   statusOperacional?: StatusOperacionalInstancia | null;
   observacoes?: string | null;
   ativa?: boolean | null;
+}
+
+export interface MovimentacaoEntradaRequest {
+  itemMestreId: string;
+  localDestinoId: string;
+  identificador?: string | null;
+  patrimonio?: string | null;
+  numeroSerie?: string | null;
+  observacao?: string | null;
+}
+
+export interface MovimentacaoItemResponse {
+  id: string;
+  tipo: 'ENTRADA';
+  dataMovimentacao: string;
+  instanciaItemId: string;
+  instanciaIdentificacao: string | null;
+  localDestinoId: string;
+  localDestinoNome: string;
+  observacao: string | null;
 }
 
 @Injectable({
@@ -105,6 +131,10 @@ export class InstanciaItemService {
 
   criar(payload: InstanciaItemCreateRequest): Observable<InstanciaItemResponse> {
     return this.http.post<InstanciaItemResponse>(this.baseUrl, payload);
+  }
+
+  registrarEntrada(payload: MovimentacaoEntradaRequest): Observable<MovimentacaoItemResponse> {
+    return this.http.post<MovimentacaoItemResponse>(`${environment.apiBaseUrl}/api/v0/movimentacoes-item/entrada`, payload);
   }
 
   atualizar(id: string, payload: InstanciaItemUpdateRequest): Observable<InstanciaItemResponse> {

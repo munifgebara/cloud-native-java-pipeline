@@ -9,10 +9,12 @@ import br.com.munif.stella.api.dto.InstanciaItemResumoDTO;
 import br.com.munif.stella.api.dto.InstanciaItemUpdateDTO;
 import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.ItemMestre;
+import br.com.munif.stella.api.entity.LocalArmazenamento;
 import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 import br.com.munif.stella.api.mapper.InstanciaItemMapper;
 import br.com.munif.stella.api.repository.InstanciaItemRepository;
 import br.com.munif.stella.api.repository.ItemMestreRepository;
+import br.com.munif.stella.api.repository.LocalArmazenamentoRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,10 +26,17 @@ import java.util.UUID;
 public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaItemRepository> {
 
     private final ItemMestreRepository itemMestreRepository;
+    private final LocalArmazenamentoRepository localArmazenamentoRepository;
 
-    public InstanciaItemService(InstanciaItemRepository repository, EntityManager entityManager, ItemMestreRepository itemMestreRepository) {
+    public InstanciaItemService(
+            InstanciaItemRepository repository,
+            EntityManager entityManager,
+            ItemMestreRepository itemMestreRepository,
+            LocalArmazenamentoRepository localArmazenamentoRepository
+    ) {
         super(repository, entityManager, InstanciaItem.class);
         this.itemMestreRepository = itemMestreRepository;
+        this.localArmazenamentoRepository = localArmazenamentoRepository;
     }
 
     @Transactional
@@ -36,6 +45,7 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
         normalizarCampos(instancia);
         validarIdentificacao(instancia);
         instancia.setItemMestre(buscarItemMestreAtivo(dto.itemMestreId()));
+        instancia.setLocalAtual(buscarLocalAtivo(dto.localAtualId()));
 
         InstanciaItem salva = salvar(instancia);
         if (Boolean.FALSE.equals(dto.ativa())) {
@@ -98,6 +108,7 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
         normalizarCampos(instancia);
         validarIdentificacao(instancia);
         instancia.setItemMestre(itemMestre);
+        instancia.setLocalAtual(buscarLocalAtivo(dto.localAtualId()));
 
         InstanciaItem salva = salvar(instancia);
         return InstanciaItemMapper.toResponseDTO(salva);
@@ -120,6 +131,19 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
             throw new IllegalArgumentException("Item mestre deve estar ativo.");
         }
         return itemMestre;
+    }
+
+    private LocalArmazenamento buscarLocalAtivo(UUID localId) {
+        if (localId == null) {
+            return null;
+        }
+
+        LocalArmazenamento local = localArmazenamentoRepository.findById(localId)
+                .orElseThrow(() -> new IllegalArgumentException("Local atual não encontrado."));
+        if (!local.isAtivo()) {
+            throw new IllegalArgumentException("Local atual deve estar ativo.");
+        }
+        return local;
     }
 
     private void normalizarCampos(InstanciaItem instancia) {

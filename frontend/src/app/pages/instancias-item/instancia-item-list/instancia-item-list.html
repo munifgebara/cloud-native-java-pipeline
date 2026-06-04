@@ -79,6 +79,7 @@
         <th>{{ 'itemInstances.masterItem' | translate }}</th>
         <th>{{ 'itemInstances.assetTag' | translate }}</th>
         <th>{{ 'itemInstances.serialNumber' | translate }}</th>
+        <th>{{ 'itemInstances.currentLocation' | translate }}</th>
         <th style="width: 140px;">{{ 'itemInstances.status' | translate }}</th>
         <th style="width: 220px;">{{ 'common.actions' | translate }}</th>
       </tr>
@@ -97,6 +98,7 @@
         </td>
         <td>{{ instancia.patrimonio || '-' }}</td>
         <td>{{ instancia.numeroSerie || '-' }}</td>
+        <td>{{ instancia.localAtualNome || '-' }}</td>
         <td>
           <p-tag
             [value]="statusLabel(instancia)"
