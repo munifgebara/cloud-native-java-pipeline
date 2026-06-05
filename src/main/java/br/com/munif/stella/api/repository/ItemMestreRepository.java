@@ -14,6 +14,8 @@ public interface ItemMestreRepository extends SuperRepository<ItemMestre> {
 
     List<ItemMestre> findByAtivoTrueAndNomeContainingIgnoreCaseOrderByNomeAsc(String nome);
 
+    long countByAtivoTrue();
+
     @Query("""
             select item
             from ItemMestre item
