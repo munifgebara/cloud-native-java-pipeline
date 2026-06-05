@@ -120,6 +120,20 @@ This brings up:
 
 - PostgreSQL on `127.0.0.1:5432`
 - Keycloak on `http://127.0.0.1:9080`
+- MinIO API on `http://127.0.0.1:9000`
+- MinIO console on `http://127.0.0.1:9001`
+
+Default local MinIO credentials are `minioadmin` / `minioadmin`. The backend uses bucket `stella-itens` by default and creates it automatically on the first image upload.
+
+MinIO configuration can be overridden with:
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `STELLA_MINIO_ENDPOINT` | `http://127.0.0.1:9000` | S3-compatible endpoint used by the backend |
+| `STELLA_MINIO_ACCESS_KEY` | `minioadmin` | MinIO access key and local root user |
+| `STELLA_MINIO_SECRET_KEY` | `minioadmin` | MinIO secret key and local root password |
+| `STELLA_MINIO_BUCKET` | `stella-itens` | Bucket used for item images |
+| `STELLA_MINIO_MAX_IMAGE_SIZE_BYTES` | `5242880` | Maximum accepted image size |
 
 ### 2. Run the backend
 
@@ -270,6 +284,5 @@ A implementação deve priorizar sempre a menor fase aberta e, dentro dela, as i
 - `#41` Expandir o dashboard com indicadores do inventário
 - `#28` Adicionar ícones predefinidos ao cadastro de categorias
 - `#42` Adicionar testes automatizados ao módulo de inventário
-
 
 
