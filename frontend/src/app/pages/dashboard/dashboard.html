@@ -20,6 +20,58 @@
           <span class="metric-caption">{{ 'dashboard.openPeople' | translate }}</span>
         </a>
       </p-card>
+
+      <p-card [header]="'dashboard.masterItemsCount' | translate">
+        <a class="metric-link" routerLink="/itens-mestre" [attr.aria-label]="'dashboard.masterItemsListAria' | translate">
+          <div class="metric-value">
+            {{ resumo()?.quantidadeItensMestre ?? 0 }}
+          </div>
+          <span class="metric-caption">{{ 'dashboard.openMasterItems' | translate }}</span>
+        </a>
+      </p-card>
+
+      <p-card [header]="'dashboard.instancesCount' | translate">
+        <a class="metric-link" routerLink="/instancias-item" [attr.aria-label]="'dashboard.instancesListAria' | translate">
+          <div class="metric-value">
+            {{ resumo()?.quantidadeInstancias ?? 0 }}
+          </div>
+          <div class="metric-breakdown">
+            <span>{{ 'dashboard.availableInstances' | translate }}: {{ resumo()?.quantidadeInstanciasDisponiveis ?? 0 }}</span>
+            <span>{{ 'dashboard.loanedInstances' | translate }}: {{ resumo()?.quantidadeInstanciasEmprestadas ?? 0 }}</span>
+          </div>
+        </a>
+      </p-card>
+
+      <p-card [header]="'dashboard.locationsCount' | translate">
+        <a class="metric-link" routerLink="/locais" [attr.aria-label]="'dashboard.locationsListAria' | translate">
+          <div class="metric-value">
+            {{ resumo()?.quantidadeLocais ?? 0 }}
+          </div>
+          <span class="metric-caption">{{ 'dashboard.openLocations' | translate }}</span>
+        </a>
+      </p-card>
     </div>
+
+    <section class="ranking-section" [attr.aria-label]="'dashboard.topLocations' | translate">
+      <div class="section-header">
+        <h2>{{ 'dashboard.topLocations' | translate }}</h2>
+        <a routerLink="/locais">{{ 'dashboard.openLocations' | translate }}</a>
+      </div>
+
+      @if ((resumo()?.locaisComMaisItens?.length ?? 0) > 0) {
+        <ol class="ranking-list">
+          @for (local of resumo()?.locaisComMaisItens; track local.id) {
+            <li>
+              <span class="ranking-name">{{ local.nome }}</span>
+              <span class="ranking-value">
+                {{ local.quantidadeInstancias }} {{ 'dashboard.instancesSuffix' | translate }}
+              </span>
+            </li>
+          }
+        </ol>
+      } @else {
+        <div class="empty-ranking">{{ 'dashboard.noLocationData' | translate }}</div>
+      }
+    </section>
   }
 </div>

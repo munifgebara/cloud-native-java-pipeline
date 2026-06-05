@@ -10,4 +10,6 @@ public interface LocalArmazenamentoRepository extends SuperRepository<LocalArmaz
     List<LocalArmazenamento> findByAtivoTrueOrderByNomeAsc();
 
     List<LocalArmazenamento> findByAtivoTrueAndNomeContainingIgnoreCaseOrderByNomeAsc(String nome);
+
+    long countByAtivoTrue();
 }

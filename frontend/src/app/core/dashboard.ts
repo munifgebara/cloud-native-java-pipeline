@@ -5,6 +5,18 @@ import { environment } from '../../environments/environment';
 
 export interface DashboardResumo {
   quantidadePessoas: number;
+  quantidadeItensMestre: number;
+  quantidadeInstancias: number;
+  quantidadeInstanciasDisponiveis: number;
+  quantidadeInstanciasEmprestadas: number;
+  quantidadeLocais: number;
+  locaisComMaisItens: DashboardLocalQuantidade[];
+}
+
+export interface DashboardLocalQuantidade {
+  id: string;
+  nome: string;
+  quantidadeInstancias: number;
 }
 
 @Injectable({
