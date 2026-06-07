@@ -1,13 +1,19 @@
 package br.com.munif.stella.api.exception;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -16,53 +22,86 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> tratarValidacao(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Map<String, Object>> tratarValidacao(MethodArgumentNotValidException ex, HttpServletRequest request) {
         Map<String, String> erros = new LinkedHashMap<>();
 
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
             erros.put(error.getField(), error.getDefaultMessage());
         }
 
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", Instant.now());
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("erro", "Dados inválidos.");
+        log.warn("Erro de validação em {} {}: {}", request.getMethod(), request.getRequestURI(), erros);
+
+        Map<String, Object> body = body(HttpStatus.BAD_REQUEST, "Dados inválidos.", request);
         body.put("campos", erros);
 
         return ResponseEntity.badRequest().body(body);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> tratarNaoEncontrado(EntityNotFoundException ex) {
-        return resposta(HttpStatus.NOT_FOUND, ex.getMessage());
+    public ResponseEntity<Map<String, Object>> tratarNaoEncontrado(EntityNotFoundException ex, HttpServletRequest request) {
+        return resposta(HttpStatus.NOT_FOUND, ex.getMessage(), ex, request, false);
     }
 
     @ExceptionHandler(CadastroDuplicadoException.class)
-    public ResponseEntity<Map<String, Object>> tratarDuplicidade(CadastroDuplicadoException ex) {
-        return resposta(HttpStatus.CONFLICT, ex.getMessage());
+    public ResponseEntity<Map<String, Object>> tratarDuplicidade(CadastroDuplicadoException ex, HttpServletRequest request) {
+        return resposta(HttpStatus.CONFLICT, ex.getMessage(), ex, request, false);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> tratarRegraNegocio(IllegalArgumentException ex) {
-        return resposta(HttpStatus.BAD_REQUEST, ex.getMessage());
+    public ResponseEntity<Map<String, Object>> tratarRegraNegocio(IllegalArgumentException ex, HttpServletRequest request) {
+        return resposta(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, request, false);
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<Map<String, Object>> tratarFalhaInfraestrutura(IllegalStateException ex) {
-        return resposta(HttpStatus.BAD_GATEWAY, ex.getMessage());
+    public ResponseEntity<Map<String, Object>> tratarFalhaInfraestrutura(IllegalStateException ex, HttpServletRequest request) {
+        return resposta(HttpStatus.BAD_GATEWAY, "Serviço externo indisponível. Tente novamente em instantes.", ex, request, true);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, Object>> tratarIntegridade(DataIntegrityViolationException ex) {
-        return resposta(HttpStatus.CONFLICT, "Violação de integridade de dados.");
+    public ResponseEntity<Map<String, Object>> tratarIntegridade(DataIntegrityViolationException ex, HttpServletRequest request) {
+        return resposta(HttpStatus.CONFLICT, "Não foi possível concluir a operação por conflito com dados já existentes ou vinculados.", ex, request, true);
     }
 
-    private ResponseEntity<Map<String, Object>> resposta(HttpStatus status, String mensagem) {
+    @ExceptionHandler({
+            HttpMessageNotReadableException.class,
+            MissingServletRequestParameterException.class,
+            MethodArgumentTypeMismatchException.class
+    })
+    public ResponseEntity<Map<String, Object>> tratarRequisicaoInvalida(Exception ex, HttpServletRequest request) {
+        return resposta(HttpStatus.BAD_REQUEST, "Requisição inválida. Confira os dados enviados.", ex, request, false);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> tratarErroInesperado(Exception ex, HttpServletRequest request) {
+        return resposta(HttpStatus.INTERNAL_SERVER_ERROR, "Erro inesperado ao processar a solicitação.", ex, request, true);
+    }
+
+    private ResponseEntity<Map<String, Object>> resposta(
+            HttpStatus status,
+            String mensagem,
+            Exception ex,
+            HttpServletRequest request,
+            boolean incluirCausaNoLog
+    ) {
+        if (status.is5xxServerError() || incluirCausaNoLog) {
+            log.error("Erro em {} {}: {}", request.getMethod(), request.getRequestURI(), mensagem, ex);
+        } else {
+            log.warn("Erro em {} {}: {}", request.getMethod(), request.getRequestURI(), mensagem);
+        }
+
+        return ResponseEntity.status(status).body(body(status, mensagem, request));
+    }
+
+    private Map<String, Object> body(HttpStatus status, String mensagem, HttpServletRequest request) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", Instant.now());
         body.put("status", status.value());
+        body.put("codigo", status.getReasonPhrase());
         body.put("erro", mensagem);
-        return ResponseEntity.status(status).body(body);
+        body.put("path", request.getRequestURI());
+        return body;
     }
 }

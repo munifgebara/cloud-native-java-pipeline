@@ -6,6 +6,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
+import { mensagemErroHttp } from '../../../core/http-error';
 import { LocalResumo, LocalService } from '../../../core/local/local';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
@@ -131,6 +132,6 @@ export class LocalFormComponent implements OnInit {
   }
 
   private extractError(err: any, fallback: string): string {
-    return err?.error?.erro || err?.error?.message || fallback;
+    return mensagemErroHttp(err, fallback);
   }
 }
