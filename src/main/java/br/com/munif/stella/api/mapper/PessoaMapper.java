@@ -66,7 +66,9 @@ public final class PessoaMapper {
                 entity.getComplemento(),
                 entity.getBairro(),
                 entity.getCidade(),
-                entity.getUf()
+                entity.getUf(),
+                entity.getCriadoEm(),
+                entity.getAlteradoEm()
         );
     }
 

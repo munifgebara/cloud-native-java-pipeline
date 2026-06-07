@@ -1,10 +1,11 @@
 package br.com.munif.stella.api.service;
 
-import br.com.munif.comum.dto.RevisaoDTO;
+import br.com.munif.comum.persistencia.MRevisionEntity;
 import br.com.munif.comum.service.SuperService;
 import br.com.munif.comum.utils.validacoes.ValidacoesBR;
 import br.com.munif.stella.api.dto.PessoaCreateDTO;
 import br.com.munif.stella.api.dto.PessoaResponseDTO;
+import br.com.munif.stella.api.dto.PessoaRevisaoDTO;
 import br.com.munif.stella.api.dto.PessoaResumoDTO;
 import br.com.munif.stella.api.dto.PessoaUpdateDTO;
 import br.com.munif.stella.api.entity.Pessoa;
@@ -12,6 +13,10 @@ import br.com.munif.stella.api.exception.CadastroDuplicadoException;
 import br.com.munif.stella.api.mapper.PessoaMapper;
 import br.com.munif.stella.api.repository.PessoaRepository;
 import jakarta.persistence.EntityManager;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.RevisionType;
+import org.hibernate.envers.query.AuditEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,8 +98,20 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
     }
 
     @Transactional(readOnly = true)
-    public List<RevisaoDTO<Pessoa>> listarRevisoes(UUID id) {
-        return listarVersoesAnteriores(id);
+    @SuppressWarnings("unchecked")
+    public List<PessoaRevisaoDTO> listarRevisoes(UUID id) {
+        buscarPorId(id);
+
+        AuditReader auditReader = AuditReaderFactory.get(entityManager);
+
+        return auditReader.createQuery()
+                .forRevisionsOfEntity(Pessoa.class, false, true)
+                .add(AuditEntity.id().eq(id))
+                .addOrder(AuditEntity.revisionNumber().desc())
+                .getResultList()
+                .stream()
+                .map(this::toPessoaRevisaoDTO)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -202,5 +219,19 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
     private String normalizarUf(String uf) {
         String valor = ValidacoesBR.trimToNull(uf);
         return valor == null ? null : valor.toUpperCase(Locale.ROOT);
+    }
+
+    private PessoaRevisaoDTO toPessoaRevisaoDTO(Object item) {
+        Object[] dadosRevisao = (Object[]) item;
+        Pessoa pessoa = (Pessoa) dadosRevisao[0];
+        MRevisionEntity revisao = (MRevisionEntity) dadosRevisao[1];
+        RevisionType tipo = (RevisionType) dadosRevisao[2];
+
+        return new PessoaRevisaoDTO(
+                revisao.getId(),
+                revisao.getTimestamp(),
+                tipo.name(),
+                PessoaMapper.toResponseDTO(pessoa)
+        );
     }
 }

@@ -94,6 +94,77 @@
           <input id="cidade" pInputText formControlName="cidade" />
         </div>
 
+        @if (edicao() && pessoa(); as pessoaAtual) {
+          <section class="audit-panel full" aria-labelledby="audit-title">
+            <div class="audit-header">
+              <div>
+                <h3 id="audit-title">{{ 'people.audit.title' | translate }}</h3>
+                <p>{{ 'people.audit.subtitle' | translate }}</p>
+              </div>
+            </div>
+
+            <dl class="audit-meta">
+              <div>
+                <dt>{{ 'people.audit.createdAt' | translate }}</dt>
+                <dd>{{ formatarDataHora(pessoaAtual.criadoEm) }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'people.audit.updatedAt' | translate }}</dt>
+                <dd>{{ formatarDataHora(pessoaAtual.alteradoEm) }}</dd>
+              </div>
+            </dl>
+
+            <div class="audit-history">
+              <h4>{{ 'people.audit.historyTitle' | translate }}</h4>
+
+              @if (carregandoRevisoes()) {
+                <p class="audit-empty">{{ 'common.loading' | translate }}</p>
+              } @else if (revisoesError()) {
+                <p class="audit-error">{{ revisoesError() }}</p>
+              } @else if (!revisoes().length) {
+                <p class="audit-empty">{{ 'people.audit.empty' | translate }}</p>
+              } @else {
+                <div class="revision-list">
+                  @for (revisao of revisoes(); track revisao.revisao) {
+                    <details class="revision-item">
+                      <summary>
+                        <span>{{ rotuloTipoRevisao(revisao.tipo) }}</span>
+                        <time [attr.datetime]="revisao.dataHora">
+                          {{ formatarDataHora(revisao.dataHora) }}
+                        </time>
+                      </summary>
+
+                      <dl class="revision-data">
+                        <div>
+                          <dt>{{ 'common.name' | translate }}</dt>
+                          <dd>{{ revisao.pessoa.nome }}</dd>
+                        </div>
+                        <div>
+                          <dt>{{ 'people.form.email' | translate }}</dt>
+                          <dd>{{ revisao.pessoa.email || '-' }}</dd>
+                        </div>
+                        <div>
+                          <dt>{{ 'people.form.mainPhone' | translate }}</dt>
+                          <dd>{{ revisao.pessoa.telefonePrincipal || '-' }}</dd>
+                        </div>
+                        <div>
+                          <dt>{{ 'people.form.address' | translate }}</dt>
+                          <dd>
+                            {{ revisao.pessoa.endereco || '-' }}
+                            @if (revisao.pessoa.cidade || revisao.pessoa.uf) {
+                              <span> - {{ revisao.pessoa.cidade || '-' }}/{{ revisao.pessoa.uf || '-' }}</span>
+                            }
+                          </dd>
+                        </div>
+                      </dl>
+                    </details>
+                  }
+                </div>
+              }
+            </div>
+          </section>
+        }
+
         <div class="actions full">
           <a routerLink="/pessoas">{{ 'common.cancel' | translate }}</a>
 

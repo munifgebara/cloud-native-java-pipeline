@@ -9,6 +9,7 @@ import br.com.munif.stella.api.entity.MovimentacaoItem;
 import br.com.munif.stella.api.entity.Pessoa;
 import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 import br.com.munif.stella.api.entity.TipoMovimentacaoItem;
+import br.com.munif.stella.api.service.PessoaService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.transaction.TestTransaction;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -42,6 +44,9 @@ class InventarioRepositoryIntegrationTest {
 
     @Autowired
     private EmprestimoItemRepository emprestimoItemRepository;
+
+    @Autowired
+    private PessoaRepository pessoaRepository;
 
     @Test
     void deveFiltrarItensMestreAtivosPorNomeECategoria() {
@@ -157,6 +162,27 @@ class InventarioRepositoryIntegrationTest {
                 .isNull();
     }
 
+    @Test
+    void deveListarRevisoesDePessoaViaEnvers() {
+        Pessoa pessoa = pessoa("ITG Ana Historico");
+        persistir(pessoa);
+        commitAndStart();
+
+        Pessoa pessoaSalva = entityManager.find(Pessoa.class, pessoa.getId());
+        pessoaSalva.setEmail("ana@example.com");
+        commitAndStart();
+
+        PessoaService service = new PessoaService(pessoaRepository, entityManager);
+
+        var revisoes = service.listarRevisoes(pessoa.getId());
+
+        assertThat(revisoes).hasSize(2);
+        assertThat(revisoes).extracting("tipo")
+                .containsExactly("MOD", "ADD");
+        assertThat(revisoes.getFirst().pessoa().email()).isEqualTo("ana@example.com");
+        assertThat(revisoes.getFirst().dataHora()).isNotNull();
+    }
+
     private Categoria categoria(String nome) {
         Categoria categoria = new Categoria();
         categoria.setNome(nome);
@@ -239,6 +265,12 @@ class InventarioRepositoryIntegrationTest {
     private void flushAndClear() {
         entityManager.flush();
         entityManager.clear();
+    }
+
+    private void commitAndStart() {
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+        TestTransaction.start();
     }
 
     private String gerarCpfCnpj() {

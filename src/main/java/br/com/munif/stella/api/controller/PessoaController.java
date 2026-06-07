@@ -1,9 +1,9 @@
 package br.com.munif.stella.api.controller;
 
 import br.com.munif.comum.controller.SuperController;
-import br.com.munif.comum.dto.RevisaoDTO;
 import br.com.munif.stella.api.dto.PessoaCreateDTO;
 import br.com.munif.stella.api.dto.PessoaResponseDTO;
+import br.com.munif.stella.api.dto.PessoaRevisaoDTO;
 import br.com.munif.stella.api.dto.PessoaResumoDTO;
 import br.com.munif.stella.api.dto.PessoaUpdateDTO;
 import br.com.munif.stella.api.entity.Pessoa;
@@ -70,8 +70,7 @@ public class PessoaController extends SuperController<PessoaResumoDTO, PessoaRes
 
     @Override
     @GetMapping("/{id}/revisoes")
-    public ResponseEntity<List<RevisaoDTO<Pessoa>>> listarVersoesAnteriores(@PathVariable UUID id) {
+    public ResponseEntity<List<PessoaRevisaoDTO>> listarVersoesAnteriores(@PathVariable UUID id) {
         return ResponseEntity.ok(service.listarRevisoes(id));
     }
 }
-

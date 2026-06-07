@@ -1,6 +1,5 @@
 package br.com.munif.comum.controller;
 
-import br.com.munif.comum.dto.RevisaoDTO;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -20,5 +19,5 @@ public abstract class SuperController<RESUMO, RESPONSE, CREATE, UPDATE, ENTITY> 
 
     public abstract ResponseEntity<List<RESUMO>> listarTodosIncluindoInativos();
 
-    public abstract ResponseEntity<List<RevisaoDTO<ENTITY>>> listarVersoesAnteriores(UUID id);
+    public abstract ResponseEntity<? extends List<?>> listarVersoesAnteriores(UUID id);
 }
