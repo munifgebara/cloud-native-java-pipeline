@@ -67,6 +67,32 @@ export class AuthService {
     return token;
   }
 
+  hasRole(role: string): boolean {
+    const payload = this.tokenPayload();
+    const roles = payload?.realm_access?.roles;
+    return Array.isArray(roles) && roles.includes(role);
+  }
+
+  username(): string {
+    return this.tokenPayload()?.preferred_username ?? '';
+  }
+
+  private tokenPayload(): any | null {
+    const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+
+    if (!token || this.isTokenExpired(token)) {
+      return null;
+    }
+
+    try {
+      const payloadBase64 = token.split('.')[1];
+      const payloadJson = atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'));
+      return JSON.parse(payloadJson);
+    } catch {
+      return null;
+    }
+  }
+
   private hasValidAccessToken(): boolean {
     const token = localStorage.getItem(ACCESS_TOKEN_KEY);
     return !!token && !this.isTokenExpired(token);

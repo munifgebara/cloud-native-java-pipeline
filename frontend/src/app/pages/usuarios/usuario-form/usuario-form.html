@@ -1,0 +1,87 @@
+<div class="page">
+  <p-card>
+    <ng-template pTemplate="title">
+      {{ edicao() ? ('users.form.editTitle' | translate) : ('users.form.newTitle' | translate) }}
+    </ng-template>
+
+    @if (errorMessage()) {
+      <div class="error-box">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="salvar()" class="form-grid">
+      <div class="field">
+        <label for="username">{{ 'login.username' | translate }}</label>
+        <input id="username" pInputText type="text" formControlName="username" />
+        @if (campoInvalido('username')) {
+          <small>{{ 'users.form.usernameInvalid' | translate }}</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="email">{{ 'people.form.email' | translate }}</label>
+        <input id="email" pInputText type="email" formControlName="email" />
+        @if (campoInvalido('email')) {
+          <small>{{ 'people.form.emailInvalid' | translate }}</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="firstName">{{ 'users.firstName' | translate }}</label>
+        <input id="firstName" pInputText type="text" formControlName="firstName" />
+      </div>
+
+      <div class="field">
+        <label for="lastName">{{ 'users.lastName' | translate }}</label>
+        <input id="lastName" pInputText type="text" formControlName="lastName" />
+      </div>
+
+      @if (!edicao()) {
+        <div class="field">
+          <label for="password">{{ 'login.password' | translate }}</label>
+          <input id="password" pInputText type="password" formControlName="password" />
+          @if (campoInvalido('password')) {
+            <small>{{ 'users.form.passwordInvalid' | translate }}</small>
+          }
+        </div>
+      }
+
+      <div class="field">
+        <label for="roles">{{ 'users.roles' | translate }}</label>
+        <p-multiselect
+          inputId="roles"
+          formControlName="roles"
+          [options]="roleOptions"
+          optionLabel="label"
+          optionValue="value"
+          display="chip">
+        </p-multiselect>
+      </div>
+
+      <div class="field checkbox-field">
+        <p-checkbox inputId="enabled" formControlName="enabled" [binary]="true"></p-checkbox>
+        <label for="enabled">{{ 'users.enabled' | translate }}</label>
+      </div>
+
+      <div class="form-actions">
+        <button
+          pButton
+          type="button"
+          severity="secondary"
+          [label]="'common.back' | translate"
+          routerLink="/usuarios">
+        </button>
+
+        <button
+          pButton
+          type="submit"
+          [label]="'common.save' | translate"
+          icon="pi pi-save"
+          [loading]="salvando()"
+          [disabled]="loading()">
+        </button>
+      </div>
+    </form>
+  </p-card>
+</div>

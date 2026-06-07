@@ -184,6 +184,13 @@ Realm users available in the local bootstrap:
 
 JWT validation is configured through Spring Security as an OAuth2 resource server.
 
+The user management module uses Keycloak Admin REST as the identity source. For local development, the backend uses the same local Keycloak administrator configured in `docker-compose.yml`. In other environments, override:
+
+- `STELLA_KEYCLOAK_ADMIN_REALM`
+- `STELLA_KEYCLOAK_ADMIN_CLIENT_ID`
+- `STELLA_KEYCLOAK_ADMIN_USERNAME`
+- `STELLA_KEYCLOAK_ADMIN_PASSWORD`
+
 ## API and Observability
 
 Useful local endpoints:
@@ -284,5 +291,4 @@ A implementação deve priorizar sempre a menor fase aberta e, dentro dela, as i
 - `#41` Expandir o dashboard com indicadores do inventário
 - `#28` Adicionar ícones predefinidos ao cadastro de categorias
 - `#42` Adicionar testes automatizados ao módulo de inventário
-
 
