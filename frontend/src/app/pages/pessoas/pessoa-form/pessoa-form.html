@@ -135,26 +135,49 @@
                       </summary>
 
                       <dl class="revision-data">
-                        <div>
+                        <div [class.changed]="campoAlterado(revisao, 'nome')">
                           <dt>{{ 'common.name' | translate }}</dt>
                           <dd>{{ revisao.pessoa.nome }}</dd>
                         </div>
-                        <div>
+                        <div [class.changed]="campoAlterado(revisao, 'cpfCnpj')">
+                          <dt>{{ 'people.form.cpfCnpj' | translate }}</dt>
+                          <dd>{{ revisao.pessoa.cpfCnpj }}</dd>
+                        </div>
+                        <div [class.changed]="campoAlterado(revisao, 'email')">
                           <dt>{{ 'people.form.email' | translate }}</dt>
                           <dd>{{ revisao.pessoa.email || '-' }}</dd>
                         </div>
-                        <div>
+                        <div [class.changed]="campoAlterado(revisao, 'telefonePrincipal')">
                           <dt>{{ 'people.form.mainPhone' | translate }}</dt>
                           <dd>{{ revisao.pessoa.telefonePrincipal || '-' }}</dd>
                         </div>
-                        <div>
+                        <div [class.changed]="campoAlterado(revisao, 'telefoneSecundario')">
+                          <dt>{{ 'people.form.secondaryPhone' | translate }}</dt>
+                          <dd>{{ revisao.pessoa.telefoneSecundario || '-' }}</dd>
+                        </div>
+                        <div [class.changed]="campoAlterado(revisao, 'cep')">
+                          <dt>{{ 'people.form.cep' | translate }}</dt>
+                          <dd>{{ revisao.pessoa.cep || '-' }}</dd>
+                        </div>
+                        <div [class.changed]="campoAlterado(revisao, 'endereco')">
                           <dt>{{ 'people.form.address' | translate }}</dt>
-                          <dd>
-                            {{ revisao.pessoa.endereco || '-' }}
-                            @if (revisao.pessoa.cidade || revisao.pessoa.uf) {
-                              <span> - {{ revisao.pessoa.cidade || '-' }}/{{ revisao.pessoa.uf || '-' }}</span>
-                            }
-                          </dd>
+                          <dd>{{ revisao.pessoa.endereco || '-' }}</dd>
+                        </div>
+                        <div [class.changed]="campoAlterado(revisao, 'complemento')">
+                          <dt>{{ 'people.form.complement' | translate }}</dt>
+                          <dd>{{ revisao.pessoa.complemento || '-' }}</dd>
+                        </div>
+                        <div [class.changed]="campoAlterado(revisao, 'bairro')">
+                          <dt>{{ 'people.form.district' | translate }}</dt>
+                          <dd>{{ revisao.pessoa.bairro || '-' }}</dd>
+                        </div>
+                        <div [class.changed]="campoAlterado(revisao, 'cidade')">
+                          <dt>{{ 'people.form.city' | translate }}</dt>
+                          <dd>{{ revisao.pessoa.cidade || '-' }}</dd>
+                        </div>
+                        <div [class.changed]="campoAlterado(revisao, 'uf')">
+                          <dt>{{ 'people.form.uf' | translate }}</dt>
+                          <dd>{{ revisao.pessoa.uf || '-' }}</dd>
                         </div>
                       </dl>
                     </details>

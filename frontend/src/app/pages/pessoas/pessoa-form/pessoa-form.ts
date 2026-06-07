@@ -214,6 +214,10 @@ export class PessoaFormComponent implements OnInit {
     return this.i18n.translate(`people.audit.type.${tipo}` as TranslationKey);
   }
 
+  campoAlterado(revisao: PessoaRevisao, campo: string): boolean {
+    return revisao.camposAlterados.includes(campo);
+  }
+
   private observarCep(): void {
     this.form.controls.cep.valueChanges
       .pipe(
