@@ -10,6 +10,7 @@ import { DialogModule } from 'primeng/dialog';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { CategoriaResumo, CategoriaService, categoriaIconClass } from '../../../core/categoria/categoria';
+import { mensagemErroHttp } from '../../../core/http-error';
 import { InstanciaItemResumo, InstanciaItemService, StatusOperacionalInstancia } from '../../../core/instancia-item/instancia-item';
 import { LocalResumo, LocalService } from '../../../core/local/local';
 import { PessoaResumo, PessoaService } from '../../../core/pessoa/pessoa';
@@ -397,6 +398,6 @@ export class InstanciaItemListComponent implements OnInit {
   }
 
   private extractError(err: any, fallback: string): string {
-    return err?.error?.erro || err?.error?.message || fallback;
+    return mensagemErroHttp(err, fallback);
   }
 }

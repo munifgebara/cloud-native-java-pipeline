@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
 import { CATEGORIA_ICONE_OPTIONS, CategoriaService } from '../../../core/categoria/categoria';
+import { mensagemErroHttp } from '../../../core/http-error';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
 @Component({
@@ -127,6 +128,6 @@ export class CategoriaFormComponent implements OnInit {
   }
 
   private extractError(err: any, fallback: string): string {
-    return err?.error?.erro || err?.error?.message || fallback;
+    return mensagemErroHttp(err, fallback);
   }
 }

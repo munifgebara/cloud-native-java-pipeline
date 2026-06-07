@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, of, switchMap, tap } from 'rxjs';
 import { CepService } from '../../../core/cep/cep';
+import { mensagemErroHttp } from '../../../core/http-error';
 import { I18nService, TranslatePipe, TranslationKey } from '../../../core/i18n/i18n';
 import { PessoaResponse, PessoaRevisao, PessoaService } from '../../../core/pessoa/pessoa';
 import {
@@ -308,6 +309,6 @@ export class PessoaFormComponent implements OnInit {
   }
 
   private extractError(err: any, fallback: string): string {
-    return err?.error?.message || fallback;
+    return mensagemErroHttp(err, fallback);
   }
 }
