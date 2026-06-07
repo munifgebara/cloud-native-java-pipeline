@@ -47,6 +47,10 @@ stella:
     base-url: ${STELLA_KEYCLOAK_BASE_URL:http://127.0.0.1:9080}
     realm: ${STELLA_KEYCLOAK_REALM:stella}
     public-client-id: ${STELLA_KEYCLOAK_PUBLIC_CLIENT_ID:stella-cli}
+    admin-realm: ${STELLA_KEYCLOAK_ADMIN_REALM:master}
+    admin-client-id: ${STELLA_KEYCLOAK_ADMIN_CLIENT_ID:admin-cli}
+    admin-username: ${STELLA_KEYCLOAK_ADMIN_USERNAME:admin}
+    admin-password: ${STELLA_KEYCLOAK_ADMIN_PASSWORD:admin}
   minio:
     endpoint: ${STELLA_MINIO_ENDPOINT:http://127.0.0.1:9000}
     access-key: ${STELLA_MINIO_ACCESS_KEY:minioadmin}

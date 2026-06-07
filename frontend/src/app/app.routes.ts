@@ -3,6 +3,7 @@ import { LoginComponent } from './pages/login/login';
 import { AppLayoutComponent } from './layout/app-layout/app-layout';
 import { DashboardComponent } from './pages/dashboard/dashboard';
 import { authGuard } from './core/auth-guard';
+import { adminGuard } from './core/role-guard';
 import { PessoaListComponent } from './pages/pessoas/pessoa-list/pessoa-list';
 import { PessoaFormComponent } from './pages/pessoas/pessoa-form/pessoa-form';
 import { CategoriaListComponent } from './pages/categorias/categoria-list/categoria-list';
@@ -14,6 +15,9 @@ import { ItemMestreFormComponent } from './pages/itens-mestre/item-mestre-form/i
 import { InstanciaItemListComponent } from './pages/instancias-item/instancia-item-list/instancia-item-list';
 import { InstanciaItemFormComponent } from './pages/instancias-item/instancia-item-form/instancia-item-form';
 import { InstanciaItemHistoricoComponent } from './pages/instancias-item/instancia-item-historico/instancia-item-historico';
+import { UsuarioListComponent } from './pages/usuarios/usuario-list/usuario-list';
+import { UsuarioFormComponent } from './pages/usuarios/usuario-form/usuario-form';
+import { PerfilComponent } from './pages/perfil/perfil';
 
 export const routes: Routes = [
   {
@@ -33,6 +37,25 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         component: DashboardComponent,
+      },
+      {
+        path: 'perfil',
+        component: PerfilComponent,
+      },
+      {
+        path: 'usuarios',
+        component: UsuarioListComponent,
+        canActivate: [adminGuard],
+      },
+      {
+        path: 'usuarios/novo',
+        component: UsuarioFormComponent,
+        canActivate: [adminGuard],
+      },
+      {
+        path: 'usuarios/:id/editar',
+        component: UsuarioFormComponent,
+        canActivate: [adminGuard],
       },
       {
         path: 'pessoas',

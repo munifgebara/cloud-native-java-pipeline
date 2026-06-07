@@ -15,6 +15,13 @@
       <span>{{ 'layout.menu.people' | translate }}</span>
     </a>
 
+    @if (isAdmin()) {
+      <a routerLink="/usuarios" routerLinkActive="active">
+        <i class="pi pi-user-edit"></i>
+        <span>{{ 'layout.menu.users' | translate }}</span>
+      </a>
+    }
+
     <a routerLink="/categorias" routerLinkActive="active">
       <i class="pi pi-tags"></i>
       <span>{{ 'layout.menu.categories' | translate }}</span>

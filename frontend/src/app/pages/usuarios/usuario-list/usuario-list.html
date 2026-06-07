@@ -1,0 +1,78 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h2>{{ 'users.title' | translate }}</h2>
+      <p>{{ 'users.subtitle' | translate }}</p>
+    </div>
+
+    <button
+      pButton
+      type="button"
+      [label]="'common.new' | translate"
+      icon="pi pi-plus"
+      (click)="novo()">
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="error-box">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <p-table
+    [value]="usuarios()"
+    [loading]="loading()"
+    [tableStyle]="{ 'min-width': '64rem' }">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>{{ 'login.username' | translate }}</th>
+        <th>{{ 'common.name' | translate }}</th>
+        <th>{{ 'people.form.email' | translate }}</th>
+        <th>{{ 'users.roles' | translate }}</th>
+        <th style="width: 140px;">{{ 'categories.status' | translate }}</th>
+        <th style="width: 240px;">{{ 'common.actions' | translate }}</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-usuario>
+      <tr>
+        <td>{{ usuario.username }}</td>
+        <td>{{ nomeCompleto(usuario) }}</td>
+        <td>{{ usuario.email || '-' }}</td>
+        <td>{{ usuario.roles.join(', ') || '-' }}</td>
+        <td>
+          <p-tag
+            [value]="statusLabel(usuario)"
+            [severity]="usuario.enabled ? 'success' : 'secondary'">
+          </p-tag>
+        </td>
+        <td>
+          <div class="actions">
+            <button
+              pButton
+              type="button"
+              severity="secondary"
+              text
+              icon="pi pi-pencil"
+              [label]="'common.edit' | translate"
+              [routerLink]="['/usuarios', usuario.id, 'editar']">
+            </button>
+
+            <button
+              pButton
+              type="button"
+              text
+              [severity]="usuario.enabled ? 'danger' : 'success'"
+              [icon]="usuario.enabled ? 'pi pi-ban' : 'pi pi-check'"
+              [label]="usuario.enabled ? ('users.disable' | translate) : ('users.enable' | translate)"
+              [loading]="updatingId() === usuario.id"
+              [disabled]="loading() || updatingId() !== null"
+              (click)="alterarStatus(usuario)">
+            </button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
