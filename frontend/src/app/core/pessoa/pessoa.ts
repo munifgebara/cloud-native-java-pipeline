@@ -24,6 +24,15 @@ export interface PessoaResponse {
   bairro: string | null;
   cidade: string | null;
   uf: string | null;
+  criadoEm: string;
+  alteradoEm: string;
+}
+
+export interface PessoaRevisao {
+  revisao: number;
+  dataHora: string;
+  tipo: 'ADD' | 'MOD' | 'DEL';
+  pessoa: PessoaResponse;
 }
 
 export interface PessoaCreateRequest {
@@ -80,6 +89,10 @@ export class PessoaService {
 
   atualizar(id: string, payload: PessoaUpdateRequest): Observable<PessoaResponse> {
     return this.http.put<PessoaResponse>(`${this.baseUrl}/${id}`, payload);
+  }
+
+  listarRevisoes(id: string): Observable<PessoaRevisao[]> {
+    return this.http.get<PessoaRevisao[]>(`${this.baseUrl}/${id}/revisoes`);
   }
 
   excluir(id: string): Observable<void> {

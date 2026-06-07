@@ -7,8 +7,8 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, of, switchMap, tap } from 'rxjs';
 import { CepService } from '../../../core/cep/cep';
-import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
-import { PessoaService } from '../../../core/pessoa/pessoa';
+import { I18nService, TranslatePipe, TranslationKey } from '../../../core/i18n/i18n';
+import { PessoaResponse, PessoaRevisao, PessoaService } from '../../../core/pessoa/pessoa';
 import {
   somenteDigitos,
   validarCep,
@@ -60,6 +60,10 @@ export class PessoaFormComponent implements OnInit {
   errorMessage = signal('');
   cepMessage = signal('');
   buscandoCep = signal(false);
+  pessoa = signal<PessoaResponse | null>(null);
+  revisoes = signal<PessoaRevisao[]>([]);
+  carregandoRevisoes = signal(false);
+  revisoesError = signal('');
   private ultimoCepConsultado: string | null = null;
 
   readonly edicao = computed(() => !!this.id());
@@ -92,6 +96,7 @@ export class PessoaFormComponent implements OnInit {
 
     this.pessoaService.buscarPorId(id).subscribe({
       next: (pessoa) => {
+        this.pessoa.set(pessoa);
         this.form.patchValue(
           {
             nome: pessoa.nome ?? '',
@@ -113,6 +118,7 @@ export class PessoaFormComponent implements OnInit {
 
         this.form.controls.cpfCnpj.disable();
         this.loading.set(false);
+        this.carregarRevisoes(id);
       },
       error: () => {
         this.errorMessage.set(this.i18n.translate('people.form.loadError'));
@@ -193,6 +199,21 @@ export class PessoaFormComponent implements OnInit {
     return !!campo && campo.invalid && (campo.touched || campo.dirty);
   }
 
+  formatarDataHora(value: string | null | undefined): string {
+    if (!value) {
+      return this.i18n.translate('people.audit.notAvailable');
+    }
+
+    return new Intl.DateTimeFormat(this.i18n.language(), {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    }).format(new Date(value));
+  }
+
+  rotuloTipoRevisao(tipo: PessoaRevisao['tipo']): string {
+    return this.i18n.translate(`people.audit.type.${tipo}` as TranslationKey);
+  }
+
   private observarCep(): void {
     this.form.controls.cep.valueChanges
       .pipe(
@@ -248,6 +269,23 @@ export class PessoaFormComponent implements OnInit {
 
         this.cepMessage.set(this.i18n.translate('people.form.cepFilled'));
       });
+  }
+
+  private carregarRevisoes(id: string): void {
+    this.carregandoRevisoes.set(true);
+    this.revisoesError.set('');
+
+    this.pessoaService.listarRevisoes(id).subscribe({
+      next: (revisoes) => {
+        this.revisoes.set(revisoes);
+        this.carregandoRevisoes.set(false);
+      },
+      error: () => {
+        this.revisoes.set([]);
+        this.revisoesError.set(this.i18n.translate('people.audit.loadError'));
+        this.carregandoRevisoes.set(false);
+      },
+    });
   }
 
   private nullIfBlank(value: string | null | undefined): string | null {

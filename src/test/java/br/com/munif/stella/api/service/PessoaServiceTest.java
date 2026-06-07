@@ -12,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,8 +37,16 @@ class PessoaServiceTest {
 
     @Test
     void deveCriarPessoaNormalizandoCampos() {
+        Instant criadoEm = Instant.parse("2026-06-07T10:00:00Z");
+        Instant alteradoEm = Instant.parse("2026-06-07T10:30:00Z");
+
         when(repository.existsByCpfCnpj("52998224725")).thenReturn(false);
-        when(repository.save(any(Pessoa.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.save(any(Pessoa.class))).thenAnswer(invocation -> {
+            Pessoa pessoa = invocation.getArgument(0);
+            pessoa.setCriadoEm(criadoEm);
+            pessoa.setAlteradoEm(alteradoEm);
+            return pessoa;
+        });
 
         var resposta = service.criar(new PessoaCreateDTO(
                 "  Maria Silva  ",
@@ -68,6 +77,8 @@ class PessoaServiceTest {
         assertThat(pessoaSalva.getCidade()).isEqualTo("Sao Paulo");
         assertThat(pessoaSalva.getUf()).isEqualTo("SP");
         assertThat(resposta.cpfCnpj()).isEqualTo("52998224725");
+        assertThat(resposta.criadoEm()).isEqualTo(criadoEm);
+        assertThat(resposta.alteradoEm()).isEqualTo(alteradoEm);
     }
 
     @Test
