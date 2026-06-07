@@ -180,7 +180,9 @@ class InventarioRepositoryIntegrationTest {
         assertThat(revisoes).extracting("tipo")
                 .containsExactly("MOD", "ADD");
         assertThat(revisoes.getFirst().pessoa().email()).isEqualTo("ana@example.com");
+        assertThat(revisoes.getFirst().camposAlterados()).containsExactly("email");
         assertThat(revisoes.getFirst().dataHora()).isNotNull();
+        assertThat(revisoes.get(1).camposAlterados()).isEmpty();
     }
 
     private Categoria categoria(String nome) {

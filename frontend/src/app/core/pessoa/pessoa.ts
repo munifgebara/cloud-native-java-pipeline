@@ -33,6 +33,7 @@ export interface PessoaRevisao {
   dataHora: string;
   tipo: 'ADD' | 'MOD' | 'DEL';
   pessoa: PessoaResponse;
+  camposAlterados: string[];
 }
 
 export interface PessoaCreateRequest {

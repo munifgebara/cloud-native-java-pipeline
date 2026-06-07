@@ -20,8 +20,10 @@ import org.hibernate.envers.query.AuditEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -104,7 +106,7 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
 
         AuditReader auditReader = AuditReaderFactory.get(entityManager);
 
-        return auditReader.createQuery()
+        List<PessoaRevisaoDTO> revisoes = auditReader.createQuery()
                 .forRevisionsOfEntity(Pessoa.class, false, true)
                 .add(AuditEntity.id().eq(id))
                 .addOrder(AuditEntity.revisionNumber().desc())
@@ -112,6 +114,8 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
                 .stream()
                 .map(this::toPessoaRevisaoDTO)
                 .toList();
+
+        return adicionarCamposAlterados(revisoes);
     }
 
     @Transactional(readOnly = true)
@@ -231,7 +235,55 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
                 revisao.getId(),
                 revisao.getTimestamp(),
                 tipo.name(),
-                PessoaMapper.toResponseDTO(pessoa)
+                PessoaMapper.toResponseDTO(pessoa),
+                List.of()
         );
+    }
+
+    private List<PessoaRevisaoDTO> adicionarCamposAlterados(List<PessoaRevisaoDTO> revisoes) {
+        List<PessoaRevisaoDTO> resultado = new ArrayList<>();
+
+        for (int i = 0; i < revisoes.size(); i++) {
+            PessoaRevisaoDTO revisao = revisoes.get(i);
+            PessoaResponseDTO versaoAnterior = i + 1 < revisoes.size() ? revisoes.get(i + 1).pessoa() : null;
+
+            resultado.add(new PessoaRevisaoDTO(
+                    revisao.revisao(),
+                    revisao.dataHora(),
+                    revisao.tipo(),
+                    revisao.pessoa(),
+                    camposAlterados(revisao.pessoa(), versaoAnterior)
+            ));
+        }
+
+        return resultado;
+    }
+
+    private List<String> camposAlterados(PessoaResponseDTO atual, PessoaResponseDTO anterior) {
+        if (atual == null || anterior == null) {
+            return List.of();
+        }
+
+        List<String> campos = new ArrayList<>();
+
+        adicionarSeAlterado(campos, "nome", atual.nome(), anterior.nome());
+        adicionarSeAlterado(campos, "cpfCnpj", atual.cpfCnpj(), anterior.cpfCnpj());
+        adicionarSeAlterado(campos, "telefonePrincipal", atual.telefonePrincipal(), anterior.telefonePrincipal());
+        adicionarSeAlterado(campos, "telefoneSecundario", atual.telefoneSecundario(), anterior.telefoneSecundario());
+        adicionarSeAlterado(campos, "email", atual.email(), anterior.email());
+        adicionarSeAlterado(campos, "cep", atual.cep(), anterior.cep());
+        adicionarSeAlterado(campos, "endereco", atual.endereco(), anterior.endereco());
+        adicionarSeAlterado(campos, "complemento", atual.complemento(), anterior.complemento());
+        adicionarSeAlterado(campos, "bairro", atual.bairro(), anterior.bairro());
+        adicionarSeAlterado(campos, "cidade", atual.cidade(), anterior.cidade());
+        adicionarSeAlterado(campos, "uf", atual.uf(), anterior.uf());
+
+        return campos;
+    }
+
+    private void adicionarSeAlterado(List<String> campos, String campo, Object atual, Object anterior) {
+        if (!Objects.equals(atual, anterior)) {
+            campos.add(campo);
+        }
     }
 }
