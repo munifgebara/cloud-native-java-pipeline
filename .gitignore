@@ -103,3 +103,6 @@ src/main/resources/static/app/
 Thumbs.db
 
 /stella-api-local.tar
+
+# Local Kubernetes secrets
+k8s/platform/minio/minio-secret.yaml

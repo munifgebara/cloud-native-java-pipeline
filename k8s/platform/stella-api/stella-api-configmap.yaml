@@ -11,3 +11,8 @@ data:
   STELLA_KEYCLOAK_PUBLIC_CLIENT_ID: stella-cli
   STELLA_CORS_ALLOWED_ORIGIN_1: http://127.0.0.1:4200
   STELLA_CORS_ALLOWED_ORIGIN_2: http://localhost:4200
+  STELLA_MINIO_ENDPOINT: http://minio.platform.svc.cluster.local:9000
+  STELLA_MINIO_BUCKET: stella-itens
+  STELLA_MINIO_MAX_IMAGE_SIZE_BYTES: "5242880"
+
+

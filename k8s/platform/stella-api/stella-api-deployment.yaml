@@ -31,6 +31,16 @@ spec:
                 secretKeyRef:
                   name: stella-api-secret
                   key: STELLA_DATASOURCE_PASSWORD
+            - name: STELLA_MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: STELLA_MINIO_ACCESS_KEY
+            - name: STELLA_MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: STELLA_MINIO_SECRET_KEY
           readinessProbe:
             httpGet:
               path: /actuator/health
