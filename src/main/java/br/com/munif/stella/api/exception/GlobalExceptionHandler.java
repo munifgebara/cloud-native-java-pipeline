@@ -60,6 +60,11 @@ public class GlobalExceptionHandler {
         return resposta(HttpStatus.BAD_GATEWAY, "Serviço externo indisponível. Tente novamente em instantes.", ex, request, true);
     }
 
+    @ExceptionHandler(IdentidadeException.class)
+    public ResponseEntity<Map<String, Object>> tratarIdentidade(IdentidadeException ex, HttpServletRequest request) {
+        return resposta(ex.getStatus(), ex.getMessage(), ex, request, ex.getStatus().is5xxServerError());
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> tratarIntegridade(DataIntegrityViolationException ex, HttpServletRequest request) {
         return resposta(HttpStatus.CONFLICT, "Não foi possível concluir a operação por conflito com dados já existentes ou vinculados.", ex, request, true);

@@ -7,17 +7,19 @@ import br.com.munif.stella.api.dto.MeuPerfilUpdateDTO;
 import br.com.munif.stella.api.dto.UsuarioCreateDTO;
 import br.com.munif.stella.api.dto.UsuarioResponseDTO;
 import br.com.munif.stella.api.dto.UsuarioUpdateDTO;
+import br.com.munif.stella.api.exception.IdentidadeException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 @Service
 public class KeycloakUsuarioService {
@@ -64,13 +67,13 @@ public class KeycloakUsuarioService {
                 "temporary", false
         )));
 
-        ResponseEntity<Void> response = restClient.post()
+        ResponseEntity<Void> response = executarKeycloak(() -> restClient.post()
                 .uri(keycloakProperties.adminRealmUrl() + "/users")
                 .header(HttpHeaders.AUTHORIZATION, bearer())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(payload)
                 .retrieve()
-                .toBodilessEntity();
+                .toBodilessEntity());
 
         String id = extrairIdCriado(response.getHeaders().getLocation());
         atualizarRoles(id, dto.roles());
@@ -131,7 +134,10 @@ public class KeycloakUsuarioService {
                     .body(form)
                     .retrieve()
                     .toBodilessEntity();
-        } catch (HttpClientErrorException ex) {
+        } catch (RestClientResponseException ex) {
+            if (ex.getStatusCode().value() != 400 && ex.getStatusCode().value() != 401) {
+                throw traduzirErroKeycloak(ex);
+            }
             throw new IllegalArgumentException("Senha atual inválida.");
         }
     }
@@ -155,13 +161,13 @@ public class KeycloakUsuarioService {
                 .toList();
 
         if (!atuaisGerenciadas.isEmpty()) {
-            restClient.method(HttpMethod.DELETE)
+            executarKeycloak(() -> restClient.method(HttpMethod.DELETE)
                     .uri(keycloakProperties.adminRealmUrl() + "/users/" + id + "/role-mappings/realm")
                     .header(HttpHeaders.AUTHORIZATION, bearer())
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(atuaisGerenciadas)
                     .retrieve()
-                    .toBodilessEntity();
+                    .toBodilessEntity());
         }
 
         List<Map<String, Object>> novas = roles.stream()
@@ -171,13 +177,13 @@ public class KeycloakUsuarioService {
                 .toList();
 
         if (!novas.isEmpty()) {
-            restClient.post()
+            executarKeycloak(() -> restClient.post()
                     .uri(keycloakProperties.adminRealmUrl() + "/users/" + id + "/role-mappings/realm")
                     .header(HttpHeaders.AUTHORIZATION, bearer())
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(novas)
                     .retrieve()
-                    .toBodilessEntity();
+                    .toBodilessEntity());
         }
     }
 
@@ -197,39 +203,42 @@ public class KeycloakUsuarioService {
     private Map<String, Object> buscarUsuarioMap(String id) {
         try {
             return getMap("/users/" + id);
-        } catch (HttpClientErrorException.NotFound ex) {
+        } catch (IdentidadeException ex) {
+            if (ex.getStatus() != HttpStatus.NOT_FOUND) {
+                throw ex;
+            }
             throw new EntityNotFoundException("Usuário não encontrado.");
         }
     }
 
     private void put(String path, Map<String, Object> payload) {
-        restClient.put()
+        executarKeycloak(() -> restClient.put()
                 .uri(keycloakProperties.adminRealmUrl() + path)
                 .header(HttpHeaders.AUTHORIZATION, bearer())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(payload)
                 .retrieve()
-                .toBodilessEntity();
+                .toBodilessEntity());
     }
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> getMap(String path) {
-        Map<String, Object> response = restClient.get()
+        Map<String, Object> response = executarKeycloak(() -> restClient.get()
                 .uri(keycloakProperties.adminRealmUrl() + path)
                 .header(HttpHeaders.AUTHORIZATION, bearer())
                 .retrieve()
-                .body(Map.class);
+                .body(Map.class));
 
         return response == null ? Map.of() : response;
     }
 
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> getList(String path) {
-        List<Map<String, Object>> response = restClient.get()
+        List<Map<String, Object>> response = executarKeycloak(() -> restClient.get()
                 .uri(keycloakProperties.adminRealmUrl() + path)
                 .header(HttpHeaders.AUTHORIZATION, bearer())
                 .retrieve()
-                .body(List.class);
+                .body(List.class));
 
         return response == null ? List.of() : response;
     }
@@ -250,12 +259,12 @@ public class KeycloakUsuarioService {
         form.add("username", keycloakProperties.adminUsername());
         form.add("password", keycloakProperties.adminPassword());
 
-        Map<String, Object> response = restClient.post()
+        Map<String, Object> response = executarKeycloak(() -> restClient.post()
                 .uri(keycloakProperties.adminTokenUrl())
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(form)
                 .retrieve()
-                .body(Map.class);
+                .body(Map.class));
 
         if (response == null || response.get("access_token") == null) {
             throw new IllegalStateException("Resposta administrativa vazia do Keycloak.");
@@ -307,5 +316,31 @@ public class KeycloakUsuarioService {
 
     private boolean isBlank(String valor) {
         return valor == null || valor.isBlank();
+    }
+
+    private <T> T executarKeycloak(Supplier<T> chamada) {
+        try {
+            return chamada.get();
+        } catch (RestClientResponseException ex) {
+            throw traduzirErroKeycloak(ex);
+        }
+    }
+
+    private IdentidadeException traduzirErroKeycloak(RestClientResponseException ex) {
+        HttpStatus status = switch (ex.getStatusCode().value()) {
+            case 400 -> HttpStatus.BAD_REQUEST;
+            case 404 -> HttpStatus.NOT_FOUND;
+            case 409 -> HttpStatus.CONFLICT;
+            default -> HttpStatus.BAD_GATEWAY;
+        };
+
+        String mensagem = switch (status) {
+            case BAD_REQUEST -> "Dados rejeitados pelo provedor de identidade.";
+            case NOT_FOUND -> "Recurso de identidade não encontrado.";
+            case CONFLICT -> "Usuário já existe ou há conflito no provedor de identidade.";
+            default -> "Serviço de identidade indisponível. Tente novamente em instantes.";
+        };
+
+        return new IdentidadeException(status, mensagem, ex);
     }
 }
