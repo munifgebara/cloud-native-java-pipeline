@@ -31,6 +31,16 @@ spec:
                 secretKeyRef:
                   name: stella-api-secret
                   key: STELLA_DATASOURCE_PASSWORD
+            - name: STELLA_KEYCLOAK_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secret
+                  key: KEYCLOAK_ADMIN
+            - name: STELLA_KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secret
+                  key: KEYCLOAK_ADMIN_PASSWORD
             - name: STELLA_MINIO_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
