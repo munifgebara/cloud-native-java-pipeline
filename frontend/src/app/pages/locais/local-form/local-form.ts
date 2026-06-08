@@ -29,6 +29,10 @@ export class LocalFormComponent implements OnInit {
   loading = signal(false);
   salvando = signal(false);
   errorMessage = signal('');
+  imagemAtualUrl = signal<string | null>(null);
+  imagemPreviewUrl = signal<string | null>(null);
+  imagemSelecionada = signal<File | null>(null);
+  removendoImagem = signal(false);
 
   readonly edicao = computed(() => !!this.id());
   readonly opcoesPai = computed(() => this.locaisPai().filter((local) => local.id !== this.id()));
@@ -59,6 +63,7 @@ export class LocalFormComponent implements OnInit {
           paiId: local.paiId ?? '',
           ativa: local.ativa,
         });
+        this.imagemAtualUrl.set(local.imagemUrl);
         this.loading.set(false);
       },
       error: () => {
@@ -89,10 +94,7 @@ export class LocalFormComponent implements OnInit {
 
     if (this.edicao()) {
       this.localService.atualizar(this.id()!, payload).subscribe({
-        next: () => {
-          this.salvando.set(false);
-          this.router.navigate(['/locais']);
-        },
+        next: (local) => this.enviarImagemSeNecessario(local.id),
         error: (err) => {
           this.salvando.set(false);
           this.errorMessage.set(this.extractError(err, this.i18n.translate('locations.form.updateError')));
@@ -103,13 +105,62 @@ export class LocalFormComponent implements OnInit {
     }
 
     this.localService.criar(payload).subscribe({
-      next: () => {
-        this.salvando.set(false);
-        this.router.navigate(['/locais']);
-      },
+      next: (local) => this.enviarImagemSeNecessario(local.id),
       error: (err) => {
         this.salvando.set(false);
         this.errorMessage.set(this.extractError(err, this.i18n.translate('locations.form.createError')));
+      },
+    });
+  }
+
+  selecionarImagem(event: Event): void {
+    this.errorMessage.set('');
+    const input = event.target as HTMLInputElement;
+    const arquivo = input.files?.[0] ?? null;
+
+    if (!arquivo) {
+      this.imagemSelecionada.set(null);
+      this.imagemPreviewUrl.set(null);
+      return;
+    }
+
+    if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(arquivo.type)) {
+      this.errorMessage.set(this.i18n.translate('locations.form.imageInvalidType'));
+      input.value = '';
+      return;
+    }
+
+    if (arquivo.size > 5 * 1024 * 1024) {
+      this.errorMessage.set(this.i18n.translate('locations.form.imageTooLarge'));
+      input.value = '';
+      return;
+    }
+
+    this.imagemSelecionada.set(arquivo);
+    this.imagemPreviewUrl.set(URL.createObjectURL(arquivo));
+  }
+
+  removerImagem(): void {
+    const id = this.id();
+    if (!id || (!this.imagemAtualUrl() && !this.imagemSelecionada())) {
+      this.imagemSelecionada.set(null);
+      this.imagemPreviewUrl.set(null);
+      return;
+    }
+
+    this.errorMessage.set('');
+    this.removendoImagem.set(true);
+
+    this.localService.removerImagem(id).subscribe({
+      next: () => {
+        this.imagemAtualUrl.set(null);
+        this.imagemSelecionada.set(null);
+        this.imagemPreviewUrl.set(null);
+        this.removendoImagem.set(false);
+      },
+      error: (err) => {
+        this.removendoImagem.set(false);
+        this.errorMessage.set(this.extractError(err, this.i18n.translate('locations.form.imageRemoveError')));
       },
     });
   }
@@ -123,6 +174,27 @@ export class LocalFormComponent implements OnInit {
     this.localService.listar().subscribe({
       next: (locais) => this.locaisPai.set(locais),
       error: () => this.errorMessage.set(this.i18n.translate('locations.form.parentLoadError')),
+    });
+  }
+
+  private enviarImagemSeNecessario(localId: string): void {
+    const imagem = this.imagemSelecionada();
+
+    if (!imagem) {
+      this.salvando.set(false);
+      this.router.navigate(['/locais']);
+      return;
+    }
+
+    this.localService.atualizarImagem(localId, imagem).subscribe({
+      next: () => {
+        this.salvando.set(false);
+        this.router.navigate(['/locais']);
+      },
+      error: (err) => {
+        this.salvando.set(false);
+        this.errorMessage.set(this.extractError(err, this.i18n.translate('locations.form.imageUploadError')));
+      },
     });
   }
 

@@ -50,6 +50,9 @@ public final class LocalArmazenamentoMapper {
                 entity.getPai() == null ? null : entity.getPai().getNome(),
                 caminho(entity),
                 nivel(entity),
+                imagemUrl(entity),
+                entity.getImagemContentType(),
+                entity.getImagemTamanhoBytes(),
                 entity.isAtivo()
         );
     }
@@ -67,8 +70,16 @@ public final class LocalArmazenamentoMapper {
                 entity.getPai() == null ? null : entity.getPai().getNome(),
                 caminho,
                 nivel,
+                imagemUrl(entity),
                 entity.isAtivo()
         );
+    }
+
+    private static String imagemUrl(LocalArmazenamento entity) {
+        if (entity.getImagemObjectKey() == null) {
+            return null;
+        }
+        return "/api/public/locais/%s/imagem".formatted(entity.getId());
     }
 
     private static String caminho(LocalArmazenamento entity) {

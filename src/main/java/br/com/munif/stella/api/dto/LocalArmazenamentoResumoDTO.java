@@ -10,5 +10,6 @@ public record LocalArmazenamentoResumoDTO(
         String paiNome,
         String caminho,
         int nivel,
+        String imagemUrl,
         boolean ativa
 ) {}

@@ -65,6 +65,30 @@ class ImagemItemMestreStorageServiceTest {
     }
 
     @Test
+    void deveArmazenarImagemDeLocalComPrefixoProprio() throws Exception {
+        var localId = UUID.randomUUID();
+        var arquivo = new MockMultipartFile("arquivo", "foto.webp", "image/webp", new byte[]{1, 2, 3});
+
+        when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(true);
+
+        var imagem = service.armazenarLocal(localId, arquivo);
+
+        assertThat(imagem.bucket()).isEqualTo("stella-test");
+        assertThat(imagem.contentType()).isEqualTo("image/webp");
+        assertThat(imagem.tamanhoBytes()).isEqualTo(3);
+        assertThat(imagem.objectKey())
+                .startsWith("locais/%s/".formatted(localId))
+                .endsWith(".webp");
+
+        ArgumentCaptor<PutObjectArgs> putObjectCaptor = ArgumentCaptor.forClass(PutObjectArgs.class);
+        verify(minioClient).putObject(putObjectCaptor.capture());
+
+        assertThat(putObjectCaptor.getValue().bucket()).isEqualTo("stella-test");
+        assertThat(putObjectCaptor.getValue().object()).isEqualTo(imagem.objectKey());
+        assertThat(putObjectCaptor.getValue().contentType()).isEqualTo("image/webp");
+    }
+
+    @Test
     void deveRejeitarArquivoVazio() {
         var arquivo = new MockMultipartFile("arquivo", "vazio.png", "image/png", new byte[0]);
 

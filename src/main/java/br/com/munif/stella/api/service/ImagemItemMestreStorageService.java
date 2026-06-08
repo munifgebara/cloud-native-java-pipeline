@@ -43,10 +43,18 @@ public class ImagemItemMestreStorageService {
     }
 
     public ImagemItemMestreDTO armazenar(UUID itemId, MultipartFile arquivo) {
+        return armazenar("itens-mestre", itemId, arquivo);
+    }
+
+    public ImagemItemMestreDTO armazenarLocal(UUID localId, MultipartFile arquivo) {
+        return armazenar("locais", localId, arquivo);
+    }
+
+    private ImagemItemMestreDTO armazenar(String prefixo, UUID entidadeId, MultipartFile arquivo) {
         validarArquivo(arquivo);
 
         String contentType = arquivo.getContentType().toLowerCase(Locale.ROOT);
-        String objectKey = "itens-mestre/%s/%s.%s".formatted(itemId, UUID.randomUUID(), EXTENSOES.get(contentType));
+        String objectKey = "%s/%s/%s.%s".formatted(prefixo, entidadeId, UUID.randomUUID(), EXTENSOES.get(contentType));
 
         try {
             garantirBucket();

@@ -10,6 +10,7 @@ import br.com.munif.stella.api.entity.LocalArmazenamento;
 import br.com.munif.stella.api.service.LocalArmazenamentoService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -55,6 +57,16 @@ public class LocalArmazenamentoController extends SuperController<LocalArmazenam
     @GetMapping("/buscar")
     public ResponseEntity<List<LocalArmazenamentoResumoDTO>> buscarPorNome(@RequestParam String nome) {
         return ResponseEntity.ok(service.buscarPorNome(nome));
+    }
+
+    @PostMapping(value = "/{id}/imagem", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<LocalArmazenamentoResponseDTO> atualizarImagem(@PathVariable UUID id, @RequestParam("arquivo") MultipartFile arquivo) {
+        return ResponseEntity.ok(service.atualizarImagem(id, arquivo));
+    }
+
+    @DeleteMapping("/{id}/imagem")
+    public ResponseEntity<LocalArmazenamentoResponseDTO> removerImagem(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.removerImagem(id));
     }
 
     @Override
