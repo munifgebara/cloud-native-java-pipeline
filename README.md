@@ -167,6 +167,14 @@ The Angular dev server runs on `http://127.0.0.1:4200`.
 
 The Maven build installs frontend dependencies, builds the Angular app, and packages the backend.
 
+### 5. Run BDD scenarios
+
+```bash
+./mvnw -Dtest=CucumberBddTest test
+```
+
+BDD scenarios are written in Gherkin under `src/test/resources/features`, with step definitions in `src/test/java`.
+
 ## Authentication and Demo Access
 
 Local authentication is handled by Keycloak with the `stella` realm.
@@ -291,4 +299,3 @@ A implementação deve priorizar sempre a menor fase aberta e, dentro dela, as i
 - `#41` Expandir o dashboard com indicadores do inventário
 - `#28` Adicionar ícones predefinidos ao cadastro de categorias
 - `#42` Adicionar testes automatizados ao módulo de inventário
-

@@ -153,6 +153,14 @@ O servidor de desenvolvimento do Angular fica em `http://127.0.0.1:4200`.
 
 O build Maven instala as dependências do frontend, gera o build do Angular e empacota o backend.
 
+### 5. Rodar os cenários BDD
+
+```bash
+./mvnw -Dtest=CucumberBddTest test
+```
+
+Os cenários BDD ficam em Gherkin em `src/test/resources/features`, com os steps correspondentes em `src/test/java`.
+
 ## Autenticação e Acesso de Demonstração
 
 A autenticação local é feita pelo Keycloak no realm `stella`.
