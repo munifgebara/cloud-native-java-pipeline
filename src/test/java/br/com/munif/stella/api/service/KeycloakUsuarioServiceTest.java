@@ -4,10 +4,12 @@ import br.com.munif.stella.api.config.KeycloakProperties;
 import br.com.munif.stella.api.dto.AlterarSenhaDTO;
 import br.com.munif.stella.api.dto.UsuarioCreateDTO;
 import br.com.munif.stella.api.dto.UsuarioResponseDTO;
+import br.com.munif.stella.api.exception.IdentidadeException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
@@ -16,6 +18,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.client.ExpectedCount.once;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
@@ -23,6 +26,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withCreatedEntity;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withNoContent;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 class KeycloakUsuarioServiceTest {
@@ -135,6 +139,46 @@ class KeycloakUsuarioServiceTest {
                 .andRespond(withNoContent());
 
         service.alterarMinhaSenha(jwt("user-3", "usuario3"), new AlterarSenhaDTO("atual123", "nova123"));
+
+        server.verify();
+    }
+
+    @Test
+    void deveTraduzirConflitoDoKeycloakAoCriarUsuario() {
+        expectAdminToken();
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer admin-token"))
+                .andRespond(withStatus(HttpStatus.CONFLICT));
+
+        assertThatThrownBy(() -> service.criar(new UsuarioCreateDTO(
+                "existente",
+                "Usuario",
+                "Existente",
+                "existente@example.local",
+                "segredo123",
+                true,
+                List.of("usuario")
+        )))
+                .isInstanceOf(IdentidadeException.class)
+                .hasMessage("Usuário já existe ou há conflito no provedor de identidade.")
+                .extracting("status")
+                .isEqualTo(HttpStatus.CONFLICT);
+
+        server.verify();
+    }
+
+    @Test
+    void deveTraduzirFalhaDeAutenticacaoAdministrativaDoKeycloak() {
+        server.expect(once(), requestTo("http://keycloak/realms/master/protocol/openid-connect/token"))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
+
+        assertThatThrownBy(() -> service.meuPerfil(jwt("user-3", "usuario3")))
+                .isInstanceOf(IdentidadeException.class)
+                .hasMessage("Serviço de identidade indisponível. Tente novamente em instantes.")
+                .extracting("status")
+                .isEqualTo(HttpStatus.BAD_GATEWAY);
 
         server.verify();
     }
