@@ -54,6 +54,7 @@
     [tableStyle]="{ 'min-width': '72rem' }">
     <ng-template pTemplate="header">
       <tr>
+        <th style="width: 84px;">{{ 'locations.image' | translate }}</th>
         <th>{{ 'common.name' | translate }}</th>
         <th>{{ 'locations.path' | translate }}</th>
         <th>{{ 'locations.parent' | translate }}</th>
@@ -64,6 +65,15 @@
 
     <ng-template pTemplate="body" let-local>
       <tr>
+        <td>
+          <div class="location-image">
+            @if (local.imagemUrl) {
+              <img [src]="local.imagemUrl" [alt]="local.nome" />
+            } @else {
+              <i class="pi pi-image"></i>
+            }
+          </div>
+        </td>
         <td>
           <span class="hierarchy-name" [style.padding-left]="indent(local)">
             {{ local.nome }}

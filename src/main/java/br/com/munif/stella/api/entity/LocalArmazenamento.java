@@ -26,6 +26,18 @@ public class LocalArmazenamento extends Entidade {
     @Column(name = "descricao", length = 500)
     private String descricao;
 
+    @Column(name = "imagem_bucket", length = 100)
+    private String imagemBucket;
+
+    @Column(name = "imagem_object_key", length = 500)
+    private String imagemObjectKey;
+
+    @Column(name = "imagem_content_type", length = 100)
+    private String imagemContentType;
+
+    @Column(name = "imagem_tamanho_bytes")
+    private Long imagemTamanhoBytes;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "local_pai_id")
     private LocalArmazenamento pai;

@@ -10,5 +10,8 @@ public record LocalArmazenamentoResponseDTO(
         String paiNome,
         String caminho,
         int nivel,
+        String imagemUrl,
+        String imagemContentType,
+        Long imagemTamanhoBytes,
         boolean ativa
 ) {}

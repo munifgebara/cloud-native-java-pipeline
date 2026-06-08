@@ -32,6 +32,40 @@
           </select>
         </div>
 
+        <div class="field full image-field">
+          <label for="imagem">{{ 'locations.form.image' | translate }}</label>
+          <div class="image-control">
+            <div class="image-preview">
+              @if (imagemPreviewUrl() || imagemAtualUrl()) {
+                <img [src]="imagemPreviewUrl() || imagemAtualUrl()" [alt]="form.controls.nome.value || ('locations.form.image' | translate)" />
+              } @else {
+                <i class="pi pi-image"></i>
+              }
+            </div>
+
+            <div class="image-actions">
+              <input
+                id="imagem"
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                (change)="selecionarImagem($event)" />
+              <small>{{ 'locations.form.imageHint' | translate }}</small>
+
+              @if (imagemPreviewUrl() || imagemAtualUrl()) {
+                <button
+                  pButton
+                  type="button"
+                  severity="secondary"
+                  [label]="'locations.form.removeImage' | translate"
+                  icon="pi pi-trash"
+                  [loading]="removendoImagem()"
+                  (click)="removerImagem()">
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
         <div class="field full">
           <label for="descricao">{{ 'locations.description' | translate }}</label>
           <textarea id="descricao" pTextarea rows="4" formControlName="descricao"></textarea>

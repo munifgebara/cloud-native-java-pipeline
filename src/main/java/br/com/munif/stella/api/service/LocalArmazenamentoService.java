@@ -4,6 +4,7 @@ import br.com.munif.comum.dto.RevisaoDTO;
 import br.com.munif.comum.service.SuperService;
 import br.com.munif.comum.utils.validacoes.ValidacoesBR;
 import br.com.munif.stella.api.dto.LocalArmazenamentoCreateDTO;
+import br.com.munif.stella.api.dto.ImagemItemMestreDTO;
 import br.com.munif.stella.api.dto.LocalArmazenamentoResponseDTO;
 import br.com.munif.stella.api.dto.LocalArmazenamentoResumoDTO;
 import br.com.munif.stella.api.dto.LocalArmazenamentoUpdateDTO;
@@ -13,7 +14,9 @@ import br.com.munif.stella.api.repository.LocalArmazenamentoRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -26,8 +29,15 @@ import java.util.stream.Collectors;
 @Service
 public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, LocalArmazenamentoRepository> {
 
-    public LocalArmazenamentoService(LocalArmazenamentoRepository repository, EntityManager entityManager) {
+    private final ImagemItemMestreStorageService imagemStorageService;
+
+    public LocalArmazenamentoService(
+            LocalArmazenamentoRepository repository,
+            EntityManager entityManager,
+            ImagemItemMestreStorageService imagemStorageService
+    ) {
         super(repository, entityManager, LocalArmazenamento.class);
+        this.imagemStorageService = imagemStorageService;
     }
 
     @Transactional
@@ -82,6 +92,59 @@ public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, 
 
         LocalArmazenamento salvo = salvar(local);
         return LocalArmazenamentoMapper.toResponseDTO(salvo);
+    }
+
+    @Transactional
+    public LocalArmazenamentoResponseDTO atualizarImagem(UUID id, MultipartFile arquivo) {
+        LocalArmazenamento local = buscarPorId(id);
+        String bucketAnterior = local.getImagemBucket();
+        String objectKeyAnterior = local.getImagemObjectKey();
+
+        ImagemItemMestreDTO imagem = imagemStorageService.armazenarLocal(id, arquivo);
+        local.setImagemBucket(imagem.bucket());
+        local.setImagemObjectKey(imagem.objectKey());
+        local.setImagemContentType(imagem.contentType());
+        local.setImagemTamanhoBytes(imagem.tamanhoBytes());
+
+        LocalArmazenamento salvo = salvar(local);
+        imagemStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
+        return LocalArmazenamentoMapper.toResponseDTO(salvo);
+    }
+
+    @Transactional
+    public LocalArmazenamentoResponseDTO removerImagem(UUID id) {
+        LocalArmazenamento local = buscarPorId(id);
+        String bucketAnterior = local.getImagemBucket();
+        String objectKeyAnterior = local.getImagemObjectKey();
+
+        local.setImagemBucket(null);
+        local.setImagemObjectKey(null);
+        local.setImagemContentType(null);
+        local.setImagemTamanhoBytes(null);
+
+        LocalArmazenamento salvo = salvar(local);
+        imagemStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
+        return LocalArmazenamentoMapper.toResponseDTO(salvo);
+    }
+
+    @Transactional(readOnly = true)
+    public ImagemItemMestreDTO buscarMetadadosImagem(UUID id) {
+        LocalArmazenamento local = buscarPorId(id);
+        if (local.getImagemObjectKey() == null) {
+            throw new IllegalArgumentException("Local não possui imagem.");
+        }
+        return new ImagemItemMestreDTO(
+                local.getImagemBucket(),
+                local.getImagemObjectKey(),
+                local.getImagemContentType(),
+                local.getImagemTamanhoBytes()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public InputStream abrirImagem(UUID id) {
+        ImagemItemMestreDTO imagem = buscarMetadadosImagem(id);
+        return imagemStorageService.abrir(imagem.bucket(), imagem.objectKey());
     }
 
     @Transactional

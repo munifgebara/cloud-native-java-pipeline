@@ -1,6 +1,7 @@
 package br.com.munif.stella.api.service;
 
 import br.com.munif.stella.api.dto.LocalArmazenamentoCreateDTO;
+import br.com.munif.stella.api.dto.ImagemItemMestreDTO;
 import br.com.munif.stella.api.dto.LocalArmazenamentoUpdateDTO;
 import br.com.munif.stella.api.entity.LocalArmazenamento;
 import br.com.munif.stella.api.repository.LocalArmazenamentoRepository;
@@ -21,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class LocalArmazenamentoServiceTest {
@@ -30,6 +32,9 @@ class LocalArmazenamentoServiceTest {
 
     @Mock
     private EntityManager entityManager;
+
+    @Mock
+    private ImagemItemMestreStorageService imagemStorageService;
 
     @InjectMocks
     private LocalArmazenamentoService service;
@@ -115,6 +120,66 @@ class LocalArmazenamentoServiceTest {
         assertThatThrownBy(() -> service.atualizar(casaId, new LocalArmazenamentoUpdateDTO("Casa", null, gavetaId, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("descendente");
+    }
+
+    @Test
+    void deveAtualizarImagemDoLocalRemovendoImagemAnterior() {
+        UUID id = UUID.randomUUID();
+        LocalArmazenamento local = local(id, "Deposito", null);
+        local.setImagemBucket("bucket-antigo");
+        local.setImagemObjectKey("locais/%s/antiga.png".formatted(id));
+
+        var arquivo = new org.springframework.mock.web.MockMultipartFile("arquivo", "nova.png", "image/png", new byte[]{1, 2});
+        var imagem = new ImagemItemMestreDTO("bucket-novo", "locais/%s/nova.png".formatted(id), "image/png", 2L);
+
+        when(repository.findById(id)).thenReturn(Optional.of(local));
+        when(imagemStorageService.armazenarLocal(id, arquivo)).thenReturn(imagem);
+        when(repository.save(any(LocalArmazenamento.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var resposta = service.atualizarImagem(id, arquivo);
+
+        assertThat(resposta.imagemUrl()).isEqualTo("/api/public/locais/%s/imagem".formatted(id));
+        assertThat(local.getImagemBucket()).isEqualTo("bucket-novo");
+        assertThat(local.getImagemObjectKey()).isEqualTo("locais/%s/nova.png".formatted(id));
+        assertThat(local.getImagemContentType()).isEqualTo("image/png");
+        assertThat(local.getImagemTamanhoBytes()).isEqualTo(2L);
+        verify(imagemStorageService).removerSilenciosamente("bucket-antigo", "locais/%s/antiga.png".formatted(id));
+    }
+
+    @Test
+    void deveRemoverImagemDoLocal() {
+        UUID id = UUID.randomUUID();
+        LocalArmazenamento local = local(id, "Deposito", null);
+        local.setImagemBucket("bucket");
+        local.setImagemObjectKey("locais/%s/foto.png".formatted(id));
+        local.setImagemContentType("image/png");
+        local.setImagemTamanhoBytes(2L);
+
+        when(repository.findById(id)).thenReturn(Optional.of(local));
+        when(repository.save(any(LocalArmazenamento.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var resposta = service.removerImagem(id);
+
+        assertThat(resposta.imagemUrl()).isNull();
+        assertThat(local.getImagemBucket()).isNull();
+        assertThat(local.getImagemObjectKey()).isNull();
+        assertThat(local.getImagemContentType()).isNull();
+        assertThat(local.getImagemTamanhoBytes()).isNull();
+        verify(imagemStorageService).removerSilenciosamente("bucket", "locais/%s/foto.png".formatted(id));
+    }
+
+    @Test
+    void naoDeveRemoverObjetoQuandoLocalNaoPossuiImagem() {
+        UUID id = UUID.randomUUID();
+        LocalArmazenamento local = local(id, "Deposito", null);
+
+        when(repository.findById(id)).thenReturn(Optional.of(local));
+        when(repository.save(any(LocalArmazenamento.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        service.removerImagem(id);
+
+        verify(imagemStorageService).removerSilenciosamente(null, null);
+        verify(imagemStorageService, never()).armazenarLocal(any(), any());
     }
 
     private LocalArmazenamento local(UUID id, String nome, LocalArmazenamento pai) {
