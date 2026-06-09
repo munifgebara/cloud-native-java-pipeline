@@ -45,4 +45,13 @@
   .form-grid {
     grid-template-columns: 1fr;
   }
+
+  .checkbox-field {
+    padding-top: 0;
+  }
+
+  .form-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
 }

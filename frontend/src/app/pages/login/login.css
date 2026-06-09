@@ -3,7 +3,9 @@
   display: grid;
   place-items: center;
   padding: 24px;
-  background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+  background:
+    radial-gradient(circle at top left, rgba(15, 118, 110, 0.14), transparent 34rem),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
 }
 
 .login-language {
@@ -15,6 +17,8 @@
 :host ::ng-deep .p-card {
   width: 100%;
   max-width: 420px;
+  border: 1px solid #dbe3ea;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
 }
 
 .login-text {
@@ -43,4 +47,20 @@
   border: 1px solid #fecaca;
   padding: 10px 12px;
   border-radius: 8px;
+}
+
+@media (max-width: 520px) {
+  .login-page {
+    align-items: stretch;
+    padding: 72px 14px 20px;
+  }
+
+  .login-language {
+    top: 14px;
+    right: 14px;
+  }
+
+  :host ::ng-deep .p-card {
+    max-width: none;
+  }
 }
