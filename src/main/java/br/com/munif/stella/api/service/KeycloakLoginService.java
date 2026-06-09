@@ -17,8 +17,8 @@ public class KeycloakLoginService {
     private final RestClient restClient;
     private final KeycloakProperties keycloakProperties;
 
-    public KeycloakLoginService(KeycloakProperties keycloakProperties) {
-        this.restClient = RestClient.builder().build();
+    public KeycloakLoginService(KeycloakProperties keycloakProperties, RestClient.Builder restClientBuilder) {
+        this.restClient = restClientBuilder.build();
         this.keycloakProperties = keycloakProperties;
     }
 
@@ -49,4 +49,3 @@ public class KeycloakLoginService {
         );
     }
 }
-
