@@ -178,6 +178,21 @@ Usuários e papéis disponíveis na carga local do realm:
 
 A validação de JWT é configurada no Spring Security como OAuth2 resource server.
 
+O módulo de usuários usa a Admin REST API do Keycloak como origem de identidade. Em produção, prefira um client confidencial dedicado com service account habilitada em vez de reutilizar a conta administrativa principal do Keycloak. A API do Stella solicita o token administrativo com `client_credentials` sempre que `STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET` estiver configurado.
+
+Configurações de identidade esperadas em produção:
+
+- `STELLA_KEYCLOAK_ADMIN_REALM`: realm do client técnico, normalmente `stella`
+- `STELLA_KEYCLOAK_ADMIN_CLIENT_ID`: id do client técnico, normalmente `stella-api-admin`
+- `STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET`: valor secreto do client técnico no Kubernetes
+
+O client técnico deve receber apenas os papéis necessários de `realm-management` para operações de usuário no realm `stella`, como `manage-users`, `query-users`, `view-users` e `view-realm`.
+
+No desenvolvimento local, quando `STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET` não está definido, o backend mantém o fallback anterior e usa o administrador local configurado no `docker-compose.yml`:
+
+- `STELLA_KEYCLOAK_ADMIN_USERNAME`
+- `STELLA_KEYCLOAK_ADMIN_PASSWORD`
+
 ## API e Observabilidade
 
 Endpoints úteis no ambiente local:

@@ -42,6 +42,16 @@ data:
           "serviceAccountsEnabled": false
         },
         {
+          "clientId": "stella-api-admin",
+          "name": "Stella API Admin Integration",
+          "protocol": "openid-connect",
+          "enabled": true,
+          "publicClient": false,
+          "standardFlowEnabled": false,
+          "directAccessGrantsEnabled": false,
+          "serviceAccountsEnabled": true
+        },
+        {
           "clientId": "stella-cli",
           "name": "Stella CLI (Dev/Test)",
           "protocol": "openid-connect",
@@ -53,6 +63,19 @@ data:
         }
       ],
       "users": [
+        {
+          "username": "service-account-stella-api-admin",
+          "enabled": true,
+          "serviceAccountClientId": "stella-api-admin",
+          "clientRoles": {
+            "realm-management": [
+              "manage-users",
+              "query-users",
+              "view-realm",
+              "view-users"
+            ]
+          }
+        },
         {
           "username": "admin",
           "enabled": true,

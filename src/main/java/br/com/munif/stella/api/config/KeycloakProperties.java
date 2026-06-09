@@ -10,7 +10,8 @@ public record KeycloakProperties(
         String adminRealm,
         String adminClientId,
         String adminUsername,
-        String adminPassword
+        String adminPassword,
+        String adminClientSecret
 ) {
     public KeycloakProperties {
         adminRealm = adminRealm == null || adminRealm.isBlank() ? "master" : adminRealm;

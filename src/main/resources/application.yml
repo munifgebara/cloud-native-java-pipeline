@@ -51,6 +51,7 @@ stella:
     admin-client-id: ${STELLA_KEYCLOAK_ADMIN_CLIENT_ID:admin-cli}
     admin-username: ${STELLA_KEYCLOAK_ADMIN_USERNAME:admin}
     admin-password: ${STELLA_KEYCLOAK_ADMIN_PASSWORD:admin}
+    admin-client-secret: ${STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET:}
   minio:
     endpoint: ${STELLA_MINIO_ENDPOINT:http://127.0.0.1:9000}
     access-key: ${STELLA_MINIO_ACCESS_KEY:minioadmin}
