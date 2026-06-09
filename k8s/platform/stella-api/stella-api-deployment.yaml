@@ -12,6 +12,13 @@ spec:
     metadata:
       labels:
         app: stella-api
+        app.kubernetes.io/name: stella-api
+        app.kubernetes.io/component: api
+        app.kubernetes.io/part-of: stella
+        observability.stella/log-format: ecs
+      annotations:
+        observability.stella/log-destination: grafana
+        observability.stella/log-collector: stdout
     spec:
       imagePullSecrets:
         - name: ghcr-secret

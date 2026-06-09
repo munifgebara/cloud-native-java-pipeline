@@ -218,6 +218,20 @@ Useful local endpoints:
 - metrics: `http://127.0.0.1:8080/actuator/metrics`
 - prometheus: `http://127.0.0.1:8080/actuator/prometheus`
 
+### Logging by Environment
+
+Local runs use the default Spring profile and keep human-readable logs on the application console. The default log level is controlled by `STELLA_LOG_LEVEL` and falls back to `INFO`.
+
+The Kubernetes deployment activates the `server` profile through `SPRING_PROFILES_ACTIVE=server`. In this profile, Stella emits ECS structured JSON logs to stdout, which is the expected collection point for the Grafana/Loki stack or any cluster log collector. The deployment labels and annotations identify the service, component, destination and log format without requiring file-based logging.
+
+Useful server logging variables:
+
+- `STELLA_LOG_LEVEL`: root application log level
+- `STELLA_SECURITY_LOG_LEVEL`: Spring Security log level
+- `STELLA_ENVIRONMENT`: environment value included in structured logs
+
+Do not log tokens, passwords, client secrets or personal data payloads. The application configuration keeps SQL parameter binding at `WARN` in server mode to avoid leaking sensitive values in logs.
+
 ## Deployment and Delivery Flow
 
 The repository already includes the building blocks for a cloud-native delivery workflow:

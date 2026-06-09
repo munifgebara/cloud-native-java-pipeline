@@ -1,0 +1,14 @@
+logging:
+  structured:
+    format:
+      console: ecs
+    ecs:
+      service:
+        name: ${spring.application.name}
+        environment: ${STELLA_ENVIRONMENT:server}
+        node-name: ${HOSTNAME:unknown}
+  level:
+    root: ${STELLA_LOG_LEVEL:INFO}
+    org.springframework.security: ${STELLA_SECURITY_LOG_LEVEL:INFO}
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN
