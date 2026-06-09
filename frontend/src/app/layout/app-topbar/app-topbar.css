@@ -1,9 +1,17 @@
 .topbar {
   height: 100%;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 24px;
+}
+
+.topbar-main {
+  width: 100%;
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  gap: 16px;
 }
 
 .title {
@@ -24,9 +32,14 @@
   gap: 14px;
 }
 
+.mobile-nav {
+  display: none;
+}
+
 @media (max-width: 640px) {
   .topbar {
-    padding: 0 16px;
+    padding: 10px 12px 8px;
+    gap: 10px;
   }
 
   .subtitle {
@@ -35,5 +48,50 @@
 
   .topbar-actions {
     gap: 10px;
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+
+  :host ::ng-deep .topbar-action .p-button-label {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .topbar {
+    justify-content: flex-start;
+  }
+
+  .mobile-nav {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 2px 0 4px;
+    scrollbar-width: thin;
+  }
+
+  .mobile-nav a {
+    min-height: 44px;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #dbe3ea;
+    border-radius: 8px;
+    padding: 0 12px;
+    color: #334155;
+    background: #f8fafc;
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+
+  .mobile-nav a.active {
+    border-color: #0f766e;
+    background: #ecfdf5;
+    color: #0f766e;
   }
 }

@@ -303,6 +303,7 @@
   }
 
   <p-table
+    styleClass="responsive-table"
     [value]="instancias()"
     [loading]="loading()"
     [tableStyle]="{ 'min-width': '82rem' }">
@@ -320,8 +321,8 @@
 
     <ng-template pTemplate="body" let-instancia>
       <tr>
-        <td>{{ nomeInstancia(instancia) }}</td>
-        <td>
+        <td [attr.data-label]="'itemInstances.identifier' | translate">{{ nomeInstancia(instancia) }}</td>
+        <td [attr.data-label]="'itemInstances.masterItem' | translate">
           <span class="master-item-name">
             <span class="category-icon">
               <i [class]="iconClass(instancia)"></i>
@@ -329,10 +330,10 @@
             <span>{{ instancia.itemMestreNome }}</span>
           </span>
         </td>
-        <td>{{ instancia.patrimonio || '-' }}</td>
-        <td>{{ instancia.numeroSerie || '-' }}</td>
-        <td>{{ instancia.localAtualNome || '-' }}</td>
-        <td>
+        <td [attr.data-label]="'itemInstances.assetTag' | translate">{{ instancia.patrimonio || '-' }}</td>
+        <td [attr.data-label]="'itemInstances.serialNumber' | translate">{{ instancia.numeroSerie || '-' }}</td>
+        <td [attr.data-label]="'itemInstances.currentLocation' | translate">{{ instancia.localAtualNome || '-' }}</td>
+        <td [attr.data-label]="'itemInstances.status' | translate">
           <p-tag
             [value]="statusLabel(instancia)"
             [severity]="statusSeverity(instancia.statusOperacional)">
@@ -345,7 +346,7 @@
             </p-tag>
           }
         </td>
-        <td>
+        <td [attr.data-label]="'common.actions' | translate">
           <div class="actions">
             <button
               pButton

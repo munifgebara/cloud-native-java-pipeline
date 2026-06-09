@@ -1,24 +1,67 @@
 <div class="topbar">
-  <div class="title-area">
-    <div class="title">{{ 'app.name' | translate }}</div>
-    <div class="subtitle">{{ 'app.subtitle' | translate }}</div>
+  <div class="topbar-main">
+    <div class="title-area">
+      <div class="title">{{ 'app.name' | translate }}</div>
+      <div class="subtitle">{{ 'app.subtitle' | translate }}</div>
+    </div>
+
+    <div class="topbar-actions">
+      <app-language-selector />
+
+      <p-button
+        styleClass="topbar-action"
+        [label]="'layout.profile' | translate"
+        icon="pi pi-user"
+        severity="secondary"
+        routerLink="/perfil">
+      </p-button>
+
+      <p-button
+        styleClass="topbar-action"
+        [label]="'layout.logout' | translate"
+        icon="pi pi-sign-out"
+        severity="secondary"
+        (onClick)="sair()">
+      </p-button>
+    </div>
   </div>
 
-  <div class="topbar-actions">
-    <app-language-selector />
+  <nav class="mobile-nav" [attr.aria-label]="'app.name' | translate">
+    <a routerLink="/dashboard" routerLinkActive="active">
+      <i class="pi pi-home"></i>
+      <span>{{ 'layout.menu.dashboard' | translate }}</span>
+    </a>
 
-    <p-button
-      [label]="'layout.profile' | translate"
-      icon="pi pi-user"
-      severity="secondary"
-      routerLink="/perfil">
-    </p-button>
+    <a routerLink="/pessoas" routerLinkActive="active">
+      <i class="pi pi-users"></i>
+      <span>{{ 'layout.menu.people' | translate }}</span>
+    </a>
 
-    <p-button
-      [label]="'layout.logout' | translate"
-      icon="pi pi-sign-out"
-      severity="secondary"
-      (onClick)="sair()">
-    </p-button>
-  </div>
+    @if (isAdmin()) {
+      <a routerLink="/usuarios" routerLinkActive="active">
+        <i class="pi pi-user-edit"></i>
+        <span>{{ 'layout.menu.users' | translate }}</span>
+      </a>
+    }
+
+    <a routerLink="/categorias" routerLinkActive="active">
+      <i class="pi pi-tags"></i>
+      <span>{{ 'layout.menu.categories' | translate }}</span>
+    </a>
+
+    <a routerLink="/locais" routerLinkActive="active">
+      <i class="pi pi-map-marker"></i>
+      <span>{{ 'layout.menu.locations' | translate }}</span>
+    </a>
+
+    <a routerLink="/itens-mestre" routerLinkActive="active">
+      <i class="pi pi-box"></i>
+      <span>{{ 'layout.menu.masterItems' | translate }}</span>
+    </a>
+
+    <a routerLink="/instancias-item" routerLinkActive="active">
+      <i class="pi pi-barcode"></i>
+      <span>{{ 'layout.menu.itemInstances' | translate }}</span>
+    </a>
+  </nav>
 </div>

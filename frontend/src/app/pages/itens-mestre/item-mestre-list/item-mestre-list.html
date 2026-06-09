@@ -56,6 +56,7 @@
   }
 
   <p-table
+    styleClass="responsive-table"
     [value]="itens()"
     [loading]="loading()"
     [tableStyle]="{ 'min-width': '76rem' }">
@@ -72,7 +73,7 @@
 
     <ng-template pTemplate="body" let-item>
       <tr>
-        <td>
+        <td [attr.data-label]="'masterItems.image' | translate">
           <div class="item-image">
             @if (item.imagemUrl) {
               <img [src]="item.imagemUrl" [alt]="item.nome" />
@@ -81,8 +82,8 @@
             }
           </div>
         </td>
-        <td>{{ item.nome }}</td>
-        <td>
+        <td [attr.data-label]="'common.name' | translate">{{ item.nome }}</td>
+        <td [attr.data-label]="'masterItems.category' | translate">
           @if (item.categoriaNome) {
             <span class="category-name">
               <span class="category-icon">
@@ -94,14 +95,14 @@
             -
           }
         </td>
-        <td>{{ item.descricao || '-' }}</td>
-        <td>
+        <td [attr.data-label]="'masterItems.description' | translate">{{ item.descricao || '-' }}</td>
+        <td [attr.data-label]="'masterItems.status' | translate">
           <p-tag
             [value]="statusLabel(item)"
             [severity]="item.ativa ? 'success' : 'secondary'">
           </p-tag>
         </td>
-        <td>
+        <td [attr.data-label]="'common.actions' | translate">
           <div class="actions">
             <button
               pButton

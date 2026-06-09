@@ -49,6 +49,7 @@
   }
 
   <p-table
+    styleClass="responsive-table"
     [value]="locais()"
     [loading]="loading()"
     [tableStyle]="{ 'min-width': '72rem' }">
@@ -65,7 +66,7 @@
 
     <ng-template pTemplate="body" let-local>
       <tr>
-        <td>
+        <td [attr.data-label]="'locations.image' | translate">
           <div class="location-image">
             @if (local.imagemUrl) {
               <img [src]="local.imagemUrl" [alt]="local.nome" />
@@ -74,20 +75,20 @@
             }
           </div>
         </td>
-        <td>
+        <td [attr.data-label]="'common.name' | translate">
           <span class="hierarchy-name" [style.padding-left]="indent(local)">
             {{ local.nome }}
           </span>
         </td>
-        <td>{{ local.caminho }}</td>
-        <td>{{ local.paiNome || '-' }}</td>
-        <td>
+        <td [attr.data-label]="'locations.path' | translate">{{ local.caminho }}</td>
+        <td [attr.data-label]="'locations.parent' | translate">{{ local.paiNome || '-' }}</td>
+        <td [attr.data-label]="'locations.status' | translate">
           <p-tag
             [value]="statusLabel(local)"
             [severity]="local.ativa ? 'success' : 'secondary'">
           </p-tag>
         </td>
-        <td>
+        <td [attr.data-label]="'common.actions' | translate">
           <div class="actions">
             <button
               pButton

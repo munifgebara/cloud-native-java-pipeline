@@ -21,6 +21,7 @@
   }
 
   <p-table
+    styleClass="responsive-table"
     [value]="usuarios()"
     [loading]="loading()"
     [tableStyle]="{ 'min-width': '64rem' }">
@@ -37,17 +38,17 @@
 
     <ng-template pTemplate="body" let-usuario>
       <tr>
-        <td>{{ usuario.username }}</td>
-        <td>{{ nomeCompleto(usuario) }}</td>
-        <td>{{ usuario.email || '-' }}</td>
-        <td>{{ usuario.roles.join(', ') || '-' }}</td>
-        <td>
+        <td [attr.data-label]="'login.username' | translate">{{ usuario.username }}</td>
+        <td [attr.data-label]="'common.name' | translate">{{ nomeCompleto(usuario) }}</td>
+        <td [attr.data-label]="'people.form.email' | translate">{{ usuario.email || '-' }}</td>
+        <td [attr.data-label]="'users.roles' | translate">{{ usuario.roles.join(', ') || '-' }}</td>
+        <td [attr.data-label]="'categories.status' | translate">
           <p-tag
             [value]="statusLabel(usuario)"
             [severity]="usuario.enabled ? 'success' : 'secondary'">
           </p-tag>
         </td>
-        <td>
+        <td [attr.data-label]="'common.actions' | translate">
           <div class="actions">
             <button
               pButton

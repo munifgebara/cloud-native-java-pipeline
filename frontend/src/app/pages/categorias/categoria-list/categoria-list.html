@@ -49,6 +49,7 @@
   }
 
   <p-table
+    styleClass="responsive-table"
     [value]="categorias()"
     [loading]="loading()"
     [tableStyle]="{ 'min-width': '64rem' }">
@@ -63,7 +64,7 @@
 
     <ng-template pTemplate="body" let-categoria>
       <tr>
-        <td>
+        <td [attr.data-label]="'common.name' | translate">
           <span class="category-name">
             <span class="category-icon">
               <i [class]="iconClass(categoria)"></i>
@@ -71,14 +72,14 @@
             <span>{{ categoria.nome }}</span>
           </span>
         </td>
-        <td>{{ categoria.descricao || '-' }}</td>
-        <td>
+        <td [attr.data-label]="'categories.description' | translate">{{ categoria.descricao || '-' }}</td>
+        <td [attr.data-label]="'categories.status' | translate">
           <p-tag
             [value]="statusLabel(categoria)"
             [severity]="categoria.ativa ? 'success' : 'secondary'">
           </p-tag>
         </td>
-        <td>
+        <td [attr.data-label]="'common.actions' | translate">
           <div class="actions">
             <button
               pButton

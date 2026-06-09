@@ -49,6 +49,7 @@
   }
 
   <p-table
+    styleClass="responsive-table"
     [value]="pessoas()"
     [loading]="loading()"
     [tableStyle]="{ 'min-width': '60rem' }">
@@ -61,8 +62,8 @@
 
     <ng-template pTemplate="body" let-pessoa>
       <tr>
-        <td>{{ pessoa.nome }}</td>
-        <td>
+        <td [attr.data-label]="'common.name' | translate">{{ pessoa.nome }}</td>
+        <td [attr.data-label]="'common.actions' | translate">
           <div class="actions">
             <button
               pButton

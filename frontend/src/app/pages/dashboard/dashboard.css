@@ -10,7 +10,7 @@
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 16px;
   margin-bottom: 24px;
 }
@@ -138,4 +138,28 @@
   color: #b91c1c;
   background: #fff1f2;
   border-color: #fecdd3;
+}
+
+@media (max-width: 520px) {
+  .dashboard-page h1 {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    margin-bottom: 16px;
+  }
+
+  .cards {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .metric-link {
+    width: 100%;
+  }
+
+  .ranking-section,
+  .state-card {
+    padding: 16px;
+  }
 }
