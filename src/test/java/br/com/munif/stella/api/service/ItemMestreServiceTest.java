@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -86,6 +87,16 @@ class ItemMestreServiceTest {
     }
 
     @Test
+    void deveCriarItemMestreInativoAposPersistenciaInicial() {
+        when(repository.save(any(ItemMestre.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var resposta = service.criar(new ItemMestreCreateDTO("Arquivo legado", null, null, null, false));
+
+        assertThat(resposta.ativa()).isFalse();
+        verify(repository).flush();
+    }
+
+    @Test
     void deveAtualizarItemMestreComCategoria() {
         UUID id = UUID.randomUUID();
         UUID categoriaId = UUID.randomUUID();
@@ -111,6 +122,23 @@ class ItemMestreServiceTest {
     }
 
     @Test
+    void deveAtualizarItemMestreRemovendoCategoria() {
+        UUID id = UUID.randomUUID();
+        ItemMestre item = item(id, "Notebook", categoria(UUID.randomUUID(), "Eletronicos", null, true));
+
+        when(repository.findById(id)).thenReturn(Optional.of(item));
+        when(repository.save(any(ItemMestre.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var resposta = service.atualizar(id, new ItemMestreUpdateDTO(" Notebook ", " ", " Observacao ", null, true));
+
+        assertThat(resposta.nome()).isEqualTo("Notebook");
+        assertThat(resposta.descricao()).isNull();
+        assertThat(resposta.observacoes()).isEqualTo("Observacao");
+        assertThat(resposta.categoriaId()).isNull();
+        verify(categoriaRepository, never()).findById(any(UUID.class));
+    }
+
+    @Test
     void deveImpedirCategoriaInativaNoItemMestre() {
         UUID categoriaId = UUID.randomUUID();
         Categoria categoria = categoria(categoriaId, "Inativa", null, false);
@@ -122,6 +150,32 @@ class ItemMestreServiceTest {
                 .hasMessageContaining("Categoria deve estar ativa");
 
         verify(repository, never()).save(any(ItemMestre.class));
+    }
+
+    @Test
+    void deveImpedirCategoriaInexistenteNoItemMestre() {
+        UUID categoriaId = UUID.randomUUID();
+
+        when(categoriaRepository.findById(categoriaId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.criar(new ItemMestreCreateDTO("Furadeira", null, null, categoriaId, true)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Categoria não encontrada.");
+
+        verify(repository, never()).save(any(ItemMestre.class));
+    }
+
+    @Test
+    void deveListarResumoEInativos() {
+        ItemMestre ativo = item(UUID.randomUUID(), "Notebook", null);
+        ItemMestre inativo = item(UUID.randomUUID(), "Arquivo legado", null);
+        inativo.setAtivo(false);
+
+        when(repository.findByAtivoTrueOrderByNomeAsc()).thenReturn(List.of(ativo));
+        when(repository.listarTodosIncluindoInativos()).thenReturn(List.of(ativo, inativo));
+
+        assertThat(service.listarResumo()).extracting("nome").containsExactly("Notebook");
+        assertThat(service.listarResumoIncluindoInativos()).extracting("ativa").containsExactly(true, false);
     }
 
     @Test
@@ -167,6 +221,39 @@ class ItemMestreServiceTest {
         assertThat(resposta.imagemContentType()).isEqualTo("image/png");
         assertThat(resposta.imagemTamanhoBytes()).isEqualTo(3L);
         verify(imagemStorageService).removerSilenciosamente("stella-itens", "itens-mestre/antiga.jpg");
+    }
+
+    @Test
+    void deveBuscarMetadadosEAbrirImagemPrincipal() {
+        UUID id = UUID.randomUUID();
+        ItemMestre item = item(id, "Notebook", null);
+        item.setImagemBucket("stella-itens");
+        item.setImagemObjectKey("itens-mestre/%s/foto.png".formatted(id));
+        item.setImagemContentType("image/png");
+        item.setImagemTamanhoBytes(3L);
+
+        when(repository.findById(id)).thenReturn(Optional.of(item));
+        when(imagemStorageService.abrir("stella-itens", "itens-mestre/%s/foto.png".formatted(id)))
+                .thenReturn(new ByteArrayInputStream(new byte[]{1, 2, 3}));
+
+        var metadados = service.buscarMetadadosImagemPrincipal(id);
+        var imagem = service.abrirImagemPrincipal(id);
+
+        assertThat(metadados.objectKey()).isEqualTo("itens-mestre/%s/foto.png".formatted(id));
+        assertThat(metadados.tamanhoBytes()).isEqualTo(3L);
+        assertThat(imagem).hasSameContentAs(new ByteArrayInputStream(new byte[]{1, 2, 3}));
+    }
+
+    @Test
+    void deveRejeitarMetadadosQuandoItemMestreNaoPossuiImagemPrincipal() {
+        UUID id = UUID.randomUUID();
+        ItemMestre item = item(id, "Notebook", null);
+
+        when(repository.findById(id)).thenReturn(Optional.of(item));
+
+        assertThatThrownBy(() -> service.buscarMetadadosImagemPrincipal(id))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Item mestre não possui imagem principal.");
     }
 
     private ItemMestre item(UUID id, String nome, Categoria categoria) {

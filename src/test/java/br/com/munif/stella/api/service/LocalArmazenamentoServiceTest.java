@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -72,6 +73,16 @@ class LocalArmazenamentoServiceTest {
     }
 
     @Test
+    void deveCriarLocalInativoAposPersistenciaInicial() {
+        when(repository.save(any(LocalArmazenamento.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var resposta = service.criar(new LocalArmazenamentoCreateDTO("Arquivo morto", null, null, false));
+
+        assertThat(resposta.ativa()).isFalse();
+        verify(repository).flush();
+    }
+
+    @Test
     void deveListarPreservandoHierarquia() {
         LocalArmazenamento casa = local(UUID.randomUUID(), "Casa", null);
         LocalArmazenamento escritorio = local(UUID.randomUUID(), "Escritorio", casa);
@@ -90,6 +101,31 @@ class LocalArmazenamentoServiceTest {
                 "Deposito"
         );
         assertThat(locais).extracting("nivel").containsExactly(0, 1, 2, 0);
+    }
+
+    @Test
+    void deveListarResumoIncluindoInativosEOrfaosComoRaiz() {
+        LocalArmazenamento removido = local(UUID.randomUUID(), "Removido", null);
+        removido.setAtivo(false);
+        LocalArmazenamento orfao = local(UUID.randomUUID(), "Orfao", local(UUID.randomUUID(), "Pai ausente", null));
+
+        when(repository.listarTodosIncluindoInativos()).thenReturn(List.of(orfao, removido));
+
+        var locais = service.listarResumoIncluindoInativos();
+
+        assertThat(locais).extracting("nome").containsExactly("Orfao", "Removido");
+        assertThat(locais).extracting("nivel").containsExactly(0, 0);
+        assertThat(locais.getLast().ativa()).isFalse();
+    }
+
+    @Test
+    void deveBuscarPorNomeSomenteQuandoFiltroInformado() {
+        LocalArmazenamento local = local(UUID.randomUUID(), "Deposito Central", null);
+
+        when(repository.findByAtivoTrueAndNomeContainingIgnoreCaseOrderByNomeAsc("Deposito")).thenReturn(List.of(local));
+
+        assertThat(service.buscarPorNome("  ")).isEmpty();
+        assertThat(service.buscarPorNome(" Deposito ")).hasSize(1);
     }
 
     @Test
@@ -120,6 +156,40 @@ class LocalArmazenamentoServiceTest {
         assertThatThrownBy(() -> service.atualizar(casaId, new LocalArmazenamentoUpdateDTO("Casa", null, gavetaId, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("descendente");
+    }
+
+    @Test
+    void deveImpedirLocalPaiInativo() {
+        UUID paiId = UUID.randomUUID();
+        LocalArmazenamento pai = local(paiId, "Arquivo morto", null);
+        pai.setAtivo(false);
+
+        when(repository.findById(paiId)).thenReturn(Optional.of(pai));
+
+        assertThatThrownBy(() -> service.criar(new LocalArmazenamentoCreateDTO("Caixa", null, paiId, true)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Local pai deve estar ativo.");
+
+        verify(repository, never()).save(any(LocalArmazenamento.class));
+    }
+
+    @Test
+    void deveAtualizarLocalComPaiAtivoNormalizandoCampos() {
+        UUID id = UUID.randomUUID();
+        UUID paiId = UUID.randomUUID();
+        LocalArmazenamento local = local(id, "Antigo", null);
+        LocalArmazenamento pai = local(paiId, "Sala", null);
+
+        when(repository.findById(id)).thenReturn(Optional.of(local));
+        when(repository.findById(paiId)).thenReturn(Optional.of(pai));
+        when(repository.save(any(LocalArmazenamento.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var resposta = service.atualizar(id, new LocalArmazenamentoUpdateDTO("  Armario  ", "  Documentos  ", paiId, false));
+
+        assertThat(resposta.nome()).isEqualTo("Armario");
+        assertThat(resposta.descricao()).isEqualTo("Documentos");
+        assertThat(resposta.paiId()).isEqualTo(paiId);
+        assertThat(resposta.ativa()).isFalse();
     }
 
     @Test
@@ -180,6 +250,39 @@ class LocalArmazenamentoServiceTest {
 
         verify(imagemStorageService).removerSilenciosamente(null, null);
         verify(imagemStorageService, never()).armazenarLocal(any(), any());
+    }
+
+    @Test
+    void deveBuscarMetadadosEAbrirImagemDoLocal() {
+        UUID id = UUID.randomUUID();
+        LocalArmazenamento local = local(id, "Deposito", null);
+        local.setImagemBucket("stella-locais");
+        local.setImagemObjectKey("locais/%s/foto.png".formatted(id));
+        local.setImagemContentType("image/png");
+        local.setImagemTamanhoBytes(2L);
+
+        when(repository.findById(id)).thenReturn(Optional.of(local));
+        when(imagemStorageService.abrir("stella-locais", "locais/%s/foto.png".formatted(id)))
+                .thenReturn(new ByteArrayInputStream(new byte[]{1, 2}));
+
+        var metadados = service.buscarMetadadosImagem(id);
+        var imagem = service.abrirImagem(id);
+
+        assertThat(metadados.contentType()).isEqualTo("image/png");
+        assertThat(metadados.tamanhoBytes()).isEqualTo(2L);
+        assertThat(imagem).hasSameContentAs(new ByteArrayInputStream(new byte[]{1, 2}));
+    }
+
+    @Test
+    void deveRejeitarMetadadosQuandoLocalNaoPossuiImagem() {
+        UUID id = UUID.randomUUID();
+        LocalArmazenamento local = local(id, "Deposito", null);
+
+        when(repository.findById(id)).thenReturn(Optional.of(local));
+
+        assertThatThrownBy(() -> service.buscarMetadadosImagem(id))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Local não possui imagem.");
     }
 
     private LocalArmazenamento local(UUID id, String nome, LocalArmazenamento pai) {

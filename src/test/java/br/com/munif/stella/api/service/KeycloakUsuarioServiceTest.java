@@ -2,9 +2,12 @@ package br.com.munif.stella.api.service;
 
 import br.com.munif.stella.api.config.KeycloakProperties;
 import br.com.munif.stella.api.dto.AlterarSenhaDTO;
+import br.com.munif.stella.api.dto.MeuPerfilUpdateDTO;
 import br.com.munif.stella.api.dto.UsuarioCreateDTO;
 import br.com.munif.stella.api.dto.UsuarioResponseDTO;
+import br.com.munif.stella.api.dto.UsuarioUpdateDTO;
 import br.com.munif.stella.api.exception.IdentidadeException;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -229,6 +232,230 @@ class KeycloakUsuarioServiceTest {
 
         assertThat(usuario.username()).isEqualTo("usuario3");
         assertThat(usuario.roles()).containsExactly("usuario");
+        server.verify();
+    }
+
+    @Test
+    void deveAtualizarUsuarioSubstituindoRolesGerenciadas() {
+        expectAdminToken();
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/user-4"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                        {
+                          "id": "user-4",
+                          "username": "editor",
+                          "firstName": "Nome",
+                          "lastName": "Antigo",
+                          "email": "antigo@example.local",
+                          "enabled": true
+                        }
+                        """, MediaType.APPLICATION_JSON));
+
+        expectAdminToken();
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/user-4"))
+                .andExpect(method(HttpMethod.PUT))
+                .andExpect(content().json("""
+                        {
+                          "id": "user-4",
+                          "username": "editor",
+                          "firstName": "Nome",
+                          "lastName": "Atualizado",
+                          "email": null,
+                          "enabled": false
+                        }
+                        """))
+                .andRespond(withNoContent());
+
+        expectAdminToken();
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/user-4/role-mappings/realm"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                        [
+                          {"id": "role-admin", "name": "admin"},
+                          {"id": "role-default", "name": "default-roles-stella"}
+                        ]
+                        """, MediaType.APPLICATION_JSON));
+
+        expectAdminToken();
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/user-4/role-mappings/realm"))
+                .andExpect(method(HttpMethod.DELETE))
+                .andRespond(withNoContent());
+
+        expectAdminToken();
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/roles/usuario"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                        {"id": "role-usuario", "name": "usuario"}
+                        """, MediaType.APPLICATION_JSON));
+
+        expectAdminToken();
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/user-4/role-mappings/realm"))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withNoContent());
+
+        expectAdminToken();
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/user-4"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                        {
+                          "id": "user-4",
+                          "username": "editor",
+                          "firstName": "Nome",
+                          "lastName": "Atualizado",
+                          "enabled": false
+                        }
+                        """, MediaType.APPLICATION_JSON));
+
+        expectAdminToken();
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/user-4/role-mappings/realm"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                        [
+                          {"id": "role-usuario", "name": "usuario"},
+                          {"id": "role-default", "name": "default-roles-stella"}
+                        ]
+                        """, MediaType.APPLICATION_JSON));
+
+        UsuarioResponseDTO usuario = service.atualizar("user-4", new UsuarioUpdateDTO(
+                " Nome ",
+                " Atualizado ",
+                " ",
+                false,
+                List.of("usuario", "default-roles-stella")
+        ));
+
+        assertThat(usuario.enabled()).isFalse();
+        assertThat(usuario.email()).isNull();
+        assertThat(usuario.roles()).containsExactly("usuario");
+        server.verify();
+    }
+
+    @Test
+    void deveAtualizarMeuPerfilNormalizandoCamposEInformandoUrlDaConta() {
+        expectAdminToken();
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/user-5"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                        {
+                          "id": "user-5",
+                          "username": "perfil",
+                          "firstName": "Antigo",
+                          "lastName": "Nome",
+                          "email": "antigo@example.local",
+                          "enabled": true
+                        }
+                        """, MediaType.APPLICATION_JSON));
+
+        expectAdminToken();
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/user-5"))
+                .andExpect(method(HttpMethod.PUT))
+                .andExpect(content().json("""
+                        {
+                          "id": "user-5",
+                          "username": "perfil",
+                          "firstName": "Novo",
+                          "lastName": null,
+                          "email": "novo@example.local",
+                          "enabled": true
+                        }
+                        """))
+                .andRespond(withNoContent());
+
+        expectAdminToken();
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/user-5"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                        {
+                          "id": "user-5",
+                          "username": "perfil",
+                          "firstName": "Novo",
+                          "email": "novo@example.local",
+                          "enabled": true
+                        }
+                        """, MediaType.APPLICATION_JSON));
+
+        expectAdminToken();
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/user-5/role-mappings/realm"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                        [{"id": "role-admin", "name": "admin"}]
+                        """, MediaType.APPLICATION_JSON));
+
+        var perfil = service.atualizarMeuPerfil(jwt("user-5", "perfil"), new MeuPerfilUpdateDTO(
+                " Novo ",
+                " ",
+                " novo@example.local "
+        ));
+
+        assertThat(perfil.firstName()).isEqualTo("Novo");
+        assertThat(perfil.lastName()).isNull();
+        assertThat(perfil.alteracaoSenhaUrl()).isEqualTo("http://keycloak/realms/stella/account");
+        assertThat(perfil.roles()).containsExactly("admin");
+        server.verify();
+    }
+
+    @Test
+    void deveTraduzirUsuarioNaoEncontradoParaEntidadeNaoEncontrada() {
+        expectAdminToken();
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/desconhecido"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withStatus(HttpStatus.NOT_FOUND));
+
+        assertThatThrownBy(() -> service.buscarPorId("desconhecido"))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Usuário não encontrado.");
+
+        server.verify();
+    }
+
+    @Test
+    void deveRejeitarAlteracaoDeSenhaQuandoSenhaAtualForInvalida() {
+        server.expect(once(), requestTo("http://keycloak/realms/stella/protocol/openid-connect/token"))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
+
+        assertThatThrownBy(() -> service.alterarMinhaSenha(jwt("user-6", "usuario6"), new AlterarSenhaDTO("errada", "nova123")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Senha atual inválida.");
+
+        server.verify();
+    }
+
+    @Test
+    void deveFalharQuandoCredenciaisAdministrativasNaoEstaoConfiguradas() {
+        RestClient.Builder builder = RestClient.builder();
+        server = MockRestServiceServer.bindTo(builder).build();
+        service = new KeycloakUsuarioService(
+                new KeycloakProperties("http://keycloak", "stella", "stella-cli", "master", "admin-cli", null, " ", null),
+                builder
+        );
+
+        assertThatThrownBy(() -> service.listar())
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Credenciais administrativas do Keycloak não configuradas.");
+
+        server.verify();
+    }
+
+    @Test
+    void deveFalharQuandoKeycloakNaoRetornaLocationAoCriarUsuario() {
+        expectAdminToken();
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users"))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withStatus(HttpStatus.CREATED));
+
+        assertThatThrownBy(() -> service.criar(new UsuarioCreateDTO(
+                "sem-location",
+                "Sem",
+                "Location",
+                "sem-location@example.local",
+                "segredo123",
+                true,
+                List.of("usuario")
+        )))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Keycloak não retornou o identificador do usuário criado.");
+
         server.verify();
     }
 
