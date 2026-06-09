@@ -20,6 +20,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -348,6 +349,8 @@ public class KeycloakUsuarioService {
             return chamada.get();
         } catch (RestClientResponseException ex) {
             throw traduzirErroKeycloak(ex);
+        } catch (ResourceAccessException ex) {
+            throw new IdentidadeException(HttpStatus.BAD_GATEWAY, "Serviço de identidade indisponível. Tente novamente em instantes.", ex);
         }
     }
 
