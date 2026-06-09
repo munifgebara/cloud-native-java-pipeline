@@ -79,8 +79,12 @@ management:
         enabled: true
 
 logging:
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n"
   level:
+    root: ${STELLA_LOG_LEVEL:INFO}
     org.springframework.security: INFO
+    org.hibernate.SQL: WARN
 
 springdoc:
   api-docs:
