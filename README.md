@@ -90,6 +90,7 @@ Planned evolution visible in the backlog:
 
 ```text
 .
+|-- docs/                      # Official project documentation
 |-- frontend/                  # Angular SPA
 |-- k8s/                       # Kubernetes manifests
 |-- keycloak/                  # Realm import files
@@ -100,6 +101,17 @@ Planned evolution visible in the backlog:
 |-- docker-compose.yml         # Local infrastructure
 `-- pom.xml                    # Maven build, frontend integration, tests
 ```
+
+## Official Documentation
+
+The official technical documentation is available in [`docs/`](docs/README.md):
+
+- [Architecture](docs/architecture.md)
+- [Local Development](docs/local-development.md)
+- [Configuration Reference](docs/configuration.md)
+- [Testing and Quality](docs/testing.md)
+- [Kubernetes Deployment](docs/deployment.md)
+- [Operations](docs/operations.md)
 
 ## Local Development
 

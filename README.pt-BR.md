@@ -90,6 +90,7 @@ Evoluções planejadas visíveis no backlog:
 
 ```text
 .
+|-- docs/                      # Documentação oficial do projeto
 |-- frontend/                  # SPA Angular
 |-- k8s/                       # Manifests Kubernetes
 |-- keycloak/                  # Arquivos de importação de realm
@@ -100,6 +101,17 @@ Evoluções planejadas visíveis no backlog:
 |-- docker-compose.yml         # Infraestrutura local
 `-- pom.xml                    # Build Maven, integração do frontend e testes
 ```
+
+## Documentação Oficial
+
+A documentação técnica oficial está disponível em [`docs/`](docs/README.md):
+
+- [Arquitetura](docs/architecture.md)
+- [Desenvolvimento Local](docs/local-development.md)
+- [Referência de Configuração](docs/configuration.md)
+- [Testes e Qualidade](docs/testing.md)
+- [Deploy Kubernetes](docs/deployment.md)
+- [Operações](docs/operations.md)
 
 ## Execução Local
 
