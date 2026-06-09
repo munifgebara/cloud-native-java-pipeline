@@ -192,10 +192,18 @@ Realm users available in the local bootstrap:
 
 JWT validation is configured through Spring Security as an OAuth2 resource server.
 
-The user management module uses Keycloak Admin REST as the identity source. For local development, the backend uses the same local Keycloak administrator configured in `docker-compose.yml`. In other environments, override:
+The user management module uses Keycloak Admin REST as the identity source. In production, prefer a dedicated confidential client with service account enabled instead of reusing the main Keycloak administrator account. The Stella API requests the administrative token with `client_credentials` whenever `STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET` is configured.
 
-- `STELLA_KEYCLOAK_ADMIN_REALM`
-- `STELLA_KEYCLOAK_ADMIN_CLIENT_ID`
+Required production identity settings:
+
+- `STELLA_KEYCLOAK_ADMIN_REALM`: realm that owns the technical client, normally `stella`
+- `STELLA_KEYCLOAK_ADMIN_CLIENT_ID`: technical client id, normally `stella-api-admin`
+- `STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET`: Kubernetes secret value for the technical client
+
+The technical client must have only the required `realm-management` roles for user operations in the `stella` realm, such as `manage-users`, `query-users`, `view-users` and `view-realm`.
+
+For local development, if `STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET` is not defined, the backend keeps the previous fallback and uses the local administrator configured in `docker-compose.yml`:
+
 - `STELLA_KEYCLOAK_ADMIN_USERNAME`
 - `STELLA_KEYCLOAK_ADMIN_PASSWORD`
 

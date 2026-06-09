@@ -21,6 +21,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.client.ExpectedCount.once;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -39,7 +40,7 @@ class KeycloakUsuarioServiceTest {
         RestClient.Builder builder = RestClient.builder();
         server = MockRestServiceServer.bindTo(builder).build();
         service = new KeycloakUsuarioService(
-                new KeycloakProperties("http://keycloak", "stella", "stella-cli", "master", "admin-cli", "admin", "admin"),
+                new KeycloakProperties("http://keycloak", "stella", "stella-cli", "master", "admin-cli", "admin", "admin", null),
                 builder
         );
     }
@@ -180,6 +181,54 @@ class KeycloakUsuarioServiceTest {
                 .extracting("status")
                 .isEqualTo(HttpStatus.BAD_GATEWAY);
 
+        server.verify();
+    }
+
+    @Test
+    void deveObterTokenAdministrativoComClientCredentialsQuandoSecretConfigurado() {
+        RestClient.Builder builder = RestClient.builder();
+        server = MockRestServiceServer.bindTo(builder).build();
+        service = new KeycloakUsuarioService(
+                new KeycloakProperties("http://keycloak", "stella", "stella-cli", "stella", "stella-api-admin", null, null, "secret-tecnico"),
+                builder
+        );
+
+        server.expect(once(), requestTo("http://keycloak/realms/stella/protocol/openid-connect/token"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().string("client_id=stella-api-admin&grant_type=client_credentials&client_secret=secret-tecnico"))
+                .andRespond(withSuccess("""
+                        {"access_token": "service-account-token"}
+                        """, MediaType.APPLICATION_JSON));
+
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/user-3"))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer service-account-token"))
+                .andRespond(withSuccess("""
+                        {
+                          "id": "user-3",
+                          "username": "usuario3",
+                          "enabled": true
+                        }
+                        """, MediaType.APPLICATION_JSON));
+
+        server.expect(once(), requestTo("http://keycloak/realms/stella/protocol/openid-connect/token"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().string("client_id=stella-api-admin&grant_type=client_credentials&client_secret=secret-tecnico"))
+                .andRespond(withSuccess("""
+                        {"access_token": "service-account-token"}
+                        """, MediaType.APPLICATION_JSON));
+
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/user-3/role-mappings/realm"))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer service-account-token"))
+                .andRespond(withSuccess("""
+                        [{"id": "role-usuario", "name": "usuario"}]
+                        """, MediaType.APPLICATION_JSON));
+
+        UsuarioResponseDTO usuario = service.buscarPorId("user-3");
+
+        assertThat(usuario.username()).isEqualTo("usuario3");
+        assertThat(usuario.roles()).containsExactly("usuario");
         server.verify();
     }
 

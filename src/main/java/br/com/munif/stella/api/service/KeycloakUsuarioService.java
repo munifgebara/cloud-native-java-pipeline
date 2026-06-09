@@ -249,6 +249,10 @@ public class KeycloakUsuarioService {
 
     @SuppressWarnings("unchecked")
     private String adminAccessToken() {
+        if (!isBlank(keycloakProperties.adminClientSecret())) {
+            return adminClientCredentialsAccessToken();
+        }
+
         if (isBlank(keycloakProperties.adminUsername()) || isBlank(keycloakProperties.adminPassword())) {
             throw new IllegalStateException("Credenciais administrativas do Keycloak não configuradas.");
         }
@@ -261,6 +265,27 @@ public class KeycloakUsuarioService {
 
         Map<String, Object> response = executarKeycloak(() -> restClient.post()
                 .uri(keycloakProperties.adminTokenUrl())
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(form)
+                .retrieve()
+                .body(Map.class));
+
+        if (response == null || response.get("access_token") == null) {
+            throw new IllegalStateException("Resposta administrativa vazia do Keycloak.");
+        }
+
+        return (String) response.get("access_token");
+    }
+
+    @SuppressWarnings("unchecked")
+    private String adminClientCredentialsAccessToken() {
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+        form.add("client_id", keycloakProperties.adminClientId());
+        form.add("grant_type", "client_credentials");
+        form.add("client_secret", keycloakProperties.adminClientSecret());
+
+        Map<String, Object> response = executarKeycloak(() -> restClient.post()
+                .uri(keycloakProperties.tokenUrl())
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(form)
                 .retrieve()
