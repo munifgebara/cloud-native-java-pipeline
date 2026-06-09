@@ -188,6 +188,20 @@ class KeycloakUsuarioServiceTest {
     }
 
     @Test
+    void deveTraduzirFalhaDeConexaoComKeycloakComoServicoIndisponivel() {
+        KeycloakUsuarioService servicoIndisponivel = new KeycloakUsuarioService(
+                new KeycloakProperties("http://127.0.0.1:1", "stella", "stella-cli", "master", "admin-cli", "admin", "admin", null),
+                RestClient.builder()
+        );
+
+        assertThatThrownBy(servicoIndisponivel::listar)
+                .isInstanceOf(IdentidadeException.class)
+                .hasMessage("Serviço de identidade indisponível. Tente novamente em instantes.")
+                .extracting("status")
+                .isEqualTo(HttpStatus.BAD_GATEWAY);
+    }
+
+    @Test
     void deveObterTokenAdministrativoComClientCredentialsQuandoSecretConfigurado() {
         RestClient.Builder builder = RestClient.builder();
         server = MockRestServiceServer.bindTo(builder).build();

@@ -84,4 +84,16 @@ class KeycloakLoginServiceTest {
 
         server.verify();
     }
+
+    @Test
+    void deveTraduzirFalhaDeConexaoComKeycloakComoServicoIndisponivel() {
+        KeycloakLoginService servicoIndisponivel = new KeycloakLoginService(
+                new KeycloakProperties("http://127.0.0.1:1", "stella", "stella-cli", "master", "admin-cli", "admin", "admin", null),
+                RestClient.builder()
+        );
+
+        assertThatThrownBy(() -> servicoIndisponivel.login(new LoginRequestDTO("usuario", "senha123")))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Serviço de identidade indisponível.");
+    }
 }

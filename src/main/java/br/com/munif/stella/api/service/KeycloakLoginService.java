@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.Map;
 
@@ -30,12 +31,17 @@ public class KeycloakLoginService {
         form.add("password", request.password());
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> response = restClient.post()
-                .uri(keycloakProperties.tokenUrl())
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(form)
-                .retrieve()
-                .body(Map.class);
+        Map<String, Object> response;
+        try {
+            response = restClient.post()
+                    .uri(keycloakProperties.tokenUrl())
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(form)
+                    .retrieve()
+                    .body(Map.class);
+        } catch (ResourceAccessException ex) {
+            throw new IllegalStateException("Serviço de identidade indisponível.", ex);
+        }
 
         if (response == null) {
             throw new IllegalStateException("Resposta vazia do Keycloak.");
