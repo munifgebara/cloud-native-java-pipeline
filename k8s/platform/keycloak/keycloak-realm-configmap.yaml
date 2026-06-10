@@ -47,6 +47,7 @@ data:
           "protocol": "openid-connect",
           "enabled": true,
           "publicClient": false,
+          "secret": "${STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET}",
           "standardFlowEnabled": false,
           "directAccessGrantsEnabled": false,
           "serviceAccountsEnabled": true

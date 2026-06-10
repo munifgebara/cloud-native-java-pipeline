@@ -22,6 +22,79 @@ spec:
     spec:
       imagePullSecrets:
         - name: ghcr-secret
+      initContainers:
+        - name: keycloak-admin-reconcile
+          image: quay.io/keycloak/keycloak:26.1
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              until /opt/keycloak/bin/kcadm.sh config credentials \
+                --server http://keycloak.platform.svc.cluster.local:8080 \
+                --realm master \
+                --user "$KEYCLOAK_ADMIN" \
+                --password "$KEYCLOAK_ADMIN_PASSWORD"; do
+                echo "Aguardando Keycloak administrativo ficar disponível..."
+                sleep 5
+              done
+
+              CLIENT_UUID="$(/opt/keycloak/bin/kcadm.sh get clients \
+                -r stella \
+                -q clientId=stella-api-admin \
+                --fields id \
+                --format csv | tail -n 1 | tr -d '"\r')"
+
+              if [ -z "$CLIENT_UUID" ] || [ "$CLIENT_UUID" = "id" ]; then
+                /opt/keycloak/bin/kcadm.sh create clients \
+                  -r stella \
+                  -s clientId=stella-api-admin \
+                  -s protocol=openid-connect \
+                  -s enabled=true \
+                  -s publicClient=false \
+                  -s standardFlowEnabled=false \
+                  -s directAccessGrantsEnabled=false \
+                  -s serviceAccountsEnabled=true \
+                  -s "secret=$STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET"
+
+                CLIENT_UUID="$(/opt/keycloak/bin/kcadm.sh get clients \
+                  -r stella \
+                  -q clientId=stella-api-admin \
+                  --fields id \
+                  --format csv | tail -n 1 | tr -d '"\r')"
+              fi
+
+              /opt/keycloak/bin/kcadm.sh update "clients/$CLIENT_UUID" \
+                -r stella \
+                -s enabled=true \
+                -s publicClient=false \
+                -s standardFlowEnabled=false \
+                -s directAccessGrantsEnabled=false \
+                -s serviceAccountsEnabled=true \
+                -s "secret=$STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET"
+
+              for role in manage-users query-users view-users view-realm; do
+                /opt/keycloak/bin/kcadm.sh add-roles \
+                  -r stella \
+                  --uusername service-account-stella-api-admin \
+                  --cclientid realm-management \
+                  --rolename "$role" || true
+              done
+          env:
+            - name: KEYCLOAK_ADMIN
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secret
+                  key: KEYCLOAK_ADMIN
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secret
+                  key: KEYCLOAK_ADMIN_PASSWORD
+            - name: STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: stella-api-secret
+                  key: STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET
       containers:
         - name: stella-api
           image: ghcr.io/munifgebara/stella-api:main

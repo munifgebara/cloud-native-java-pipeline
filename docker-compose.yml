@@ -44,6 +44,7 @@ services:
       KC_LOG_LEVEL: INFO
       KC_HOSTNAME_STRICT: "false"
       KC_HTTP_ENABLED: "true"
+      STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET: ${STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET:-local-stella-api-admin-secret}
 
     # Import automático de realm (opcional).
     # Se você colocar um JSON em ./keycloak/realm, o Keycloak importa ao subir.
