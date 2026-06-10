@@ -7,6 +7,7 @@ public record ItemMestreResponseDTO(
         String nome,
         String descricao,
         String observacoes,
+        String origemCadastro,
         UUID categoriaId,
         String categoriaNome,
         String categoriaIcone,

@@ -34,6 +34,7 @@ export interface InstanciaItemResponse {
   numeroSerie: string | null;
   statusOperacional: StatusOperacionalInstancia;
   observacoes: string | null;
+  origemCadastro: string | null;
   ativa: boolean;
 }
 
@@ -45,6 +46,7 @@ export interface InstanciaItemCreateRequest {
   numeroSerie?: string | null;
   statusOperacional?: StatusOperacionalInstancia | null;
   observacoes?: string | null;
+  origemCadastro?: string | null;
   ativa?: boolean | null;
 }
 
@@ -56,6 +58,7 @@ export interface InstanciaItemUpdateRequest {
   numeroSerie?: string | null;
   statusOperacional?: StatusOperacionalInstancia | null;
   observacoes?: string | null;
+  origemCadastro?: string | null;
   ativa?: boolean | null;
 }
 

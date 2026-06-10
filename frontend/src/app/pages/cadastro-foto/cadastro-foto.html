@@ -1,0 +1,161 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h2>{{ 'photoRegistration.title' | translate }}</h2>
+      <p>{{ 'photoRegistration.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="error-box">{{ errorMessage() }}</div>
+  }
+
+  @if (successMessage()) {
+    <div class="success-box">{{ successMessage() }}</div>
+  }
+
+  <div class="upload-panel">
+    <div class="upload-control">
+      <label for="foto">{{ 'photoRegistration.file' | translate }}</label>
+      <input id="foto" type="file" accept="image/png,image/jpeg,image/webp,image/gif" (change)="selecionarArquivo($event)" />
+      <small>{{ 'photoRegistration.fileHint' | translate }}</small>
+    </div>
+
+    <div class="field">
+      <label for="localPadrao">{{ 'photoRegistration.defaultLocation' | translate }}</label>
+      <select id="localPadrao" [(ngModel)]="localPadraoId">
+        <option value="">{{ 'photoRegistration.noDefaultLocation' | translate }}</option>
+        @for (local of locais(); track local.id) {
+          <option [value]="local.id">{{ local.caminho || local.nome }}</option>
+        }
+      </select>
+    </div>
+
+    <button
+      pButton
+      type="button"
+      icon="pi pi-sparkles"
+      [label]="'photoRegistration.analyze' | translate"
+      [loading]="analisando()"
+      [disabled]="!arquivo() || cadastrando()"
+      (click)="analisar()">
+    </button>
+  </div>
+
+  @if (previewUrl()) {
+    <div class="preview">
+      <img [src]="previewUrl()" [alt]="'photoRegistration.file' | translate" />
+    </div>
+  }
+
+  @if (itens().length) {
+    <div class="review-header">
+      <h3>{{ 'photoRegistration.reviewTitle' | translate }}</h3>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-check"
+        [label]="'photoRegistration.createApproved' | translate"
+        [loading]="cadastrando()"
+        [disabled]="analisando()"
+        (click)="cadastrarSelecionados()">
+      </button>
+    </div>
+
+    <div class="suggestions">
+      @for (item of itens(); track $index) {
+        <p-card>
+          <ng-template pTemplate="title">
+            <label class="approval">
+              <p-checkbox [binary]="true" [ngModel]="item.aprovada" (onChange)="toggleItem(item)" />
+              <span>{{ 'photoRegistration.approveItem' | translate }}</span>
+            </label>
+          </ng-template>
+
+          <div class="item-grid">
+            <label>
+              {{ 'common.name' | translate }}
+              <input pInputText type="text" [(ngModel)]="item.nome" />
+            </label>
+
+            <label>
+              {{ 'masterItems.description' | translate }}
+              <input pInputText type="text" [(ngModel)]="item.descricao" />
+            </label>
+
+            <label>
+              {{ 'masterItems.category' | translate }}
+              <select [(ngModel)]="item.categoriaId">
+                <option value="">{{ 'masterItems.form.noCategory' | translate }}</option>
+                @for (categoria of categorias(); track categoria.id) {
+                  <option [value]="categoria.id">{{ categoria.nome }}</option>
+                }
+              </select>
+            </label>
+
+            <label>
+              {{ 'photoRegistration.suggestedCategory' | translate }}
+              <input pInputText type="text" [(ngModel)]="item.categoriaSugerida" />
+            </label>
+
+            <label>
+              {{ 'photoRegistration.brand' | translate }}
+              <input pInputText type="text" [(ngModel)]="item.marca" />
+            </label>
+
+            <label>
+              {{ 'photoRegistration.model' | translate }}
+              <input pInputText type="text" [(ngModel)]="item.modelo" />
+            </label>
+
+            <label>
+              {{ 'photoRegistration.condition' | translate }}
+              <input pInputText type="text" [(ngModel)]="item.estadoConservacao" />
+            </label>
+
+            <label>
+              {{ 'photoRegistration.confidence' | translate }}
+              <p-tag [value]="confiancaLabel(item.confianca)" severity="info" />
+            </label>
+          </div>
+
+          <label class="full-field">
+            {{ 'masterItems.notes' | translate }}
+            <textarea rows="2" [(ngModel)]="item.observacoes"></textarea>
+          </label>
+
+          <div class="instances">
+            <h4>{{ 'photoRegistration.instancesTitle' | translate }}</h4>
+            @for (instancia of item.instancias; track $index) {
+              <div class="instance-row">
+                <label class="approval compact">
+                  <p-checkbox [binary]="true" [ngModel]="instancia.aprovada" (onChange)="toggleInstancia(instancia)" />
+                </label>
+
+                <label>
+                  {{ 'itemInstances.identifier' | translate }}
+                  <input pInputText type="text" [(ngModel)]="instancia.identificador" />
+                </label>
+
+                <label>
+                  {{ 'itemInstances.assetTag' | translate }}
+                  <input pInputText type="text" [(ngModel)]="instancia.patrimonio" />
+                </label>
+
+                <label>
+                  {{ 'itemInstances.serialNumber' | translate }}
+                  <input pInputText type="text" [(ngModel)]="instancia.numeroSerie" />
+                </label>
+
+                <label>
+                  {{ 'photoRegistration.condition' | translate }}
+                  <input pInputText type="text" [(ngModel)]="instancia.estadoConservacao" />
+                </label>
+              </div>
+            }
+          </div>
+        </p-card>
+      }
+    </div>
+  }
+</div>

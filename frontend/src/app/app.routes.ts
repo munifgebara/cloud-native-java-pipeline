@@ -18,6 +18,7 @@ import { InstanciaItemHistoricoComponent } from './pages/instancias-item/instanc
 import { UsuarioListComponent } from './pages/usuarios/usuario-list/usuario-list';
 import { UsuarioFormComponent } from './pages/usuarios/usuario-form/usuario-form';
 import { PerfilComponent } from './pages/perfil/perfil';
+import { CadastroFotoComponent } from './pages/cadastro-foto/cadastro-foto';
 
 export const routes: Routes = [
   {
@@ -96,6 +97,10 @@ export const routes: Routes = [
       {
         path: 'itens-mestre',
         component: ItemMestreListComponent,
+      },
+      {
+        path: 'cadastro-foto',
+        component: CadastroFotoComponent,
       },
       {
         path: 'itens-mestre/novo',

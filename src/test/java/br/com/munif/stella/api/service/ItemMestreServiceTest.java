@@ -58,6 +58,7 @@ class ItemMestreServiceTest {
                 "  Notebook Dell Latitude 5440  ",
                 "  Notebook corporativo  ",
                 "  Preparado para futuras instancias  ",
+                null,
                 categoriaId,
                 true
         ));
@@ -79,7 +80,7 @@ class ItemMestreServiceTest {
     void deveCriarItemMestreSemCategoria() {
         when(repository.save(any(ItemMestre.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.criar(new ItemMestreCreateDTO("Cadeira ergonomica", null, null, null, true));
+        var resposta = service.criar(new ItemMestreCreateDTO("Cadeira ergonomica", null, null, null, null, true));
 
         assertThat(resposta.nome()).isEqualTo("Cadeira ergonomica");
         assertThat(resposta.categoriaId()).isNull();
@@ -90,7 +91,7 @@ class ItemMestreServiceTest {
     void deveCriarItemMestreInativoAposPersistenciaInicial() {
         when(repository.save(any(ItemMestre.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.criar(new ItemMestreCreateDTO("Arquivo legado", null, null, null, false));
+        var resposta = service.criar(new ItemMestreCreateDTO("Arquivo legado", null, null, null, null, false));
 
         assertThat(resposta.ativa()).isFalse();
         verify(repository).flush();
@@ -111,6 +112,7 @@ class ItemMestreServiceTest {
                 "  Cadeira ergonomica  ",
                 "  Cadeira de escritorio  ",
                 null,
+                null,
                 categoriaId,
                 false
         ));
@@ -129,7 +131,7 @@ class ItemMestreServiceTest {
         when(repository.findById(id)).thenReturn(Optional.of(item));
         when(repository.save(any(ItemMestre.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.atualizar(id, new ItemMestreUpdateDTO(" Notebook ", " ", " Observacao ", null, true));
+        var resposta = service.atualizar(id, new ItemMestreUpdateDTO(" Notebook ", " ", " Observacao ", null, null, true));
 
         assertThat(resposta.nome()).isEqualTo("Notebook");
         assertThat(resposta.descricao()).isNull();
@@ -145,7 +147,7 @@ class ItemMestreServiceTest {
 
         when(categoriaRepository.findById(categoriaId)).thenReturn(Optional.of(categoria));
 
-        assertThatThrownBy(() -> service.criar(new ItemMestreCreateDTO("Furadeira", null, null, categoriaId, true)))
+        assertThatThrownBy(() -> service.criar(new ItemMestreCreateDTO("Furadeira", null, null, null, categoriaId, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Categoria deve estar ativa");
 
@@ -158,7 +160,7 @@ class ItemMestreServiceTest {
 
         when(categoriaRepository.findById(categoriaId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.criar(new ItemMestreCreateDTO("Furadeira", null, null, categoriaId, true)))
+        assertThatThrownBy(() -> service.criar(new ItemMestreCreateDTO("Furadeira", null, null, null, categoriaId, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Categoria não encontrada.");
 

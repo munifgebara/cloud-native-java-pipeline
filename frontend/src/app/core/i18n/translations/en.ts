@@ -27,6 +27,7 @@ export const EN_TRANSLATIONS = {
   'layout.menu.categories': 'Categories',
   'layout.menu.locations': 'Locations',
   'layout.menu.masterItems': 'Items',
+  'layout.menu.photoRegistration': 'Photo registration',
   'layout.menu.itemInstances': 'Instances',
   'layout.profile': 'My profile',
   'layout.logout': 'Sign out',

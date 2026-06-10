@@ -154,7 +154,7 @@ class InventarioMapperTest {
         assertThat(ItemMestreMapper.toResumoDTO(null)).isNull();
 
         Categoria categoria = categoria("Ferramentas", "tools");
-        ItemMestre item = ItemMestreMapper.toEntity(new ItemMestreCreateDTO("Furadeira", "Impacto", "220V", categoria.getId(), false));
+        ItemMestre item = ItemMestreMapper.toEntity(new ItemMestreCreateDTO("Furadeira", "Impacto", "220V", "CADASTRO_IA_FOTO", categoria.getId(), false));
         item.setId(UUID.randomUUID());
         item.setCategoria(categoria);
         item.setImagemObjectKey("itens/%s/foto.png".formatted(item.getId()));
@@ -178,7 +178,7 @@ class InventarioMapperTest {
         ItemMestre item = new ItemMestre();
         item.setAtivo(false);
 
-        ItemMestreMapper.updateEntity(item, new ItemMestreUpdateDTO("Notebook", "Descricao", "Obs", null, null));
+        ItemMestreMapper.updateEntity(item, new ItemMestreUpdateDTO("Notebook", "Descricao", "Obs", null, null, null));
 
         assertThat(item.getNome()).isEqualTo("Notebook");
         assertThat(item.getDescricao()).isEqualTo("Descricao");
@@ -197,7 +197,7 @@ class InventarioMapperTest {
         LocalArmazenamento local = local("Estante", null);
 
         InstanciaItem instancia = InstanciaItemMapper.toEntity(new InstanciaItemCreateDTO(
-                item.getId(), local.getId(), "EX-1", "PAT-1", "SER-1", null, "Novo", false
+                item.getId(), local.getId(), "EX-1", "PAT-1", "SER-1", null, "Novo", null, false
         ));
         instancia.setId(UUID.randomUUID());
         instancia.setItemMestre(item);
@@ -220,7 +220,7 @@ class InventarioMapperTest {
 
         InstanciaItemMapper.updateEntity(instancia, new InstanciaItemUpdateDTO(
                 UUID.randomUUID(), null, "EX-2", "PAT-2", "SER-2",
-                StatusOperacionalInstancia.EMPRESTADO, "Emprestado", true
+                StatusOperacionalInstancia.EMPRESTADO, "Emprestado", null, true
         ));
 
         assertThat(instancia.getIdentificador()).isEqualTo("EX-2");

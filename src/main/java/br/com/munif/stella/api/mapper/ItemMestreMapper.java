@@ -21,6 +21,7 @@ public final class ItemMestreMapper {
         item.setNome(dto.nome());
         item.setDescricao(dto.descricao());
         item.setObservacoes(dto.observacoes());
+        item.setOrigemCadastro(dto.origemCadastro());
         if (dto.ativa() != null) {
             item.setAtivo(dto.ativa());
         }
@@ -35,6 +36,7 @@ public final class ItemMestreMapper {
         entity.setNome(dto.nome());
         entity.setDescricao(dto.descricao());
         entity.setObservacoes(dto.observacoes());
+        entity.setOrigemCadastro(dto.origemCadastro());
         if (dto.ativa() != null) {
             entity.setAtivo(dto.ativa());
         }
@@ -51,6 +53,7 @@ public final class ItemMestreMapper {
                 entity.getNome(),
                 entity.getDescricao(),
                 entity.getObservacoes(),
+                entity.getOrigemCadastro(),
                 categoria == null ? null : categoria.getId(),
                 categoria == null ? null : categoria.getNome(),
                 categoria == null ? null : categoria.getIcone(),

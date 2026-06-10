@@ -26,5 +26,8 @@ public record InstanciaItemCreateDTO(
         @Size(max = 1000, message = "Observações devem ter no máximo 1000 caracteres.")
         String observacoes,
 
+        @Size(max = 50, message = "Origem do cadastro deve ter no máximo 50 caracteres.")
+        String origemCadastro,
+
         Boolean ativa
 ) {}
