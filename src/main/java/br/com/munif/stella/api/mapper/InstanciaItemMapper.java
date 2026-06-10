@@ -26,6 +26,7 @@ public final class InstanciaItemMapper {
         instancia.setNumeroSerie(dto.numeroSerie());
         instancia.setStatusOperacional(statusOrDefault(dto.statusOperacional()));
         instancia.setObservacoes(dto.observacoes());
+        instancia.setOrigemCadastro(dto.origemCadastro());
         if (dto.ativa() != null) {
             instancia.setAtivo(dto.ativa());
         }
@@ -42,6 +43,7 @@ public final class InstanciaItemMapper {
         entity.setNumeroSerie(dto.numeroSerie());
         entity.setStatusOperacional(statusOrDefault(dto.statusOperacional()));
         entity.setObservacoes(dto.observacoes());
+        entity.setOrigemCadastro(dto.origemCadastro());
         if (dto.ativa() != null) {
             entity.setAtivo(dto.ativa());
         }
@@ -69,6 +71,7 @@ public final class InstanciaItemMapper {
                 entity.getNumeroSerie(),
                 entity.getStatusOperacional(),
                 entity.getObservacoes(),
+                entity.getOrigemCadastro(),
                 entity.isAtivo()
         );
     }

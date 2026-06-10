@@ -47,6 +47,9 @@ public class InstanciaItem extends Entidade {
     @Column(name = "observacoes", length = 1000)
     private String observacoes;
 
+    @Column(name = "origem_cadastro", length = 50)
+    private String origemCadastro;
+
     @Override
     @PrePersist
     public void prePersist() {

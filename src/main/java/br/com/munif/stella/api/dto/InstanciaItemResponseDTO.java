@@ -18,5 +18,6 @@ public record InstanciaItemResponseDTO(
         String numeroSerie,
         StatusOperacionalInstancia statusOperacional,
         String observacoes,
+        String origemCadastro,
         boolean ativa
 ) {}

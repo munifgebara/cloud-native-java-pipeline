@@ -76,6 +76,7 @@ class InstanciaItemServiceTest {
                 "  SN-123  ",
                 null,
                 "  Unidade do financeiro  ",
+                null,
                 true
         ));
 
@@ -99,7 +100,7 @@ class InstanciaItemServiceTest {
     void deveImpedirInstanciaSemIdentificacaoIndividual() {
         UUID itemMestreId = UUID.randomUUID();
 
-        assertThatThrownBy(() -> service.criar(new InstanciaItemCreateDTO(itemMestreId, null, " ", null, null, null, null, true)))
+        assertThatThrownBy(() -> service.criar(new InstanciaItemCreateDTO(itemMestreId, null, " ", null, null, null, null, null, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("identificador");
 
@@ -114,7 +115,7 @@ class InstanciaItemServiceTest {
 
         when(itemMestreRepository.findById(itemMestreId)).thenReturn(Optional.of(itemMestre));
 
-        assertThatThrownBy(() -> service.criar(new InstanciaItemCreateDTO(itemMestreId, null, "NB-001", null, null, null, null, true)))
+        assertThatThrownBy(() -> service.criar(new InstanciaItemCreateDTO(itemMestreId, null, "NB-001", null, null, null, null, null, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Item mestre deve estar ativo");
 
@@ -139,6 +140,7 @@ class InstanciaItemServiceTest {
                 null,
                 " SN-999 ",
                 StatusOperacionalInstancia.EM_MOVIMENTACAO,
+                null,
                 null,
                 false
         ));
@@ -168,6 +170,7 @@ class InstanciaItemServiceTest {
                 null,
                 StatusOperacionalInstancia.DISPONIVEL,
                 null,
+                null,
                 true
         )))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -196,6 +199,7 @@ class InstanciaItemServiceTest {
                 null,
                 null,
                 StatusOperacionalInstancia.EMPRESTADO,
+                null,
                 null,
                 true
         )))

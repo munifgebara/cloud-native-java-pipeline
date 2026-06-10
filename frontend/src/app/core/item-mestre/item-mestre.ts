@@ -20,6 +20,7 @@ export interface ItemMestreResponse {
   nome: string;
   descricao: string | null;
   observacoes: string | null;
+  origemCadastro: string | null;
   categoriaId: string | null;
   categoriaNome: string | null;
   categoriaIcone: string | null;
@@ -33,6 +34,7 @@ export interface ItemMestreCreateRequest {
   nome: string;
   descricao?: string | null;
   observacoes?: string | null;
+  origemCadastro?: string | null;
   categoriaId?: string | null;
   ativa?: boolean | null;
 }
@@ -41,6 +43,7 @@ export interface ItemMestreUpdateRequest {
   nome: string;
   descricao?: string | null;
   observacoes?: string | null;
+  origemCadastro?: string | null;
   categoriaId?: string | null;
   ativa?: boolean | null;
 }
