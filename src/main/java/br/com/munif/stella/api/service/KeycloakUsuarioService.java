@@ -24,6 +24,7 @@ import org.springframework.web.client.ResourceAccessException;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,8 +104,19 @@ public class KeycloakUsuarioService {
     }
 
     public MeuPerfilResponseDTO meuPerfil(Jwt jwt) {
-        UsuarioResponseDTO usuario = buscarPorId(jwt.getSubject());
-        return toMeuPerfil(usuario);
+        return new MeuPerfilResponseDTO(
+                jwt.getSubject(),
+                firstNonBlank(
+                        jwt.getClaimAsString("preferred_username"),
+                        jwt.getClaimAsString("username"),
+                        jwt.getSubject()
+                ),
+                firstNonBlank(jwt.getClaimAsString("given_name"), jwt.getClaimAsString("firstName")),
+                firstNonBlank(jwt.getClaimAsString("family_name"), jwt.getClaimAsString("lastName")),
+                jwt.getClaimAsString("email"),
+                rolesFromJwt(jwt),
+                keycloakProperties.accountUrl()
+        );
     }
 
     public MeuPerfilResponseDTO atualizarMeuPerfil(Jwt jwt, MeuPerfilUpdateDTO dto) {
@@ -113,7 +125,7 @@ public class KeycloakUsuarioService {
         usuario.put("lastName", trimToNull(dto.lastName()));
         usuario.put("email", trimToNull(dto.email()));
         put("/users/" + jwt.getSubject(), usuario);
-        return meuPerfil(jwt);
+        return toMeuPerfil(buscarPorId(jwt.getSubject()));
     }
 
     public void alterarMinhaSenha(Jwt jwt, AlterarSenhaDTO dto) {
@@ -342,6 +354,34 @@ public class KeycloakUsuarioService {
 
     private boolean isBlank(String valor) {
         return valor == null || valor.isBlank();
+    }
+
+    private String firstNonBlank(String... valores) {
+        for (String valor : valores) {
+            if (!isBlank(valor)) {
+                return valor;
+            }
+        }
+        return null;
+    }
+
+    private List<String> rolesFromJwt(Jwt jwt) {
+        Map<String, Object> realmAccess = jwt.getClaim("realm_access");
+        if (realmAccess == null) {
+            return List.of();
+        }
+
+        Object rolesObject = realmAccess.get("roles");
+        if (!(rolesObject instanceof Collection<?> roles)) {
+            return List.of();
+        }
+
+        return roles.stream()
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .filter(ROLES_GERENCIADAS::contains)
+                .sorted()
+                .toList();
     }
 
     private <T> T executarKeycloak(Supplier<T> chamada) {

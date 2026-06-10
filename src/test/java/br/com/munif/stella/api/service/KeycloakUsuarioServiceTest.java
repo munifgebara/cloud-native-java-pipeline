@@ -19,6 +19,7 @@ import org.springframework.web.client.RestClient;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -178,12 +179,26 @@ class KeycloakUsuarioServiceTest {
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
 
-        assertThatThrownBy(() -> service.meuPerfil(jwt("user-3", "usuario3")))
+        assertThatThrownBy(() -> service.listar())
                 .isInstanceOf(IdentidadeException.class)
                 .hasMessage("Serviço de identidade indisponível. Tente novamente em instantes.")
                 .extracting("status")
                 .isEqualTo(HttpStatus.BAD_GATEWAY);
 
+        server.verify();
+    }
+
+    @Test
+    void deveCarregarMeuPerfilAPartirDoJwtSemConsultarKeycloakAdmin() {
+        var perfil = service.meuPerfil(jwt("user-7", "perfil7"));
+
+        assertThat(perfil.id()).isEqualTo("user-7");
+        assertThat(perfil.username()).isEqualTo("perfil7");
+        assertThat(perfil.firstName()).isEqualTo("Nome");
+        assertThat(perfil.lastName()).isEqualTo("Sobrenome");
+        assertThat(perfil.email()).isEqualTo("perfil7@example.local");
+        assertThat(perfil.roles()).containsExactly("admin", "usuario");
+        assertThat(perfil.alteracaoSenhaUrl()).isEqualTo("http://keycloak/realms/stella/account");
         server.verify();
     }
 
@@ -509,6 +524,10 @@ class KeycloakUsuarioServiceTest {
                 .header("alg", "none")
                 .subject(subject)
                 .claim("preferred_username", username)
+                .claim("given_name", "Nome")
+                .claim("family_name", "Sobrenome")
+                .claim("email", username + "@example.local")
+                .claim("realm_access", Map.of("roles", List.of("offline_access", "usuario", "admin")))
                 .issuer("http://keycloak/realms/stella")
                 .issuedAt(java.time.Instant.now())
                 .expiresAt(java.time.Instant.now().plusSeconds(300))
