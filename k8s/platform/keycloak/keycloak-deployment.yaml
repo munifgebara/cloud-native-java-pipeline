@@ -43,6 +43,11 @@ spec:
                 secretKeyRef:
                   name: keycloak-secret
                   key: KC_DB_PASSWORD
+            - name: STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: stella-api-secret
+                  key: STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET
           volumeMounts:
             - name: keycloak-realm-volume
               mountPath: /opt/keycloak/data/import/stella-realm.json
@@ -65,4 +70,3 @@ spec:
         - name: keycloak-realm-volume
           configMap:
             name: keycloak-realm
-
