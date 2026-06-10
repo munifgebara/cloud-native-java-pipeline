@@ -109,6 +109,31 @@
             </label>
 
             <label>
+              {{ 'photoRegistration.author' | translate }}
+              <input pInputText type="text" [(ngModel)]="item.autor" />
+            </label>
+
+            <label>
+              {{ 'photoRegistration.publisher' | translate }}
+              <input pInputText type="text" [(ngModel)]="item.editora" />
+            </label>
+
+            <label>
+              {{ 'photoRegistration.publicationYear' | translate }}
+              <input pInputText type="text" [(ngModel)]="item.anoPublicacao" />
+            </label>
+
+            <label>
+              {{ 'photoRegistration.isbn' | translate }}
+              <input pInputText type="text" [(ngModel)]="item.isbn" />
+            </label>
+
+            <label>
+              {{ 'photoRegistration.source' | translate }}
+              <input pInputText type="text" [(ngModel)]="item.fontePesquisa" />
+            </label>
+
+            <label>
               {{ 'photoRegistration.condition' | translate }}
               <input pInputText type="text" [(ngModel)]="item.estadoConservacao" />
             </label>
@@ -116,6 +141,13 @@
             <label>
               {{ 'photoRegistration.confidence' | translate }}
               <p-tag [value]="confiancaLabel(item.confianca)" severity="info" />
+            </label>
+
+            <label>
+              {{ 'photoRegistration.verifiedIdentification' | translate }}
+              <p-tag
+                [value]="item.identificacaoVerificada === null ? '-' : (item.identificacaoVerificada ? ('common.yes' | translate) : ('common.no' | translate))"
+                [severity]="item.identificacaoVerificada ? 'success' : 'warn'" />
             </label>
           </div>
 

@@ -35,6 +35,12 @@ type ItemRevisao = {
   categoriaSugerida: string;
   marca: string;
   modelo: string;
+  autor: string;
+  editora: string;
+  anoPublicacao: string;
+  isbn: string;
+  fontePesquisa: string;
+  identificacaoVerificada: boolean | null;
   quantidade: number;
   estadoConservacao: string;
   observacoes: string;
@@ -210,6 +216,12 @@ export class CadastroFotoComponent implements OnInit {
       categoriaSugerida: item.categoriaSugerida ?? '',
       marca: item.marca ?? '',
       modelo: item.modelo ?? '',
+      autor: item.autor ?? '',
+      editora: item.editora ?? '',
+      anoPublicacao: item.anoPublicacao ?? '',
+      isbn: item.isbn ?? '',
+      fontePesquisa: item.fontePesquisa ?? '',
+      identificacaoVerificada: item.identificacaoVerificada,
       quantidade,
       estadoConservacao: item.estadoConservacao ?? '',
       observacoes: item.observacoes ?? '',
@@ -240,6 +252,12 @@ export class CadastroFotoComponent implements OnInit {
       item.observacoes,
       item.marca ? `Marca sugerida: ${item.marca}` : '',
       item.modelo ? `Modelo sugerido: ${item.modelo}` : '',
+      item.autor ? `Autor identificado: ${item.autor}` : '',
+      item.editora ? `Editora identificada: ${item.editora}` : '',
+      item.anoPublicacao ? `Ano de publicação identificado: ${item.anoPublicacao}` : '',
+      item.isbn ? `ISBN identificado: ${item.isbn}` : '',
+      item.fontePesquisa ? `Fonte da identificação: ${item.fontePesquisa}` : '',
+      item.identificacaoVerificada != null ? `Identificação verificada: ${item.identificacaoVerificada ? 'sim' : 'não'}` : '',
       item.estadoConservacao ? `Estado sugerido: ${item.estadoConservacao}` : '',
       item.categoriaSugerida ? `Categoria sugerida pela IA: ${item.categoriaSugerida}` : '',
     ]);

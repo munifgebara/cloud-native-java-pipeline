@@ -18,6 +18,12 @@ export interface CadastroFotoItemSugestao {
   categoriaSugerida: string | null;
   marca: string | null;
   modelo: string | null;
+  autor: string | null;
+  editora: string | null;
+  anoPublicacao: string | null;
+  isbn: string | null;
+  fontePesquisa: string | null;
+  identificacaoVerificada: boolean | null;
   quantidade: number;
   estadoConservacao: string | null;
   observacoes: string | null;
