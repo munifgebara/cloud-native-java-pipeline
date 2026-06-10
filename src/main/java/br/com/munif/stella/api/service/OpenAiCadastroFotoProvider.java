@@ -25,7 +25,12 @@ public class OpenAiCadastroFotoProvider implements CadastroFotoIaProvider {
             Responda somente com JSON aderente ao schema.
             Separe item conceitual de instâncias físicas.
             Para múltiplos objetos iguais, retorne um item com quantidade e instâncias equivalentes.
+            Para livros, tente identificar título, autor, editora, ano e ISBN pela capa, lombada ou texto visível.
+            Use pesquisa na web para validar livros identificáveis pela capa/lombada quando houver texto suficiente.
+            Não retorne nomes genéricos como "Livro" quando for possível identificar o título.
+            Para livros distintos, retorne um item separado para cada título.
             Não invente números de patrimônio ou série ilegíveis; use null nesses casos.
+            Não invente metadados bibliográficos: use null quando não houver evidência visual ou validação suficiente.
             Use nomes curtos e úteis em português do Brasil.
             Se não houver confiança suficiente, retorne lista vazia e uma mensagem clara.
             """;
@@ -65,7 +70,7 @@ public class OpenAiCadastroFotoProvider implements CadastroFotoIaProvider {
 
     private Map<String, Object> requestBody(MultipartFile imagem) throws IOException {
         String modelo = environment.getProperty("STELLA_OPENAI_MODEL", "gpt-4.1-mini");
-        String detail = environment.getProperty("STELLA_OPENAI_IMAGE_DETAIL", "low");
+        String detail = environment.getProperty("STELLA_OPENAI_IMAGE_DETAIL", "high");
         String dataUrl = "data:%s;base64,%s".formatted(
                 imagem.getContentType(),
                 Base64.getEncoder().encodeToString(imagem.getBytes())
@@ -79,6 +84,10 @@ public class OpenAiCadastroFotoProvider implements CadastroFotoIaProvider {
                                 Map.of("type", "input_text", "text", ORIENTACAO),
                                 Map.of("type", "input_image", "image_url", dataUrl, "detail", detail)
                         )
+                )),
+                "tools", List.of(Map.of(
+                        "type", "web_search_preview",
+                        "search_context_size", "low"
                 )),
                 "text", Map.of("format", Map.of(
                         "type", "json_schema",
@@ -107,18 +116,24 @@ public class OpenAiCadastroFotoProvider implements CadastroFotoIaProvider {
         Map<String, Object> item = Map.of(
                 "type", "object",
                 "additionalProperties", false,
-                "required", List.of("nome", "descricao", "categoriaSugerida", "marca", "modelo", "quantidade", "estadoConservacao", "observacoes", "confianca", "instancias"),
-                "properties", Map.of(
-                        "nome", Map.of("type", "string"),
-                        "descricao", nullableString(),
-                        "categoriaSugerida", nullableString(),
-                        "marca", nullableString(),
-                        "modelo", nullableString(),
-                        "quantidade", Map.of("type", "integer", "minimum", 1),
-                        "estadoConservacao", nullableString(),
-                        "observacoes", nullableString(),
-                        "confianca", Map.of("type", List.of("number", "null"), "minimum", 0, "maximum", 1),
-                        "instancias", Map.of("type", "array", "items", instancia)
+                "required", List.of("nome", "descricao", "categoriaSugerida", "marca", "modelo", "autor", "editora", "anoPublicacao", "isbn", "fontePesquisa", "identificacaoVerificada", "quantidade", "estadoConservacao", "observacoes", "confianca", "instancias"),
+                "properties", Map.ofEntries(
+                        Map.entry("nome", Map.of("type", "string")),
+                        Map.entry("descricao", nullableString()),
+                        Map.entry("categoriaSugerida", nullableString()),
+                        Map.entry("marca", nullableString()),
+                        Map.entry("modelo", nullableString()),
+                        Map.entry("autor", nullableString()),
+                        Map.entry("editora", nullableString()),
+                        Map.entry("anoPublicacao", nullableString()),
+                        Map.entry("isbn", nullableString()),
+                        Map.entry("fontePesquisa", nullableString()),
+                        Map.entry("identificacaoVerificada", Map.of("type", List.of("boolean", "null"))),
+                        Map.entry("quantidade", Map.of("type", "integer", "minimum", 1)),
+                        Map.entry("estadoConservacao", nullableString()),
+                        Map.entry("observacoes", nullableString()),
+                        Map.entry("confianca", Map.of("type", List.of("number", "null"), "minimum", 0, "maximum", 1)),
+                        Map.entry("instancias", Map.of("type", "array", "items", instancia))
                 )
         );
 

@@ -12,7 +12,9 @@ import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.client.ExpectedCount.once;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -30,8 +32,7 @@ class OpenAiCadastroFotoProviderTest {
         server = MockRestServiceServer.bindTo(builder).build();
         environment = new MockEnvironment()
                 .withProperty("OPENAI_API_KEY", "test-key")
-                .withProperty("STELLA_OPENAI_MODEL", "gpt-test")
-                .withProperty("STELLA_OPENAI_IMAGE_DETAIL", "low");
+                .withProperty("STELLA_OPENAI_MODEL", "gpt-test");
         provider = new OpenAiCadastroFotoProvider(builder, environment);
     }
 
@@ -40,6 +41,8 @@ class OpenAiCadastroFotoProviderTest {
         server.expect(once(), requestTo("https://api.openai.com/v1/responses"))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer test-key"))
+                .andExpect(content().string(containsString("\"detail\":\"high\"")))
+                .andExpect(content().string(containsString("\"type\":\"web_search_preview\"")))
                 .andRespond(withSuccess("""
                         {
                           "output": [
@@ -47,7 +50,7 @@ class OpenAiCadastroFotoProviderTest {
                               "content": [
                                 {
                                   "type": "output_text",
-                                  "text": "{\\"itens\\":[{\\"nome\\":\\"Livro\\",\\"descricao\\":\\"Livro identificado na foto\\",\\"categoriaSugerida\\":\\"Livros\\",\\"marca\\":null,\\"modelo\\":null,\\"quantidade\\":1,\\"estadoConservacao\\":\\"bom\\",\\"observacoes\\":\\"Capa visivel\\",\\"confianca\\":0.82,\\"instancias\\":[{\\"identificador\\":\\"Livro 1\\",\\"patrimonio\\":null,\\"numeroSerie\\":null,\\"estadoConservacao\\":\\"bom\\",\\"observacoes\\":null,\\"confianca\\":0.82}]}],\\"mensagem\\":\\"Sugestoes geradas.\\"}"
+                                  "text": "{\\"itens\\":[{\\"nome\\":\\"Clean Code\\",\\"descricao\\":\\"Livro identificado pela capa\\",\\"categoriaSugerida\\":\\"Livros\\",\\"marca\\":null,\\"modelo\\":null,\\"autor\\":\\"Robert C. Martin\\",\\"editora\\":\\"Prentice Hall\\",\\"anoPublicacao\\":\\"2008\\",\\"isbn\\":\\"9780132350884\\",\\"fontePesquisa\\":\\"OpenAI web search\\",\\"identificacaoVerificada\\":true,\\"quantidade\\":1,\\"estadoConservacao\\":\\"bom\\",\\"observacoes\\":\\"Capa visivel\\",\\"confianca\\":0.82,\\"instancias\\":[{\\"identificador\\":\\"Clean Code 1\\",\\"patrimonio\\":null,\\"numeroSerie\\":null,\\"estadoConservacao\\":\\"bom\\",\\"observacoes\\":null,\\"confianca\\":0.82}]}],\\"mensagem\\":\\"Sugestoes geradas.\\"}"
                                 }
                               ]
                             }
@@ -59,9 +62,12 @@ class OpenAiCadastroFotoProviderTest {
 
         assertThat(response.mensagem()).isEqualTo("Sugestoes geradas.");
         assertThat(response.itens()).hasSize(1);
-        assertThat(response.itens().getFirst().nome()).isEqualTo("Livro");
+        assertThat(response.itens().getFirst().nome()).isEqualTo("Clean Code");
+        assertThat(response.itens().getFirst().autor()).isEqualTo("Robert C. Martin");
+        assertThat(response.itens().getFirst().isbn()).isEqualTo("9780132350884");
+        assertThat(response.itens().getFirst().identificacaoVerificada()).isTrue();
         assertThat(response.itens().getFirst().instancias()).hasSize(1);
-        assertThat(response.itens().getFirst().instancias().getFirst().identificador()).isEqualTo("Livro 1");
+        assertThat(response.itens().getFirst().instancias().getFirst().identificador()).isEqualTo("Clean Code 1");
         server.verify();
     }
 
