@@ -163,6 +163,8 @@ export class CadastroFotoComponent implements OnInit {
   }
 
   private cadastrarItem(item: ItemRevisao) {
+    const arquivo = this.arquivo();
+
     return this.itemMestreService.criar({
       nome: item.nome.trim(),
       descricao: this.nullIfBlank(item.descricao),
@@ -172,11 +174,19 @@ export class CadastroFotoComponent implements OnInit {
       ativa: true,
     }).pipe(
       switchMap((salvo) => {
-        const instancias = this.instanciasAprovadas(item, salvo);
-        if (!instancias.length) {
-          return of([]);
-        }
-        return forkJoin(instancias.map((instancia) => this.instanciaService.criar(instancia)));
+        const itemComImagem$ = arquivo
+          ? this.itemMestreService.atualizarImagemPrincipal(salvo.id, arquivo)
+          : of(salvo);
+
+        return itemComImagem$.pipe(
+          switchMap((itemSalvo) => {
+            const instancias = this.instanciasAprovadas(item, itemSalvo);
+            if (!instancias.length) {
+              return of([]);
+            }
+            return forkJoin(instancias.map((instancia) => this.instanciaService.criar(instancia)));
+          }),
+        );
       }),
     );
   }
