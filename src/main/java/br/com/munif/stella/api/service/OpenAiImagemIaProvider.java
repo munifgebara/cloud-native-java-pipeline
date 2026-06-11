@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
 import java.util.List;
@@ -45,6 +46,8 @@ public class OpenAiImagemIaProvider implements ImagemIaProvider {
             return parseResponse(response);
         } catch (RestClientResponseException ex) {
             throw new IllegalStateException("Falha ao consultar OpenAI para gerar imagem do item.", ex);
+        } catch (RestClientException ex) {
+            throw new IllegalStateException("Não foi possível conectar à OpenAI para gerar imagem do item.", ex);
         }
     }
 
