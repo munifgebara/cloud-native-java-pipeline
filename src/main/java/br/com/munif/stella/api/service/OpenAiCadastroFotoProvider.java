@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -63,6 +64,8 @@ public class OpenAiCadastroFotoProvider implements CadastroFotoIaProvider {
             return parseResponse(response);
         } catch (RestClientResponseException ex) {
             throw new IllegalStateException("Falha ao consultar OpenAI para analisar a imagem.", ex);
+        } catch (RestClientException ex) {
+            throw new IllegalStateException("Não foi possível conectar à OpenAI para analisar a imagem.", ex);
         } catch (IOException ex) {
             throw new IllegalArgumentException("Não foi possível ler a imagem enviada.", ex);
         }
