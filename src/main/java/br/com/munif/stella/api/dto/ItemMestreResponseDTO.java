@@ -14,5 +14,7 @@ public record ItemMestreResponseDTO(
         String imagemUrl,
         String imagemContentType,
         Long imagemTamanhoBytes,
+        boolean imagemGeneratedByAi,
+        String imagemProvider,
         boolean ativa
 ) {}

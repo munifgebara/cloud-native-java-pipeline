@@ -39,6 +39,17 @@ In production, configure `STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET` and use a dedicat
 | `STELLA_MINIO_BUCKET` | `stella-itens` | Bucket for uploaded images |
 | `STELLA_MINIO_MAX_IMAGE_SIZE_BYTES` | `5242880` | Maximum accepted image size in bytes |
 
+## OpenAI
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | required for AI features | API key used by backend-only OpenAI integrations |
+| `STELLA_OPENAI_MODEL` | `gpt-4.1-mini` | Model used to analyze uploaded inventory photos |
+| `STELLA_OPENAI_IMAGE_MODEL` | `gpt-image-1` | Model used to generate product images |
+| `STELLA_OPENAI_IMAGE_SIZE` | `1024x1024` | Generated product image size |
+| `STELLA_OPENAI_IMAGE_QUALITY` | `low` | Generated product image quality |
+| `STELLA_OPENAI_IMAGE_OUTPUT_FORMAT` | `png` | Generated product image format |
+
 ## Logging
 
 | Variable | Default | Description |

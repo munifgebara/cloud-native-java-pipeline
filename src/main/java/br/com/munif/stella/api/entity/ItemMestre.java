@@ -44,6 +44,12 @@ public class ItemMestre extends Entidade {
     @Column(name = "imagem_tamanho_bytes")
     private Long imagemTamanhoBytes;
 
+    @Column(name = "imagem_generated_by_ai", nullable = false)
+    private boolean imagemGeneratedByAi;
+
+    @Column(name = "imagem_provider", length = 50)
+    private String imagemProvider;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;

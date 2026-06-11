@@ -116,6 +116,11 @@ spec:
                 secretKeyRef:
                   name: stella-api-secret
                   key: STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: stella-api-secret
+                  key: OPENAI_API_KEY
             - name: STELLA_MINIO_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
