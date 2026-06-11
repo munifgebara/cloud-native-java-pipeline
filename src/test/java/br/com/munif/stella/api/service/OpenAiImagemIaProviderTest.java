@@ -70,4 +70,16 @@ class OpenAiImagemIaProviderTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("OPENAI_API_KEY não configurada no ambiente.");
     }
+
+    @Test
+    void deveTratarFalhaDeConexaoComOpenAi() {
+        server.expect(once(), requestTo("https://api.openai.com/v1/images/generations"))
+                .andRespond(request -> {
+                    throw new java.io.IOException("sem rede");
+                });
+
+        assertThatThrownBy(() -> provider.gerarImagem(new ImagemIaRequestDTO("Furadeira", null, null)))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Não foi possível conectar à OpenAI para gerar imagem do item.");
+    }
 }
