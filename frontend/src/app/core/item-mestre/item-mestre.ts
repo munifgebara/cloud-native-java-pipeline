@@ -27,6 +27,8 @@ export interface ItemMestreResponse {
   imagemUrl: string | null;
   imagemContentType: string | null;
   imagemTamanhoBytes: number | null;
+  imagemGeneratedByAi: boolean;
+  imagemProvider: string | null;
   ativa: boolean;
 }
 
@@ -46,6 +48,18 @@ export interface ItemMestreUpdateRequest {
   origemCadastro?: string | null;
   categoriaId?: string | null;
   ativa?: boolean | null;
+}
+
+export interface ImagemIaRequest {
+  nome: string;
+  categoria?: string | null;
+  descricao?: string | null;
+}
+
+export interface ImagemIaResponse {
+  dataUrl: string;
+  contentType: string;
+  provider: string;
 }
 
 @Injectable({
@@ -102,9 +116,17 @@ export class ItemMestreService {
     );
   }
 
-  atualizarImagemPrincipal(id: string, arquivo: File): Observable<ItemMestreResponse> {
+  gerarImagemIa(payload: ImagemIaRequest): Observable<ImagemIaResponse> {
+    return this.http.post<ImagemIaResponse>(`${this.baseUrl}/imagem-ia`, payload);
+  }
+
+  atualizarImagemPrincipal(id: string, arquivo: File, generatedByAi = false, provider?: string | null): Observable<ItemMestreResponse> {
     const formData = new FormData();
     formData.append('arquivo', arquivo);
+    formData.append('generatedByAi', String(generatedByAi));
+    if (provider) {
+      formData.append('provider', provider);
+    }
 
     return this.http.post<ItemMestreResponse>(`${this.baseUrl}/${id}/imagem-principal`, formData).pipe(
       map((item) => this.withAbsoluteImageUrl(item))

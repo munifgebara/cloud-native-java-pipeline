@@ -50,8 +50,51 @@
                 accept="image/png,image/jpeg,image/webp,image/gif"
                 (change)="selecionarImagem($event)" />
               <small>{{ 'masterItems.form.imageHint' | translate }}</small>
+              <button
+                pButton
+                type="button"
+                severity="secondary"
+                icon="pi pi-image"
+                [label]="'masterItems.form.generateImageIa' | translate"
+                (click)="gerarImagemIa()"
+                [loading]="gerandoImagemIa()"
+                [disabled]="salvando() || gerandoImagemIa()">
+              </button>
             </div>
           </div>
+
+          @if (imagemIaPreviewUrl()) {
+            <div class="ai-image-review">
+              <img [src]="imagemIaPreviewUrl()" [alt]="'masterItems.form.aiPreviewAlt' | translate" />
+              <div class="ai-image-actions">
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-check"
+                  [label]="'masterItems.form.acceptAiImage' | translate"
+                  (click)="aceitarImagemIa()">
+                </button>
+                <button
+                  pButton
+                  type="button"
+                  severity="secondary"
+                  icon="pi pi-refresh"
+                  [label]="'masterItems.form.regenerateAiImage' | translate"
+                  (click)="gerarImagemIa()"
+                  [loading]="gerandoImagemIa()"
+                  [disabled]="gerandoImagemIa()">
+                </button>
+                <button
+                  pButton
+                  type="button"
+                  severity="secondary"
+                  icon="pi pi-times"
+                  [label]="'common.cancel' | translate"
+                  (click)="cancelarImagemIa()">
+                </button>
+              </div>
+            </div>
+          }
         </div>
 
         <div class="field full">

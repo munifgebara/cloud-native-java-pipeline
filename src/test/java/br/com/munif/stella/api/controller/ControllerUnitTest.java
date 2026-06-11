@@ -5,6 +5,8 @@ import br.com.munif.stella.api.dto.CategoriaResumoDTO;
 import br.com.munif.stella.api.dto.DashboardResumoDTO;
 import br.com.munif.stella.api.dto.EmprestimoItemResponseDTO;
 import br.com.munif.stella.api.dto.ImagemItemMestreDTO;
+import br.com.munif.stella.api.dto.ImagemIaRequestDTO;
+import br.com.munif.stella.api.dto.ImagemIaResponseDTO;
 import br.com.munif.stella.api.dto.InstanciaItemHistoricoDTO;
 import br.com.munif.stella.api.dto.InstanciaItemResponseDTO;
 import br.com.munif.stella.api.dto.InstanciaItemResumoDTO;
@@ -23,6 +25,7 @@ import br.com.munif.stella.api.service.CategoriaService;
 import br.com.munif.stella.api.service.DashboardService;
 import br.com.munif.stella.api.service.EmprestimoItemService;
 import br.com.munif.stella.api.service.InstanciaItemService;
+import br.com.munif.stella.api.service.ImagemIaService;
 import br.com.munif.stella.api.service.ItemMestreService;
 import br.com.munif.stella.api.service.KeycloakLoginService;
 import br.com.munif.stella.api.service.KeycloakUsuarioService;
@@ -109,19 +112,23 @@ class ControllerUnitTest {
     @Test
     void deveDelegarEndpointsDeItemMestre() {
         ItemMestreService service = mock(ItemMestreService.class);
-        ItemMestreController controller = new ItemMestreController(service);
+        ImagemIaService imagemIaService = mock(ImagemIaService.class);
+        ItemMestreController controller = new ItemMestreController(service, imagemIaService);
         UUID id = UUID.randomUUID();
         UUID categoriaId = UUID.randomUUID();
         var response = mock(ItemMestreResponseDTO.class);
         var resumo = mock(ItemMestreResumoDTO.class);
         var arquivo = new MockMultipartFile("arquivo", "foto.png", "image/png", new byte[]{1});
+        var imagemIaRequest = new ImagemIaRequestDTO("Livro", "Livros", "Capa azul");
+        var imagemIaResponse = new ImagemIaResponseDTO("data:image/png;base64,abc", "image/png", "openai");
 
         when(service.criar(null)).thenReturn(response);
         when(service.buscarResponsePorId(id)).thenReturn(response);
         when(service.listarResumo()).thenReturn(List.of(resumo));
         when(service.buscarPorNome("livro")).thenReturn(List.of(resumo));
         when(service.filtrar("livro", categoriaId)).thenReturn(List.of(resumo));
-        when(service.atualizarImagemPrincipal(id, arquivo)).thenReturn(response);
+        when(service.atualizarImagemPrincipal(id, arquivo, true, "openai")).thenReturn(response);
+        when(imagemIaService.gerarImagem(imagemIaRequest)).thenReturn(imagemIaResponse);
         when(service.atualizar(id, null)).thenReturn(response);
         when(service.listarResumoIncluindoInativos()).thenReturn(List.of(resumo));
         when(service.listarRevisoes(id)).thenReturn(List.of());
@@ -131,7 +138,8 @@ class ControllerUnitTest {
         assertThat(controller.listar().getBody()).containsExactly(resumo);
         assertThat(controller.buscarPorNome("livro").getBody()).containsExactly(resumo);
         assertThat(controller.filtrar("livro", categoriaId).getBody()).containsExactly(resumo);
-        assertThat(controller.atualizarImagemPrincipal(id, arquivo).getBody()).isEqualTo(response);
+        assertThat(controller.atualizarImagemPrincipal(id, arquivo, true, "openai").getBody()).isEqualTo(response);
+        assertThat(controller.gerarImagemIa(imagemIaRequest).getBody()).isEqualTo(imagemIaResponse);
         assertThat(controller.atualizar(id, null).getBody()).isEqualTo(response);
         assertThat(controller.excluir(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(controller.listarTodosIncluindoInativos().getBody()).containsExactly(resumo);

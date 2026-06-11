@@ -222,7 +222,26 @@ class ItemMestreServiceTest {
         assertThat(resposta.imagemUrl()).isEqualTo("/api/public/itens-mestre/%s/imagem-principal".formatted(id));
         assertThat(resposta.imagemContentType()).isEqualTo("image/png");
         assertThat(resposta.imagemTamanhoBytes()).isEqualTo(3L);
+        assertThat(resposta.imagemGeneratedByAi()).isFalse();
+        assertThat(resposta.imagemProvider()).isNull();
         verify(imagemStorageService).removerSilenciosamente("stella-itens", "itens-mestre/antiga.jpg");
+    }
+
+    @Test
+    void deveAtualizarImagemPrincipalMarcandoOrigemIa() {
+        UUID id = UUID.randomUUID();
+        ItemMestre item = item(id, "Notebook", null);
+        var arquivo = new MockMultipartFile("arquivo", "foto.png", "image/png", new byte[]{1, 2, 3});
+        var imagem = new ImagemItemMestreDTO("stella-itens", "itens-mestre/ia.png", "image/png", 3L);
+
+        when(repository.findById(id)).thenReturn(Optional.of(item));
+        when(imagemStorageService.armazenar(id, arquivo)).thenReturn(imagem);
+        when(repository.save(any(ItemMestre.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var resposta = service.atualizarImagemPrincipal(id, arquivo, true, " openai ");
+
+        assertThat(resposta.imagemGeneratedByAi()).isTrue();
+        assertThat(resposta.imagemProvider()).isEqualTo("openai");
     }
 
     @Test

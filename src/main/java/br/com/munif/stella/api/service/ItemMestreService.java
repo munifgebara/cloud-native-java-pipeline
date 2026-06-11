@@ -107,6 +107,11 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
 
     @Transactional
     public ItemMestreResponseDTO atualizarImagemPrincipal(UUID id, MultipartFile arquivo) {
+        return atualizarImagemPrincipal(id, arquivo, false, null);
+    }
+
+    @Transactional
+    public ItemMestreResponseDTO atualizarImagemPrincipal(UUID id, MultipartFile arquivo, boolean generatedByAi, String provider) {
         ItemMestre item = buscarPorId(id);
         String bucketAnterior = item.getImagemBucket();
         String objectKeyAnterior = item.getImagemObjectKey();
@@ -116,6 +121,8 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
         item.setImagemObjectKey(imagem.objectKey());
         item.setImagemContentType(imagem.contentType());
         item.setImagemTamanhoBytes(imagem.tamanhoBytes());
+        item.setImagemGeneratedByAi(generatedByAi);
+        item.setImagemProvider(generatedByAi ? ValidacoesBR.trimToNull(provider) : null);
 
         ItemMestre salvo = salvar(item);
         imagemStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);

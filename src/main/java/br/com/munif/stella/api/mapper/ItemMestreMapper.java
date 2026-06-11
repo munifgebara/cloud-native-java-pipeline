@@ -60,6 +60,8 @@ public final class ItemMestreMapper {
                 imagemUrl(entity),
                 entity.getImagemContentType(),
                 entity.getImagemTamanhoBytes(),
+                entity.isImagemGeneratedByAi(),
+                entity.getImagemProvider(),
                 entity.isAtivo()
         );
     }

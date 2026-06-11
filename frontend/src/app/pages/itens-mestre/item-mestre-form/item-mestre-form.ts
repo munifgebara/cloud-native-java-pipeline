@@ -34,6 +34,11 @@ export class ItemMestreFormComponent implements OnInit {
   imagemAtualUrl = signal<string | null>(null);
   imagemPreviewUrl = signal<string | null>(null);
   imagemSelecionada = signal<File | null>(null);
+  imagemSelecionadaGeradaPorIa = signal(false);
+  imagemSelecionadaProvider = signal<string | null>(null);
+  imagemIaPreviewUrl = signal<string | null>(null);
+  imagemIaProvider = signal<string | null>(null);
+  gerandoImagemIa = signal(false);
 
   readonly edicao = computed(() => !!this.id());
 
@@ -123,6 +128,8 @@ export class ItemMestreFormComponent implements OnInit {
 
     if (!arquivo) {
       this.imagemSelecionada.set(null);
+      this.imagemSelecionadaGeradaPorIa.set(false);
+      this.imagemSelecionadaProvider.set(null);
       this.imagemPreviewUrl.set(null);
       return;
     }
@@ -140,12 +147,61 @@ export class ItemMestreFormComponent implements OnInit {
     }
 
     this.imagemSelecionada.set(arquivo);
+    this.imagemSelecionadaGeradaPorIa.set(false);
+    this.imagemSelecionadaProvider.set(null);
     this.imagemPreviewUrl.set(URL.createObjectURL(arquivo));
+    this.limparImagemIaGerada();
   }
 
   campoInvalido(nome: keyof typeof this.form.controls): boolean {
     const campo = this.form.controls[nome];
     return !!campo && campo.invalid && (campo.touched || campo.dirty);
+  }
+
+  gerarImagemIa(): void {
+    this.errorMessage.set('');
+    const valor = this.form.getRawValue();
+    const nome = this.nullIfBlank(valor.nome);
+
+    if (!nome) {
+      this.errorMessage.set(this.i18n.translate('masterItems.form.aiNameRequired'));
+      return;
+    }
+
+    this.gerandoImagemIa.set(true);
+    this.itemMestreService.gerarImagemIa({
+      nome,
+      categoria: this.categoriaSelecionadaNome(valor.categoriaId),
+      descricao: this.nullIfBlank(valor.descricao),
+    }).subscribe({
+      next: (imagem) => {
+        this.imagemIaPreviewUrl.set(imagem.dataUrl);
+        this.imagemIaProvider.set(imagem.provider);
+        this.gerandoImagemIa.set(false);
+      },
+      error: (err) => {
+        this.gerandoImagemIa.set(false);
+        this.errorMessage.set(this.extractError(err, this.i18n.translate('masterItems.form.aiImageError')));
+      },
+    });
+  }
+
+  aceitarImagemIa(): void {
+    const dataUrl = this.imagemIaPreviewUrl();
+    if (!dataUrl) {
+      return;
+    }
+
+    const arquivo = this.dataUrlToFile(dataUrl, 'imagem-ia.png');
+    this.imagemSelecionada.set(arquivo);
+    this.imagemSelecionadaGeradaPorIa.set(true);
+    this.imagemSelecionadaProvider.set(this.imagemIaProvider());
+    this.imagemPreviewUrl.set(dataUrl);
+    this.limparImagemIaGerada();
+  }
+
+  cancelarImagemIa(): void {
+    this.limparImagemIaGerada();
   }
 
   private carregarCategorias(): void {
@@ -164,7 +220,12 @@ export class ItemMestreFormComponent implements OnInit {
       return;
     }
 
-    this.itemMestreService.atualizarImagemPrincipal(itemId, imagem).subscribe({
+    this.itemMestreService.atualizarImagemPrincipal(
+      itemId,
+      imagem,
+      this.imagemSelecionadaGeradaPorIa(),
+      this.imagemSelecionadaGeradaPorIa() ? this.imagemSelecionadaProvider() : null,
+    ).subscribe({
       next: () => {
         this.salvando.set(false);
         this.router.navigate(['/itens-mestre']);
@@ -179,6 +240,32 @@ export class ItemMestreFormComponent implements OnInit {
   private nullIfBlank(value: string | null | undefined): string | null {
     const v = (value ?? '').trim();
     return v ? v : null;
+  }
+
+  private categoriaSelecionadaNome(categoriaId: string | null | undefined): string | null {
+    if (!categoriaId) {
+      return null;
+    }
+
+    return this.categorias().find((categoria) => categoria.id === categoriaId)?.nome ?? null;
+  }
+
+  private limparImagemIaGerada(): void {
+    this.imagemIaPreviewUrl.set(null);
+    this.imagemIaProvider.set(null);
+  }
+
+  private dataUrlToFile(dataUrl: string, fileName: string): File {
+    const [header, base64] = dataUrl.split(',');
+    const contentType = header.match(/data:(.*);base64/)?.[1] ?? 'image/png';
+    const bytes = atob(base64);
+    const buffer = new Uint8Array(bytes.length);
+
+    for (let i = 0; i < bytes.length; i++) {
+      buffer[i] = bytes.charCodeAt(i);
+    }
+
+    return new File([buffer], fileName, { type: contentType });
   }
 
   private extractError(err: any, fallback: string): string {
