@@ -28,6 +28,13 @@ spring:
       enabled: false
 
 stella:
+  vector-search:
+    enabled: false
+  embeddings:
+    provider: local
+    base-url: http://127.0.0.1:9999
+    model: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+    dimensions: 384
   minio:
     endpoint: http://127.0.0.1:9000
     access-key: minioadmin

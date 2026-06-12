@@ -58,6 +58,15 @@ stella:
     secret-key: ${STELLA_MINIO_SECRET_KEY:minioadmin}
     bucket: ${STELLA_MINIO_BUCKET:stella-itens}
     max-image-size-bytes: ${STELLA_MINIO_MAX_IMAGE_SIZE_BYTES:5242880}
+  vector-search:
+    enabled: ${STELLA_VECTOR_SEARCH_ENABLED:false}
+    min-similarity: ${STELLA_VECTOR_SEARCH_MIN_SIMILARITY:0.20}
+    max-results: ${STELLA_VECTOR_SEARCH_MAX_RESULTS:12}
+  embeddings:
+    provider: ${STELLA_EMBEDDINGS_PROVIDER:local}
+    base-url: ${STELLA_EMBEDDINGS_BASE_URL:http://stella-embeddings:8000}
+    model: ${STELLA_EMBEDDINGS_MODEL:sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
+    dimensions: ${STELLA_EMBEDDINGS_DIMENSIONS:384}
 
 management:
   endpoints:

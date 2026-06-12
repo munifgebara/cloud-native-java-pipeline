@@ -3,6 +3,7 @@ package br.com.munif.stella.api.service;
 import br.com.munif.comum.dto.RevisaoDTO;
 import br.com.munif.comum.service.SuperService;
 import br.com.munif.comum.utils.validacoes.ValidacoesBR;
+import br.com.munif.stella.api.dto.ConsultaSemanticaItemDTO;
 import br.com.munif.stella.api.dto.ItemMestreCreateDTO;
 import br.com.munif.stella.api.dto.ImagemItemMestreDTO;
 import br.com.munif.stella.api.dto.ItemMestreResponseDTO;
@@ -27,16 +28,19 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
 
     private final CategoriaRepository categoriaRepository;
     private final ImagemItemMestreStorageService imagemStorageService;
+    private final ItemMestreVectorSearchService vectorSearchService;
 
     public ItemMestreService(
             ItemMestreRepository repository,
             EntityManager entityManager,
             CategoriaRepository categoriaRepository,
-            ImagemItemMestreStorageService imagemStorageService
+            ImagemItemMestreStorageService imagemStorageService,
+            ItemMestreVectorSearchService vectorSearchService
     ) {
         super(repository, entityManager, ItemMestre.class);
         this.categoriaRepository = categoriaRepository;
         this.imagemStorageService = imagemStorageService;
+        this.vectorSearchService = vectorSearchService;
     }
 
     @Transactional
@@ -51,6 +55,7 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
             salvo.setAtivo(false);
             salvo = salvar(salvo);
         }
+        vectorSearchService.sincronizar(salvo);
         return ItemMestreMapper.toResponseDTO(salvo);
     }
 
@@ -102,6 +107,7 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
         item.setCategoria(categoria);
 
         ItemMestre salvo = salvar(item);
+        vectorSearchService.sincronizar(salvo);
         return ItemMestreMapper.toResponseDTO(salvo);
     }
 
@@ -125,6 +131,7 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
         item.setImagemProvider(generatedByAi ? ValidacoesBR.trimToNull(provider) : null);
 
         ItemMestre salvo = salvar(item);
+        vectorSearchService.sincronizar(salvo);
         imagemStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
         return ItemMestreMapper.toResponseDTO(salvo);
     }
@@ -152,6 +159,17 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     @Transactional
     public void excluirLogicamente(UUID id) {
         excluir(id);
+        vectorSearchService.remover(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ConsultaSemanticaItemDTO> buscarSemanticamente(String consulta) {
+        return vectorSearchService.buscar(consulta);
+    }
+
+    @Transactional
+    public int reindexarBuscaSemantica() {
+        return vectorSearchService.reindexarItensAtivos();
     }
 
     @Transactional(readOnly = true)

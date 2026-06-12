@@ -8,7 +8,7 @@ import { TagModule } from 'primeng/tag';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { CategoriaResumo, CategoriaService, categoriaIconClass } from '../../../core/categoria/categoria';
-import { ItemMestreResumo, ItemMestreService } from '../../../core/item-mestre/item-mestre';
+import { ConsultaSemanticaItem, ItemMestreResumo, ItemMestreService } from '../../../core/item-mestre/item-mestre';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
 @Component({
@@ -27,12 +27,16 @@ export class ItemMestreListComponent implements OnInit {
   private readonly i18n = inject(I18nService);
 
   itens = signal<ItemMestreResumo[]>([]);
+  resultadosSemanticos = signal<ConsultaSemanticaItem[]>([]);
   categorias = signal<CategoriaResumo[]>([]);
   loading = signal(false);
+  loadingSemantica = signal(false);
   deletingId = signal<string | null>(null);
   errorMessage = signal('');
+  semanticErrorMessage = signal('');
   filtroNome = '';
   filtroCategoriaId = '';
+  consultaSemantica = '';
 
   ngOnInit(): void {
     this.carregarCategorias();
@@ -71,6 +75,34 @@ export class ItemMestreListComponent implements OnInit {
     });
   }
 
+  pesquisarSemanticamente(): void {
+    const consulta = this.consultaSemantica.trim();
+    if (!consulta) {
+      this.resultadosSemanticos.set([]);
+      return;
+    }
+
+    this.loadingSemantica.set(true);
+    this.semanticErrorMessage.set('');
+
+    this.itemMestreService.buscarSemanticamente(consulta).subscribe({
+      next: (dados) => {
+        this.resultadosSemanticos.set(dados);
+        this.loadingSemantica.set(false);
+      },
+      error: () => {
+        this.semanticErrorMessage.set(this.i18n.translate('masterItems.semanticSearchError'));
+        this.loadingSemantica.set(false);
+      },
+    });
+  }
+
+  limparBuscaSemantica(): void {
+    this.consultaSemantica = '';
+    this.resultadosSemanticos.set([]);
+    this.semanticErrorMessage.set('');
+  }
+
   limparFiltros(): void {
     this.filtroNome = '';
     this.filtroCategoriaId = '';
@@ -102,6 +134,35 @@ export class ItemMestreListComponent implements OnInit {
 
   iconClass(item: ItemMestreResumo): string {
     return categoriaIconClass(item.categoriaIcone);
+  }
+
+  semanticIconClass(item: ConsultaSemanticaItem): string {
+    return categoriaIconClass(item.categoriaIcone);
+  }
+
+  relevancia(item: ConsultaSemanticaItem): string {
+    return `${Math.round(item.similaridade * 100)}%`;
+  }
+
+  instanciasResumo(item: ConsultaSemanticaItem): string {
+    if (!item.instancias.length) {
+      return this.i18n.translate('masterItems.semanticNoInstances');
+    }
+
+    return item.instancias
+      .slice(0, 3)
+      .map((instancia) => instancia.identificador || instancia.patrimonio || instancia.numeroSerie || this.i18n.translate('masterItems.semanticUnnamedInstance'))
+      .join(', ');
+  }
+
+  locaisResumo(item: ConsultaSemanticaItem): string {
+    if (!item.locaisProvaveis.length) {
+      return this.i18n.translate('masterItems.semanticNoLocations');
+    }
+
+    return item.locaisProvaveis
+      .map((local) => `${local.nome} (${local.quantidade})`)
+      .join(', ');
   }
 
   private carregarCategorias(): void {

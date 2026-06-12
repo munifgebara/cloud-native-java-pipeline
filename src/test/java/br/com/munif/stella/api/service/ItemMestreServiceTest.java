@@ -41,6 +41,9 @@ class ItemMestreServiceTest {
     private ImagemItemMestreStorageService imagemStorageService;
 
     @Mock
+    private ItemMestreVectorSearchService vectorSearchService;
+
+    @Mock
     private EntityManager entityManager;
 
     @InjectMocks
@@ -74,6 +77,7 @@ class ItemMestreServiceTest {
         assertThat(resposta.categoriaId()).isEqualTo(categoriaId);
         assertThat(resposta.categoriaNome()).isEqualTo("Eletronicos");
         assertThat(resposta.categoriaIcone()).isEqualTo("eletronicos");
+        verify(vectorSearchService).sincronizar(itemSalvo);
     }
 
     @Test
@@ -121,6 +125,7 @@ class ItemMestreServiceTest {
         assertThat(resposta.descricao()).isEqualTo("Cadeira de escritorio");
         assertThat(resposta.categoriaNome()).isEqualTo("Moveis");
         assertThat(resposta.ativa()).isFalse();
+        verify(vectorSearchService).sincronizar(item);
     }
 
     @Test
@@ -242,6 +247,20 @@ class ItemMestreServiceTest {
 
         assertThat(resposta.imagemGeneratedByAi()).isTrue();
         assertThat(resposta.imagemProvider()).isEqualTo("openai");
+    }
+
+    @Test
+    void deveRemoverIndiceVetorialAoExcluirLogicamente() {
+        UUID id = UUID.randomUUID();
+        ItemMestre item = item(id, "Notebook", null);
+
+        when(repository.findById(id)).thenReturn(Optional.of(item));
+        when(repository.save(item)).thenReturn(item);
+
+        service.excluirLogicamente(id);
+
+        assertThat(item.isAtivo()).isFalse();
+        verify(vectorSearchService).remover(id);
     }
 
     @Test
