@@ -2,6 +2,7 @@ package br.com.munif.stella.api.controller;
 
 import br.com.munif.stella.api.dto.CategoriaResponseDTO;
 import br.com.munif.stella.api.dto.CategoriaResumoDTO;
+import br.com.munif.stella.api.dto.ConsultaSemanticaItemDTO;
 import br.com.munif.stella.api.dto.DashboardResumoDTO;
 import br.com.munif.stella.api.dto.EmprestimoItemResponseDTO;
 import br.com.munif.stella.api.dto.ImagemItemMestreDTO;
@@ -118,6 +119,7 @@ class ControllerUnitTest {
         UUID categoriaId = UUID.randomUUID();
         var response = mock(ItemMestreResponseDTO.class);
         var resumo = mock(ItemMestreResumoDTO.class);
+        var resultadoSemantico = mock(ConsultaSemanticaItemDTO.class);
         var arquivo = new MockMultipartFile("arquivo", "foto.png", "image/png", new byte[]{1});
         var imagemIaRequest = new ImagemIaRequestDTO("Livro", "Livros", "Capa azul");
         var imagemIaResponse = new ImagemIaResponseDTO("data:image/png;base64,abc", "image/png", "openai");
@@ -127,6 +129,8 @@ class ControllerUnitTest {
         when(service.listarResumo()).thenReturn(List.of(resumo));
         when(service.buscarPorNome("livro")).thenReturn(List.of(resumo));
         when(service.filtrar("livro", categoriaId)).thenReturn(List.of(resumo));
+        when(service.buscarSemanticamente("onde esta livro")).thenReturn(List.of(resultadoSemantico));
+        when(service.reindexarBuscaSemantica()).thenReturn(2);
         when(service.atualizarImagemPrincipal(id, arquivo, true, "openai")).thenReturn(response);
         when(imagemIaService.gerarImagem(imagemIaRequest)).thenReturn(imagemIaResponse);
         when(service.atualizar(id, null)).thenReturn(response);
@@ -138,6 +142,8 @@ class ControllerUnitTest {
         assertThat(controller.listar().getBody()).containsExactly(resumo);
         assertThat(controller.buscarPorNome("livro").getBody()).containsExactly(resumo);
         assertThat(controller.filtrar("livro", categoriaId).getBody()).containsExactly(resumo);
+        assertThat(controller.buscarSemanticamente("onde esta livro").getBody()).containsExactly(resultadoSemantico);
+        assertThat(controller.reindexarBuscaSemantica().getBody()).containsEntry("itensReindexados", 2);
         assertThat(controller.atualizarImagemPrincipal(id, arquivo, true, "openai").getBody()).isEqualTo(response);
         assertThat(controller.gerarImagemIa(imagemIaRequest).getBody()).isEqualTo(imagemIaResponse);
         assertThat(controller.atualizar(id, null).getBody()).isEqualTo(response);

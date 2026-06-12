@@ -55,6 +55,97 @@
     </div>
   }
 
+  <section class="semantic-search">
+    <div class="semantic-header">
+      <div>
+        <h3>{{ 'masterItems.semanticTitle' | translate }}</h3>
+        <p>{{ 'masterItems.semanticSubtitle' | translate }}</p>
+      </div>
+    </div>
+
+    <div class="semantic-toolbar">
+      <input
+        pInputText
+        type="text"
+        [(ngModel)]="consultaSemantica"
+        [placeholder]="'masterItems.semanticPlaceholder' | translate"
+        (keyup.enter)="pesquisarSemanticamente()" />
+
+      <button
+        pButton
+        type="button"
+        [label]="'masterItems.semanticSearch' | translate"
+        icon="pi pi-sparkles"
+        [loading]="loadingSemantica()"
+        (click)="pesquisarSemanticamente()">
+      </button>
+
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        [label]="'common.clear' | translate"
+        icon="pi pi-times"
+        (click)="limparBuscaSemantica()">
+      </button>
+    </div>
+
+    @if (semanticErrorMessage()) {
+      <div class="error-box">
+        {{ semanticErrorMessage() }}
+      </div>
+    }
+
+    @if (resultadosSemanticos().length) {
+      <div class="semantic-grid">
+        @for (item of resultadosSemanticos(); track item.itemMestreId) {
+          <article class="semantic-card">
+            <div class="semantic-image">
+              @if (item.imagemUrl) {
+                <img [src]="item.imagemUrl" [alt]="item.nome" />
+              } @else {
+                <i class="pi pi-image"></i>
+              }
+            </div>
+
+            <div class="semantic-content">
+              <div class="semantic-title-row">
+                <h4>{{ item.nome }}</h4>
+                <span class="relevance">{{ relevancia(item) }}</span>
+              </div>
+
+              <p class="semantic-description">{{ item.descricao || ('masterItems.semanticNoDescription' | translate) }}</p>
+
+              @if (item.categoriaNome) {
+                <span class="category-name">
+                  <span class="category-icon">
+                    <i [class]="semanticIconClass(item)"></i>
+                  </span>
+                  <span>{{ item.categoriaNome }}</span>
+                </span>
+              }
+
+              <dl class="semantic-details">
+                <div>
+                  <dt>{{ 'masterItems.semanticLocations' | translate }}</dt>
+                  <dd>{{ locaisResumo(item) }}</dd>
+                </div>
+                <div>
+                  <dt>{{ 'masterItems.semanticInstances' | translate }}</dt>
+                  <dd>{{ instanciasResumo(item) }}</dd>
+                </div>
+              </dl>
+            </div>
+          </article>
+        }
+      </div>
+    } @else if (consultaSemantica.trim() && !loadingSemantica() && !semanticErrorMessage()) {
+      <div class="empty-semantic">
+        {{ 'masterItems.semanticEmpty' | translate }}
+      </div>
+    }
+  </section>
+
   <p-table
     styleClass="responsive-table"
     [value]="itens()"

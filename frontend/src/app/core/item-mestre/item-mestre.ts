@@ -15,6 +15,34 @@ export interface ItemMestreResumo {
   ativa: boolean;
 }
 
+export interface ConsultaSemanticaInstancia {
+  id: string;
+  identificador: string | null;
+  patrimonio: string | null;
+  numeroSerie: string | null;
+  statusOperacional: string;
+  localAtualId: string | null;
+  localAtualNome: string | null;
+}
+
+export interface ConsultaSemanticaLocal {
+  id: string;
+  nome: string;
+  quantidade: number;
+}
+
+export interface ConsultaSemanticaItem {
+  itemMestreId: string;
+  nome: string;
+  descricao: string | null;
+  categoriaNome: string | null;
+  categoriaIcone: string | null;
+  imagemUrl: string | null;
+  similaridade: number;
+  instancias: ConsultaSemanticaInstancia[];
+  locaisProvaveis: ConsultaSemanticaLocal[];
+}
+
 export interface ItemMestreResponse {
   id: string;
   nome: string;
@@ -96,6 +124,12 @@ export class ItemMestreService {
     return this.http.get<ItemMestreResumo[]>(`${this.baseUrl}/filtrar`, { params }).pipe(
       map((itens) => itens.map((item) => this.withAbsoluteImageUrl(item)))
     );
+  }
+
+  buscarSemanticamente(consulta: string): Observable<ConsultaSemanticaItem[]> {
+    return this.http.get<ConsultaSemanticaItem[]>(`${this.baseUrl}/busca-semantica`, {
+      params: { consulta },
+    }).pipe(map((itens) => itens.map((item) => this.withAbsoluteImageUrl(item))));
   }
 
   buscarPorId(id: string): Observable<ItemMestreResponse> {

@@ -2,6 +2,7 @@ package br.com.munif.stella.api.controller;
 
 import br.com.munif.comum.controller.SuperController;
 import br.com.munif.comum.dto.RevisaoDTO;
+import br.com.munif.stella.api.dto.ConsultaSemanticaItemDTO;
 import br.com.munif.stella.api.dto.ItemMestreCreateDTO;
 import br.com.munif.stella.api.dto.ImagemIaRequestDTO;
 import br.com.munif.stella.api.dto.ImagemIaResponseDTO;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -67,6 +69,16 @@ public class ItemMestreController extends SuperController<ItemMestreResumoDTO, I
     @GetMapping("/filtrar")
     public ResponseEntity<List<ItemMestreResumoDTO>> filtrar(@RequestParam(required = false) String nome, @RequestParam(required = false) UUID categoriaId) {
         return ResponseEntity.ok(service.filtrar(nome, categoriaId));
+    }
+
+    @GetMapping("/busca-semantica")
+    public ResponseEntity<List<ConsultaSemanticaItemDTO>> buscarSemanticamente(@RequestParam("consulta") String consulta) {
+        return ResponseEntity.ok(service.buscarSemanticamente(consulta));
+    }
+
+    @PostMapping("/busca-semantica/reindexar")
+    public ResponseEntity<Map<String, Integer>> reindexarBuscaSemantica() {
+        return ResponseEntity.ok(Map.of("itensReindexados", service.reindexarBuscaSemantica()));
     }
 
     @PostMapping(value = "/{id}/imagem-principal", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

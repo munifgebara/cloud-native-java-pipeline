@@ -26,4 +26,12 @@ public interface ItemMestreRepository extends SuperRepository<ItemMestre> {
             order by item.nome asc
             """)
     List<ItemMestre> filtrarAtivos(@Param("nome") String nome, @Param("categoriaId") UUID categoriaId);
+
+    @Query("""
+            select item
+            from ItemMestre item
+            left join fetch item.categoria
+            where item.id in :ids
+            """)
+    List<ItemMestre> buscarComCategoriaPorIds(@Param("ids") List<UUID> ids);
 }

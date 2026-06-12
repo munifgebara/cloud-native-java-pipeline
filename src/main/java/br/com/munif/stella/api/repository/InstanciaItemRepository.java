@@ -17,6 +17,18 @@ public interface InstanciaItemRepository extends SuperRepository<InstanciaItem> 
 
     List<InstanciaItem> findByAtivoTrueAndIdentificadorContainingIgnoreCaseOrderByIdentificadorAsc(String identificador);
 
+    @Query("""
+            select instancia
+            from InstanciaItem instancia
+            join fetch instancia.itemMestre itemMestre
+            left join fetch instancia.localAtual
+            where instancia.ativo = true
+              and itemMestre.ativo = true
+              and itemMestre.id in :itemMestreIds
+            order by itemMestre.nome asc, instancia.identificador asc, instancia.patrimonio asc, instancia.numeroSerie asc
+            """)
+    List<InstanciaItem> buscarAtivasPorItemMestreIds(@Param("itemMestreIds") List<UUID> itemMestreIds);
+
     long countByAtivoTrue();
 
     long countByAtivoTrueAndStatusOperacional(StatusOperacionalInstancia statusOperacional);
