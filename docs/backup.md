@@ -31,6 +31,8 @@ By default, PostgreSQL backup includes all Stella databases expected on Gimli (`
 
 The final archive is encrypted with `age` when `STELLA_BACKUP_AGE_RECIPIENT` is configured, then uploaded with `rclone`. The initial destination is Google Drive, but the scripts only depend on an rclone remote, so the backend can later become S3, NAS or another supported remote.
 
+The production policy is intentionally simple: the complete operational backup runs daily. CD does not run a backup step, so deploys are not blocked by large MinIO uploads. If a deployment causes a serious problem, restore from the latest daily backup.
+
 ## Gimli Setup
 
 Install required tools on Gimli:
@@ -40,14 +42,15 @@ sudo apt-get update
 sudo apt-get install -y rclone age
 ```
 
-Install the MinIO client if it is not already present:
+Install the MinIO client if it is not already present. Use `mcli` to avoid conflict with GNU Midnight Commander, which is also named `mc`:
 
 ```bash
-curl -fsSL https://dl.min.io/client/mc/release/linux-amd64/mc -o /tmp/mc
-sudo install -m 0755 /tmp/mc /usr/local/bin/mc
+curl -fsSL https://dl.min.io/client/mc/release/linux-amd64/mc -o /tmp/mcli
+sudo install -m 0755 /tmp/mcli /usr/local/bin/mcli
+/usr/local/bin/mcli --version
 ```
 
-Configure Google Drive for the user that will run backups. If the GitHub runner/CD step runs the script through `sudo`, configure rclone for root:
+Configure Google Drive for the user that will run backups. If the systemd service runs the script through root, configure rclone for root:
 
 ```bash
 sudo rclone config
@@ -71,6 +74,13 @@ sudo cp scripts/backup/backup.env.example /etc/stella-backup/backup.env
 sudo editor /etc/stella-backup/backup.env
 ```
 
+On Gimli, keep the MinIO URL pointed at the local port-forward and use the explicit MinIO client path:
+
+```bash
+STELLA_MC_CMD="/usr/local/bin/mcli"
+STELLA_MINIO_SERVICE_URL="http://127.0.0.1:19000"
+```
+
 The default namespace list is intentionally narrow:
 
 ```bash
@@ -86,6 +96,33 @@ sudo install -d -m 0755 /opt/stella-backup
 sudo git clone https://github.com/munifgebara/cloud-native-java-pipeline.git /opt/stella-backup/current
 sudo chmod +x /opt/stella-backup/current/scripts/backup/stella-backup.sh
 sudo chmod +x /opt/stella-backup/current/scripts/backup/stella-restore.sh
+```
+
+## MinIO Port Forward
+
+The host cannot resolve Kubernetes service DNS names such as `minio.platform.svc.cluster.local`. Keep a local port-forward service running on Gimli:
+
+```bash
+sudo tee /etc/systemd/system/stella-minio-port-forward.service >/dev/null <<'EOF'
+[Unit]
+Description=Stella MinIO port-forward for host backups
+After=k3s.service network-online.target
+Wants=network-online.target
+Requires=k3s.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/k3s kubectl port-forward -n platform svc/minio 19000:9000 --address 127.0.0.1
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now stella-minio-port-forward.service
+sudo systemctl status stella-minio-port-forward.service --no-pager
 ```
 
 ## Manual Backup
@@ -126,22 +163,18 @@ systemctl list-timers stella-backup.timer
 sudo journalctl -u stella-backup.service -n 200
 ```
 
-## Pre-CD Backup
+## CD Policy
 
-The CD workflow runs:
+The CD workflow does not run backup. This avoids delaying every deploy with a full MinIO mirror and Google Drive upload.
 
-```bash
-sudo env STELLA_BACKUP_REQUIRE_UPLOAD=true bash scripts/backup/stella-backup.sh pre-cd
-```
-
-That step runs before applying manifests or changing the `stella-api` image. It fails the deploy if the backup or upload fails.
+Operational recovery after a bad CD uses the latest successful daily backup from Google Drive.
 
 ## Restore
 
 Download the archive from Google Drive first if it is not already local:
 
 ```bash
-sudo rclone copy gdrive:StellaBackups/backup-stella-YYYYmmdd-HHMMSS-pre-cd.tar.gz.age /tmp/
+sudo rclone copy gdrive:StellaBackups/backup-stella-YYYYmmdd-HHMMSS-daily.tar.gz.age /tmp/
 ```
 
 Before restoring PostgreSQL or MinIO in a live environment, stop writers such as `stella-api` and `keycloak` or restore into an isolated test namespace/host.
@@ -149,25 +182,25 @@ Before restoring PostgreSQL or MinIO in a live environment, stop writers such as
 Restore only PostgreSQL:
 
 ```bash
-sudo /opt/stella-backup/current/scripts/backup/stella-restore.sh postgres /tmp/backup-stella-YYYYmmdd-HHMMSS-pre-cd.tar.gz.age
+sudo /opt/stella-backup/current/scripts/backup/stella-restore.sh postgres /tmp/backup-stella-YYYYmmdd-HHMMSS-daily.tar.gz.age
 ```
 
 Restore only MinIO:
 
 ```bash
-sudo /opt/stella-backup/current/scripts/backup/stella-restore.sh minio /tmp/backup-stella-YYYYmmdd-HHMMSS-pre-cd.tar.gz.age
+sudo /opt/stella-backup/current/scripts/backup/stella-restore.sh minio /tmp/backup-stella-YYYYmmdd-HHMMSS-daily.tar.gz.age
 ```
 
 Restore only Kubernetes resources and secrets:
 
 ```bash
-sudo /opt/stella-backup/current/scripts/backup/stella-restore.sh kubernetes /tmp/backup-stella-YYYYmmdd-HHMMSS-pre-cd.tar.gz.age
+sudo /opt/stella-backup/current/scripts/backup/stella-restore.sh kubernetes /tmp/backup-stella-YYYYmmdd-HHMMSS-daily.tar.gz.age
 ```
 
 Restore everything:
 
 ```bash
-sudo /opt/stella-backup/current/scripts/backup/stella-restore.sh full /tmp/backup-stella-YYYYmmdd-HHMMSS-pre-cd.tar.gz.age
+sudo /opt/stella-backup/current/scripts/backup/stella-restore.sh full /tmp/backup-stella-YYYYmmdd-HHMMSS-daily.tar.gz.age
 ```
 
 By default, restore commands ask for confirmation. For controlled automation, set:
