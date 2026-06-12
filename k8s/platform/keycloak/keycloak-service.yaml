@@ -3,6 +3,11 @@ kind: Service
 metadata:
   name: keycloak
   namespace: platform
+  labels:
+    app: keycloak
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/component: identity
+    app.kubernetes.io/part-of: stella
 spec:
   selector:
     app: keycloak
@@ -12,5 +17,4 @@ spec:
       targetPort: 8080
       nodePort: 30090
   type: NodePort
-
 

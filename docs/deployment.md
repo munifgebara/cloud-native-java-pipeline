@@ -10,6 +10,7 @@ Kubernetes assets live under `k8s/platform/`:
 | `postgres/` | PostgreSQL stateful workload and service |
 | `keycloak/` | Keycloak deployment, service and realm config |
 | `minio/` | MinIO deployment, service and persistent volume claim |
+| `observability/` | Grafana datasource and dashboard ConfigMaps for the existing Gimli logging stack |
 | `stella-api/` | Stella API deployment, service, ingress and configuration |
 
 ## CI/CD Flow

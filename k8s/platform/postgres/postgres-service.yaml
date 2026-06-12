@@ -3,6 +3,11 @@ kind: Service
 metadata:
   name: postgres
   namespace: platform
+  labels:
+    app: postgres
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: stella
 spec:
   selector:
     app: postgres
@@ -11,4 +16,3 @@ spec:
       port: 5432
       targetPort: 5432
   type: ClusterIP
-

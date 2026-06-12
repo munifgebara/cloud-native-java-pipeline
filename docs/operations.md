@@ -29,6 +29,119 @@ Stella pod stdout -> cluster log collector -> Loki or equivalent -> Grafana
 
 Valid collectors include Grafana Alloy, Promtail, Fluent Bit, or another Kubernetes log collector.
 
+Gimli already runs the logging stack outside the Stella platform manifests:
+
+- Grafana: namespace `monitoring`, service `monitoring-grafana`
+- Loki: namespace `logging`, service `loki`
+- Promtail: namespace `logging`, daemonset `promtail`
+
+The Stella repository does not deploy Grafana, Loki, or Promtail. The manifests under `k8s/platform/observability/` only add Grafana sidecar ConfigMaps for the existing stack:
+
+- `stella-loki-datasource`: adds datasource `Stella Loki`
+- `stella-logs-dashboard`: adds dashboard `Stella Logs`
+
+Apply or reapply the platform manifests:
+
+```bash
+sudo k3s kubectl apply -R -f k8s/platform/
+```
+
+Check the existing logging stack:
+
+```bash
+sudo k3s kubectl get pods -n platform -l app.kubernetes.io/part-of=stella
+sudo k3s kubectl rollout status deployment/monitoring-grafana -n monitoring --timeout=180s
+sudo k3s kubectl rollout status statefulset/loki -n logging --timeout=180s
+sudo k3s kubectl rollout status daemonset/promtail -n logging --timeout=180s
+```
+
+The datasource is provisioned through the Grafana sidecar with:
+
+```text
+Name: Stella Loki
+Type: Loki
+URL:  http://loki.logging.svc.cluster.local:3100
+```
+
+If Grafana runs outside the k3s cluster network, access Loki temporarily through port-forward while configuring or testing it:
+
+```bash
+sudo k3s kubectl port-forward svc/loki -n logging 3100:3100
+```
+
+Then use `http://localhost:3100` as the temporary datasource URL.
+Do not expose Grafana or Loki publicly without authentication.
+
+The existing Promtail daemonset collects Kubernetes pod logs. Useful labels for Stella queries are:
+
+- `namespace`
+- `pod`
+- `container`
+- `app`
+- `app_kubernetes_io_name`
+- `app_kubernetes_io_component`
+- `app_kubernetes_io_part_of`
+
+Stella API logs use ECS JSON. Use LogQL JSON parsing for fields such as:
+
+- `level`
+- `event_category`
+- `event_action`
+
+Kubernetes label names containing dots or slashes are normalized with underscores because Loki label names do not support those characters.
+
+Useful LogQL queries:
+
+```logql
+{namespace="platform", app="stella-api"}
+```
+
+```logql
+{namespace="platform", app="stella-api"} | json | log_level="ERROR"
+```
+
+```logql
+{namespace="platform", app="stella-api"} |= "/api/v0/itens-mestre/imagem-ia"
+```
+
+```logql
+{namespace="platform", app="stella-api"} |= "/api/v0/ia/cadastro-foto/sugestoes"
+```
+
+```logql
+{namespace="platform", app="stella-api"} |= "OpenAI"
+```
+
+```logql
+{namespace="platform", app="stella-api"} |= "MinIO"
+```
+
+```logql
+{namespace="platform", app="stella-api"} |= "Keycloak"
+```
+
+```logql
+{namespace="platform", app="stella-api"} | json | event_category="ai"
+```
+
+```logql
+{namespace="platform", app="stella-api"} | json | event_category="vector-search"
+```
+
+```logql
+{namespace="platform", pod=~".+"}
+```
+
+To inspect restart-related logs, start with the pod list and then query by pod name:
+
+```bash
+sudo k3s kubectl get pods -n platform
+```
+
+```logql
+{namespace="platform", pod="<pod-name>"}
+```
+
 Avoid logging:
 
 - tokens

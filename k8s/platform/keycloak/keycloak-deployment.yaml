@@ -3,6 +3,11 @@ kind: Deployment
 metadata:
   name: keycloak
   namespace: platform
+  labels:
+    app: keycloak
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/component: identity
+    app.kubernetes.io/part-of: stella
 spec:
   replicas: 1
   selector:
@@ -12,6 +17,9 @@ spec:
     metadata:
       labels:
         app: keycloak
+        app.kubernetes.io/name: keycloak
+        app.kubernetes.io/component: identity
+        app.kubernetes.io/part-of: stella
     spec:
       containers:
         - name: keycloak
