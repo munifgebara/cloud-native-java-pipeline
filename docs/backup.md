@@ -103,23 +103,7 @@ sudo chmod +x /opt/stella-backup/current/scripts/backup/stella-restore.sh
 The host cannot resolve Kubernetes service DNS names such as `minio.platform.svc.cluster.local`. Keep a local port-forward service running on Gimli:
 
 ```bash
-sudo tee /etc/systemd/system/stella-minio-port-forward.service >/dev/null <<'EOF'
-[Unit]
-Description=Stella MinIO port-forward for host backups
-After=k3s.service network-online.target
-Wants=network-online.target
-Requires=k3s.service
-
-[Service]
-Type=simple
-ExecStart=/usr/local/bin/k3s kubectl port-forward -n platform svc/minio 19000:9000 --address 127.0.0.1
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
+sudo cp /opt/stella-backup/current/scripts/backup/systemd/stella-minio-port-forward.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now stella-minio-port-forward.service
 sudo systemctl status stella-minio-port-forward.service --no-pager
