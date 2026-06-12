@@ -22,7 +22,7 @@ jobs:
 
       - name: Backup pré-CD
         run: |
-          sudo env STELLA_BACKUP_REQUIRE_UPLOAD=true scripts/backup/stella-backup.sh pre-cd
+          sudo env STELLA_BACKUP_REQUIRE_UPLOAD=true bash scripts/backup/stella-backup.sh pre-cd
 
       - name: Aplicar manifests base
         run: |
