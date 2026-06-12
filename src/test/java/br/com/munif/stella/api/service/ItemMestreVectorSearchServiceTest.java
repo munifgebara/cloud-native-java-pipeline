@@ -37,6 +37,7 @@ class ItemMestreVectorSearchServiceTest {
     private final JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class);
     private final ItemMestreRepository itemMestreRepository = mock(ItemMestreRepository.class);
     private final InstanciaItemRepository instanciaItemRepository = mock(InstanciaItemRepository.class);
+    private final ConsultaVetorialMetricasService consultaVetorialMetricasService = mock(ConsultaVetorialMetricasService.class);
     private final ItemMestreEmbeddingDocumentFactory documentFactory = new ItemMestreEmbeddingDocumentFactory();
 
     @Test
@@ -47,6 +48,7 @@ class ItemMestreVectorSearchServiceTest {
 
         verify(embeddingProvider, never()).gerarEmbedding(anyString());
         verifyNoInteractions(jdbcTemplate);
+        verifyNoInteractions(consultaVetorialMetricasService);
     }
 
     @Test
@@ -119,6 +121,7 @@ class ItemMestreVectorSearchServiceTest {
         assertThat(resultado.getFirst().imagemUrl()).isEqualTo("/api/public/itens-mestre/%s/imagem-principal".formatted(itemId));
         assertThat(resultado.getFirst().instancias()).extracting("identificador").containsExactly("GPU 1");
         assertThat(resultado.getFirst().locaisProvaveis()).extracting("nome").containsExactly("Caixa A");
+        verify(consultaVetorialMetricasService).registrarConsulta("onde encontro placa de computador", 1);
     }
 
     @Test
@@ -140,7 +143,8 @@ class ItemMestreVectorSearchServiceTest {
                 documentFactory,
                 jdbcTemplate,
                 itemMestreRepository,
-                instanciaItemRepository
+                instanciaItemRepository,
+                consultaVetorialMetricasService
         );
     }
 

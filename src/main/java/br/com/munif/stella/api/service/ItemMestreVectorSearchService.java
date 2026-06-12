@@ -64,6 +64,7 @@ public class ItemMestreVectorSearchService {
     private final JdbcTemplate jdbcTemplate;
     private final ItemMestreRepository itemMestreRepository;
     private final InstanciaItemRepository instanciaItemRepository;
+    private final ConsultaVetorialMetricasService consultaVetorialMetricasService;
 
     public ItemMestreVectorSearchService(
             VectorSearchProperties vectorSearchProperties,
@@ -72,7 +73,8 @@ public class ItemMestreVectorSearchService {
             ItemMestreEmbeddingDocumentFactory documentFactory,
             JdbcTemplate jdbcTemplate,
             ItemMestreRepository itemMestreRepository,
-            InstanciaItemRepository instanciaItemRepository
+            InstanciaItemRepository instanciaItemRepository,
+            ConsultaVetorialMetricasService consultaVetorialMetricasService
     ) {
         this.vectorSearchProperties = vectorSearchProperties;
         this.embeddingsProperties = embeddingsProperties;
@@ -81,6 +83,7 @@ public class ItemMestreVectorSearchService {
         this.jdbcTemplate = jdbcTemplate;
         this.itemMestreRepository = itemMestreRepository;
         this.instanciaItemRepository = instanciaItemRepository;
+        this.consultaVetorialMetricasService = consultaVetorialMetricasService;
     }
 
     @Transactional
@@ -156,6 +159,8 @@ public class ItemMestreVectorSearchService {
         ).stream()
                 .filter(resultado -> resultado.similaridade() >= vectorSearchProperties.minSimilarity())
                 .toList();
+
+        consultaVetorialMetricasService.registrarConsulta(texto, resultados.size());
 
         if (resultados.isEmpty()) {
             return List.of();

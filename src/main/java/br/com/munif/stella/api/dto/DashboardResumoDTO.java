@@ -9,6 +9,10 @@ public record DashboardResumoDTO(
         long quantidadeInstanciasDisponiveis,
         long quantidadeInstanciasEmprestadas,
         long quantidadeLocais,
-        List<DashboardLocalQuantidadeDTO> locaisComMaisItens
+        long quantidadeItensSemImagem,
+        long quantidadeItensCadastradosPorIa,
+        long quantidadeConsultasVetoriais,
+        List<DashboardLocalQuantidadeDTO> locaisComMaisItens,
+        List<DashboardCategoriaQuantidadeDTO> categoriasComMaisItens
 ) {
 }
