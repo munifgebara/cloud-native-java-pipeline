@@ -13,22 +13,26 @@ import org.springframework.transaction.annotation.Transactional;
 public class DashboardService {
 
     private static final int LIMITE_LOCAIS_COM_MAIS_ITENS = 5;
+    private static final int LIMITE_CATEGORIAS_COM_MAIS_ITENS = 5;
 
     private final PessoaService pessoaService;
     private final ItemMestreRepository itemMestreRepository;
     private final InstanciaItemRepository instanciaItemRepository;
     private final LocalArmazenamentoRepository localArmazenamentoRepository;
+    private final ConsultaVetorialMetricasService consultaVetorialMetricasService;
 
     public DashboardService(
             PessoaService pessoaService,
             ItemMestreRepository itemMestreRepository,
             InstanciaItemRepository instanciaItemRepository,
-            LocalArmazenamentoRepository localArmazenamentoRepository
+            LocalArmazenamentoRepository localArmazenamentoRepository,
+            ConsultaVetorialMetricasService consultaVetorialMetricasService
     ) {
         this.pessoaService = pessoaService;
         this.itemMestreRepository = itemMestreRepository;
         this.instanciaItemRepository = instanciaItemRepository;
         this.localArmazenamentoRepository = localArmazenamentoRepository;
+        this.consultaVetorialMetricasService = consultaVetorialMetricasService;
     }
 
     @Transactional(readOnly = true)
@@ -40,7 +44,11 @@ public class DashboardService {
                 instanciaItemRepository.countByAtivoTrueAndStatusOperacional(StatusOperacionalInstancia.DISPONIVEL),
                 instanciaItemRepository.countByAtivoTrueAndStatusOperacional(StatusOperacionalInstancia.EMPRESTADO),
                 localArmazenamentoRepository.countByAtivoTrue(),
-                instanciaItemRepository.buscarLocaisComMaisItens(PageRequest.of(0, LIMITE_LOCAIS_COM_MAIS_ITENS))
+                itemMestreRepository.countByAtivoTrueAndImagemObjectKeyIsNull(),
+                itemMestreRepository.contarItensCadastradosPorIa(),
+                consultaVetorialMetricasService.contarConsultas(),
+                instanciaItemRepository.buscarLocaisComMaisItens(PageRequest.of(0, LIMITE_LOCAIS_COM_MAIS_ITENS)),
+                itemMestreRepository.buscarCategoriasComMaisItens(PageRequest.of(0, LIMITE_CATEGORIAS_COM_MAIS_ITENS))
         );
     }
 }

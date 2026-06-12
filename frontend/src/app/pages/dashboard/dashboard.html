@@ -11,30 +11,48 @@
       {{ errorMessage() }}
     </div>
   } @else {
-    <div class="cards">
+    <section class="ai-actions" [attr.aria-label]="'dashboard.aiActionsTitle' | translate">
+      <div>
+        <h2>{{ 'dashboard.aiActionsTitle' | translate }}</h2>
+        <p>{{ 'dashboard.aiActionsSubtitle' | translate }}</p>
+      </div>
+
+      <div class="action-grid">
+        <a class="action-card" routerLink="/cadastro-foto">
+          <i class="pi pi-camera"></i>
+          <span>
+            <strong>{{ 'dashboard.photoRegistrationAction' | translate }}</strong>
+            <small>{{ 'dashboard.photoRegistrationActionHint' | translate }}</small>
+          </span>
+        </a>
+        <a class="action-card" href="#busca-vetorial-dashboard">
+          <i class="pi pi-sparkles"></i>
+          <span>
+            <strong>{{ 'dashboard.vectorSearchAction' | translate }}</strong>
+            <small>{{ 'dashboard.vectorSearchActionHint' | translate }}</small>
+          </span>
+        </a>
+      </div>
+    </section>
+
+    <div class="cards executive-cards">
       <p-card [header]="'dashboard.peopleCount' | translate">
         <a class="metric-link" routerLink="/pessoas" [attr.aria-label]="'dashboard.peopleListAria' | translate">
-          <div class="metric-value">
-            {{ resumo()?.quantidadePessoas ?? 0 }}
-          </div>
+          <div class="metric-value">{{ resumo()?.quantidadePessoas ?? 0 }}</div>
           <span class="metric-caption">{{ 'dashboard.openPeople' | translate }}</span>
         </a>
       </p-card>
 
       <p-card [header]="'dashboard.masterItemsCount' | translate">
         <a class="metric-link" routerLink="/itens-mestre" [attr.aria-label]="'dashboard.masterItemsListAria' | translate">
-          <div class="metric-value">
-            {{ resumo()?.quantidadeItensMestre ?? 0 }}
-          </div>
+          <div class="metric-value">{{ resumo()?.quantidadeItensMestre ?? 0 }}</div>
           <span class="metric-caption">{{ 'dashboard.openMasterItems' | translate }}</span>
         </a>
       </p-card>
 
       <p-card [header]="'dashboard.instancesCount' | translate">
         <a class="metric-link" routerLink="/instancias-item" [attr.aria-label]="'dashboard.instancesListAria' | translate">
-          <div class="metric-value">
-            {{ resumo()?.quantidadeInstancias ?? 0 }}
-          </div>
+          <div class="metric-value">{{ resumo()?.quantidadeInstancias ?? 0 }}</div>
           <div class="metric-breakdown">
             <span>{{ 'dashboard.availableInstances' | translate }}: {{ resumo()?.quantidadeInstanciasDisponiveis ?? 0 }}</span>
             <span>{{ 'dashboard.loanedInstances' | translate }}: {{ resumo()?.quantidadeInstanciasEmprestadas ?? 0 }}</span>
@@ -44,34 +62,144 @@
 
       <p-card [header]="'dashboard.locationsCount' | translate">
         <a class="metric-link" routerLink="/locais" [attr.aria-label]="'dashboard.locationsListAria' | translate">
-          <div class="metric-value">
-            {{ resumo()?.quantidadeLocais ?? 0 }}
-          </div>
+          <div class="metric-value">{{ resumo()?.quantidadeLocais ?? 0 }}</div>
           <span class="metric-caption">{{ 'dashboard.openLocations' | translate }}</span>
+        </a>
+      </p-card>
+
+      <p-card [header]="'dashboard.itemsWithoutImage' | translate">
+        <a class="metric-link" routerLink="/itens-mestre" [attr.aria-label]="'dashboard.masterItemsListAria' | translate">
+          <div class="metric-value warning">{{ resumo()?.quantidadeItensSemImagem ?? 0 }}</div>
+          <span class="metric-caption">{{ 'dashboard.openMasterItems' | translate }}</span>
+        </a>
+      </p-card>
+
+      <p-card [header]="'dashboard.aiCreatedItems' | translate">
+        <a class="metric-link" routerLink="/cadastro-foto">
+          <div class="metric-value success">{{ resumo()?.quantidadeItensCadastradosPorIa ?? 0 }}</div>
+          <span class="metric-caption">{{ 'dashboard.openPhotoRegistration' | translate }}</span>
+        </a>
+      </p-card>
+
+      <p-card [header]="'dashboard.vectorQueries' | translate">
+        <a class="metric-link" href="#busca-vetorial-dashboard">
+          <div class="metric-value accent">{{ resumo()?.quantidadeConsultasVetoriais ?? 0 }}</div>
+          <span class="metric-caption">{{ 'dashboard.openVectorSearch' | translate }}</span>
         </a>
       </p-card>
     </div>
 
-    <section class="ranking-section" [attr.aria-label]="'dashboard.topLocations' | translate">
+    <section id="busca-vetorial-dashboard" class="semantic-section">
       <div class="section-header">
-        <h2>{{ 'dashboard.topLocations' | translate }}</h2>
-        <a routerLink="/locais">{{ 'dashboard.openLocations' | translate }}</a>
+        <div>
+          <h2>{{ 'dashboard.semanticTitle' | translate }}</h2>
+          <p>{{ 'dashboard.semanticSubtitle' | translate }}</p>
+        </div>
       </div>
 
-      @if ((resumo()?.locaisComMaisItens?.length ?? 0) > 0) {
-        <ol class="ranking-list">
-          @for (local of resumo()?.locaisComMaisItens; track local.id) {
-            <li>
-              <span class="ranking-name">{{ local.nome }}</span>
-              <span class="ranking-value">
-                {{ local.quantidadeInstancias }} {{ 'dashboard.instancesSuffix' | translate }}
-              </span>
-            </li>
+      <div class="semantic-toolbar">
+        <input
+          pInputText
+          type="search"
+          [(ngModel)]="consultaSemantica"
+          [placeholder]="'dashboard.semanticPlaceholder' | translate"
+          (keyup.enter)="buscarSemanticamente()" />
+        <button
+          pButton
+          type="button"
+          icon="pi pi-search"
+          [label]="'dashboard.semanticSearch' | translate"
+          [loading]="loadingSemantica()"
+          (click)="buscarSemanticamente()">
+        </button>
+      </div>
+
+      @if (semanticErrorMessage()) {
+        <div class="state-card error">{{ semanticErrorMessage() }}</div>
+      }
+
+      @if (resultadosSemanticos().length) {
+        <div class="semantic-grid">
+          @for (item of resultadosSemanticos(); track item.itemMestreId) {
+            <article class="semantic-card">
+              <div class="semantic-image">
+                @if (item.imagemUrl) {
+                  <img [src]="item.imagemUrl" [alt]="item.nome" />
+                } @else {
+                  <i class="pi pi-image"></i>
+                }
+              </div>
+              <div class="semantic-content">
+                <div class="semantic-title-row">
+                  <h3>{{ item.nome }}</h3>
+                  <span>{{ similaridadePercentual(item) }}</span>
+                </div>
+                <p>{{ item.descricao || ('dashboard.semanticNoDescription' | translate) }}</p>
+                @if (item.categoriaNome) {
+                  <span class="semantic-category">
+                    <i [class]="semanticIconClass(item)"></i>
+                    {{ item.categoriaNome }}
+                  </span>
+                }
+                <dl>
+                  <div>
+                    <dt>{{ 'dashboard.semanticLocations' | translate }}</dt>
+                    <dd>{{ locaisResumo(item) }}</dd>
+                  </div>
+                  <div>
+                    <dt>{{ 'dashboard.semanticInstances' | translate }}</dt>
+                    <dd>{{ instanciasResumo(item) }}</dd>
+                  </div>
+                </dl>
+              </div>
+            </article>
           }
-        </ol>
-      } @else {
-        <div class="empty-ranking">{{ 'dashboard.noLocationData' | translate }}</div>
+        </div>
+      } @else if (consultaSemantica.trim() && !loadingSemantica() && !semanticErrorMessage()) {
+        <div class="empty-ranking">{{ 'dashboard.semanticEmpty' | translate }}</div>
       }
     </section>
+
+    <div class="ranking-grid">
+      <section class="ranking-section" [attr.aria-label]="'dashboard.topLocations' | translate">
+        <div class="section-header">
+          <h2>{{ 'dashboard.topLocations' | translate }}</h2>
+          <a routerLink="/locais">{{ 'dashboard.openLocations' | translate }}</a>
+        </div>
+
+        @if ((resumo()?.locaisComMaisItens?.length ?? 0) > 0) {
+          <ol class="ranking-list">
+            @for (local of resumo()?.locaisComMaisItens; track local.id) {
+              <li>
+                <span class="ranking-name">{{ local.nome }}</span>
+                <span class="ranking-value">{{ local.quantidadeInstancias }} {{ 'dashboard.instancesSuffix' | translate }}</span>
+              </li>
+            }
+          </ol>
+        } @else {
+          <div class="empty-ranking">{{ 'dashboard.noLocationData' | translate }}</div>
+        }
+      </section>
+
+      <section class="ranking-section" [attr.aria-label]="'dashboard.topCategories' | translate">
+        <div class="section-header">
+          <h2>{{ 'dashboard.topCategories' | translate }}</h2>
+          <a routerLink="/categorias">{{ 'dashboard.openCategories' | translate }}</a>
+        </div>
+
+        @if ((resumo()?.categoriasComMaisItens?.length ?? 0) > 0) {
+          <ol class="ranking-list">
+            @for (categoria of resumo()?.categoriasComMaisItens; track categoria.id) {
+              <li>
+                <span class="ranking-name">{{ categoria.nome }}</span>
+                <span class="ranking-value">{{ categoria.quantidadeItens }} {{ 'dashboard.itemsSuffix' | translate }}</span>
+              </li>
+            }
+          </ol>
+        } @else {
+          <div class="empty-ranking">{{ 'dashboard.noCategoryData' | translate }}</div>
+        }
+      </section>
+    </div>
   }
 </div>

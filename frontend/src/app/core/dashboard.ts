@@ -10,13 +10,23 @@ export interface DashboardResumo {
   quantidadeInstanciasDisponiveis: number;
   quantidadeInstanciasEmprestadas: number;
   quantidadeLocais: number;
+  quantidadeItensSemImagem: number;
+  quantidadeItensCadastradosPorIa: number;
+  quantidadeConsultasVetoriais: number;
   locaisComMaisItens: DashboardLocalQuantidade[];
+  categoriasComMaisItens: DashboardCategoriaQuantidade[];
 }
 
 export interface DashboardLocalQuantidade {
   id: string;
   nome: string;
   quantidadeInstancias: number;
+}
+
+export interface DashboardCategoriaQuantidade {
+  id: string;
+  nome: string;
+  quantidadeItens: number;
 }
 
 @Injectable({
