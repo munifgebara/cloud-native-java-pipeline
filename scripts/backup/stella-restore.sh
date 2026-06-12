@@ -24,7 +24,7 @@ AGE_IDENTITY="${STELLA_BACKUP_AGE_IDENTITY:-/etc/stella-backup/age-key.txt}"
 POSTGRES_NAMESPACE="${STELLA_POSTGRES_NAMESPACE:-platform}"
 POSTGRES_WORKLOAD="${STELLA_POSTGRES_WORKLOAD:-statefulset/postgres}"
 POSTGRES_USER="${STELLA_POSTGRES_USER:-postgres}"
-POSTGRES_DB="${STELLA_POSTGRES_DB:-stella_dev}"
+POSTGRES_DATABASES="${STELLA_POSTGRES_DATABASES:-${STELLA_POSTGRES_DB:-stella_dev keycloak}}"
 MINIO_NAMESPACE="${STELLA_MINIO_NAMESPACE:-platform}"
 MINIO_SERVICE_URL="${STELLA_MINIO_SERVICE_URL:-http://minio.platform.svc.cluster.local:9000}"
 MINIO_SECRET_NAME="${STELLA_MINIO_SECRET_NAME:-minio-secret}"
@@ -34,7 +34,7 @@ MINIO_ALIAS="${STELLA_MINIO_ALIAS:-stella-restore}"
 ASSUME_YES="${STELLA_RESTORE_ASSUME_YES:-false}"
 
 log() {
-  printf '[%s] %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*"
+  printf '[%s] %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >&2
 }
 
 fail() {
@@ -43,11 +43,11 @@ fail() {
 }
 
 usage() {
-  cat <<EOF
+  cat <<EOF_USAGE
 Usage: $0 <full|postgres|minio|kubernetes> <backup.tar.gz|backup.tar.gz.age>
 
 Set STELLA_RESTORE_ASSUME_YES=true to skip confirmation prompts.
-EOF
+EOF_USAGE
 }
 
 confirm() {
@@ -78,6 +78,7 @@ extract_archive() {
   }
 
   require_command tar
+  require_command sha256sum
   require_command "${KUBECTL[0]}"
   mkdir -p "$EXTRACT_DIR"
 
@@ -92,7 +93,11 @@ extract_archive() {
 
   log "Extracting archive"
   tar -C "$EXTRACT_DIR" -xzf "$archive_to_extract"
-  find "$EXTRACT_DIR" -maxdepth 1 -type d -name 'backup-stella-*' | sort | tail -n 1
+
+  local bundle
+  bundle="$(find "$EXTRACT_DIR" -maxdepth 1 -type d -name 'backup-stella-*' | sort | tail -n 1)"
+  [[ -n "$bundle" ]] || fail "No backup-stella-* bundle found inside archive"
+  printf '%s\n' "$bundle"
 }
 
 verify_checksums() {
@@ -129,14 +134,51 @@ restore_kubernetes() {
   fi
 }
 
-restore_postgres() {
+restore_postgres_globals() {
   local bundle="$1"
-  local dump="$bundle/postgres/$POSTGRES_DB.dump"
+  local globals="$bundle/postgres/globals.sql"
+
+  if [[ -f "$globals" ]]; then
+    log "Restoring PostgreSQL global objects"
+    "${KUBECTL[@]}" exec -i -n "$POSTGRES_NAMESPACE" "$POSTGRES_WORKLOAD" -- \
+      psql -v ON_ERROR_STOP=0 -U "$POSTGRES_USER" -d postgres < "$globals"
+  else
+    log "WARNING: no PostgreSQL globals.sql found"
+  fi
+}
+
+ensure_postgres_database() {
+  local database="$1"
+  if ! "${KUBECTL[@]}" exec -n "$POSTGRES_NAMESPACE" "$POSTGRES_WORKLOAD" -- \
+    psql -U "$POSTGRES_USER" -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname = '$database'" | grep -q 1; then
+    log "Creating PostgreSQL database $database"
+    "${KUBECTL[@]}" exec -n "$POSTGRES_NAMESPACE" "$POSTGRES_WORKLOAD" -- \
+      createdb -U "$POSTGRES_USER" "$database"
+  fi
+}
+
+restore_postgres_database() {
+  local bundle="$1"
+  local database="$2"
+  local dump="$bundle/postgres/$database.dump"
   [[ -f "$dump" ]] || fail "PostgreSQL dump not found: $dump"
 
-  confirm "This will restore PostgreSQL database $POSTGRES_DB and may replace existing data."
+  ensure_postgres_database "$database"
+  log "Restoring PostgreSQL database $database"
   "${KUBECTL[@]}" exec -i -n "$POSTGRES_NAMESPACE" "$POSTGRES_WORKLOAD" -- \
-    pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists < "$dump"
+    pg_restore -U "$POSTGRES_USER" -d "$database" --clean --if-exists < "$dump"
+}
+
+restore_postgres() {
+  local bundle="$1"
+  confirm "This will restore PostgreSQL databases ($POSTGRES_DATABASES) and may replace existing data."
+
+  restore_postgres_globals "$bundle"
+
+  local database
+  for database in $POSTGRES_DATABASES; do
+    restore_postgres_database "$bundle" "$database"
+  done
 }
 
 restore_minio() {
