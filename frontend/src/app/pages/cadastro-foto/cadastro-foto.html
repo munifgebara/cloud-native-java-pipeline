@@ -14,11 +14,15 @@
     <div class="success-box">{{ successMessage() }}</div>
   }
 
-  <div class="upload-panel">
+  <div
+    class="upload-panel"
+    tabindex="0"
+    (paste)="colarArquivo($event)">
     <div class="upload-control">
       <label for="foto">{{ 'photoRegistration.file' | translate }}</label>
       <input id="foto" type="file" accept="image/png,image/jpeg,image/webp,image/gif" (change)="selecionarArquivo($event)" />
       <small>{{ 'photoRegistration.fileHint' | translate }}</small>
+      <small>{{ 'photoRegistration.filePasteHint' | translate }}</small>
     </div>
 
     <div class="field">

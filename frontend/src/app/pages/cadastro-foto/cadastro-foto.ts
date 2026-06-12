@@ -7,6 +7,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { forkJoin, of, switchMap } from 'rxjs';
+import { IMAGE_CONTENT_TYPES, imageFileFromPaste } from '../../core/image/image-clipboard';
 import { mensagemErroHttp } from '../../core/http-error';
 import { CadastroFotoIaService, CadastroFotoItemSugestao } from '../../core/ia/cadastro-foto';
 import { CategoriaResumo, CategoriaService } from '../../core/categoria/categoria';
@@ -16,6 +17,7 @@ import { I18nService, TranslatePipe } from '../../core/i18n/i18n';
 import { LocalResumo, LocalService } from '../../core/local/local';
 
 const ORIGEM_CADASTRO_IA = 'CADASTRO_IA_FOTO';
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
 
 type InstanciaRevisao = {
   aprovada: boolean;
@@ -91,15 +93,35 @@ export class CadastroFotoComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0] ?? null;
 
-    if (this.previewUrl()) {
-      URL.revokeObjectURL(this.previewUrl()!);
+    if (!file) {
+      this.limparImagemSelecionada();
+      this.errorMessage.set('');
+      this.successMessage.set('');
+      return;
     }
 
-    this.arquivo.set(file);
-    this.previewUrl.set(file ? URL.createObjectURL(file) : null);
-    this.itens.set([]);
+    if (!this.aplicarArquivo(file)) {
+      input.value = '';
+    }
+  }
+
+  colarArquivo(event: ClipboardEvent): void {
     this.errorMessage.set('');
     this.successMessage.set('');
+    const result = imageFileFromPaste(event, MAX_IMAGE_SIZE_BYTES);
+
+    if (!result.ok) {
+      if (result.reason === 'missing') {
+        this.errorMessage.set(this.i18n.translate('photoRegistration.filePasteMissing'));
+      } else if (result.reason === 'invalid-type') {
+        this.errorMessage.set(this.i18n.translate('photoRegistration.fileInvalidType'));
+      } else {
+        this.errorMessage.set(this.i18n.translate('photoRegistration.fileTooLarge'));
+      }
+      return;
+    }
+
+    this.aplicarArquivo(result.file);
   }
 
   analisar(): void {
@@ -189,6 +211,37 @@ export class CadastroFotoComponent implements OnInit {
         );
       }),
     );
+  }
+
+  private aplicarArquivo(file: File): boolean {
+    this.errorMessage.set('');
+    this.successMessage.set('');
+
+    if (!IMAGE_CONTENT_TYPES.includes(file.type as (typeof IMAGE_CONTENT_TYPES)[number])) {
+      this.errorMessage.set(this.i18n.translate('photoRegistration.fileInvalidType'));
+      return false;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      this.errorMessage.set(this.i18n.translate('photoRegistration.fileTooLarge'));
+      return false;
+    }
+
+    this.limparImagemSelecionada();
+    this.arquivo.set(file);
+    this.previewUrl.set(URL.createObjectURL(file));
+    this.itens.set([]);
+    return true;
+  }
+
+  private limparImagemSelecionada(): void {
+    if (this.previewUrl()) {
+      URL.revokeObjectURL(this.previewUrl()!);
+    }
+
+    this.arquivo.set(null);
+    this.previewUrl.set(null);
+    this.itens.set([]);
   }
 
   private instanciasAprovadas(item: ItemRevisao, salvo: ItemMestreResponse) {
