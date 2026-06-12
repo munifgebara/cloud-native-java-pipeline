@@ -10,8 +10,11 @@ import br.com.munif.stella.api.dto.LocalArmazenamentoResumoDTO;
 import br.com.munif.stella.api.dto.LocalArmazenamentoUpdateDTO;
 import br.com.munif.stella.api.entity.LocalArmazenamento;
 import br.com.munif.stella.api.mapper.LocalArmazenamentoMapper;
+import br.com.munif.stella.api.observability.StructuredBusinessLogger;
 import br.com.munif.stella.api.repository.LocalArmazenamentoRepository;
 import jakarta.persistence.EntityManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +31,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, LocalArmazenamentoRepository> {
+
+    private static final Logger log = LoggerFactory.getLogger(LocalArmazenamentoService.class);
 
     private final ImagemItemMestreStorageService imagemStorageService;
 
@@ -52,6 +57,12 @@ public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, 
             salvo.setAtivo(false);
             salvo = salvar(salvo);
         }
+        StructuredBusinessLogger.info(log, "inventory", "location-created", StructuredBusinessLogger.fields(
+                "location_id", salvo.getId(),
+                "location_name", salvo.getNome(),
+                "parent_location_id", salvo.getPai() == null ? null : salvo.getPai().getId(),
+                "success", true
+        ));
         return LocalArmazenamentoMapper.toResponseDTO(salvo);
     }
 
@@ -91,6 +102,12 @@ public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, 
         local.setPai(pai);
 
         LocalArmazenamento salvo = salvar(local);
+        StructuredBusinessLogger.info(log, "inventory", "location-updated", StructuredBusinessLogger.fields(
+                "location_id", salvo.getId(),
+                "location_name", salvo.getNome(),
+                "parent_location_id", salvo.getPai() == null ? null : salvo.getPai().getId(),
+                "success", true
+        ));
         return LocalArmazenamentoMapper.toResponseDTO(salvo);
     }
 
@@ -108,6 +125,13 @@ public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, 
 
         LocalArmazenamento salvo = salvar(local);
         imagemStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
+        StructuredBusinessLogger.info(log, "inventory", "location-image-updated", StructuredBusinessLogger.fields(
+                "location_id", salvo.getId(),
+                "location_name", salvo.getNome(),
+                "image_content_type", imagem.contentType(),
+                "image_size_bytes", imagem.tamanhoBytes(),
+                "success", true
+        ));
         return LocalArmazenamentoMapper.toResponseDTO(salvo);
     }
 
@@ -124,6 +148,11 @@ public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, 
 
         LocalArmazenamento salvo = salvar(local);
         imagemStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
+        StructuredBusinessLogger.info(log, "inventory", "location-image-removed", StructuredBusinessLogger.fields(
+                "location_id", salvo.getId(),
+                "location_name", salvo.getNome(),
+                "success", true
+        ));
         return LocalArmazenamentoMapper.toResponseDTO(salvo);
     }
 
@@ -149,7 +178,13 @@ public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, 
 
     @Transactional
     public void excluirLogicamente(UUID id) {
+        LocalArmazenamento local = buscarPorId(id);
         excluir(id);
+        StructuredBusinessLogger.info(log, "inventory", "location-deactivated", StructuredBusinessLogger.fields(
+                "location_id", id,
+                "location_name", local.getNome(),
+                "success", true
+        ));
     }
 
     @Transactional(readOnly = true)

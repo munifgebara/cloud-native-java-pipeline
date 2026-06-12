@@ -14,20 +14,26 @@ import br.com.munif.stella.api.entity.LocalArmazenamento;
 import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 import br.com.munif.stella.api.mapper.InstanciaItemMapper;
 import br.com.munif.stella.api.mapper.MovimentacaoItemMapper;
+import br.com.munif.stella.api.observability.StructuredBusinessLogger;
 import br.com.munif.stella.api.repository.EmprestimoItemRepository;
 import br.com.munif.stella.api.repository.InstanciaItemRepository;
 import br.com.munif.stella.api.repository.ItemMestreRepository;
 import br.com.munif.stella.api.repository.LocalArmazenamentoRepository;
 import br.com.munif.stella.api.repository.MovimentacaoItemRepository;
 import jakarta.persistence.EntityManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
 public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaItemRepository> {
+
+    private static final Logger log = LoggerFactory.getLogger(InstanciaItemService.class);
 
     private final ItemMestreRepository itemMestreRepository;
     private final LocalArmazenamentoRepository localArmazenamentoRepository;
@@ -64,6 +70,12 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
             salva.setAtivo(false);
             salva = salvar(salva);
         }
+        StructuredBusinessLogger.info(log, "inventory", "instance-created", StructuredBusinessLogger.fields(
+                "instance_id", salva.getId(),
+                "item_id", salva.getItemMestre() == null ? null : salva.getItemMestre().getId(),
+                "location_id", salva.getLocalAtual() == null ? null : salva.getLocalAtual().getId(),
+                "success", true
+        ));
         return InstanciaItemMapper.toResponseDTO(salva);
     }
 
@@ -126,6 +138,7 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
     @Transactional
     public InstanciaItemResponseDTO atualizar(UUID id, InstanciaItemUpdateDTO dto) {
         InstanciaItem instancia = buscarPorId(id);
+        UUID localAnteriorId = instancia.getLocalAtual() == null ? null : instancia.getLocalAtual().getId();
         ItemMestre itemMestre = buscarItemMestreAtivo(dto.itemMestreId());
 
         InstanciaItemMapper.updateEntity(instancia, dto);
@@ -136,6 +149,15 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
         InstanciaItemRegras.validarCoerenciaStatusLocal(instancia);
 
         InstanciaItem salva = salvar(instancia);
+        UUID localAtualId = salva.getLocalAtual() == null ? null : salva.getLocalAtual().getId();
+        String action = Objects.equals(localAnteriorId, localAtualId) ? "instance-updated" : "instance-location-updated";
+        StructuredBusinessLogger.info(log, "inventory", action, StructuredBusinessLogger.fields(
+                "instance_id", salva.getId(),
+                "item_id", salva.getItemMestre() == null ? null : salva.getItemMestre().getId(),
+                "previous_location_id", localAnteriorId,
+                "location_id", localAtualId,
+                "success", true
+        ));
         return InstanciaItemMapper.toResponseDTO(salva);
     }
 
@@ -144,7 +166,14 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
         if (movimentacaoItemRepository.existsByInstanciaItemId(id) || emprestimoItemRepository.existsByInstanciaItemId(id)) {
             throw new IllegalArgumentException("Instância com histórico operacional não pode ser excluída. Use a operação de saída para retirada de inventário.");
         }
+        InstanciaItem instancia = buscarPorId(id);
         excluir(id);
+        StructuredBusinessLogger.info(log, "inventory", "instance-deactivated", StructuredBusinessLogger.fields(
+                "instance_id", id,
+                "item_id", instancia.getItemMestre() == null ? null : instancia.getItemMestre().getId(),
+                "location_id", instancia.getLocalAtual() == null ? null : instancia.getLocalAtual().getId(),
+                "success", true
+        ));
     }
 
     @Transactional(readOnly = true)

@@ -1,8 +1,11 @@
 package br.com.munif.stella.api.service;
 
 import br.com.munif.stella.api.dto.CadastroFotoSugestaoResponseDTO;
+import br.com.munif.stella.api.observability.StructuredBusinessLogger;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -21,6 +24,8 @@ import java.util.Map;
 public class OpenAiCadastroFotoProvider implements CadastroFotoIaProvider {
 
     private static final String API_URL = "https://api.openai.com/v1/responses";
+    private static final String PROVIDER = "openai";
+    private static final Logger log = LoggerFactory.getLogger(OpenAiCadastroFotoProvider.class);
     private static final String ORIENTACAO = """
             Analise a foto e identifique objetos que possam virar cadastros de inventário.
             Responda somente com JSON aderente ao schema.
@@ -51,6 +56,8 @@ public class OpenAiCadastroFotoProvider implements CadastroFotoIaProvider {
         if (apiKey == null || apiKey.isBlank()) {
             throw new IllegalStateException("OPENAI_API_KEY não configurada no ambiente.");
         }
+        String modelo = modelo();
+        long inicio = System.nanoTime();
 
         try {
             Map<String, Object> response = restClient.post()
@@ -61,18 +68,31 @@ public class OpenAiCadastroFotoProvider implements CadastroFotoIaProvider {
                     .retrieve()
                     .body(Map.class);
 
-            return parseResponse(response);
+            CadastroFotoSugestaoResponseDTO resultado = parseResponse(response);
+            StructuredBusinessLogger.info(log, "ai", "image-identification", StructuredBusinessLogger.fields(
+                    "ai_provider", PROVIDER,
+                    "ai_model", modelo,
+                    "duration_ms", elapsedMillis(inicio),
+                    "success", true,
+                    "ai_detected_items", resultado.itens() == null ? 0 : resultado.itens().size()
+            ));
+            return resultado;
         } catch (RestClientResponseException ex) {
+            logFailure(modelo, inicio, ex);
             throw new IllegalStateException("Falha ao consultar OpenAI para analisar a imagem.", ex);
         } catch (RestClientException ex) {
+            logFailure(modelo, inicio, ex);
             throw new IllegalStateException("Não foi possível conectar à OpenAI para analisar a imagem.", ex);
         } catch (IOException ex) {
+            logFailure(modelo, inicio, ex);
             throw new IllegalArgumentException("Não foi possível ler a imagem enviada.", ex);
+        } catch (RuntimeException ex) {
+            logFailure(modelo, inicio, ex);
+            throw ex;
         }
     }
 
     private Map<String, Object> requestBody(MultipartFile imagem) throws IOException {
-        String modelo = environment.getProperty("STELLA_OPENAI_MODEL", "gpt-4.1-mini");
         String detail = environment.getProperty("STELLA_OPENAI_IMAGE_DETAIL", "high");
         String dataUrl = "data:%s;base64,%s".formatted(
                 imagem.getContentType(),
@@ -80,7 +100,7 @@ public class OpenAiCadastroFotoProvider implements CadastroFotoIaProvider {
         );
 
         return Map.of(
-                "model", modelo,
+                "model", modelo(),
                 "input", List.of(Map.of(
                         "role", "user",
                         "content", List.of(
@@ -99,6 +119,23 @@ public class OpenAiCadastroFotoProvider implements CadastroFotoIaProvider {
                         "schema", schema()
                 ))
         );
+    }
+
+    private String modelo() {
+        return environment.getProperty("STELLA_OPENAI_MODEL", "gpt-4.1-mini");
+    }
+
+    private void logFailure(String modelo, long inicio, Exception ex) {
+        StructuredBusinessLogger.error(log, "ai", "image-identification", StructuredBusinessLogger.fields(
+                "ai_provider", PROVIDER,
+                "ai_model", modelo,
+                "duration_ms", elapsedMillis(inicio),
+                "success", false
+        ), ex);
+    }
+
+    private long elapsedMillis(long inicio) {
+        return (System.nanoTime() - inicio) / 1_000_000L;
     }
 
     private Map<String, Object> schema() {

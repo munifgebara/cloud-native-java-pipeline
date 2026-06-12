@@ -9,9 +9,12 @@ import br.com.munif.stella.api.dto.ConsultaSemanticaLocalDTO;
 import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.ItemMestre;
 import br.com.munif.stella.api.entity.LocalArmazenamento;
+import br.com.munif.stella.api.observability.StructuredBusinessLogger;
 import br.com.munif.stella.api.repository.InstanciaItemRepository;
 import br.com.munif.stella.api.repository.ItemMestreRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +29,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ItemMestreVectorSearchService {
+
+    private static final Logger log = LoggerFactory.getLogger(ItemMestreVectorSearchService.class);
 
     private static final String UPSERT_SQL = """
             insert into public.item_mestre_embedding
@@ -91,6 +96,7 @@ public class ItemMestreVectorSearchService {
         if (!vectorSearchProperties.enabled() || item == null || item.getId() == null) {
             return;
         }
+        long inicio = System.nanoTime();
 
         if (!item.isAtivo()) {
             remover(item.getId());
@@ -103,18 +109,38 @@ public class ItemMestreVectorSearchService {
             return;
         }
 
-        float[] embedding = embeddingProvider.gerarEmbedding(documento);
-        validarDimensoes(embedding);
+        try {
+            float[] embedding = embeddingProvider.gerarEmbedding(documento);
+            validarDimensoes(embedding);
 
-        jdbcTemplate.update(
-                UPSERT_SQL,
-                item.getId(),
-                embeddingsProperties.provider(),
-                embeddingsProperties.model(),
-                embeddingsProperties.dimensions(),
-                documento,
-                vectorLiteral(embedding)
-        );
+            jdbcTemplate.update(
+                    UPSERT_SQL,
+                    item.getId(),
+                    embeddingsProperties.provider(),
+                    embeddingsProperties.model(),
+                    embeddingsProperties.dimensions(),
+                    documento,
+                    vectorLiteral(embedding)
+            );
+            StructuredBusinessLogger.info(log, "vector-search", "item-indexed", StructuredBusinessLogger.fields(
+                    "item_id", item.getId(),
+                    "item_name", item.getNome(),
+                    "embeddings_provider", embeddingsProperties.provider(),
+                    "embeddings_model", embeddingsProperties.model(),
+                    "duration_ms", elapsedMillis(inicio),
+                    "success", true
+            ));
+        } catch (RuntimeException ex) {
+            StructuredBusinessLogger.error(log, "vector-search", "item-indexed", StructuredBusinessLogger.fields(
+                    "item_id", item.getId(),
+                    "item_name", item.getNome(),
+                    "embeddings_provider", embeddingsProperties.provider(),
+                    "embeddings_model", embeddingsProperties.model(),
+                    "duration_ms", elapsedMillis(inicio),
+                    "success", false
+            ), ex);
+            throw ex;
+        }
     }
 
     @Transactional
@@ -122,7 +148,26 @@ public class ItemMestreVectorSearchService {
         if (!vectorSearchProperties.enabled() || itemMestreId == null) {
             return;
         }
-        jdbcTemplate.update(REMOVER_SQL, itemMestreId);
+        long inicio = System.nanoTime();
+        try {
+            jdbcTemplate.update(REMOVER_SQL, itemMestreId);
+            StructuredBusinessLogger.info(log, "vector-search", "item-index-removed", StructuredBusinessLogger.fields(
+                    "item_id", itemMestreId,
+                    "embeddings_provider", embeddingsProperties.provider(),
+                    "embeddings_model", embeddingsProperties.model(),
+                    "duration_ms", elapsedMillis(inicio),
+                    "success", true
+            ));
+        } catch (RuntimeException ex) {
+            StructuredBusinessLogger.error(log, "vector-search", "item-index-removed", StructuredBusinessLogger.fields(
+                    "item_id", itemMestreId,
+                    "embeddings_provider", embeddingsProperties.provider(),
+                    "embeddings_model", embeddingsProperties.model(),
+                    "duration_ms", elapsedMillis(inicio),
+                    "success", false
+            ), ex);
+            throw ex;
+        }
     }
 
     @Transactional
@@ -131,9 +176,28 @@ public class ItemMestreVectorSearchService {
             return 0;
         }
 
+        long inicio = System.nanoTime();
         List<ItemMestre> itens = itemMestreRepository.findByAtivoTrueOrderByNomeAsc();
-        itens.forEach(this::sincronizar);
-        return itens.size();
+        try {
+            itens.forEach(this::sincronizar);
+            StructuredBusinessLogger.info(log, "vector-search", "items-reindexed", StructuredBusinessLogger.fields(
+                    "items_count", itens.size(),
+                    "embeddings_provider", embeddingsProperties.provider(),
+                    "embeddings_model", embeddingsProperties.model(),
+                    "duration_ms", elapsedMillis(inicio),
+                    "success", true
+            ));
+            return itens.size();
+        } catch (RuntimeException ex) {
+            StructuredBusinessLogger.error(log, "vector-search", "items-reindexed", StructuredBusinessLogger.fields(
+                    "items_count", itens.size(),
+                    "embeddings_provider", embeddingsProperties.provider(),
+                    "embeddings_model", embeddingsProperties.model(),
+                    "duration_ms", elapsedMillis(inicio),
+                    "success", false
+            ), ex);
+            throw ex;
+        }
     }
 
     @Transactional(readOnly = true)
@@ -143,30 +207,50 @@ public class ItemMestreVectorSearchService {
             return List.of();
         }
 
-        float[] embedding = embeddingProvider.gerarEmbedding(texto);
-        validarDimensoes(embedding);
-        String literal = vectorLiteral(embedding);
+        long inicio = System.nanoTime();
+        try {
+            float[] embedding = embeddingProvider.gerarEmbedding(texto);
+            validarDimensoes(embedding);
+            String literal = vectorLiteral(embedding);
 
-        List<ResultadoVetorial> resultados = jdbcTemplate.query(
-                BUSCAR_SQL,
-                (rs, rowNum) -> new ResultadoVetorial(
-                        rs.getObject("item_mestre_id", UUID.class),
-                        rs.getDouble("similaridade")
-                ),
-                literal,
-                literal,
-                vectorSearchProperties.maxResults()
-        ).stream()
-                .filter(resultado -> resultado.similaridade() >= vectorSearchProperties.minSimilarity())
-                .toList();
+            List<ResultadoVetorial> resultados = jdbcTemplate.query(
+                    BUSCAR_SQL,
+                    (rs, rowNum) -> new ResultadoVetorial(
+                            rs.getObject("item_mestre_id", UUID.class),
+                            rs.getDouble("similaridade")
+                    ),
+                    literal,
+                    literal,
+                    vectorSearchProperties.maxResults()
+            ).stream()
+                    .filter(resultado -> resultado.similaridade() >= vectorSearchProperties.minSimilarity())
+                    .toList();
 
-        consultaVetorialMetricasService.registrarConsulta(texto, resultados.size());
+            consultaVetorialMetricasService.registrarConsulta(texto, resultados.size());
+            StructuredBusinessLogger.info(log, "vector-search", "semantic-query", StructuredBusinessLogger.fields(
+                    "query_text", truncate(texto, 200),
+                    "results_count", resultados.size(),
+                    "embeddings_provider", embeddingsProperties.provider(),
+                    "embeddings_model", embeddingsProperties.model(),
+                    "duration_ms", elapsedMillis(inicio),
+                    "success", true
+            ));
 
-        if (resultados.isEmpty()) {
-            return List.of();
+            if (resultados.isEmpty()) {
+                return List.of();
+            }
+
+            return montarResposta(resultados);
+        } catch (RuntimeException ex) {
+            StructuredBusinessLogger.error(log, "vector-search", "semantic-query", StructuredBusinessLogger.fields(
+                    "query_text", truncate(texto, 200),
+                    "embeddings_provider", embeddingsProperties.provider(),
+                    "embeddings_model", embeddingsProperties.model(),
+                    "duration_ms", elapsedMillis(inicio),
+                    "success", false
+            ), ex);
+            throw ex;
         }
-
-        return montarResposta(resultados);
     }
 
     private List<ConsultaSemanticaItemDTO> montarResposta(List<ResultadoVetorial> resultados) {
@@ -256,6 +340,17 @@ public class ItemMestreVectorSearchService {
 
     private double arredondar(double valor) {
         return Math.round(valor * 10000.0) / 10000.0;
+    }
+
+    private long elapsedMillis(long inicio) {
+        return (System.nanoTime() - inicio) / 1_000_000L;
+    }
+
+    private String truncate(String value, int maxLength) {
+        if (value == null || value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, maxLength);
     }
 
     private record ResultadoVetorial(UUID itemMestreId, double similaridade) {

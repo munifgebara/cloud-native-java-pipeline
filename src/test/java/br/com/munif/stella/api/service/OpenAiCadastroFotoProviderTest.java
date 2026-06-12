@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.mock.web.MockMultipartFile;
@@ -18,6 +19,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 class OpenAiCadastroFotoProviderTest {
@@ -81,5 +83,40 @@ class OpenAiCadastroFotoProviderTest {
         assertThatThrownBy(() -> providerSemChave.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "imagem".getBytes())))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("OPENAI_API_KEY não configurada no ambiente.");
+    }
+
+    @Test
+    void deveConverterRespostaComOutputTextDireto() {
+        server.expect(once(), requestTo("https://api.openai.com/v1/responses"))
+                .andRespond(withSuccess("""
+                        {
+                          "output_text": "{\\"itens\\":null,\\"mensagem\\":\\"Sem sugestoes.\\"}"
+                        }
+                        """, MediaType.APPLICATION_JSON));
+
+        var response = provider.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "imagem".getBytes()));
+
+        assertThat(response.itens()).isNull();
+        assertThat(response.mensagem()).isEqualTo("Sem sugestoes.");
+    }
+
+    @Test
+    void deveRegistrarFalhaQuandoOpenAiRetornaErroHttp() {
+        server.expect(once(), requestTo("https://api.openai.com/v1/responses"))
+                .andRespond(withStatus(HttpStatus.BAD_GATEWAY));
+
+        assertThatThrownBy(() -> provider.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "imagem".getBytes())))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Falha ao consultar OpenAI para analisar a imagem.");
+    }
+
+    @Test
+    void deveRegistrarFalhaQuandoOpenAiNaoRetornaTextoEstruturado() {
+        server.expect(once(), requestTo("https://api.openai.com/v1/responses"))
+                .andRespond(withSuccess("{}", MediaType.APPLICATION_JSON));
+
+        assertThatThrownBy(() -> provider.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "imagem".getBytes())))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("OpenAI não retornou sugestões estruturadas.");
     }
 }
