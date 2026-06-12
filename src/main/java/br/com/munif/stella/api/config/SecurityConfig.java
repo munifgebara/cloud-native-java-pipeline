@@ -1,5 +1,8 @@
 package br.com.munif.stella.api.config;
 
+import br.com.munif.stella.api.observability.StructuredBusinessLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +15,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
+import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -23,6 +30,10 @@ import java.util.List;
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
+    private static final AuthenticationEntryPoint AUTHENTICATION_ENTRY_POINT = new BearerTokenAuthenticationEntryPoint();
+    private static final AccessDeniedHandler ACCESS_DENIED_HANDLER = new BearerTokenAccessDeniedHandler();
 
     @Bean
     SecurityFilterChain securityFilterChain(
@@ -57,6 +68,24 @@ public class SecurityConfig {
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))
+                )
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            StructuredBusinessLogger.warn(log, "security", "authentication-failed", StructuredBusinessLogger.fields(
+                                    "http_request_method", request.getMethod(),
+                                    "http_route", request.getRequestURI(),
+                                    "success", false
+                            ));
+                            AUTHENTICATION_ENTRY_POINT.commence(request, response, authException);
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            StructuredBusinessLogger.warn(log, "security", "access-denied", StructuredBusinessLogger.fields(
+                                    "http_request_method", request.getMethod(),
+                                    "http_route", request.getRequestURI(),
+                                    "success", false
+                            ));
+                            ACCESS_DENIED_HANDLER.handle(request, response, accessDeniedException);
+                        })
                 );
 
         return http.build();

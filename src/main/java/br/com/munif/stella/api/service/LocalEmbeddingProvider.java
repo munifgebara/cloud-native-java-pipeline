@@ -1,6 +1,9 @@
 package br.com.munif.stella.api.service;
 
 import br.com.munif.stella.api.config.EmbeddingsProperties;
+import br.com.munif.stella.api.observability.StructuredBusinessLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -13,6 +16,8 @@ import java.util.Map;
 @Service
 public class LocalEmbeddingProvider implements EmbeddingProvider {
 
+    private static final Logger log = LoggerFactory.getLogger(LocalEmbeddingProvider.class);
+
     private final RestClient restClient;
     private final EmbeddingsProperties properties;
 
@@ -23,6 +28,7 @@ public class LocalEmbeddingProvider implements EmbeddingProvider {
 
     @Override
     public float[] gerarEmbedding(String texto) {
+        long inicio = System.nanoTime();
         try {
             Map<String, Object> response = restClient.post()
                     .uri(embeddingsUrl())
@@ -34,12 +40,38 @@ public class LocalEmbeddingProvider implements EmbeddingProvider {
                     .retrieve()
                     .body(Map.class);
 
-            return parseEmbedding(response);
+            float[] embedding = parseEmbedding(response);
+            StructuredBusinessLogger.info(log, "vector-search", "embedding-generated", StructuredBusinessLogger.fields(
+                    "embeddings_provider", properties.provider(),
+                    "embeddings_model", properties.model(),
+                    "duration_ms", elapsedMillis(inicio),
+                    "embedding_dimensions", embedding.length,
+                    "success", true
+            ));
+            return embedding;
         } catch (RestClientResponseException ex) {
+            logFailure(inicio, ex);
             throw new IllegalStateException("Falha ao consultar o provider local de embeddings.", ex);
         } catch (RestClientException ex) {
+            logFailure(inicio, ex);
             throw new IllegalStateException("Não foi possível conectar ao provider local de embeddings.", ex);
+        } catch (RuntimeException ex) {
+            logFailure(inicio, ex);
+            throw ex;
         }
+    }
+
+    private void logFailure(long inicio, Exception ex) {
+        StructuredBusinessLogger.error(log, "vector-search", "embedding-generated", StructuredBusinessLogger.fields(
+                "embeddings_provider", properties.provider(),
+                "embeddings_model", properties.model(),
+                "duration_ms", elapsedMillis(inicio),
+                "success", false
+        ), ex);
+    }
+
+    private long elapsedMillis(long inicio) {
+        return (System.nanoTime() - inicio) / 1_000_000L;
     }
 
     private String embeddingsUrl() {

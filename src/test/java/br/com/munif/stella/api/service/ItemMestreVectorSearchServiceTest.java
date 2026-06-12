@@ -24,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -77,6 +78,29 @@ class ItemMestreVectorSearchServiceTest {
     }
 
     @Test
+    void deveRemoverIndiceQuandoDocumentoFicaVazio() {
+        UUID id = UUID.randomUUID();
+        ItemMestre item = new ItemMestre();
+        item.setId(id);
+        item.setAtivo(true);
+
+        service(true).sincronizar(item);
+
+        verify(jdbcTemplate).update(anyString(), eq(id));
+        verify(embeddingProvider, never()).gerarEmbedding(anyString());
+    }
+
+    @Test
+    void devePropagarFalhaAoRemoverIndice() {
+        UUID id = UUID.randomUUID();
+        RuntimeException falha = new RuntimeException("falha no banco");
+        doThrow(falha).when(jdbcTemplate).update(anyString(), eq(id));
+
+        assertThatThrownBy(() -> service(true).remover(id))
+                .isSameAs(falha);
+    }
+
+    @Test
     void deveFalharQuandoProviderRetornaDimensoesIncompativeis() {
         ItemMestre item = item(UUID.randomUUID(), true);
         when(embeddingProvider.gerarEmbedding(anyString())).thenReturn(new float[]{0.1f});
@@ -125,6 +149,38 @@ class ItemMestreVectorSearchServiceTest {
     }
 
     @Test
+    void deveRetornarListaVaziaQuandoBuscaVetorialEstaDesabilitada() {
+        var resultado = service(false).buscar("placa de video");
+
+        assertThat(resultado).isEmpty();
+        verifyNoInteractions(embeddingProvider);
+        verifyNoInteractions(jdbcTemplate);
+        verifyNoInteractions(consultaVetorialMetricasService);
+    }
+
+    @Test
+    void deveRetornarListaVaziaQuandoConsultaNaoTemResultados() {
+        when(embeddingProvider.gerarEmbedding("placa de video")).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
+        when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any())).thenReturn(List.of());
+
+        var resultado = service(true).buscar("placa de video");
+
+        assertThat(resultado).isEmpty();
+        verify(consultaVetorialMetricasService).registrarConsulta("placa de video", 0);
+    }
+
+    @Test
+    void devePropagarFalhaAoBuscarSemanticamente() {
+        String consultaLonga = "placa ".repeat(60);
+        RuntimeException falha = new RuntimeException("falha na consulta");
+        when(embeddingProvider.gerarEmbedding(consultaLonga.trim())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
+        when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any())).thenThrow(falha);
+
+        assertThatThrownBy(() -> service(true).buscar(consultaLonga))
+                .isSameAs(falha);
+    }
+
+    @Test
     void deveReindexarItensAtivosQuandoHabilitado() {
         when(itemMestreRepository.findByAtivoTrueOrderByNomeAsc()).thenReturn(List.of(item(UUID.randomUUID(), true), item(UUID.randomUUID(), true)));
         when(embeddingProvider.gerarEmbedding(anyString())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
@@ -133,6 +189,24 @@ class ItemMestreVectorSearchServiceTest {
 
         assertThat(total).isEqualTo(2);
         verify(jdbcTemplate, org.mockito.Mockito.times(2)).update(anyString(), any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void deveRetornarZeroAoReindexarQuandoBuscaVetorialEstaDesabilitada() {
+        assertThat(service(false).reindexarItensAtivos()).isZero();
+
+        verifyNoInteractions(itemMestreRepository);
+        verifyNoInteractions(embeddingProvider);
+    }
+
+    @Test
+    void devePropagarFalhaAoReindexarItensAtivos() {
+        when(itemMestreRepository.findByAtivoTrueOrderByNomeAsc()).thenReturn(List.of(item(UUID.randomUUID(), true)));
+        when(embeddingProvider.gerarEmbedding(anyString())).thenReturn(new float[]{0.1f});
+
+        assertThatThrownBy(() -> service(true).reindexarItensAtivos())
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Provider de embeddings retornou vetor com dimensões incompatíveis.");
     }
 
     private ItemMestreVectorSearchService service(boolean enabled) {

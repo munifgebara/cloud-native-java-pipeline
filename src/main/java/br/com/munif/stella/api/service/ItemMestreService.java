@@ -12,9 +12,12 @@ import br.com.munif.stella.api.dto.ItemMestreUpdateDTO;
 import br.com.munif.stella.api.entity.Categoria;
 import br.com.munif.stella.api.entity.ItemMestre;
 import br.com.munif.stella.api.mapper.ItemMestreMapper;
+import br.com.munif.stella.api.observability.StructuredBusinessLogger;
 import br.com.munif.stella.api.repository.CategoriaRepository;
 import br.com.munif.stella.api.repository.ItemMestreRepository;
 import jakarta.persistence.EntityManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +28,8 @@ import java.util.UUID;
 
 @Service
 public class ItemMestreService extends SuperService<ItemMestre, ItemMestreRepository> {
+
+    private static final Logger log = LoggerFactory.getLogger(ItemMestreService.class);
 
     private final CategoriaRepository categoriaRepository;
     private final ImagemItemMestreStorageService imagemStorageService;
@@ -56,6 +61,12 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
             salvo = salvar(salvo);
         }
         vectorSearchService.sincronizar(salvo);
+        StructuredBusinessLogger.info(log, "inventory", "item-created", StructuredBusinessLogger.fields(
+                "item_id", salvo.getId(),
+                "item_name", salvo.getNome(),
+                "category_id", salvo.getCategoria() == null ? null : salvo.getCategoria().getId(),
+                "success", true
+        ));
         return ItemMestreMapper.toResponseDTO(salvo);
     }
 
@@ -108,6 +119,12 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
 
         ItemMestre salvo = salvar(item);
         vectorSearchService.sincronizar(salvo);
+        StructuredBusinessLogger.info(log, "inventory", "item-updated", StructuredBusinessLogger.fields(
+                "item_id", salvo.getId(),
+                "item_name", salvo.getNome(),
+                "category_id", salvo.getCategoria() == null ? null : salvo.getCategoria().getId(),
+                "success", true
+        ));
         return ItemMestreMapper.toResponseDTO(salvo);
     }
 
@@ -133,6 +150,15 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
         ItemMestre salvo = salvar(item);
         vectorSearchService.sincronizar(salvo);
         imagemStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
+        StructuredBusinessLogger.info(log, "inventory", "item-image-updated", StructuredBusinessLogger.fields(
+                "item_id", salvo.getId(),
+                "item_name", salvo.getNome(),
+                "image_content_type", imagem.contentType(),
+                "image_size_bytes", imagem.tamanhoBytes(),
+                "image_generated_by_ai", generatedByAi,
+                "ai_provider", generatedByAi ? ValidacoesBR.trimToNull(provider) : null,
+                "success", true
+        ));
         return ItemMestreMapper.toResponseDTO(salvo);
     }
 
@@ -158,8 +184,14 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
 
     @Transactional
     public void excluirLogicamente(UUID id) {
+        ItemMestre item = buscarPorId(id);
         excluir(id);
         vectorSearchService.remover(id);
+        StructuredBusinessLogger.info(log, "inventory", "item-deactivated", StructuredBusinessLogger.fields(
+                "item_id", id,
+                "item_name", item.getNome(),
+                "success", true
+        ));
     }
 
     @Transactional(readOnly = true)

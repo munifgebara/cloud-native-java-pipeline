@@ -82,4 +82,42 @@ class OpenAiImagemIaProviderTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Não foi possível conectar à OpenAI para gerar imagem do item.");
     }
+
+    @Test
+    void deveRegistrarFalhaQuandoOpenAiNaoRetornaImagem() {
+        server.expect(once(), requestTo("https://api.openai.com/v1/images/generations"))
+                .andRespond(withSuccess("{}", MediaType.APPLICATION_JSON));
+
+        assertThatThrownBy(() -> provider.gerarImagem(new ImagemIaRequestDTO("Furadeira", null, null)))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("OpenAI retornou resposta vazia para a imagem.");
+    }
+
+    @Test
+    void deveUsarContentTypeJpegQuandoConfigurado() {
+        RestClient.Builder builder = RestClient.builder();
+        MockRestServiceServer jpegServer = MockRestServiceServer.bindTo(builder).build();
+        OpenAiImagemIaProvider jpegProvider = new OpenAiImagemIaProvider(
+                builder,
+                new MockEnvironment()
+                        .withProperty("OPENAI_API_KEY", "test-key")
+                        .withProperty("STELLA_OPENAI_IMAGE_OUTPUT_FORMAT", "jpeg")
+        );
+        jpegServer.expect(once(), requestTo("https://api.openai.com/v1/images/generations"))
+                .andRespond(withSuccess("""
+                        {
+                          "data": [
+                            {
+                              "b64_json": "aW1hZ2Vt"
+                            }
+                          ]
+                        }
+                        """, MediaType.APPLICATION_JSON));
+
+        var response = jpegProvider.gerarImagem(new ImagemIaRequestDTO("Furadeira", null, null));
+
+        assertThat(response.contentType()).isEqualTo("image/jpeg");
+        assertThat(response.dataUrl()).startsWith("data:image/jpeg;base64,");
+        jpegServer.verify();
+    }
 }
