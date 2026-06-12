@@ -10,6 +10,7 @@ This directory is the official technical documentation for Stella. It complement
 - [Testing and Quality](testing.md)
 - [Kubernetes Deployment](deployment.md)
 - [Operations](operations.md)
+- [Backup and Restore](backup.md)
 
 ## Project Summary
 

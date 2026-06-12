@@ -20,6 +20,10 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
+      - name: Backup pré-CD
+        run: |
+          sudo env STELLA_BACKUP_REQUIRE_UPLOAD=true scripts/backup/stella-backup.sh pre-cd
+
       - name: Aplicar manifests base
         run: |
           sudo k3s kubectl apply -R -f k8s/platform/
