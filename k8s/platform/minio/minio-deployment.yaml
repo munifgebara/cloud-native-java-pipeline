@@ -3,6 +3,11 @@ kind: Deployment
 metadata:
   name: minio
   namespace: platform
+  labels:
+    app: minio
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/component: object-storage
+    app.kubernetes.io/part-of: stella
 spec:
   replicas: 1
   selector:
@@ -12,6 +17,9 @@ spec:
     metadata:
       labels:
         app: minio
+        app.kubernetes.io/name: minio
+        app.kubernetes.io/component: object-storage
+        app.kubernetes.io/part-of: stella
     spec:
       containers:
         - name: minio
@@ -58,4 +66,3 @@ spec:
         - name: minio-data
           persistentVolumeClaim:
             claimName: minio-data
-
