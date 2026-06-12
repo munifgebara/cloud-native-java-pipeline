@@ -4,9 +4,16 @@ set -Eeuo pipefail
 REASON="${1:-manual}"
 ENV_FILE="${STELLA_BACKUP_ENV_FILE:-/etc/stella-backup/backup.env}"
 
+ENV_REQUIRE_UPLOAD_SET="${STELLA_BACKUP_REQUIRE_UPLOAD+x}"
+ENV_REQUIRE_UPLOAD_VALUE="${STELLA_BACKUP_REQUIRE_UPLOAD:-}"
+
 if [[ -f "$ENV_FILE" ]]; then
   # shellcheck disable=SC1090
   source "$ENV_FILE"
+fi
+
+if [[ -n "$ENV_REQUIRE_UPLOAD_SET" ]]; then
+  STELLA_BACKUP_REQUIRE_UPLOAD="$ENV_REQUIRE_UPLOAD_VALUE"
 fi
 
 KUBECTL_CMD="${STELLA_KUBECTL_CMD:-sudo k3s kubectl}"
@@ -21,11 +28,11 @@ read -r -a MC <<< "$MC_CMD"
 
 BACKUP_ROOT="${STELLA_BACKUP_ROOT:-/var/backups/stella}"
 WORK_ROOT="${STELLA_BACKUP_WORK_ROOT:-/tmp/stella-backup}"
-NAMESPACES="${STELLA_BACKUP_NAMESPACES:-platform monitoring logging}"
+NAMESPACES="${STELLA_BACKUP_NAMESPACES:-platform}"
 POSTGRES_NAMESPACE="${STELLA_POSTGRES_NAMESPACE:-platform}"
 POSTGRES_WORKLOAD="${STELLA_POSTGRES_WORKLOAD:-statefulset/postgres}"
 POSTGRES_USER="${STELLA_POSTGRES_USER:-postgres}"
-POSTGRES_DB="${STELLA_POSTGRES_DB:-stella_dev}"
+POSTGRES_DATABASES="${STELLA_POSTGRES_DATABASES:-${STELLA_POSTGRES_DB:-stella_dev keycloak}}"
 MINIO_NAMESPACE="${STELLA_MINIO_NAMESPACE:-platform}"
 MINIO_SERVICE_URL="${STELLA_MINIO_SERVICE_URL:-http://minio.platform.svc.cluster.local:9000}"
 MINIO_SECRET_NAME="${STELLA_MINIO_SECRET_NAME:-minio-secret}"
@@ -45,7 +52,7 @@ ARCHIVE_PATH="$ARCHIVE_DIR/$RUN_ID.tar.gz"
 ENCRYPTED_ARCHIVE_PATH="$ARCHIVE_PATH.age"
 
 log() {
-  printf '[%s] %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*"
+  printf '[%s] %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >&2
 }
 
 fail() {
@@ -85,13 +92,18 @@ kget_secret_value() {
   "${KUBECTL[@]}" get secret "$secret" -n "$namespace" -o "jsonpath={.data.$field}" | base64 -d
 }
 
+namespace_exists() {
+  local namespace="$1"
+  "${KUBECTL[@]}" get namespace "$namespace" >/dev/null 2>&1
+}
+
 write_metadata() {
   local git_commit="unknown"
   if command -v git >/dev/null 2>&1 && git rev-parse --git-dir >/dev/null 2>&1; then
     git_commit="$(git rev-parse HEAD)"
   fi
 
-  cat > "$BUNDLE_DIR/metadata.json" <<EOF
+  cat > "$BUNDLE_DIR/metadata.json" <<EOF_META
 {
   "id": "$RUN_ID",
   "reason": "$REASON",
@@ -100,19 +112,28 @@ write_metadata() {
   "namespaces": "$(printf '%s' "$NAMESPACES")",
   "postgres_namespace": "$POSTGRES_NAMESPACE",
   "postgres_workload": "$POSTGRES_WORKLOAD",
-  "postgres_database": "$POSTGRES_DB",
+  "postgres_databases": "$(printf '%s' "$POSTGRES_DATABASES")",
   "minio_namespace": "$MINIO_NAMESPACE",
   "minio_service_url": "$MINIO_SERVICE_URL"
 }
-EOF
+EOF_META
 }
 
 backup_postgres() {
-  log "Backing up PostgreSQL database $POSTGRES_DB"
+  log "Backing up PostgreSQL globals and databases: $POSTGRES_DATABASES"
   mkdir -p "$BUNDLE_DIR/postgres"
+
   "${KUBECTL[@]}" exec -n "$POSTGRES_NAMESPACE" "$POSTGRES_WORKLOAD" -- \
-    pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc \
-    > "$BUNDLE_DIR/postgres/$POSTGRES_DB.dump"
+    pg_dumpall -U "$POSTGRES_USER" --globals-only \
+    > "$BUNDLE_DIR/postgres/globals.sql"
+
+  local database
+  for database in $POSTGRES_DATABASES; do
+    log "Backing up PostgreSQL database $database"
+    "${KUBECTL[@]}" exec -n "$POSTGRES_NAMESPACE" "$POSTGRES_WORKLOAD" -- \
+      pg_dump -U "$POSTGRES_USER" -d "$database" -Fc \
+      > "$BUNDLE_DIR/postgres/$database.dump"
+  done
 }
 
 backup_minio() {
@@ -142,7 +163,13 @@ backup_kubernetes() {
   : > "$BUNDLE_DIR/kubernetes/configmaps.yaml"
   : > "$BUNDLE_DIR/kubernetes/secrets.yaml"
 
+  local namespace
   for namespace in $NAMESPACES; do
+    if ! namespace_exists "$namespace"; then
+      log "WARNING: namespace $namespace does not exist; skipping"
+      continue
+    fi
+
     log "Collecting namespace $namespace"
     {
       echo "---"
