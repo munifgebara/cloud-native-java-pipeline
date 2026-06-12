@@ -7,9 +7,12 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
 import { CategoriaResumo, CategoriaService } from '../../../core/categoria/categoria';
+import { IMAGE_CONTENT_TYPES, imageFileFromPaste } from '../../../core/image/image-clipboard';
 import { mensagemErroHttp } from '../../../core/http-error';
 import { ItemMestreService } from '../../../core/item-mestre/item-mestre';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
+
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 
 @Component({
   selector: 'app-item-mestre-form',
@@ -134,16 +137,43 @@ export class ItemMestreFormComponent implements OnInit {
       return;
     }
 
-    if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(arquivo.type)) {
-      this.errorMessage.set(this.i18n.translate('masterItems.form.imageInvalidType'));
+    if (!this.aplicarImagemSelecionada(arquivo)) {
       input.value = '';
       return;
     }
+  }
 
-    if (arquivo.size > 5 * 1024 * 1024) {
-      this.errorMessage.set(this.i18n.translate('masterItems.form.imageTooLarge'));
-      input.value = '';
+  colarImagem(event: ClipboardEvent): void {
+    this.errorMessage.set('');
+    const result = imageFileFromPaste(event, MAX_IMAGE_SIZE_BYTES);
+
+    if (!result.ok) {
+      if (result.reason === 'missing') {
+        this.errorMessage.set(this.i18n.translate('masterItems.form.imagePasteMissing'));
+      } else if (result.reason === 'invalid-type') {
+        this.errorMessage.set(this.i18n.translate('masterItems.form.imageInvalidType'));
+      } else {
+        this.errorMessage.set(this.i18n.translate('masterItems.form.imageTooLarge'));
+      }
       return;
+    }
+
+    this.aplicarImagemSelecionada(result.file);
+  }
+
+  private aplicarImagemSelecionada(arquivo: File): boolean {
+    if (!IMAGE_CONTENT_TYPES.includes(arquivo.type as (typeof IMAGE_CONTENT_TYPES)[number])) {
+      this.errorMessage.set(this.i18n.translate('masterItems.form.imageInvalidType'));
+      return false;
+    }
+
+    if (arquivo.size > MAX_IMAGE_SIZE_BYTES) {
+      this.errorMessage.set(this.i18n.translate('masterItems.form.imageTooLarge'));
+      return false;
+    }
+
+    if (this.imagemPreviewUrl()) {
+      URL.revokeObjectURL(this.imagemPreviewUrl()!);
     }
 
     this.imagemSelecionada.set(arquivo);
@@ -151,6 +181,7 @@ export class ItemMestreFormComponent implements OnInit {
     this.imagemSelecionadaProvider.set(null);
     this.imagemPreviewUrl.set(URL.createObjectURL(arquivo));
     this.limparImagemIaGerada();
+    return true;
   }
 
   campoInvalido(nome: keyof typeof this.form.controls): boolean {

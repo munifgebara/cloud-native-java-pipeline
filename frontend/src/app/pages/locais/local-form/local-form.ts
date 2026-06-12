@@ -6,9 +6,12 @@ import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
+import { IMAGE_CONTENT_TYPES, imageFileFromPaste } from '../../../core/image/image-clipboard';
 import { mensagemErroHttp } from '../../../core/http-error';
 import { LocalResumo, LocalService } from '../../../core/local/local';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
+
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 
 @Component({
   selector: 'app-local-form',
@@ -124,20 +127,48 @@ export class LocalFormComponent implements OnInit {
       return;
     }
 
-    if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(arquivo.type)) {
-      this.errorMessage.set(this.i18n.translate('locations.form.imageInvalidType'));
+    if (!this.aplicarImagemSelecionada(arquivo)) {
       input.value = '';
       return;
     }
+  }
 
-    if (arquivo.size > 5 * 1024 * 1024) {
-      this.errorMessage.set(this.i18n.translate('locations.form.imageTooLarge'));
-      input.value = '';
+  colarImagem(event: ClipboardEvent): void {
+    this.errorMessage.set('');
+    const result = imageFileFromPaste(event, MAX_IMAGE_SIZE_BYTES);
+
+    if (!result.ok) {
+      if (result.reason === 'missing') {
+        this.errorMessage.set(this.i18n.translate('locations.form.imagePasteMissing'));
+      } else if (result.reason === 'invalid-type') {
+        this.errorMessage.set(this.i18n.translate('locations.form.imageInvalidType'));
+      } else {
+        this.errorMessage.set(this.i18n.translate('locations.form.imageTooLarge'));
+      }
       return;
+    }
+
+    this.aplicarImagemSelecionada(result.file);
+  }
+
+  private aplicarImagemSelecionada(arquivo: File): boolean {
+    if (!IMAGE_CONTENT_TYPES.includes(arquivo.type as (typeof IMAGE_CONTENT_TYPES)[number])) {
+      this.errorMessage.set(this.i18n.translate('locations.form.imageInvalidType'));
+      return false;
+    }
+
+    if (arquivo.size > MAX_IMAGE_SIZE_BYTES) {
+      this.errorMessage.set(this.i18n.translate('locations.form.imageTooLarge'));
+      return false;
+    }
+
+    if (this.imagemPreviewUrl()) {
+      URL.revokeObjectURL(this.imagemPreviewUrl()!);
     }
 
     this.imagemSelecionada.set(arquivo);
     this.imagemPreviewUrl.set(URL.createObjectURL(arquivo));
+    return true;
   }
 
   removerImagem(): void {

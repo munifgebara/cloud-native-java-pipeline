@@ -34,7 +34,10 @@
 
         <div class="field full image-field">
           <label for="imagem">{{ 'masterItems.form.mainImage' | translate }}</label>
-          <div class="image-control">
+          <div
+            class="image-control"
+            tabindex="0"
+            (paste)="colarImagem($event)">
             <div class="image-preview">
               @if (imagemPreviewUrl() || imagemAtualUrl()) {
                 <img [src]="imagemPreviewUrl() || imagemAtualUrl()" [alt]="form.controls.nome.value || ('masterItems.form.mainImage' | translate)" />
@@ -50,6 +53,7 @@
                 accept="image/png,image/jpeg,image/webp,image/gif"
                 (change)="selecionarImagem($event)" />
               <small>{{ 'masterItems.form.imageHint' | translate }}</small>
+              <small>{{ 'masterItems.form.imagePasteHint' | translate }}</small>
               <button
                 pButton
                 type="button"
