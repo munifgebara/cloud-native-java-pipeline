@@ -12,6 +12,8 @@ backup-stella-YYYYmmdd-HHMMSS-reason/
   postgres/
     globals.sql
     stella_dev.dump
+    stella_staging.dump
+    stella_prod.dump
     keycloak.dump
   minio/
     ...
@@ -25,7 +27,7 @@ backup-stella-YYYYmmdd-HHMMSS-reason/
   checksums.sha256
 ```
 
-By default, PostgreSQL backup includes the Stella application database and the Keycloak database. The database list is configurable with `STELLA_POSTGRES_DATABASES`.
+By default, PostgreSQL backup includes all Stella databases expected on Gimli (`stella_dev`, `stella_staging`, `stella_prod`) and the related Keycloak database. The database list is configurable with `STELLA_POSTGRES_DATABASES`.
 
 The final archive is encrypted with `age` when `STELLA_BACKUP_AGE_RECIPIENT` is configured, then uploaded with `rclone`. The initial destination is Google Drive, but the scripts only depend on an rclone remote, so the backend can later become S3, NAS or another supported remote.
 
