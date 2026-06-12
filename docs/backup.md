@@ -10,7 +10,9 @@ The backup script creates a versioned bundle with independent components:
 backup-stella-YYYYmmdd-HHMMSS-reason/
   metadata.json
   postgres/
+    globals.sql
     stella_dev.dump
+    keycloak.dump
   minio/
     ...
   kubernetes/
@@ -22,6 +24,8 @@ backup-stella-YYYYmmdd-HHMMSS-reason/
     secrets.enc.yaml
   checksums.sha256
 ```
+
+By default, PostgreSQL backup includes the Stella application database and the Keycloak database. The database list is configurable with `STELLA_POSTGRES_DATABASES`.
 
 The final archive is encrypted with `age` when `STELLA_BACKUP_AGE_RECIPIENT` is configured, then uploaded with `rclone`. The initial destination is Google Drive, but the scripts only depend on an rclone remote, so the backend can later become S3, NAS or another supported remote.
 
@@ -64,6 +68,14 @@ Copy the example environment and set the real public recipient:
 sudo cp scripts/backup/backup.env.example /etc/stella-backup/backup.env
 sudo editor /etc/stella-backup/backup.env
 ```
+
+The default namespace list is intentionally narrow:
+
+```bash
+STELLA_BACKUP_NAMESPACES="platform"
+```
+
+Add `monitoring` or `logging` only when those namespaces exist and you want them included in the Stella operational backup.
 
 Install the repository checkout used by the systemd timer. One simple approach is to keep a clone under `/opt/stella-backup/current`:
 
@@ -117,7 +129,7 @@ sudo journalctl -u stella-backup.service -n 200
 The CD workflow runs:
 
 ```bash
-sudo env STELLA_BACKUP_REQUIRE_UPLOAD=true scripts/backup/stella-backup.sh pre-cd
+sudo env STELLA_BACKUP_REQUIRE_UPLOAD=true bash scripts/backup/stella-backup.sh pre-cd
 ```
 
 That step runs before applying manifests or changing the `stella-api` image. It fails the deploy if the backup or upload fails.
@@ -129,6 +141,8 @@ Download the archive from Google Drive first if it is not already local:
 ```bash
 sudo rclone copy gdrive:StellaBackups/backup-stella-YYYYmmdd-HHMMSS-pre-cd.tar.gz.age /tmp/
 ```
+
+Before restoring PostgreSQL or MinIO in a live environment, stop writers such as `stella-api` and `keycloak` or restore into an isolated test namespace/host.
 
 Restore only PostgreSQL:
 
