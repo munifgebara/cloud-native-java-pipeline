@@ -7,4 +7,4 @@ After=network-online.target
 Type=oneshot
 EnvironmentFile=/etc/stella-backup/backup.env
 WorkingDirectory=/opt/stella-backup/current
-ExecStart=/opt/stella-backup/current/scripts/backup/stella-backup.sh daily
+ExecStart=/usr/bin/env bash /opt/stella-backup/current/scripts/backup/stella-backup.sh daily
