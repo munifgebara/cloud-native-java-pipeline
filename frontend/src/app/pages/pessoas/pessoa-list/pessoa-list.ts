@@ -15,7 +15,6 @@ import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
   imports: [FormsModule, TableModule, ButtonModule, InputTextModule, ConfirmDialogModule, RouterLink, TranslatePipe],
   providers: [ConfirmationService],
   templateUrl: './pessoa-list.html',
-  styleUrl: './pessoa-list.css',
 })
 export class PessoaListComponent implements OnInit {
   private readonly pessoaService = inject(PessoaService);

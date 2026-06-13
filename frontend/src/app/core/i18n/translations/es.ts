@@ -29,6 +29,8 @@ export const ES_TRANSLATIONS = {
   'layout.menu.masterItems': 'Items',
   'layout.menu.photoRegistration': 'Registro por foto',
   'layout.menu.itemInstances': 'Instancias',
+  'layout.mobileMenu': 'Menu',
+  'layout.mobileNavigation': 'Navegacion principal',
   'layout.profile': 'Mi perfil',
   'layout.logout': 'Salir',
   'layout.footer.description': 'Plataforma de inventario personal con API Java, frontend Angular y autenticacion moderna.',
