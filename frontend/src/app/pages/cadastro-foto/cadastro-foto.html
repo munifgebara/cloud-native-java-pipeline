@@ -15,7 +15,7 @@
   }
 
   <div
-    class="upload-panel"
+    class="upload-panel stella-ai-panel"
     tabindex="0"
     (paste)="colarArquivo($event)">
     <div class="upload-control">
@@ -53,8 +53,11 @@
   }
 
   @if (itens().length) {
-    <div class="review-header">
-      <h3>{{ 'photoRegistration.reviewTitle' | translate }}</h3>
+    <div class="review-header stella-panel">
+      <div>
+        <span class="review-kicker">{{ 'photoRegistration.analyze' | translate }}</span>
+        <h3>{{ 'photoRegistration.reviewTitle' | translate }}</h3>
+      </div>
       <button
         pButton
         type="button"

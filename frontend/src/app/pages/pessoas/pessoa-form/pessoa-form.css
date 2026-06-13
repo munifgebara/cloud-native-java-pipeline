@@ -21,23 +21,19 @@
 }
 
 .field-error {
-  color: #b91c1c;
+  color: var(--stella-color-danger);
 }
 
 .field-hint {
-  color: #0f766e;
+  color: var(--stella-color-brand);
 }
 
 .message.error {
   grid-column: 1 / -1;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  background: #ffe8e8;
-  color: #9f1239;
 }
 
 .audit-panel {
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--stella-color-border);
   margin-top: 0.5rem;
   padding-top: 1rem;
 }
@@ -45,12 +41,12 @@
 .audit-header h3,
 .audit-history h4 {
   margin: 0;
-  color: #111827;
+  color: var(--stella-color-text);
 }
 
 .audit-header p {
   margin: 0.25rem 0 0;
-  color: #6b7280;
+  color: var(--stella-color-text-muted);
 }
 
 .audit-meta,
@@ -64,24 +60,24 @@
 .audit-meta div,
 .revision-data div {
   min-width: 0;
-  border-radius: 6px;
+  border-radius: var(--stella-radius-sm);
   padding: 0.35rem;
 }
 
 .audit-meta dt,
 .revision-data dt {
-  color: #6b7280;
+  color: var(--stella-color-text-muted);
   font-size: 0.85rem;
 }
 
 .audit-meta dd,
 .revision-data dd {
   margin: 0.2rem 0 0;
-  color: #111827;
+  color: var(--stella-color-text);
 }
 
 .revision-data .changed {
-  background: #fef3c7;
+  background: var(--stella-color-warning-soft);
 }
 
 .audit-history {
@@ -91,11 +87,11 @@
 .audit-empty,
 .audit-error {
   margin: 0.75rem 0 0;
-  color: #6b7280;
+  color: var(--stella-color-text-muted);
 }
 
 .audit-error {
-  color: #9f1239;
+  color: var(--stella-color-danger);
 }
 
 .revision-list {
@@ -105,8 +101,8 @@
 }
 
 .revision-item {
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border: 1px solid var(--stella-color-border);
+  border-radius: var(--stella-radius-md);
   padding: 0.75rem;
 }
 
@@ -115,11 +111,11 @@
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  color: #111827;
+  color: var(--stella-color-text);
 }
 
 .revision-item time {
-  color: #6b7280;
+  color: var(--stella-color-text-muted);
 }
 
 @media (max-width: 700px) {
