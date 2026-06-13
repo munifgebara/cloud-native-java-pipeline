@@ -29,6 +29,8 @@ export const EN_TRANSLATIONS = {
   'layout.menu.masterItems': 'Items',
   'layout.menu.photoRegistration': 'Photo registration',
   'layout.menu.itemInstances': 'Instances',
+  'layout.mobileMenu': 'Menu',
+  'layout.mobileNavigation': 'Main navigation',
   'layout.profile': 'My profile',
   'layout.logout': 'Sign out',
   'layout.footer.description': 'Personal inventory platform with Java API, Angular frontend, and modern authentication.',

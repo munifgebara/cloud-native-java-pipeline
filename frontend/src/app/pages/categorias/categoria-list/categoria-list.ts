@@ -16,7 +16,6 @@ import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
   imports: [FormsModule, TableModule, ButtonModule, InputTextModule, TagModule, ConfirmDialogModule, RouterLink, TranslatePipe],
   providers: [ConfirmationService],
   templateUrl: './categoria-list.html',
-  styleUrl: './categoria-list.css',
 })
 export class CategoriaListComponent implements OnInit {
   private readonly categoriaService = inject(CategoriaService);

@@ -8,6 +8,16 @@
     <div class="topbar-actions">
       <app-language-selector />
 
+      <button
+        class="mobile-menu-button"
+        type="button"
+        [attr.aria-expanded]="mobileMenuOpen()"
+        aria-controls="mobile-navigation"
+        (click)="toggleMobileMenu()">
+        <i class="pi" [class.pi-bars]="!mobileMenuOpen()" [class.pi-times]="mobileMenuOpen()"></i>
+        <span>{{ 'layout.mobileMenu' | translate }}</span>
+      </button>
+
       <p-button
         styleClass="topbar-action"
         [label]="'layout.profile' | translate"
@@ -26,45 +36,49 @@
     </div>
   </div>
 
-  <nav class="mobile-nav" [attr.aria-label]="'app.name' | translate">
-    <a routerLink="/dashboard" routerLinkActive="active">
+  <nav
+    id="mobile-navigation"
+    class="mobile-nav"
+    [class.open]="mobileMenuOpen()"
+    [attr.aria-label]="'layout.mobileNavigation' | translate">
+    <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileMenu()">
       <i class="pi pi-home"></i>
       <span>{{ 'layout.menu.dashboard' | translate }}</span>
     </a>
 
-    <a routerLink="/pessoas" routerLinkActive="active">
+    <a routerLink="/pessoas" routerLinkActive="active" (click)="closeMobileMenu()">
       <i class="pi pi-users"></i>
       <span>{{ 'layout.menu.people' | translate }}</span>
     </a>
 
     @if (isAdmin()) {
-      <a routerLink="/usuarios" routerLinkActive="active">
+      <a routerLink="/usuarios" routerLinkActive="active" (click)="closeMobileMenu()">
         <i class="pi pi-user-edit"></i>
         <span>{{ 'layout.menu.users' | translate }}</span>
       </a>
     }
 
-    <a routerLink="/categorias" routerLinkActive="active">
+    <a routerLink="/categorias" routerLinkActive="active" (click)="closeMobileMenu()">
       <i class="pi pi-tags"></i>
       <span>{{ 'layout.menu.categories' | translate }}</span>
     </a>
 
-    <a routerLink="/locais" routerLinkActive="active">
+    <a routerLink="/locais" routerLinkActive="active" (click)="closeMobileMenu()">
       <i class="pi pi-map-marker"></i>
       <span>{{ 'layout.menu.locations' | translate }}</span>
     </a>
 
-    <a routerLink="/itens-mestre" routerLinkActive="active">
+    <a routerLink="/itens-mestre" routerLinkActive="active" (click)="closeMobileMenu()">
       <i class="pi pi-box"></i>
       <span>{{ 'layout.menu.masterItems' | translate }}</span>
     </a>
 
-    <a routerLink="/cadastro-foto" routerLinkActive="active">
+    <a routerLink="/cadastro-foto" routerLinkActive="active" (click)="closeMobileMenu()">
       <i class="pi pi-sparkles"></i>
       <span>{{ 'layout.menu.photoRegistration' | translate }}</span>
     </a>
 
-    <a routerLink="/instancias-item" routerLinkActive="active">
+    <a routerLink="/instancias-item" routerLinkActive="active" (click)="closeMobileMenu()">
       <i class="pi pi-barcode"></i>
       <span>{{ 'layout.menu.itemInstances' | translate }}</span>
     </a>

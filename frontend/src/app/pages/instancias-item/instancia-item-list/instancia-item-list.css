@@ -7,32 +7,18 @@
   height: 2.5rem;
 }
 
-.actions {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.master-item-name {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.625rem;
-}
-
-.category-icon {
-  display: inline-flex;
-  width: 2rem;
-  height: 2rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--stella-radius-sm);
-  background: var(--stella-color-ai-soft);
-  color: var(--stella-color-ai-strong);
-}
-
 .inactive-tag {
   margin-left: 0.4rem;
+}
+
+.instance-primary {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.instance-primary small {
+  color: var(--stella-color-text-muted);
+  font-weight: 500;
 }
 
 .exit-dialog,

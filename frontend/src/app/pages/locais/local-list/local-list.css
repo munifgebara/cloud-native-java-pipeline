@@ -1,26 +1,7 @@
-.actions {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
 .location-image {
-  display: flex;
   width: 3rem;
   height: 3rem;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border: 1px solid var(--stella-color-border-strong);
   border-radius: var(--stella-radius-md);
-  background: var(--stella-color-surface-muted);
-  color: var(--stella-color-text-muted);
-}
-
-.location-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .hierarchy-name {

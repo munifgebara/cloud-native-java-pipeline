@@ -12,7 +12,6 @@ import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
   standalone: true,
   imports: [ButtonModule, TableModule, TagModule, RouterLink, TranslatePipe],
   templateUrl: './usuario-list.html',
-  styleUrl: './usuario-list.css',
 })
 export class UsuarioListComponent implements OnInit {
   private readonly usuarioService = inject(UsuarioService);

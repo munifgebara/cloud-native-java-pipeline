@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -15,6 +15,7 @@ import { LanguageSelectorComponent } from '../../shared/language-selector/langua
 export class AppTopbarComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  readonly mobileMenuOpen = signal(false);
 
   sair(): void {
     this.authService.logout();
@@ -23,5 +24,13 @@ export class AppTopbarComponent {
 
   isAdmin(): boolean {
     return this.authService.hasRole('admin');
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update((open) => !open);
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
   }
 }

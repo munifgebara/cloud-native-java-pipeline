@@ -321,7 +321,12 @@
 
     <ng-template pTemplate="body" let-instancia>
       <tr>
-        <td [attr.data-label]="'itemInstances.identifier' | translate">{{ nomeInstancia(instancia) }}</td>
+        <td [attr.data-label]="'itemInstances.identifier' | translate">
+          <span class="instance-primary">
+            <strong>{{ nomeInstancia(instancia) }}</strong>
+            <small>{{ instancia.localAtualNome || '-' }}</small>
+          </span>
+        </td>
         <td [attr.data-label]="'itemInstances.masterItem' | translate">
           <span class="master-item-name">
             <span class="category-icon">
