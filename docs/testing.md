@@ -34,6 +34,45 @@ Check JaCoCo thresholds:
 ./mvnw jacoco:check
 ```
 
+## Black-Box API Regression Test
+
+Run the API smoke/regression test against a live Stella API without importing backend classes:
+
+```bash
+STELLA_API_BASE_URL=http://localhost:8080 \
+STELLA_API_USERNAME=admin \
+STELLA_API_PASSWORD=admin \
+./scripts/api-blackbox-test.sh
+```
+
+The same script can point to the validation environment:
+
+```bash
+STELLA_API_BASE_URL=https://stella.gebaralabs.dev \
+STELLA_API_USERNAME=admin \
+STELLA_API_PASSWORD=admin \
+./scripts/api-blackbox-test.sh
+```
+
+If a token is already available, use it instead of username/password:
+
+```bash
+STELLA_API_BASE_URL=http://localhost:8080 \
+STELLA_API_TOKEN='ey...' \
+./scripts/api-blackbox-test.sh
+```
+
+The script requires `curl` and `python3`. It validates health, authentication, item-master creation, lookup, listing, search by name, optional semantic search, and cleanup. Any item created by the test is deleted at the end through a shell trap whenever possible.
+
+Configuration:
+
+- `STELLA_API_BASE_URL`: target API base URL. Defaults to `http://localhost:8080`.
+- `STELLA_API_PREFIX`: API prefix. Defaults to `/api/v0`.
+- `STELLA_API_TOKEN`: bearer token for authenticated endpoints.
+- `STELLA_API_USERNAME` and `STELLA_API_PASSWORD`: credentials used with `/api/public/login` when no token is provided.
+- `STELLA_RUN_SEMANTIC_SEARCH`: set to `false` to skip semantic search. Defaults to `true`.
+- `STELLA_RUN_REINDEX`: set to `true` to call semantic reindexing before semantic search. Defaults to `false`.
+
 ## Frontend Build
 
 When frontend code changes, run:
