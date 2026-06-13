@@ -44,14 +44,17 @@ public class OpenAiCadastroFotoProvider implements CadastroFotoIaProvider {
     private final RestClient restClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final Environment environment;
+    private final AiUsageGuard aiUsageGuard;
 
-    public OpenAiCadastroFotoProvider(RestClient.Builder restClientBuilder, Environment environment) {
+    public OpenAiCadastroFotoProvider(RestClient.Builder restClientBuilder, Environment environment, AiUsageGuard aiUsageGuard) {
         this.restClient = restClientBuilder.build();
         this.environment = environment;
+        this.aiUsageGuard = aiUsageGuard;
     }
 
     @Override
     public CadastroFotoSugestaoResponseDTO sugerirCadastro(MultipartFile imagem) {
+        aiUsageGuard.assertEnabled(AiOperation.IMAGE_ANALYSIS);
         String apiKey = environment.getProperty("OPENAI_API_KEY");
         if (apiKey == null || apiKey.isBlank()) {
             throw new IllegalStateException("OPENAI_API_KEY não configurada no ambiente.");
@@ -60,11 +63,13 @@ public class OpenAiCadastroFotoProvider implements CadastroFotoIaProvider {
         long inicio = System.nanoTime();
 
         try {
+            Map<String, Object> body = requestBody(imagem);
+            aiUsageGuard.consume(AiOperation.IMAGE_ANALYSIS);
             Map<String, Object> response = restClient.post()
                     .uri(API_URL)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(requestBody(imagem))
+                    .body(body)
                     .retrieve()
                     .body(Map.class);
 

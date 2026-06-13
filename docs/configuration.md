@@ -44,11 +44,17 @@ In production, configure `STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET` and use a dedicat
 | Variable | Default | Description |
 | --- | --- | --- |
 | `OPENAI_API_KEY` | required for AI features | API key used by backend-only OpenAI integrations |
+| `AI_ENABLED` | `true` | Enables or disables AI features before any OpenAI call is attempted |
+| `OPENAI_MAX_IMAGES_PER_DAY` | unlimited | Maximum daily OpenAI image-analysis calls |
+| `OPENAI_MAX_GENERATIONS_PER_DAY` | unlimited | Maximum daily OpenAI image-generation calls |
+| `OPENAI_MAX_EMBEDDINGS_PER_DAY` | unlimited | Maximum daily embedding-generation calls guarded as AI usage |
 | `STELLA_OPENAI_MODEL` | `gpt-4.1-mini` | Model used to analyze uploaded inventory photos |
 | `STELLA_OPENAI_IMAGE_MODEL` | `gpt-image-1` | Model used to generate product images |
 | `STELLA_OPENAI_IMAGE_SIZE` | `1024x1024` | Generated product image size |
 | `STELLA_OPENAI_IMAGE_QUALITY` | `low` | Generated product image quality |
 | `STELLA_OPENAI_IMAGE_OUTPUT_FORMAT` | `png` | Generated product image format |
+
+When `AI_ENABLED=false`, the API rejects AI operations without calling OpenAI. Daily limits are counted in memory and reset by local date; they are intentionally simple and can later move to database persistence. A limit of `0` blocks that operation type, while an unset or negative limit is treated as unlimited.
 
 ## Logging
 

@@ -70,6 +70,7 @@ public class ItemMestreVectorSearchService {
     private final ItemMestreRepository itemMestreRepository;
     private final InstanciaItemRepository instanciaItemRepository;
     private final ConsultaVetorialMetricasService consultaVetorialMetricasService;
+    private final AiUsageGuard aiUsageGuard;
 
     public ItemMestreVectorSearchService(
             VectorSearchProperties vectorSearchProperties,
@@ -79,7 +80,8 @@ public class ItemMestreVectorSearchService {
             JdbcTemplate jdbcTemplate,
             ItemMestreRepository itemMestreRepository,
             InstanciaItemRepository instanciaItemRepository,
-            ConsultaVetorialMetricasService consultaVetorialMetricasService
+            ConsultaVetorialMetricasService consultaVetorialMetricasService,
+            AiUsageGuard aiUsageGuard
     ) {
         this.vectorSearchProperties = vectorSearchProperties;
         this.embeddingsProperties = embeddingsProperties;
@@ -89,6 +91,7 @@ public class ItemMestreVectorSearchService {
         this.itemMestreRepository = itemMestreRepository;
         this.instanciaItemRepository = instanciaItemRepository;
         this.consultaVetorialMetricasService = consultaVetorialMetricasService;
+        this.aiUsageGuard = aiUsageGuard;
     }
 
     @Transactional
@@ -110,6 +113,7 @@ public class ItemMestreVectorSearchService {
         }
 
         try {
+            aiUsageGuard.consume(AiOperation.EMBEDDING);
             float[] embedding = embeddingProvider.gerarEmbedding(documento);
             validarDimensoes(embedding);
 
@@ -209,6 +213,7 @@ public class ItemMestreVectorSearchService {
 
         long inicio = System.nanoTime();
         try {
+            aiUsageGuard.consume(AiOperation.EMBEDDING);
             float[] embedding = embeddingProvider.gerarEmbedding(texto);
             validarDimensoes(embedding);
             String literal = vectorLiteral(embedding);

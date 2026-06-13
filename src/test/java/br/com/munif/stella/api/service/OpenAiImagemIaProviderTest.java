@@ -1,6 +1,9 @@
 package br.com.munif.stella.api.service;
 
+import br.com.munif.stella.api.config.AiProperties;
+import br.com.munif.stella.api.config.OpenAiLimitsProperties;
 import br.com.munif.stella.api.dto.ImagemIaRequestDTO;
+import br.com.munif.stella.api.exception.AiUsageLimitException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -33,7 +36,7 @@ class OpenAiImagemIaProviderTest {
                 .withProperty("OPENAI_API_KEY", "test-key")
                 .withProperty("STELLA_OPENAI_IMAGE_MODEL", "gpt-image-test")
                 .withProperty("STELLA_OPENAI_IMAGE_OUTPUT_FORMAT", "png");
-        provider = new OpenAiImagemIaProvider(builder, environment);
+        provider = new OpenAiImagemIaProvider(builder, environment, guardSemLimite());
     }
 
     @Test
@@ -64,7 +67,7 @@ class OpenAiImagemIaProviderTest {
 
     @Test
     void deveFalharQuandoApiKeyNaoEstaNoAmbiente() {
-        OpenAiImagemIaProvider providerSemChave = new OpenAiImagemIaProvider(RestClient.builder(), new MockEnvironment());
+        OpenAiImagemIaProvider providerSemChave = new OpenAiImagemIaProvider(RestClient.builder(), new MockEnvironment(), guardSemLimite());
 
         assertThatThrownBy(() -> providerSemChave.gerarImagem(new ImagemIaRequestDTO("Furadeira", null, null)))
                 .isInstanceOf(IllegalStateException.class)
@@ -101,7 +104,8 @@ class OpenAiImagemIaProviderTest {
                 builder,
                 new MockEnvironment()
                         .withProperty("OPENAI_API_KEY", "test-key")
-                        .withProperty("STELLA_OPENAI_IMAGE_OUTPUT_FORMAT", "jpeg")
+                        .withProperty("STELLA_OPENAI_IMAGE_OUTPUT_FORMAT", "jpeg"),
+                guardSemLimite()
         );
         jpegServer.expect(once(), requestTo("https://api.openai.com/v1/images/generations"))
                 .andRespond(withSuccess("""
@@ -119,5 +123,35 @@ class OpenAiImagemIaProviderTest {
         assertThat(response.contentType()).isEqualTo("image/jpeg");
         assertThat(response.dataUrl()).startsWith("data:image/jpeg;base64,");
         jpegServer.verify();
+    }
+
+    @Test
+    void deveBloquearGeracaoQuandoIaEstaDesabilitadaSemChamarOpenAi() {
+        OpenAiImagemIaProvider providerBloqueado = new OpenAiImagemIaProvider(
+                RestClient.builder(),
+                new MockEnvironment().withProperty("OPENAI_API_KEY", "test-key"),
+                new AiUsageGuard(new AiProperties(false), new OpenAiLimitsProperties(null, null, null))
+        );
+
+        assertThatThrownBy(() -> providerBloqueado.gerarImagem(new ImagemIaRequestDTO("Furadeira", null, null)))
+                .isInstanceOf(AiUsageLimitException.class)
+                .hasMessage("Recursos de IA estão desabilitados neste ambiente.");
+    }
+
+    @Test
+    void deveBloquearGeracaoQuandoLimiteDiarioFoiAtingidoSemChamarOpenAi() {
+        OpenAiImagemIaProvider providerBloqueado = new OpenAiImagemIaProvider(
+                RestClient.builder(),
+                new MockEnvironment().withProperty("OPENAI_API_KEY", "test-key"),
+                new AiUsageGuard(new AiProperties(true), new OpenAiLimitsProperties(null, 0, null))
+        );
+
+        assertThatThrownBy(() -> providerBloqueado.gerarImagem(new ImagemIaRequestDTO("Furadeira", null, null)))
+                .isInstanceOf(AiUsageLimitException.class)
+                .hasMessage("Limite diário de geração de imagens da OpenAI atingido.");
+    }
+
+    private AiUsageGuard guardSemLimite() {
+        return new AiUsageGuard(new AiProperties(true), new OpenAiLimitsProperties(null, null, null));
     }
 }

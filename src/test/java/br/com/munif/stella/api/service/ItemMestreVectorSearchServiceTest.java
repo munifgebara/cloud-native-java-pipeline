@@ -1,11 +1,14 @@
 package br.com.munif.stella.api.service;
 
+import br.com.munif.stella.api.config.AiProperties;
 import br.com.munif.stella.api.config.EmbeddingsProperties;
+import br.com.munif.stella.api.config.OpenAiLimitsProperties;
 import br.com.munif.stella.api.config.VectorSearchProperties;
 import br.com.munif.stella.api.entity.Categoria;
 import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.ItemMestre;
 import br.com.munif.stella.api.entity.LocalArmazenamento;
+import br.com.munif.stella.api.exception.AiUsageLimitException;
 import br.com.munif.stella.api.repository.InstanciaItemRepository;
 import br.com.munif.stella.api.repository.ItemMestreRepository;
 import org.junit.jupiter.api.Test;
@@ -209,7 +212,33 @@ class ItemMestreVectorSearchServiceTest {
                 .hasMessage("Provider de embeddings retornou vetor com dimensões incompatíveis.");
     }
 
+    @Test
+    void deveBloquearEmbeddingQuandoIaEstaDesabilitada() {
+        ItemMestre item = item(UUID.randomUUID(), true);
+
+        assertThatThrownBy(() -> service(true, new AiProperties(false), new OpenAiLimitsProperties(null, null, null)).sincronizar(item))
+                .isInstanceOf(AiUsageLimitException.class)
+                .hasMessage("Recursos de IA estão desabilitados neste ambiente.");
+
+        verify(embeddingProvider, never()).gerarEmbedding(anyString());
+    }
+
+    @Test
+    void deveBloquearEmbeddingQuandoLimiteDiarioFoiAtingido() {
+        ItemMestre item = item(UUID.randomUUID(), true);
+
+        assertThatThrownBy(() -> service(true, new AiProperties(true), new OpenAiLimitsProperties(null, null, 0)).sincronizar(item))
+                .isInstanceOf(AiUsageLimitException.class)
+                .hasMessage("Limite diário de geração de embeddings da OpenAI atingido.");
+
+        verify(embeddingProvider, never()).gerarEmbedding(anyString());
+    }
+
     private ItemMestreVectorSearchService service(boolean enabled) {
+        return service(enabled, new AiProperties(true), new OpenAiLimitsProperties(null, null, null));
+    }
+
+    private ItemMestreVectorSearchService service(boolean enabled, AiProperties aiProperties, OpenAiLimitsProperties limitsProperties) {
         return new ItemMestreVectorSearchService(
                 new VectorSearchProperties(enabled, 0.2, 10),
                 new EmbeddingsProperties("local", "http://localhost:8000", "modelo-teste", 3),
@@ -218,7 +247,8 @@ class ItemMestreVectorSearchServiceTest {
                 jdbcTemplate,
                 itemMestreRepository,
                 instanciaItemRepository,
-                consultaVetorialMetricasService
+                consultaVetorialMetricasService,
+                new AiUsageGuard(aiProperties, limitsProperties)
         );
     }
 

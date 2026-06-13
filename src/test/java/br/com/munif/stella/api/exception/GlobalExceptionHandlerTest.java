@@ -54,4 +54,17 @@ class GlobalExceptionHandlerTest {
                 .asInstanceOf(org.assertj.core.api.InstanceOfAssertFactories.map(String.class, String.class))
                 .containsEntry("nome", "Nome é obrigatório.");
     }
+
+    @Test
+    void deveRetornarStatusDeBloqueioDeUsoIa() {
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v0/itens-mestre/imagem-ia");
+
+        var response = handler.tratarUsoIa(new AiUsageLimitException(HttpStatus.TOO_MANY_REQUESTS, "Limite diário de geração de imagens da OpenAI atingido."), request);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
+        assertThat(response.getBody())
+                .containsEntry("status", 429)
+                .containsEntry("erro", "Limite diário de geração de imagens da OpenAI atingido.")
+                .containsEntry("path", "/api/v0/itens-mestre/imagem-ia");
+    }
 }
