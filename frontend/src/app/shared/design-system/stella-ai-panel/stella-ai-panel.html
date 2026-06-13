@@ -1,0 +1,23 @@
+<section class="stella-ai-panel stella-ai-panel-shell" [attr.aria-label]="ariaLabel() || null">
+  <div class="stella-ai-panel-heading">
+    <div>
+      @if (kicker()) {
+        <span class="review-kicker">{{ kicker() }}</span>
+      }
+
+      @if (headingLevel() === 'h2') {
+        <h2>{{ title() }}</h2>
+      } @else {
+        <h3>{{ title() }}</h3>
+      }
+
+      @if (subtitle()) {
+        <p>{{ subtitle() }}</p>
+      }
+    </div>
+
+    <ng-content select="[stellaAiPanelAction]"></ng-content>
+  </div>
+
+  <ng-content></ng-content>
+</section>

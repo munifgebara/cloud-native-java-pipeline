@@ -2,16 +2,31 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { DashboardResumo, DashboardService } from '../../core/dashboard';
 import { I18nService, TranslatePipe } from '../../core/i18n/i18n';
 import { categoriaIconClass } from '../../core/categoria/categoria';
 import { ConsultaSemanticaItem, ItemMestreService } from '../../core/item-mestre/item-mestre';
+import { StellaAiPanelComponent } from '../../shared/design-system/stella-ai-panel/stella-ai-panel';
+import { StellaEmptyStateComponent } from '../../shared/design-system/stella-empty-state/stella-empty-state';
+import { StellaMetricCardComponent } from '../../shared/design-system/stella-metric-card/stella-metric-card';
+import { StellaPageHeaderComponent } from '../../shared/design-system/stella-page-header/stella-page-header';
+import { StellaStateMessageComponent } from '../../shared/design-system/stella-state-message/stella-state-message';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [FormsModule, ButtonModule, CardModule, InputTextModule, RouterLink, TranslatePipe],
+  imports: [
+    FormsModule,
+    ButtonModule,
+    InputTextModule,
+    RouterLink,
+    TranslatePipe,
+    StellaAiPanelComponent,
+    StellaEmptyStateComponent,
+    StellaMetricCardComponent,
+    StellaPageHeaderComponent,
+    StellaStateMessageComponent,
+  ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })

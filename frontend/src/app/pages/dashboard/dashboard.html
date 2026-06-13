@@ -1,22 +1,20 @@
 <div class="dashboard-page">
-  <h1>{{ 'dashboard.title' | translate }}</h1>
-  <p class="subtitle">{{ 'dashboard.subtitle' | translate }}</p>
+  <app-stella-page-header
+    headingLevel="h1"
+    [title]="'dashboard.title' | translate"
+    [subtitle]="'dashboard.subtitle' | translate" />
 
   @if (loading()) {
-    <div class="state-card">
-      {{ 'dashboard.loading' | translate }}
-    </div>
+    <app-stella-state-message severity="info" [message]="'dashboard.loading' | translate" />
   } @else if (errorMessage()) {
-    <div class="state-card error">
-      {{ errorMessage() }}
-    </div>
+    <app-stella-state-message severity="error" [message]="errorMessage()" />
   } @else {
-    <section class="ai-actions stella-ai-panel" [attr.aria-label]="'dashboard.aiActionsTitle' | translate">
-      <div>
-        <h2>{{ 'dashboard.aiActionsTitle' | translate }}</h2>
-        <p>{{ 'dashboard.aiActionsSubtitle' | translate }}</p>
-      </div>
-
+    <app-stella-ai-panel
+      class="stella-ai-split"
+      headingLevel="h2"
+      [title]="'dashboard.aiActionsTitle' | translate"
+      [subtitle]="'dashboard.aiActionsSubtitle' | translate"
+      [ariaLabel]="'dashboard.aiActionsTitle' | translate">
       <div class="action-grid">
         <a class="action-card" routerLink="/cadastro-foto">
           <i class="pi pi-camera"></i>
@@ -33,70 +31,70 @@
           </span>
         </a>
       </div>
-    </section>
+    </app-stella-ai-panel>
 
     <div class="cards executive-cards">
-      <p-card [header]="'dashboard.peopleCount' | translate">
-        <a class="metric-link" routerLink="/pessoas" [attr.aria-label]="'dashboard.peopleListAria' | translate">
-          <div class="metric-value">{{ resumo()?.quantidadePessoas ?? 0 }}</div>
-          <span class="metric-caption">{{ 'dashboard.openPeople' | translate }}</span>
-        </a>
-      </p-card>
+      <app-stella-metric-card
+        [title]="'dashboard.peopleCount' | translate"
+        [value]="resumo()?.quantidadePessoas ?? 0"
+        [caption]="'dashboard.openPeople' | translate"
+        link="/pessoas"
+        [ariaLabel]="'dashboard.peopleListAria' | translate" />
 
-      <p-card [header]="'dashboard.masterItemsCount' | translate">
-        <a class="metric-link" routerLink="/itens-mestre" [attr.aria-label]="'dashboard.masterItemsListAria' | translate">
-          <div class="metric-value">{{ resumo()?.quantidadeItensMestre ?? 0 }}</div>
-          <span class="metric-caption">{{ 'dashboard.openMasterItems' | translate }}</span>
-        </a>
-      </p-card>
+      <app-stella-metric-card
+        [title]="'dashboard.masterItemsCount' | translate"
+        [value]="resumo()?.quantidadeItensMestre ?? 0"
+        [caption]="'dashboard.openMasterItems' | translate"
+        link="/itens-mestre"
+        [ariaLabel]="'dashboard.masterItemsListAria' | translate" />
 
-      <p-card [header]="'dashboard.instancesCount' | translate">
-        <a class="metric-link" routerLink="/instancias-item" [attr.aria-label]="'dashboard.instancesListAria' | translate">
-          <div class="metric-value">{{ resumo()?.quantidadeInstancias ?? 0 }}</div>
-          <div class="metric-breakdown">
-            <span>{{ 'dashboard.availableInstances' | translate }}: {{ resumo()?.quantidadeInstanciasDisponiveis ?? 0 }}</span>
-            <span>{{ 'dashboard.loanedInstances' | translate }}: {{ resumo()?.quantidadeInstanciasEmprestadas ?? 0 }}</span>
-          </div>
-        </a>
-      </p-card>
+      <app-stella-metric-card
+        [title]="'dashboard.instancesCount' | translate"
+        [value]="resumo()?.quantidadeInstancias ?? 0"
+        link="/instancias-item"
+        [ariaLabel]="'dashboard.instancesListAria' | translate">
+        <div class="metric-breakdown">
+          <span>{{ 'dashboard.availableInstances' | translate }}: {{ resumo()?.quantidadeInstanciasDisponiveis ?? 0 }}</span>
+          <span>{{ 'dashboard.loanedInstances' | translate }}: {{ resumo()?.quantidadeInstanciasEmprestadas ?? 0 }}</span>
+        </div>
+      </app-stella-metric-card>
 
-      <p-card [header]="'dashboard.locationsCount' | translate">
-        <a class="metric-link" routerLink="/locais" [attr.aria-label]="'dashboard.locationsListAria' | translate">
-          <div class="metric-value">{{ resumo()?.quantidadeLocais ?? 0 }}</div>
-          <span class="metric-caption">{{ 'dashboard.openLocations' | translate }}</span>
-        </a>
-      </p-card>
+      <app-stella-metric-card
+        [title]="'dashboard.locationsCount' | translate"
+        [value]="resumo()?.quantidadeLocais ?? 0"
+        [caption]="'dashboard.openLocations' | translate"
+        link="/locais"
+        [ariaLabel]="'dashboard.locationsListAria' | translate" />
 
-      <p-card [header]="'dashboard.itemsWithoutImage' | translate">
-        <a class="metric-link" routerLink="/itens-mestre" [attr.aria-label]="'dashboard.masterItemsListAria' | translate">
-          <div class="metric-value warning">{{ resumo()?.quantidadeItensSemImagem ?? 0 }}</div>
-          <span class="metric-caption">{{ 'dashboard.openMasterItems' | translate }}</span>
-        </a>
-      </p-card>
+      <app-stella-metric-card
+        [title]="'dashboard.itemsWithoutImage' | translate"
+        [value]="resumo()?.quantidadeItensSemImagem ?? 0"
+        [caption]="'dashboard.openMasterItems' | translate"
+        tone="warning"
+        link="/itens-mestre"
+        [ariaLabel]="'dashboard.masterItemsListAria' | translate" />
 
-      <p-card [header]="'dashboard.aiCreatedItems' | translate">
-        <a class="metric-link" routerLink="/cadastro-foto">
-          <div class="metric-value success">{{ resumo()?.quantidadeItensCadastradosPorIa ?? 0 }}</div>
-          <span class="metric-caption">{{ 'dashboard.openPhotoRegistration' | translate }}</span>
-        </a>
-      </p-card>
+      <app-stella-metric-card
+        [title]="'dashboard.aiCreatedItems' | translate"
+        [value]="resumo()?.quantidadeItensCadastradosPorIa ?? 0"
+        [caption]="'dashboard.openPhotoRegistration' | translate"
+        tone="success"
+        link="/cadastro-foto" />
 
-      <p-card [header]="'dashboard.vectorQueries' | translate">
-        <a class="metric-link" href="#busca-vetorial-dashboard">
-          <div class="metric-value accent">{{ resumo()?.quantidadeConsultasVetoriais ?? 0 }}</div>
-          <span class="metric-caption">{{ 'dashboard.openVectorSearch' | translate }}</span>
-        </a>
-      </p-card>
+      <app-stella-metric-card
+        [title]="'dashboard.vectorQueries' | translate"
+        [value]="resumo()?.quantidadeConsultasVetoriais ?? 0"
+        [caption]="'dashboard.openVectorSearch' | translate"
+        tone="accent"
+        href="#busca-vetorial-dashboard" />
     </div>
 
-    <section id="busca-vetorial-dashboard" class="semantic-section stella-ai-panel">
-      <div class="section-header">
-        <div>
-          <h2>{{ 'dashboard.semanticTitle' | translate }}</h2>
-          <p>{{ 'dashboard.semanticSubtitle' | translate }}</p>
-        </div>
-      </div>
-
+    <app-stella-ai-panel
+      id="busca-vetorial-dashboard"
+      class="semantic-section-panel"
+      headingLevel="h2"
+      [title]="'dashboard.semanticTitle' | translate"
+      [subtitle]="'dashboard.semanticSubtitle' | translate">
       <div class="semantic-toolbar">
         <input
           pInputText
@@ -115,7 +113,7 @@
       </div>
 
       @if (semanticErrorMessage()) {
-        <div class="state-card error">{{ semanticErrorMessage() }}</div>
+        <app-stella-state-message severity="error" [message]="semanticErrorMessage()" />
       }
 
       @if (resultadosSemanticos().length) {
@@ -156,9 +154,9 @@
           }
         </div>
       } @else if (consultaSemantica.trim() && !loadingSemantica() && !semanticErrorMessage()) {
-        <div class="empty-ranking">{{ 'dashboard.semanticEmpty' | translate }}</div>
+        <app-stella-empty-state [compact]="true" [message]="'dashboard.semanticEmpty' | translate" />
       }
-    </section>
+    </app-stella-ai-panel>
 
     <div class="ranking-grid">
       <section class="ranking-section" [attr.aria-label]="'dashboard.topLocations' | translate">
@@ -177,7 +175,7 @@
             }
           </ol>
         } @else {
-          <div class="empty-ranking">{{ 'dashboard.noLocationData' | translate }}</div>
+          <app-stella-empty-state [compact]="true" [message]="'dashboard.noLocationData' | translate" />
         }
       </section>
 
@@ -197,7 +195,7 @@
             }
           </ol>
         } @else {
-          <div class="empty-ranking">{{ 'dashboard.noCategoryData' | translate }}</div>
+          <app-stella-empty-state [compact]="true" [message]="'dashboard.noCategoryData' | translate" />
         }
       </section>
     </div>

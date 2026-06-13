@@ -1,0 +1,26 @@
+:host {
+  display: block;
+}
+
+.empty-box {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.empty-box.compact {
+  display: block;
+}
+
+.empty-box p {
+  margin: 0.2rem 0 0;
+}
+
+.empty-box.compact p {
+  margin: 0;
+}
+
+.empty-box i {
+  color: var(--stella-color-ai);
+  font-size: 1.25rem;
+}

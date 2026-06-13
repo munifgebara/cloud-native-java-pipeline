@@ -4,13 +4,6 @@
   gap: 1rem;
 }
 
-.upload-panel {
-  display: grid;
-  gap: 1rem;
-  padding: 1rem;
-}
-
-.panel-heading h3,
 .review-header h3,
 .confirm-panel h3 {
   margin: 0;
@@ -81,12 +74,6 @@ textarea {
 .flow-summary dd {
   margin: 0.2rem 0 0;
   overflow-wrap: anywhere;
-}
-
-.analysis-empty {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
 }
 
 .review-header,
@@ -241,7 +228,6 @@ textarea {
 @media (max-width: 640px) {
   .review-header,
   .confirm-panel,
-  .analysis-empty,
   .instances summary {
     align-items: flex-start;
     flex-direction: column;

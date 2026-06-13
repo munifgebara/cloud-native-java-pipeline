@@ -10,11 +10,28 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { CategoriaResumo, CategoriaService, categoriaIconClass } from '../../../core/categoria/categoria';
 import { ConsultaSemanticaItem, ItemMestreResumo, ItemMestreService } from '../../../core/item-mestre/item-mestre';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
+import { StellaAiPanelComponent } from '../../../shared/design-system/stella-ai-panel/stella-ai-panel';
+import { StellaEmptyStateComponent } from '../../../shared/design-system/stella-empty-state/stella-empty-state';
+import { StellaPageHeaderComponent } from '../../../shared/design-system/stella-page-header/stella-page-header';
+import { StellaStateMessageComponent } from '../../../shared/design-system/stella-state-message/stella-state-message';
 
 @Component({
   selector: 'app-item-mestre-list',
   standalone: true,
-  imports: [FormsModule, TableModule, ButtonModule, InputTextModule, TagModule, ConfirmDialogModule, RouterLink, TranslatePipe],
+  imports: [
+    FormsModule,
+    TableModule,
+    ButtonModule,
+    InputTextModule,
+    TagModule,
+    ConfirmDialogModule,
+    RouterLink,
+    TranslatePipe,
+    StellaAiPanelComponent,
+    StellaEmptyStateComponent,
+    StellaPageHeaderComponent,
+    StellaStateMessageComponent,
+  ],
   providers: [ConfirmationService],
   templateUrl: './item-mestre-list.html',
   styleUrl: './item-mestre-list.css',

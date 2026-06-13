@@ -15,6 +15,10 @@ import { InstanciaItemService } from '../../core/instancia-item/instancia-item';
 import { ItemMestreResponse, ItemMestreService } from '../../core/item-mestre/item-mestre';
 import { I18nService, TranslatePipe } from '../../core/i18n/i18n';
 import { LocalResumo, LocalService } from '../../core/local/local';
+import { StellaAiPanelComponent } from '../../shared/design-system/stella-ai-panel/stella-ai-panel';
+import { StellaEmptyStateComponent } from '../../shared/design-system/stella-empty-state/stella-empty-state';
+import { StellaPageHeaderComponent } from '../../shared/design-system/stella-page-header/stella-page-header';
+import { StellaStateMessageComponent } from '../../shared/design-system/stella-state-message/stella-state-message';
 
 const ORIGEM_CADASTRO_IA = 'CADASTRO_IA_FOTO';
 const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
@@ -53,7 +57,19 @@ type ItemRevisao = {
 @Component({
   selector: 'app-cadastro-foto',
   standalone: true,
-  imports: [FormsModule, ButtonModule, CardModule, CheckboxModule, InputTextModule, TagModule, TranslatePipe],
+  imports: [
+    FormsModule,
+    ButtonModule,
+    CardModule,
+    CheckboxModule,
+    InputTextModule,
+    TagModule,
+    TranslatePipe,
+    StellaAiPanelComponent,
+    StellaEmptyStateComponent,
+    StellaPageHeaderComponent,
+    StellaStateMessageComponent,
+  ],
   templateUrl: './cadastro-foto.html',
   styleUrl: './cadastro-foto.css',
 })

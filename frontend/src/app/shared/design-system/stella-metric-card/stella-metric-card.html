@@ -1,0 +1,25 @@
+<article class="stella-card metric-card">
+  <h3>{{ title() }}</h3>
+
+  @if (link()) {
+    <a class="metric-link" [routerLink]="link()" [attr.aria-label]="ariaLabel() || null">
+      <ng-container *ngTemplateOutlet="metricContent"></ng-container>
+    </a>
+  } @else if (href()) {
+    <a class="metric-link" [href]="href()" [attr.aria-label]="ariaLabel() || null">
+      <ng-container *ngTemplateOutlet="metricContent"></ng-container>
+    </a>
+  } @else {
+    <div class="metric-link">
+      <ng-container *ngTemplateOutlet="metricContent"></ng-container>
+    </div>
+  }
+</article>
+
+<ng-template #metricContent>
+  <div class="metric-value" [class]="'metric-value metric-value--' + tone()">{{ value() }}</div>
+  @if (caption()) {
+    <span class="metric-caption">{{ caption() }}</span>
+  }
+  <ng-content></ng-content>
+</ng-template>

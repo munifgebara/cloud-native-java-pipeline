@@ -1,0 +1,14 @@
+<div class="empty-box" [class.compact]="compact()">
+  @if (icon()) {
+    <i [class]="icon()"></i>
+  }
+
+  <div>
+    @if (title()) {
+      <strong>{{ title() }}</strong>
+    }
+    <p>{{ message() }}</p>
+  </div>
+
+  <ng-content select="[stellaEmptyAction]"></ng-content>
+</div>
