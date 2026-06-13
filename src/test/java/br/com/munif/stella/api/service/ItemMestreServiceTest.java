@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
@@ -103,6 +104,27 @@ class ItemMestreServiceTest {
         assertThat(resposta.nome()).isEqualTo("Cadeira ergonomica");
         verify(repository).save(any(ItemMestre.class));
         verify(vectorSearchService).sincronizar(any(ItemMestre.class));
+    }
+
+    @Test
+    void deveSincronizarIndiceVetorialSomenteAposCommit() {
+        when(repository.save(any(ItemMestre.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            service.criar(new ItemMestreCreateDTO("Cadeira ergonomica", null, null, null, null, true));
+
+            verify(vectorSearchService, never()).sincronizar(any(ItemMestre.class));
+
+            var synchronizations = TransactionSynchronizationManager.getSynchronizations();
+            assertThat(synchronizations).hasSize(1);
+
+            synchronizations.getFirst().afterCommit();
+
+            verify(vectorSearchService).sincronizar(any(ItemMestre.class));
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
     }
 
     @Test
