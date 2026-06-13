@@ -1,0 +1,6 @@
+<div class="stella-state" [class]="'stella-state stella-state--' + severity()" role="status">
+  <ng-content></ng-content>
+  @if (message()) {
+    <span>{{ message() }}</span>
+  }
+</div>

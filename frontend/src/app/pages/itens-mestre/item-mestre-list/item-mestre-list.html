@@ -1,20 +1,18 @@
 <div class="page">
   <p-confirmdialog />
 
-  <div class="page-header">
-    <div>
-      <h2>{{ 'masterItems.title' | translate }}</h2>
-      <p>{{ 'masterItems.subtitle' | translate }}</p>
-    </div>
-
+  <app-stella-page-header
+    [title]="'masterItems.title' | translate"
+    [subtitle]="'masterItems.subtitle' | translate">
     <button
+      stellaPageAction
       pButton
       type="button"
       [label]="'common.new' | translate"
       icon="pi pi-plus"
       (click)="novo()">
     </button>
-  </div>
+  </app-stella-page-header>
 
   <div class="toolbar">
     <input
@@ -50,19 +48,12 @@
   </div>
 
   @if (errorMessage()) {
-    <div class="error-box">
-      {{ errorMessage() }}
-    </div>
+    <app-stella-state-message severity="error" [message]="errorMessage()" />
   }
 
-  <section class="semantic-search stella-ai-panel">
-    <div class="semantic-header">
-      <div>
-        <h3>{{ 'masterItems.semanticTitle' | translate }}</h3>
-        <p>{{ 'masterItems.semanticSubtitle' | translate }}</p>
-      </div>
-    </div>
-
+  <app-stella-ai-panel
+    [title]="'masterItems.semanticTitle' | translate"
+    [subtitle]="'masterItems.semanticSubtitle' | translate">
     <div class="semantic-toolbar">
       <input
         pInputText
@@ -91,9 +82,7 @@
     </div>
 
     @if (semanticErrorMessage()) {
-      <div class="error-box">
-        {{ semanticErrorMessage() }}
-      </div>
+      <app-stella-state-message severity="error" [message]="semanticErrorMessage()" />
     }
 
     @if (resultadosSemanticos().length) {
@@ -140,11 +129,9 @@
         }
       </div>
     } @else if (consultaSemantica.trim() && !loadingSemantica() && !semanticErrorMessage()) {
-      <div class="empty-semantic">
-        {{ 'masterItems.semanticEmpty' | translate }}
-      </div>
+      <app-stella-empty-state [compact]="true" [message]="'masterItems.semanticEmpty' | translate" />
     }
-  </section>
+  </app-stella-ai-panel>
 
   <p-table
     styleClass="responsive-table"

@@ -3,30 +3,6 @@
   min-width: 14rem;
 }
 
-.semantic-search {
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
-  padding: 1rem;
-}
-
-.semantic-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.semantic-header h3 {
-  margin: 0;
-  color: var(--stella-color-text);
-  font-size: 1rem;
-}
-
-.semantic-header p {
-  margin: 0.25rem 0 0;
-  color: var(--stella-color-text-muted);
-}
-
 .semantic-toolbar {
   display: flex;
   gap: 0.75rem;
@@ -133,10 +109,6 @@
   margin: 0.125rem 0 0;
   color: var(--stella-color-text);
   overflow-wrap: anywhere;
-}
-
-.empty-semantic {
-  color: var(--stella-color-text-muted);
 }
 
 .item-image {
