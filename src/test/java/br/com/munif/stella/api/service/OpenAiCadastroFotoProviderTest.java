@@ -1,5 +1,8 @@
 package br.com.munif.stella.api.service;
 
+import br.com.munif.stella.api.config.AiProperties;
+import br.com.munif.stella.api.config.OpenAiLimitsProperties;
+import br.com.munif.stella.api.exception.AiUsageLimitException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -35,7 +38,7 @@ class OpenAiCadastroFotoProviderTest {
         environment = new MockEnvironment()
                 .withProperty("OPENAI_API_KEY", "test-key")
                 .withProperty("STELLA_OPENAI_MODEL", "gpt-test");
-        provider = new OpenAiCadastroFotoProvider(builder, environment);
+        provider = new OpenAiCadastroFotoProvider(builder, environment, guardSemLimite());
     }
 
     @Test
@@ -77,7 +80,8 @@ class OpenAiCadastroFotoProviderTest {
     void deveFalharQuandoApiKeyNaoEstaNoAmbiente() {
         OpenAiCadastroFotoProvider providerSemChave = new OpenAiCadastroFotoProvider(
                 RestClient.builder(),
-                new MockEnvironment()
+                new MockEnvironment(),
+                guardSemLimite()
         );
 
         assertThatThrownBy(() -> providerSemChave.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "imagem".getBytes())))
@@ -118,5 +122,35 @@ class OpenAiCadastroFotoProviderTest {
         assertThatThrownBy(() -> provider.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "imagem".getBytes())))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("OpenAI não retornou sugestões estruturadas.");
+    }
+
+    @Test
+    void deveBloquearAnaliseQuandoIaEstaDesabilitadaSemChamarOpenAi() {
+        OpenAiCadastroFotoProvider providerBloqueado = new OpenAiCadastroFotoProvider(
+                RestClient.builder(),
+                new MockEnvironment().withProperty("OPENAI_API_KEY", "test-key"),
+                new AiUsageGuard(new AiProperties(false), new OpenAiLimitsProperties(null, null, null))
+        );
+
+        assertThatThrownBy(() -> providerBloqueado.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "imagem".getBytes())))
+                .isInstanceOf(AiUsageLimitException.class)
+                .hasMessage("Recursos de IA estão desabilitados neste ambiente.");
+    }
+
+    @Test
+    void deveBloquearAnaliseQuandoLimiteDiarioFoiAtingidoSemChamarOpenAi() {
+        OpenAiCadastroFotoProvider providerBloqueado = new OpenAiCadastroFotoProvider(
+                RestClient.builder(),
+                new MockEnvironment().withProperty("OPENAI_API_KEY", "test-key"),
+                new AiUsageGuard(new AiProperties(true), new OpenAiLimitsProperties(0, null, null))
+        );
+
+        assertThatThrownBy(() -> providerBloqueado.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "imagem".getBytes())))
+                .isInstanceOf(AiUsageLimitException.class)
+                .hasMessage("Limite diário de análise de imagens da OpenAI atingido.");
+    }
+
+    private AiUsageGuard guardSemLimite() {
+        return new AiUsageGuard(new AiProperties(true), new OpenAiLimitsProperties(null, null, null));
     }
 }

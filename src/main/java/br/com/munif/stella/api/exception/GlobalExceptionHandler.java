@@ -50,6 +50,11 @@ public class GlobalExceptionHandler {
         return resposta(HttpStatus.CONFLICT, ex.getMessage(), ex, request, false);
     }
 
+    @ExceptionHandler(AiUsageLimitException.class)
+    public ResponseEntity<Map<String, Object>> tratarUsoIa(AiUsageLimitException ex, HttpServletRequest request) {
+        return resposta(ex.getStatus(), ex.getMessage(), ex, request, false);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> tratarRegraNegocio(IllegalArgumentException ex, HttpServletRequest request) {
         return resposta(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, request, false);

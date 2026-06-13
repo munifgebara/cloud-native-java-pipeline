@@ -68,6 +68,14 @@ stella:
     model: ${STELLA_EMBEDDINGS_MODEL:sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
     dimensions: ${STELLA_EMBEDDINGS_DIMENSIONS:384}
 
+ai:
+  enabled: ${AI_ENABLED:true}
+
+openai:
+  max-images-per-day: ${OPENAI_MAX_IMAGES_PER_DAY:-1}
+  max-generations-per-day: ${OPENAI_MAX_GENERATIONS_PER_DAY:-1}
+  max-embeddings-per-day: ${OPENAI_MAX_EMBEDDINGS_PER_DAY:-1}
+
 management:
   endpoints:
     access:
