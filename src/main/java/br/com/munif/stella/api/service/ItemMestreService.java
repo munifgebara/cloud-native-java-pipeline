@@ -60,7 +60,7 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
             salvo.setAtivo(false);
             salvo = salvar(salvo);
         }
-        vectorSearchService.sincronizar(salvo);
+        sincronizarIndiceVetorialSilenciosamente(salvo, "item-index-sync-after-create");
         StructuredBusinessLogger.info(log, "inventory", "item-created", StructuredBusinessLogger.fields(
                 "item_id", salvo.getId(),
                 "item_name", salvo.getNome(),
@@ -118,7 +118,7 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
         item.setCategoria(categoria);
 
         ItemMestre salvo = salvar(item);
-        vectorSearchService.sincronizar(salvo);
+        sincronizarIndiceVetorialSilenciosamente(salvo, "item-index-sync-after-update");
         StructuredBusinessLogger.info(log, "inventory", "item-updated", StructuredBusinessLogger.fields(
                 "item_id", salvo.getId(),
                 "item_name", salvo.getNome(),
@@ -148,7 +148,7 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
         item.setImagemProvider(generatedByAi ? ValidacoesBR.trimToNull(provider) : null);
 
         ItemMestre salvo = salvar(item);
-        vectorSearchService.sincronizar(salvo);
+        sincronizarIndiceVetorialSilenciosamente(salvo, "item-index-sync-after-image-update");
         imagemStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
         StructuredBusinessLogger.info(log, "inventory", "item-image-updated", StructuredBusinessLogger.fields(
                 "item_id", salvo.getId(),
@@ -186,7 +186,7 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     public void excluirLogicamente(UUID id) {
         ItemMestre item = buscarPorId(id);
         excluir(id);
-        vectorSearchService.remover(id);
+        removerIndiceVetorialSilenciosamente(id, item.getNome());
         StructuredBusinessLogger.info(log, "inventory", "item-deactivated", StructuredBusinessLogger.fields(
                 "item_id", id,
                 "item_name", item.getNome(),
@@ -226,5 +226,31 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
         item.setNome(ValidacoesBR.trimToNull(item.getNome()));
         item.setDescricao(ValidacoesBR.trimToNull(item.getDescricao()));
         item.setObservacoes(ValidacoesBR.trimToNull(item.getObservacoes()));
+    }
+
+    private void sincronizarIndiceVetorialSilenciosamente(ItemMestre item, String action) {
+        try {
+            vectorSearchService.sincronizar(item);
+        } catch (RuntimeException ex) {
+            StructuredBusinessLogger.warn(log, "vector-search", action, StructuredBusinessLogger.fields(
+                    "item_id", item == null ? null : item.getId(),
+                    "item_name", item == null ? null : item.getNome(),
+                    "success", false,
+                    "failure_type", ex.getClass().getSimpleName()
+            ));
+        }
+    }
+
+    private void removerIndiceVetorialSilenciosamente(UUID id, String nome) {
+        try {
+            vectorSearchService.remover(id);
+        } catch (RuntimeException ex) {
+            StructuredBusinessLogger.warn(log, "vector-search", "item-index-remove-after-delete", StructuredBusinessLogger.fields(
+                    "item_id", id,
+                    "item_name", nome,
+                    "success", false,
+                    "failure_type", ex.getClass().getSimpleName()
+            ));
+        }
     }
 }

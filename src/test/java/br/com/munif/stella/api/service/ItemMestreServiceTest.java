@@ -24,6 +24,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -89,6 +90,19 @@ class ItemMestreServiceTest {
         assertThat(resposta.nome()).isEqualTo("Cadeira ergonomica");
         assertThat(resposta.categoriaId()).isNull();
         verify(categoriaRepository, never()).findById(any(UUID.class));
+    }
+
+    @Test
+    void deveCriarItemMestreMesmoQuandoIndiceVetorialFalha() {
+        when(repository.save(any(ItemMestre.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        doThrow(new IllegalStateException("pgvector indisponivel"))
+                .when(vectorSearchService).sincronizar(any(ItemMestre.class));
+
+        var resposta = service.criar(new ItemMestreCreateDTO("Cadeira ergonomica", null, null, null, null, true));
+
+        assertThat(resposta.nome()).isEqualTo("Cadeira ergonomica");
+        verify(repository).save(any(ItemMestre.class));
+        verify(vectorSearchService).sincronizar(any(ItemMestre.class));
     }
 
     @Test
@@ -256,6 +270,21 @@ class ItemMestreServiceTest {
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
         when(repository.save(item)).thenReturn(item);
+
+        service.excluirLogicamente(id);
+
+        assertThat(item.isAtivo()).isFalse();
+        verify(vectorSearchService).remover(id);
+    }
+
+    @Test
+    void deveExcluirLogicamenteMesmoQuandoRemocaoDoIndiceVetorialFalha() {
+        UUID id = UUID.randomUUID();
+        ItemMestre item = item(id, "Notebook", null);
+
+        when(repository.findById(id)).thenReturn(Optional.of(item));
+        when(repository.save(item)).thenReturn(item);
+        doThrow(new IllegalStateException("pgvector indisponivel")).when(vectorSearchService).remover(id);
 
         service.excluirLogicamente(id);
 
