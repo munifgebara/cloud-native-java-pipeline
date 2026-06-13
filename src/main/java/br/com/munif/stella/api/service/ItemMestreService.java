@@ -20,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
@@ -229,28 +231,38 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     }
 
     private void sincronizarIndiceVetorialSilenciosamente(ItemMestre item, String action) {
-        try {
-            vectorSearchService.sincronizar(item);
-        } catch (RuntimeException ex) {
-            StructuredBusinessLogger.warn(log, "vector-search", action, StructuredBusinessLogger.fields(
-                    "item_id", item == null ? null : item.getId(),
-                    "item_name", item == null ? null : item.getNome(),
-                    "success", false,
-                    "failure_type", ex.getClass().getSimpleName()
-            ));
-        }
+        executarAposCommit(action, item == null ? null : item.getId(), item == null ? null : item.getNome(),
+                () -> vectorSearchService.sincronizar(item));
     }
 
     private void removerIndiceVetorialSilenciosamente(UUID id, String nome) {
-        try {
-            vectorSearchService.remover(id);
-        } catch (RuntimeException ex) {
-            StructuredBusinessLogger.warn(log, "vector-search", "item-index-remove-after-delete", StructuredBusinessLogger.fields(
-                    "item_id", id,
-                    "item_name", nome,
-                    "success", false,
-                    "failure_type", ex.getClass().getSimpleName()
-            ));
+        executarAposCommit("item-index-remove-after-delete", id, nome, () -> vectorSearchService.remover(id));
+    }
+
+    private void executarAposCommit(String action, UUID itemId, String itemName, Runnable operation) {
+        Runnable guardedOperation = () -> {
+            try {
+                operation.run();
+            } catch (RuntimeException ex) {
+                StructuredBusinessLogger.warn(log, "vector-search", action, StructuredBusinessLogger.fields(
+                        "item_id", itemId,
+                        "item_name", itemName,
+                        "success", false,
+                        "failure_type", ex.getClass().getSimpleName()
+                ));
+            }
+        };
+
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            guardedOperation.run();
+            return;
         }
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                guardedOperation.run();
+            }
+        });
     }
 }

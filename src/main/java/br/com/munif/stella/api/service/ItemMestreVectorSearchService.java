@@ -16,6 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -94,7 +95,7 @@ public class ItemMestreVectorSearchService {
         this.aiUsageGuard = aiUsageGuard;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sincronizar(ItemMestre item) {
         if (!vectorSearchProperties.enabled() || item == null || item.getId() == null) {
             return;
@@ -147,7 +148,7 @@ public class ItemMestreVectorSearchService {
         }
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void remover(UUID itemMestreId) {
         if (!vectorSearchProperties.enabled() || itemMestreId == null) {
             return;
