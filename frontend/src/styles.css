@@ -1,13 +1,48 @@
 @import "primeicons/primeicons.css";
 
+:root {
+  --stella-color-bg: #f6f7f9;
+  --stella-color-bg-elevated: #eef3f5;
+  --stella-color-surface: #ffffff;
+  --stella-color-surface-muted: #f8fafc;
+  --stella-color-border: #dbe3ea;
+  --stella-color-border-strong: #c7d2de;
+  --stella-color-text: #111827;
+  --stella-color-text-soft: #334155;
+  --stella-color-text-muted: #64748b;
+  --stella-color-brand: #0f766e;
+  --stella-color-brand-strong: #115e59;
+  --stella-color-brand-dark: #102f35;
+  --stella-color-brand-soft: #ecfdf5;
+  --stella-color-brand-on-dark-active: #a7f3d0;
+  --stella-color-info: #2563eb;
+  --stella-color-info-soft: #eff6ff;
+  --stella-color-success: #047857;
+  --stella-color-success-soft: #ecfdf5;
+  --stella-color-warning: #b45309;
+  --stella-color-warning-soft: #fffbeb;
+  --stella-color-danger: #b91c1c;
+  --stella-color-danger-soft: #fef2f2;
+  --stella-color-ai: #6d28d9;
+  --stella-color-ai-strong: #5b21b6;
+  --stella-color-ai-soft: #f5f3ff;
+  --stella-radius-sm: 6px;
+  --stella-radius-md: 8px;
+  --stella-radius-lg: 12px;
+  --stella-shadow-card: 0 8px 24px rgba(15, 23, 42, 0.06);
+  --stella-shadow-panel: 0 18px 48px rgba(15, 23, 42, 0.08);
+  --text-color-secondary: var(--stella-color-text-muted);
+  --surface-border: var(--stella-color-border);
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
   min-height: 100%;
-  font-family: Arial, Helvetica, sans-serif;
-  background: #f5f7fa;
-  color: #111827;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--stella-color-bg);
+  color: var(--stella-color-text);
 }
 
 body {
@@ -38,10 +73,181 @@ textarea,
   width: 100%;
 }
 
+.page,
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.page-header h2,
+.dashboard-page h1 {
+  margin: 0;
+  color: var(--stella-color-text);
+  font-weight: 750;
+  letter-spacing: 0;
+}
+
+.page-header p,
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--stella-color-text-muted);
+  line-height: 1.45;
+}
+
+.toolbar,
+.stella-toolbar {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.toolbar input,
+.toolbar select,
+.stella-toolbar input,
+.stella-toolbar select {
+  min-width: 14rem;
+}
+
+select,
+textarea,
+input[type="file"] {
+  border: 1px solid var(--stella-color-border-strong);
+  border-radius: var(--stella-radius-sm);
+  background: var(--stella-color-surface);
+  color: var(--stella-color-text);
+  padding: 0.65rem 0.75rem;
+}
+
+select:focus-visible,
+textarea:focus-visible,
+input[type="file"]:focus-visible,
+.p-inputtext:focus {
+  outline: 2px solid color-mix(in srgb, var(--stella-color-info) 36%, transparent);
+  outline-offset: 1px;
+  border-color: var(--stella-color-info);
+}
+
+.stella-card,
+.stella-panel,
+.semantic-search,
+.semantic-section,
+.ranking-section,
+.state-card {
+  border: 1px solid var(--stella-color-border);
+  border-radius: var(--stella-radius-md);
+  background: var(--stella-color-surface);
+  box-shadow: var(--stella-shadow-card);
+}
+
+.stella-panel,
+.semantic-search,
+.semantic-section,
+.ranking-section,
+.state-card {
+  padding: 1.25rem;
+}
+
+.stella-ai-panel,
+.semantic-search,
+.semantic-section {
+  border-color: color-mix(in srgb, var(--stella-color-ai) 22%, var(--stella-color-border));
+  background:
+    linear-gradient(180deg, rgba(245, 243, 255, 0.82), rgba(255, 255, 255, 0.96)),
+    var(--stella-color-surface);
+}
+
+.stella-state,
+.error-box,
+.message.error,
+.success-box,
+.empty-ranking,
+.empty-semantic,
+.empty-box {
+  border: 1px solid var(--stella-color-border);
+  border-radius: var(--stella-radius-md);
+  padding: 0.75rem 1rem;
+  color: var(--stella-color-text-muted);
+  background: var(--stella-color-surface-muted);
+}
+
+.error-box,
+.message.error,
+.stella-state--error,
+.state-card.error {
+  border-color: color-mix(in srgb, var(--stella-color-danger) 28%, white);
+  background: var(--stella-color-danger-soft);
+  color: var(--stella-color-danger);
+}
+
+.success-box,
+.stella-state--success {
+  border-color: color-mix(in srgb, var(--stella-color-success) 28%, white);
+  background: var(--stella-color-success-soft);
+  color: var(--stella-color-success);
+}
+
+.stella-state--warning {
+  border-color: color-mix(in srgb, var(--stella-color-warning) 30%, white);
+  background: var(--stella-color-warning-soft);
+  color: var(--stella-color-warning);
+}
+
+.stella-state--info {
+  border-color: color-mix(in srgb, var(--stella-color-info) 26%, white);
+  background: var(--stella-color-info-soft);
+  color: var(--stella-color-info);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.section-header h2,
+.section-header h3 {
+  margin: 0;
+  color: var(--stella-color-text);
+}
+
+.section-header p {
+  margin: 0.35rem 0 0;
+  color: var(--stella-color-text-muted);
+}
+
+.section-header a {
+  color: var(--stella-color-info);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.semantic-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .p-card,
 .p-datatable,
 .p-dialog {
   max-width: 100%;
+}
+
+.p-card {
+  border: 1px solid var(--stella-color-border);
+  box-shadow: var(--stella-shadow-card);
 }
 
 .p-button {
@@ -139,11 +345,11 @@ textarea,
   }
 
   .responsive-table tbody tr {
-    border: 1px solid #dbe3ea;
-    border-radius: 8px;
+    border: 1px solid var(--stella-color-border);
+    border-radius: var(--stella-radius-md);
     overflow: hidden;
-    background: #ffffff;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    background: var(--stella-color-surface);
+    box-shadow: var(--stella-shadow-card);
   }
 
   .responsive-table tbody td {
@@ -153,7 +359,7 @@ textarea,
     align-items: center;
     min-height: 3rem;
     border: 0;
-    border-bottom: 1px solid #edf2f7;
+    border-bottom: 1px solid var(--stella-color-border);
     padding: 0.75rem;
     overflow-wrap: anywhere;
   }
@@ -164,7 +370,7 @@ textarea,
 
   .responsive-table tbody td::before {
     content: attr(data-label);
-    color: #64748b;
+    color: var(--stella-color-text-muted);
     font-size: 0.82rem;
     font-weight: 700;
     text-transform: uppercase;

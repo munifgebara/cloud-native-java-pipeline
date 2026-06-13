@@ -5,7 +5,7 @@
   padding: 24px;
   background:
     radial-gradient(circle at top left, rgba(15, 118, 110, 0.14), transparent 34rem),
-    linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+    linear-gradient(180deg, var(--stella-color-surface-muted) 0%, var(--stella-color-bg-elevated) 100%);
 }
 
 .login-language {
@@ -17,13 +17,13 @@
 :host ::ng-deep .p-card {
   width: 100%;
   max-width: 420px;
-  border: 1px solid #dbe3ea;
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  border: 1px solid var(--stella-color-border);
+  box-shadow: var(--stella-shadow-panel);
 }
 
 .login-text {
   margin-bottom: 20px;
-  color: #4b5563;
+  color: var(--stella-color-text-muted);
 }
 
 .login-form {
@@ -38,15 +38,15 @@
 
 .field label {
   font-weight: 600;
-  color: #374151;
+  color: var(--stella-color-text-soft);
 }
 
 .error-message {
-  color: #b91c1c;
-  background: #fee2e2;
-  border: 1px solid #fecaca;
+  color: var(--stella-color-danger);
+  background: var(--stella-color-danger-soft);
+  border: 1px solid color-mix(in srgb, var(--stella-color-danger) 28%, white);
   padding: 10px 12px;
-  border-radius: 8px;
+  border-radius: var(--stella-radius-md);
 }
 
 @media (max-width: 520px) {

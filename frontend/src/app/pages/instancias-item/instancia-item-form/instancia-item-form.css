@@ -26,15 +26,11 @@
 }
 
 .field-error {
-  color: #b91c1c;
+  color: var(--stella-color-danger);
 }
 
 .message.error {
   grid-column: 1 / -1;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  background: #ffe8e8;
-  color: #9f1239;
 }
 
 @media (max-width: 700px) {
