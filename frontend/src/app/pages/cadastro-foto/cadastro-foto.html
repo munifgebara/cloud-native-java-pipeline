@@ -14,72 +14,155 @@
     <div class="success-box">{{ successMessage() }}</div>
   }
 
-  <div
-    class="upload-panel stella-ai-panel"
-    tabindex="0"
-    (paste)="colarArquivo($event)">
-    <div class="upload-control">
-      <label for="foto">{{ 'photoRegistration.file' | translate }}</label>
-      <input id="foto" type="file" accept="image/png,image/jpeg,image/webp,image/gif" (change)="selecionarArquivo($event)" />
-      <small>{{ 'photoRegistration.fileHint' | translate }}</small>
-      <small>{{ 'photoRegistration.filePasteHint' | translate }}</small>
+  <ol class="flow-steps" [attr.aria-label]="'photoRegistration.flowTitle' | translate">
+    <li [class.active]="etapaAtual() === 1" [class.done]="etapaAtual() > 1">
+      <span>1</span>
+      <strong>{{ 'photoRegistration.stepImage' | translate }}</strong>
+      <small>{{ 'photoRegistration.stepImageHint' | translate }}</small>
+    </li>
+    <li [class.active]="etapaAtual() === 2" [class.done]="etapaAtual() > 2">
+      <span>2</span>
+      <strong>{{ 'photoRegistration.stepAnalyze' | translate }}</strong>
+      <small>{{ 'photoRegistration.stepAnalyzeHint' | translate }}</small>
+    </li>
+    <li [class.active]="etapaAtual() === 3" [class.done]="etapaAtual() > 3">
+      <span>3</span>
+      <strong>{{ 'photoRegistration.stepReview' | translate }}</strong>
+      <small>{{ 'photoRegistration.stepReviewHint' | translate }}</small>
+    </li>
+    <li [class.active]="etapaAtual() === 4">
+      <span>4</span>
+      <strong>{{ 'photoRegistration.stepConfirm' | translate }}</strong>
+      <small>{{ 'photoRegistration.stepConfirmHint' | translate }}</small>
+    </li>
+  </ol>
+
+  <section class="guided-grid">
+    <div
+      class="upload-panel stella-ai-panel"
+      tabindex="0"
+      (paste)="colarArquivo($event)">
+      <div class="panel-heading">
+        <span class="review-kicker">{{ 'photoRegistration.stepImage' | translate }}</span>
+        <h3>{{ 'photoRegistration.uploadTitle' | translate }}</h3>
+        <p>{{ 'photoRegistration.uploadSubtitle' | translate }}</p>
+      </div>
+
+      <div class="upload-control">
+        <label for="foto">{{ 'photoRegistration.file' | translate }}</label>
+        <input id="foto" type="file" accept="image/png,image/jpeg,image/webp,image/gif" (change)="selecionarArquivo($event)" />
+        <small>{{ 'photoRegistration.fileHint' | translate }}</small>
+        <small>{{ 'photoRegistration.filePasteHint' | translate }}</small>
+      </div>
+
+      <div class="field">
+        <label for="localPadrao">{{ 'photoRegistration.defaultLocation' | translate }}</label>
+        <select id="localPadrao" [(ngModel)]="localPadraoId">
+          <option value="">{{ 'photoRegistration.noDefaultLocation' | translate }}</option>
+          @for (local of locais(); track local.id) {
+            <option [value]="local.id">{{ local.caminho || local.nome }}</option>
+          }
+        </select>
+        <small>{{ localPadraoResumo() }}</small>
+      </div>
+
+      <div class="upload-actions">
+        <button
+          pButton
+          type="button"
+          icon="pi pi-sparkles"
+          [label]="'photoRegistration.analyze' | translate"
+          [loading]="analisando()"
+          [disabled]="!arquivo() || cadastrando()"
+          (click)="analisar()">
+        </button>
+      </div>
     </div>
 
-    <div class="field">
-      <label for="localPadrao">{{ 'photoRegistration.defaultLocation' | translate }}</label>
-      <select id="localPadrao" [(ngModel)]="localPadraoId">
-        <option value="">{{ 'photoRegistration.noDefaultLocation' | translate }}</option>
-        @for (local of locais(); track local.id) {
-          <option [value]="local.id">{{ local.caminho || local.nome }}</option>
-        }
-      </select>
-    </div>
+    <aside class="image-summary stella-panel">
+      @if (previewUrl()) {
+        <div class="preview">
+          <img [src]="previewUrl()" [alt]="'photoRegistration.file' | translate" />
+        </div>
+      } @else {
+        <div class="empty-preview">
+          <i class="pi pi-camera"></i>
+          <strong>{{ 'photoRegistration.noImageTitle' | translate }}</strong>
+          <span>{{ 'photoRegistration.noImageHint' | translate }}</span>
+        </div>
+      }
 
-    <button
-      pButton
-      type="button"
-      icon="pi pi-sparkles"
-      [label]="'photoRegistration.analyze' | translate"
-      [loading]="analisando()"
-      [disabled]="!arquivo() || cadastrando()"
-      (click)="analisar()">
-    </button>
-  </div>
+      <dl class="flow-summary">
+        <div>
+          <dt>{{ 'photoRegistration.selectedFile' | translate }}</dt>
+          <dd>{{ arquivo()?.name || ('photoRegistration.notSelected' | translate) }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'photoRegistration.defaultLocation' | translate }}</dt>
+          <dd>{{ localPadraoResumo() }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'photoRegistration.suggestions' | translate }}</dt>
+          <dd>{{ itens().length }}</dd>
+        </div>
+      </dl>
+    </aside>
+  </section>
 
-  @if (previewUrl()) {
-    <div class="preview">
-      <img [src]="previewUrl()" [alt]="'photoRegistration.file' | translate" />
-    </div>
+  @if (!itens().length) {
+    <section class="empty-box analysis-empty">
+      <i class="pi pi-sparkles"></i>
+      <div>
+        <strong>{{ 'photoRegistration.waitingAnalysisTitle' | translate }}</strong>
+        <p>{{ 'photoRegistration.waitingAnalysisHint' | translate }}</p>
+      </div>
+    </section>
   }
 
   @if (itens().length) {
-    <div class="review-header stella-panel">
+    <section class="review-header stella-panel">
       <div>
-        <span class="review-kicker">{{ 'photoRegistration.analyze' | translate }}</span>
+        <span class="review-kicker">{{ 'photoRegistration.stepReview' | translate }}</span>
         <h3>{{ 'photoRegistration.reviewTitle' | translate }}</h3>
+        <p>{{ 'photoRegistration.reviewSubtitle' | translate }}</p>
       </div>
-      <button
-        pButton
-        type="button"
-        icon="pi pi-check"
-        [label]="'photoRegistration.createApproved' | translate"
-        [loading]="cadastrando()"
-        [disabled]="analisando()"
-        (click)="cadastrarSelecionados()">
-      </button>
-    </div>
+      <div class="review-metrics" [attr.aria-label]="'photoRegistration.analysisSummary' | translate">
+        <span>
+          <strong>{{ itens().length }}</strong>
+          {{ 'photoRegistration.suggestions' | translate }}
+        </span>
+        <span>
+          <strong>{{ itensAprovados() }}</strong>
+          {{ 'photoRegistration.approvedItems' | translate }}
+        </span>
+        <span>
+          <strong>{{ instanciasAprovadasTotal() }}</strong>
+          {{ 'photoRegistration.approvedInstances' | translate }}
+        </span>
+      </div>
+    </section>
 
     <div class="suggestions">
       @for (item of itens(); track $index) {
-        <p-card>
-          <ng-template pTemplate="title">
+        <article class="suggestion-card stella-card" [class.pending]="!item.aprovada">
+          <header class="suggestion-header">
             <label class="approval">
               <p-checkbox [binary]="true" [ngModel]="item.aprovada" (onChange)="toggleItem(item)" />
               <span>{{ 'photoRegistration.approveItem' | translate }}</span>
             </label>
-          </ng-template>
+            <div class="suggestion-title">
+              <h4>{{ item.nome || ('photoRegistration.unnamedSuggestion' | translate) }}</h4>
+              <p>{{ item.descricao || ('masterItems.semanticNoDescription' | translate) }}</p>
+            </div>
+            <div class="suggestion-tags">
+              <p-tag [value]="confiancaLabel(item.confianca)" severity="info" />
+              <p-tag
+                [value]="item.identificacaoVerificada === null ? '-' : (item.identificacaoVerificada ? ('common.yes' | translate) : ('common.no' | translate))"
+                [severity]="item.identificacaoVerificada ? 'success' : 'warn'" />
+            </div>
+          </header>
 
-          <div class="item-grid">
+          <div class="item-grid primary-fields">
             <label>
               {{ 'common.name' | translate }}
               <input pInputText type="text" [(ngModel)]="item.nome" />
@@ -101,70 +184,78 @@
             </label>
 
             <label>
-              {{ 'photoRegistration.suggestedCategory' | translate }}
-              <input pInputText type="text" [(ngModel)]="item.categoriaSugerida" />
-            </label>
-
-            <label>
-              {{ 'photoRegistration.brand' | translate }}
-              <input pInputText type="text" [(ngModel)]="item.marca" />
-            </label>
-
-            <label>
-              {{ 'photoRegistration.model' | translate }}
-              <input pInputText type="text" [(ngModel)]="item.modelo" />
-            </label>
-
-            <label>
-              {{ 'photoRegistration.author' | translate }}
-              <input pInputText type="text" [(ngModel)]="item.autor" />
-            </label>
-
-            <label>
-              {{ 'photoRegistration.publisher' | translate }}
-              <input pInputText type="text" [(ngModel)]="item.editora" />
-            </label>
-
-            <label>
-              {{ 'photoRegistration.publicationYear' | translate }}
-              <input pInputText type="text" [(ngModel)]="item.anoPublicacao" />
-            </label>
-
-            <label>
-              {{ 'photoRegistration.isbn' | translate }}
-              <input pInputText type="text" [(ngModel)]="item.isbn" />
-            </label>
-
-            <label>
-              {{ 'photoRegistration.source' | translate }}
-              <input pInputText type="text" [(ngModel)]="item.fontePesquisa" />
-            </label>
-
-            <label>
               {{ 'photoRegistration.condition' | translate }}
               <input pInputText type="text" [(ngModel)]="item.estadoConservacao" />
             </label>
-
-            <label>
-              {{ 'photoRegistration.confidence' | translate }}
-              <p-tag [value]="confiancaLabel(item.confianca)" severity="info" />
-            </label>
-
-            <label>
-              {{ 'photoRegistration.verifiedIdentification' | translate }}
-              <p-tag
-                [value]="item.identificacaoVerificada === null ? '-' : (item.identificacaoVerificada ? ('common.yes' | translate) : ('common.no' | translate))"
-                [severity]="item.identificacaoVerificada ? 'success' : 'warn'" />
-            </label>
           </div>
+
+          <details class="metadata-panel">
+            <summary>{{ 'photoRegistration.technicalDetails' | translate }}</summary>
+            <div class="item-grid">
+              <label>
+                {{ 'photoRegistration.suggestedCategory' | translate }}
+                <input pInputText type="text" [(ngModel)]="item.categoriaSugerida" />
+              </label>
+
+              <label>
+                {{ 'photoRegistration.brand' | translate }}
+                <input pInputText type="text" [(ngModel)]="item.marca" />
+              </label>
+
+              <label>
+                {{ 'photoRegistration.model' | translate }}
+                <input pInputText type="text" [(ngModel)]="item.modelo" />
+              </label>
+
+              <label>
+                {{ 'photoRegistration.author' | translate }}
+                <input pInputText type="text" [(ngModel)]="item.autor" />
+              </label>
+
+              <label>
+                {{ 'photoRegistration.publisher' | translate }}
+                <input pInputText type="text" [(ngModel)]="item.editora" />
+              </label>
+
+              <label>
+                {{ 'photoRegistration.publicationYear' | translate }}
+                <input pInputText type="text" [(ngModel)]="item.anoPublicacao" />
+              </label>
+
+              <label>
+                {{ 'photoRegistration.isbn' | translate }}
+                <input pInputText type="text" [(ngModel)]="item.isbn" />
+              </label>
+
+              <label>
+                {{ 'photoRegistration.source' | translate }}
+                <input pInputText type="text" [(ngModel)]="item.fontePesquisa" />
+              </label>
+
+              <label>
+                {{ 'photoRegistration.confidence' | translate }}
+                <p-tag [value]="confiancaLabel(item.confianca)" severity="info" />
+              </label>
+
+              <label>
+                {{ 'photoRegistration.verifiedIdentification' | translate }}
+                <p-tag
+                  [value]="item.identificacaoVerificada === null ? '-' : (item.identificacaoVerificada ? ('common.yes' | translate) : ('common.no' | translate))"
+                  [severity]="item.identificacaoVerificada ? 'success' : 'warn'" />
+              </label>
+            </div>
+          </details>
 
           <label class="full-field">
             {{ 'masterItems.notes' | translate }}
             <textarea rows="2" [(ngModel)]="item.observacoes"></textarea>
           </label>
 
-          <div class="instances">
-            <h4>{{ 'photoRegistration.instancesTitle' | translate }}</h4>
+          <details class="instances" open>
+            <summary>
+              <span>{{ 'photoRegistration.instancesTitle' | translate }}</span>
+              <small>{{ instanciasAprovadasItem(item) }} / {{ item.instancias.length }} {{ 'photoRegistration.approvedInstancesShort' | translate }}</small>
+            </summary>
             @for (instancia of item.instancias; track $index) {
               <div class="instance-row">
                 <label class="approval compact">
@@ -192,9 +283,28 @@
                 </label>
               </div>
             }
-          </div>
-        </p-card>
+          </details>
+        </article>
       }
     </div>
+
+    <section class="confirm-panel stella-panel">
+      <div>
+        <span class="review-kicker">{{ 'photoRegistration.stepConfirm' | translate }}</span>
+        <h3>{{ 'photoRegistration.confirmTitle' | translate }}</h3>
+        <p>
+          {{ 'photoRegistration.confirmSummary' | translate: { items: itensAprovados(), instances: instanciasAprovadasTotal() } }}
+        </p>
+      </div>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-check"
+        [label]="'photoRegistration.createApproved' | translate"
+        [loading]="cadastrando()"
+        [disabled]="analisando()"
+        (click)="cadastrarSelecionados()">
+      </button>
+    </section>
   }
 </div>

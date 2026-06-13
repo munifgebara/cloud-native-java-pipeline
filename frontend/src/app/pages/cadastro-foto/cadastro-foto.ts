@@ -184,6 +184,45 @@ export class CadastroFotoComponent implements OnInit {
     return valor == null ? '-' : `${Math.round(valor * 100)}%`;
   }
 
+  etapaAtual(): number {
+    if (this.cadastrando()) {
+      return 4;
+    }
+
+    if (this.itens().length) {
+      return this.itensAprovados() ? 4 : 3;
+    }
+
+    if (this.arquivo() || this.analisando()) {
+      return 2;
+    }
+
+    return 1;
+  }
+
+  itensAprovados(): number {
+    return this.itens().filter((item) => item.aprovada && item.nome.trim()).length;
+  }
+
+  instanciasAprovadasTotal(): number {
+    return this.itens()
+      .filter((item) => item.aprovada)
+      .reduce((total, item) => total + this.instanciasAprovadasItem(item), 0);
+  }
+
+  instanciasAprovadasItem(item: ItemRevisao): number {
+    return item.instancias.filter((instancia) => instancia.aprovada).length;
+  }
+
+  localPadraoResumo(): string {
+    if (!this.localPadraoId) {
+      return this.i18n.translate('photoRegistration.noDefaultLocation');
+    }
+
+    const local = this.locais().find((item) => item.id === this.localPadraoId);
+    return local?.caminho || local?.nome || this.i18n.translate('photoRegistration.noDefaultLocation');
+  }
+
   private cadastrarItem(item: ItemRevisao) {
     const arquivo = this.arquivo();
 

@@ -239,6 +239,51 @@ input[type="file"]:focus-visible,
   object-fit: cover;
 }
 
+.flow-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flow-steps li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.25rem 0.6rem;
+  align-items: center;
+  border: 1px solid var(--stella-color-border);
+  border-radius: var(--stella-radius-md);
+  background: var(--stella-color-surface);
+  padding: 0.75rem;
+  color: var(--stella-color-text-muted);
+}
+
+.flow-steps span {
+  grid-row: span 2;
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--stella-color-surface-muted);
+  color: var(--stella-color-text-soft);
+  font-weight: 800;
+}
+
+.flow-steps li.active {
+  border-color: var(--stella-color-ai);
+  background: var(--stella-color-ai-soft);
+}
+
+.flow-steps li.active span,
+.flow-steps li.done span {
+  background: var(--stella-color-ai);
+  color: var(--stella-color-surface);
+}
+
 .p-card,
 .p-datatable,
 .p-dialog {
