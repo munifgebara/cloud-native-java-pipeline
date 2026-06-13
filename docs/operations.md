@@ -173,9 +173,12 @@ sudo k3s kubectl rollout history deployment/stella-api -n platform
 
 ## Backup Notes
 
-PostgreSQL and MinIO hold durable application data. Backups should cover both:
+Backups are documented in [Backup and Restore](backup.md). The Gimli setup must support:
 
-- PostgreSQL database dump or volume snapshot
-- MinIO bucket contents or persistent volume snapshot
-
-Backups are not fully automated in the current repository and should be treated as a separate operational hardening item.
+- full backup to a configured rclone remote, initially Google Drive
+- encrypted Kubernetes secrets
+- PostgreSQL-only restore
+- MinIO-only restore
+- Kubernetes resources and secrets restore
+- daily scheduled backup
+- pre-CD backup before any production deployment change

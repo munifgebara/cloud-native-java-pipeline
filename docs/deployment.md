@@ -21,9 +21,11 @@ The repository uses three GitHub Actions workflows:
 | --- | --- |
 | `ci.yml` | Runs `./mvnw clean verify` for pushes and pull requests |
 | `publish-stella-api.yml` | Builds and publishes the API image to GHCR after CI succeeds on `main` |
-| `cd.yml` | Applies Kubernetes manifests and updates the API image on the self-hosted k3s runner |
+| `cd.yml` | Runs a pre-CD backup, applies Kubernetes manifests and updates the API image on the self-hosted k3s runner |
 
 The published image is tagged as `latest`, `main`, and the commit SHA.
+
+The CD workflow requires the Gimli backup environment described in [Backup and Restore](backup.md). A successful pre-CD backup is required before manifests are applied or the API image is changed.
 
 ## Applying Manifests Manually
 

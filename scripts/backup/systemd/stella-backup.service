@@ -1,0 +1,10 @@
+[Unit]
+Description=Stella full backup to remote storage
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/stella-backup/backup.env
+WorkingDirectory=/opt/stella-backup/current
+ExecStart=/usr/bin/env bash /opt/stella-backup/current/scripts/backup/stella-backup.sh daily

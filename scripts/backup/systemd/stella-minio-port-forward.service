@@ -1,0 +1,14 @@
+[Unit]
+Description=Stella MinIO port-forward for host backups
+After=k3s.service network-online.target
+Wants=network-online.target
+Requires=k3s.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/k3s kubectl port-forward -n platform svc/minio 19000:9000 --address 127.0.0.1
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
