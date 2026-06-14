@@ -307,6 +307,12 @@ export const ES_TRANSLATIONS = {
   'masterItems.form.aiImageError': 'No fue posible generar la imagen por IA.',
   'masterItems.form.updateError': 'No fue posible actualizar el item.',
   'masterItems.form.createError': 'No fue posible crear el item.',
+  'masterItems.form.instances': 'Instancias',
+  'masterItems.form.addInstance': 'Nueva instancia',
+  'masterItems.form.newInstanceTitle': 'Nueva instancia',
+  'masterItems.form.instancesEmpty': 'No hay instancias registradas para este item.',
+  'masterItems.form.instancesLoadError': 'No fue posible cargar las instancias.',
+  'masterItems.form.instanceCreateError': 'No fue posible registrar la instancia.',
 
   'photoRegistration.title': 'Registro por foto',
   'photoRegistration.subtitle': 'Envia una imagen, revisa las sugerencias de IA y aprueba solo lo que debe registrarse.',

@@ -1,15 +1,20 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
+import { DialogModule } from 'primeng/dialog';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
 import { CategoriaResumo, CategoriaService } from '../../../core/categoria/categoria';
 import { IMAGE_CONTENT_TYPES, imageFileFromPaste } from '../../../core/image/image-clipboard';
 import { mensagemErroHttp } from '../../../core/http-error';
 import { ItemMestreService } from '../../../core/item-mestre/item-mestre';
+import { InstanciaItemResumo, InstanciaItemService, StatusOperacionalInstancia } from '../../../core/instancia-item/instancia-item';
+import { LocalResumo, LocalService } from '../../../core/local/local';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
@@ -17,7 +22,7 @@ const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 @Component({
   selector: 'app-item-mestre-form',
   standalone: true,
-  imports: [ReactiveFormsModule, InputTextModule, TextareaModule, ButtonModule, CardModule, CheckboxModule, RouterLink, TranslatePipe],
+  imports: [FormsModule, ReactiveFormsModule, InputTextModule, TextareaModule, ButtonModule, CardModule, CheckboxModule, DialogModule, TableModule, TagModule, RouterLink, TranslatePipe],
   templateUrl: './item-mestre-form.html',
   styleUrl: './item-mestre-form.css',
 })
@@ -28,6 +33,8 @@ export class ItemMestreFormComponent implements OnInit {
   private readonly i18n = inject(I18nService);
   private readonly itemMestreService = inject(ItemMestreService);
   private readonly categoriaService = inject(CategoriaService);
+  private readonly instanciaItemService = inject(InstanciaItemService);
+  private readonly localService = inject(LocalService);
 
   id = signal<string | null>(null);
   categorias = signal<CategoriaResumo[]>([]);
@@ -42,6 +49,19 @@ export class ItemMestreFormComponent implements OnInit {
   imagemIaPreviewUrl = signal<string | null>(null);
   imagemIaProvider = signal<string | null>(null);
   gerandoImagemIa = signal(false);
+
+  // Instâncias do item
+  instancias = signal<InstanciaItemResumo[]>([]);
+  carregandoInstancias = signal(false);
+  locais = signal<LocalResumo[]>([]);
+  dialogInstancia = signal(false);
+  salvandoInstancia = signal(false);
+  instanciaError = signal('');
+  novaInstanciaLocalId = '';
+  novaInstanciaIdentificador = '';
+  novaInstanciaPatrimonio = '';
+  novaInstanciaNumeroSerie = '';
+  novaInstanciaObservacoes = '';
 
   readonly edicao = computed(() => !!this.id());
 
@@ -81,6 +101,9 @@ export class ItemMestreFormComponent implements OnInit {
         this.loading.set(false);
       },
     });
+
+    this.carregarInstancias();
+    this.carregarLocais();
   }
 
   salvar(): void {
@@ -123,6 +146,83 @@ export class ItemMestreFormComponent implements OnInit {
       },
     });
   }
+
+  // ── Gestão de instâncias ────────────────────────────────────────────────────
+
+  abrirDialogInstancia(): void {
+    this.instanciaError.set('');
+    this.novaInstanciaLocalId = '';
+    this.novaInstanciaIdentificador = '';
+    this.novaInstanciaPatrimonio = '';
+    this.novaInstanciaNumeroSerie = '';
+    this.novaInstanciaObservacoes = '';
+    this.dialogInstancia.set(true);
+  }
+
+  fecharDialogInstancia(): void {
+    if (this.salvandoInstancia()) return;
+    this.dialogInstancia.set(false);
+  }
+
+  salvarInstancia(): void {
+    this.instanciaError.set('');
+    const localId = this.novaInstanciaLocalId;
+    const identificador = this.nullIfBlank(this.novaInstanciaIdentificador);
+    const patrimonio = this.nullIfBlank(this.novaInstanciaPatrimonio);
+    const numeroSerie = this.nullIfBlank(this.novaInstanciaNumeroSerie);
+
+    if (!localId) {
+      this.instanciaError.set(this.i18n.translate('itemInstances.form.locationInvalid'));
+      return;
+    }
+
+    if (!identificador && !patrimonio && !numeroSerie) {
+      this.instanciaError.set(this.i18n.translate('itemInstances.form.identificationRequired'));
+      return;
+    }
+
+    this.salvandoInstancia.set(true);
+
+    this.instanciaItemService.registrarEntrada({
+      itemMestreId: this.id()!,
+      localDestinoId: localId,
+      identificador,
+      patrimonio,
+      numeroSerie,
+      observacao: this.nullIfBlank(this.novaInstanciaObservacoes),
+    }).subscribe({
+      next: () => {
+        this.salvandoInstancia.set(false);
+        this.dialogInstancia.set(false);
+        this.carregarInstancias();
+      },
+      error: (err) => {
+        this.salvandoInstancia.set(false);
+        this.instanciaError.set(this.extractError(err, this.i18n.translate('masterItems.form.instanceCreateError')));
+      },
+    });
+  }
+
+  instanciaLabel(instancia: InstanciaItemResumo): string {
+    return instancia.identificador || instancia.patrimonio || instancia.numeroSerie || '-';
+  }
+
+  instanciaStatusLabel(status: StatusOperacionalInstancia): string {
+    return this.i18n.translate(`itemInstances.status.${status}`);
+  }
+
+  instanciaStatusSeverity(status: StatusOperacionalInstancia): 'success' | 'info' | 'warn' | 'secondary' {
+    const map: Record<StatusOperacionalInstancia, 'success' | 'info' | 'warn' | 'secondary'> = {
+      DISPONIVEL: 'success', EM_MOVIMENTACAO: 'info', EMPRESTADO: 'warn', INATIVO: 'secondary',
+    };
+    return map[status];
+  }
+
+  locaisAtivos(): LocalResumo[] {
+    return this.locais().filter(l => l.ativa);
+  }
+
+  // ── Imagem ──────────────────────────────────────────────────────────────────
 
   selecionarImagem(event: Event): void {
     this.errorMessage.set('');
@@ -235,10 +335,35 @@ export class ItemMestreFormComponent implements OnInit {
     this.limparImagemIaGerada();
   }
 
+  // ── Privados ────────────────────────────────────────────────────────────────
+
   private carregarCategorias(): void {
     this.categoriaService.listar().subscribe({
       next: (categorias) => this.categorias.set(categorias),
       error: () => this.errorMessage.set(this.i18n.translate('masterItems.form.categoryLoadError')),
+    });
+  }
+
+  private carregarInstancias(): void {
+    const id = this.id();
+    if (!id) return;
+    this.carregandoInstancias.set(true);
+    this.instanciaItemService.listar().subscribe({
+      next: (todas) => {
+        this.instancias.set(todas.filter(i => i.itemMestreId === id));
+        this.carregandoInstancias.set(false);
+      },
+      error: () => {
+        this.instanciaError.set(this.i18n.translate('masterItems.form.instancesLoadError'));
+        this.carregandoInstancias.set(false);
+      },
+    });
+  }
+
+  private carregarLocais(): void {
+    this.localService.listar().subscribe({
+      next: (locais) => this.locais.set(locais),
+      error: () => {},
     });
   }
 
