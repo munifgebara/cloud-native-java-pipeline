@@ -1,6 +1,7 @@
 package br.com.munif.stella.api.service;
 
 import br.com.munif.stella.api.config.KeycloakProperties;
+import br.com.munif.stella.api.exception.IdentidadeException;
 import br.com.munif.stella.api.exception.IntegracaoExternaException;
 import br.com.munif.stella.api.dto.LoginRequestDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,14 +74,15 @@ class KeycloakLoginServiceTest {
     }
 
     @Test
-    void devePropagarFalhaDoProvedorDeIdentidade() {
+    void deveRetornarUnauthorizedQuandoCredenciaisInvalidas() {
         server.expect(once(), requestTo("http://keycloak/realms/stella/protocol/openid-connect/token"))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
 
         assertThatThrownBy(() -> service.login(new LoginRequestDTO("usuario", "senha-invalida")))
-                .isInstanceOf(RestClientResponseException.class)
-                .extracting(ex -> ((RestClientResponseException) ex).getStatusCode())
+                .isInstanceOf(IdentidadeException.class)
+                .hasMessage("Usuário ou senha inválidos.")
+                .extracting(ex -> ((IdentidadeException) ex).getStatus())
                 .isEqualTo(HttpStatus.UNAUTHORIZED);
 
         server.verify();
