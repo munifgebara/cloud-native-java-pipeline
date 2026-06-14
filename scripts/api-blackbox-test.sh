@@ -354,10 +354,10 @@ main() {
   assert_json_array_contains_id "$inst_filtered" "$INSTANCIA_ID" || fail "filtro por item mestre nao retornou a instancia criada"
   ok
 
-  scenario "historico de instancia retorna lista de movimentacoes"
+  scenario "historico de instancia retorna estrutura correta"
   local inst_hist
   inst_hist="$(request "GET" "${API_PREFIX}/instancias-item/${INSTANCIA_ID}/historico" "200")"
-  assert_json_array_not_empty "$inst_hist" || fail "historico de instancia nao retornou lista"
+  python3 -c 'import json, sys; d = json.load(sys.stdin); sys.exit(0 if d.get("instancia", {}).get("id") == sys.argv[1] and isinstance(d.get("movimentacoes"), list) else 1)' "$INSTANCIA_ID" <<<"$inst_hist" || fail "historico de instancia nao retornou estrutura esperada"
   ok
 
   # ── Pessoas ──────────────────────────────────────────────────────────────────
@@ -400,7 +400,7 @@ main() {
   scenario "dashboard resumo retorna totais"
   local dashboard
   dashboard="$(request "GET" "${API_PREFIX}/dashboard/resumo" "200")"
-  json_get_field totalItens <<<"$dashboard" >/dev/null || fail "dashboard nao retornou totalItens"
+  python3 -c 'import json, sys; d = json.load(sys.stdin); sys.exit(0 if "quantidadeItensMestre" in d and "quantidadeInstancias" in d and "quantidadePessoas" in d else 1)' <<<"$dashboard" || fail "dashboard nao retornou campos esperados"
   ok
 
   # ── Busca semântica (opcional) ────────────────────────────────────────────────

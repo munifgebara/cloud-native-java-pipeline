@@ -307,6 +307,12 @@ export const EN_TRANSLATIONS = {
   'masterItems.form.aiImageError': 'Could not generate the AI image.',
   'masterItems.form.updateError': 'Could not update the item.',
   'masterItems.form.createError': 'Could not create the item.',
+  'masterItems.form.instances': 'Instances',
+  'masterItems.form.addInstance': 'New instance',
+  'masterItems.form.newInstanceTitle': 'New instance',
+  'masterItems.form.instancesEmpty': 'No instances registered for this item.',
+  'masterItems.form.instancesLoadError': 'Could not load instances.',
+  'masterItems.form.instanceCreateError': 'Could not register the instance.',
 
   'photoRegistration.title': 'Photo registration',
   'photoRegistration.subtitle': 'Upload an image, review AI suggestions, and approve only what should be registered.',
