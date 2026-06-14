@@ -1,6 +1,7 @@
 package br.com.munif.stella.api.service;
 
 import br.com.munif.stella.api.config.EmbeddingsProperties;
+import br.com.munif.stella.api.exception.IntegracaoExternaException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,7 +53,7 @@ class LocalEmbeddingProviderTest {
         when(embeddingModel.embed(anyString())).thenThrow(new RuntimeException("connection refused"));
 
         assertThatThrownBy(() -> provider.gerarEmbedding("notebook"))
-                .isInstanceOf(IllegalStateException.class)
+                .isInstanceOf(IntegracaoExternaException.class)
                 .hasMessage("Falha ao consultar o provider local de embeddings.");
     }
 }

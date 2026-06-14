@@ -1,6 +1,7 @@
 package br.com.munif.stella.api.service;
 
 import br.com.munif.stella.api.dto.ItemMestreCreateDTO;
+import br.com.munif.stella.api.exception.IntegracaoExternaException;
 import br.com.munif.stella.api.dto.ImagemItemMestreDTO;
 import br.com.munif.stella.api.dto.ItemMestreUpdateDTO;
 import br.com.munif.stella.api.entity.Categoria;
@@ -96,7 +97,7 @@ class ItemMestreServiceTest {
     @Test
     void deveCriarItemMestreMesmoQuandoIndiceVetorialFalha() {
         when(repository.save(any(ItemMestre.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        doThrow(new IllegalStateException("pgvector indisponivel"))
+        doThrow(new IntegracaoExternaException("pgvector indisponivel"))
                 .when(vectorSearchService).sincronizar(any(ItemMestre.class));
 
         var resposta = service.criar(new ItemMestreCreateDTO("Cadeira ergonomica", null, null, null, null, true));
@@ -306,7 +307,7 @@ class ItemMestreServiceTest {
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
         when(repository.save(item)).thenReturn(item);
-        doThrow(new IllegalStateException("pgvector indisponivel")).when(vectorSearchService).remover(id);
+        doThrow(new IntegracaoExternaException("pgvector indisponivel")).when(vectorSearchService).remover(id);
 
         service.excluirLogicamente(id);
 

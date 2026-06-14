@@ -8,6 +8,7 @@ import br.com.munif.stella.api.dto.UsuarioCreateDTO;
 import br.com.munif.stella.api.dto.UsuarioResponseDTO;
 import br.com.munif.stella.api.dto.UsuarioUpdateDTO;
 import br.com.munif.stella.api.exception.IdentidadeException;
+import br.com.munif.stella.api.exception.IntegracaoExternaException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -284,7 +285,7 @@ public class KeycloakUsuarioService {
                 .body(Map.class));
 
         if (response == null || response.get("access_token") == null) {
-            throw new IllegalStateException("Resposta administrativa vazia do Keycloak.");
+            throw new IntegracaoExternaException("Resposta administrativa vazia do Keycloak.");
         }
 
         return (String) response.get("access_token");
@@ -305,7 +306,7 @@ public class KeycloakUsuarioService {
                 .body(Map.class));
 
         if (response == null || response.get("access_token") == null) {
-            throw new IllegalStateException("Resposta administrativa vazia do Keycloak.");
+            throw new IntegracaoExternaException("Resposta administrativa vazia do Keycloak.");
         }
 
         return (String) response.get("access_token");
@@ -337,7 +338,7 @@ public class KeycloakUsuarioService {
 
     private String extrairIdCriado(URI location) {
         if (location == null) {
-            throw new IllegalStateException("Keycloak não retornou o identificador do usuário criado.");
+            throw new IntegracaoExternaException("Keycloak não retornou o identificador do usuário criado.");
         }
 
         String path = location.getPath();

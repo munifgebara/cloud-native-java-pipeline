@@ -4,6 +4,7 @@ import br.com.munif.stella.api.config.AiProperties;
 import br.com.munif.stella.api.config.OpenAiLimitsProperties;
 import br.com.munif.stella.api.dto.ImagemIaRequestDTO;
 import br.com.munif.stella.api.exception.AiUsageLimitException;
+import br.com.munif.stella.api.exception.IntegracaoExternaException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -86,7 +87,7 @@ class OpenAiImagemIaProviderTest {
         when(imageModel.call(any(ImagePrompt.class))).thenReturn(new ImageResponse(List.of()));
 
         assertThatThrownBy(() -> provider.gerarImagem(new ImagemIaRequestDTO("Furadeira", null, null)))
-                .isInstanceOf(IllegalStateException.class)
+                .isInstanceOf(IntegracaoExternaException.class)
                 .hasMessage("OpenAI retornou resposta vazia para a imagem.");
     }
 

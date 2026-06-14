@@ -4,6 +4,7 @@ import br.com.munif.stella.api.config.EmbeddingsProperties;
 import br.com.munif.stella.api.observability.StructuredBusinessLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import br.com.munif.stella.api.exception.IntegracaoExternaException;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.openai.OpenAiEmbeddingModel;
 import org.springframework.ai.openai.OpenAiEmbeddingOptions;
@@ -55,7 +56,7 @@ public class LocalEmbeddingProvider implements EmbeddingProvider {
                     "duration_ms", elapsedMillis(inicio),
                     "success", false
             ), ex);
-            throw new IllegalStateException("Falha ao consultar o provider local de embeddings.", ex);
+            throw new IntegracaoExternaException("Falha ao consultar o provider local de embeddings.", ex);
         }
     }
 
