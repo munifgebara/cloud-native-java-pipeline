@@ -9,6 +9,7 @@ import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.ItemMestre;
 import br.com.munif.stella.api.entity.LocalArmazenamento;
 import br.com.munif.stella.api.exception.AiUsageLimitException;
+import br.com.munif.stella.api.exception.IntegracaoExternaException;
 import br.com.munif.stella.api.repository.InstanciaItemRepository;
 import br.com.munif.stella.api.repository.ItemMestreRepository;
 import org.junit.jupiter.api.Test;
@@ -109,7 +110,7 @@ class ItemMestreVectorSearchServiceTest {
         when(embeddingProvider.gerarEmbedding(anyString())).thenReturn(new float[]{0.1f});
 
         assertThatThrownBy(() -> service(true).sincronizar(item))
-                .isInstanceOf(IllegalStateException.class)
+                .isInstanceOf(IntegracaoExternaException.class)
                 .hasMessage("Provider de embeddings retornou vetor com dimensões incompatíveis.");
     }
 
@@ -208,7 +209,7 @@ class ItemMestreVectorSearchServiceTest {
         when(embeddingProvider.gerarEmbedding(anyString())).thenReturn(new float[]{0.1f});
 
         assertThatThrownBy(() -> service(true).reindexarItensAtivos())
-                .isInstanceOf(IllegalStateException.class)
+                .isInstanceOf(IntegracaoExternaException.class)
                 .hasMessage("Provider de embeddings retornou vetor com dimensões incompatíveis.");
     }
 

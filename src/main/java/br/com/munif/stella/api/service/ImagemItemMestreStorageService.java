@@ -1,6 +1,7 @@
 package br.com.munif.stella.api.service;
 
 import br.com.munif.stella.api.config.MinioProperties;
+import br.com.munif.stella.api.exception.IntegracaoExternaException;
 import br.com.munif.stella.api.dto.ImagemItemMestreDTO;
 import io.minio.BucketExistsArgs;
 import io.minio.GetObjectArgs;
@@ -66,7 +67,7 @@ public class ImagemItemMestreStorageService {
                     .build());
             return new ImagemItemMestreDTO(properties.bucket(), objectKey, contentType, arquivo.getSize());
         } catch (Exception ex) {
-            throw new IllegalStateException("Não foi possível armazenar a imagem no MinIO.", ex);
+            throw new IntegracaoExternaException("Não foi possível armazenar a imagem no MinIO.", ex);
         }
     }
 
@@ -81,7 +82,7 @@ public class ImagemItemMestreStorageService {
                     .object(objectKey)
                     .build());
         } catch (Exception ex) {
-            throw new IllegalStateException("Não foi possível carregar a imagem do MinIO.", ex);
+            throw new IntegracaoExternaException("Não foi possível carregar a imagem do MinIO.", ex);
         }
     }
 

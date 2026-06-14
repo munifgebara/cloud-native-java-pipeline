@@ -5,6 +5,7 @@ import br.com.munif.stella.api.dto.ImagemIaResponseDTO;
 import br.com.munif.stella.api.observability.StructuredBusinessLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import br.com.munif.stella.api.exception.IntegracaoExternaException;
 import org.springframework.ai.image.ImageModel;
 import org.springframework.ai.image.ImagePrompt;
 import org.springframework.ai.image.ImageResponse;
@@ -69,12 +70,12 @@ public class OpenAiImagemIaProvider implements ImagemIaProvider {
 
     private ImagemIaResponseDTO parseResponse(ImageResponse response) {
         if (response == null || response.getResults().isEmpty()) {
-            throw new IllegalStateException("OpenAI retornou resposta vazia para a imagem.");
+            throw new IntegracaoExternaException("OpenAI retornou resposta vazia para a imagem.");
         }
 
         String base64 = response.getResult().getOutput().getB64Json();
         if (base64 == null || base64.isBlank()) {
-            throw new IllegalStateException("OpenAI não retornou a imagem em base64.");
+            throw new IntegracaoExternaException("OpenAI não retornou a imagem em base64.");
         }
 
         return new ImagemIaResponseDTO("data:%s;base64,%s".formatted(CONTENT_TYPE, base64), CONTENT_TYPE, PROVIDER);

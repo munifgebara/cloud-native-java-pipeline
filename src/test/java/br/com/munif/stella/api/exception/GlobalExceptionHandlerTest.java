@@ -67,4 +67,32 @@ class GlobalExceptionHandlerTest {
                 .containsEntry("erro", "Limite diário de geração de imagens da OpenAI atingido.")
                 .containsEntry("path", "/api/v0/itens-mestre/imagem-ia");
     }
+
+    @Test
+    void deveRetornar502ComMensagemDaExcecaoParaFalhaDeIntegracao() {
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v0/itens-mestre/imagem-ia");
+
+        var response = handler.tratarFalhaIntegracao(
+                new IntegracaoExternaException("OpenAI retornou resposta vazia para a imagem."), request);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY);
+        assertThat(response.getBody())
+                .containsEntry("status", 502)
+                .containsEntry("erro", "OpenAI retornou resposta vazia para a imagem.")
+                .containsEntry("path", "/api/v0/itens-mestre/imagem-ia");
+    }
+
+    @Test
+    void deveRetornar500ComMensagemGenericaParaEstadoIlegal() {
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v0/itens-mestre");
+
+        var response = handler.tratarEstadoIlegal(
+                new IllegalStateException("OPENAI_API_KEY não configurada no ambiente."), request);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        assertThat(response.getBody())
+                .containsEntry("status", 500)
+                .containsEntry("erro", "Erro inesperado ao processar a solicitação.")
+                .containsEntry("path", "/api/v0/itens-mestre");
+    }
 }

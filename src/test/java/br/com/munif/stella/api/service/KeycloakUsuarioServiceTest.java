@@ -7,6 +7,7 @@ import br.com.munif.stella.api.dto.UsuarioCreateDTO;
 import br.com.munif.stella.api.dto.UsuarioResponseDTO;
 import br.com.munif.stella.api.dto.UsuarioUpdateDTO;
 import br.com.munif.stella.api.exception.IdentidadeException;
+import br.com.munif.stella.api.exception.IntegracaoExternaException;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -482,7 +483,7 @@ class KeycloakUsuarioServiceTest {
                 true,
                 List.of("usuario")
         )))
-                .isInstanceOf(IllegalStateException.class)
+                .isInstanceOf(IntegracaoExternaException.class)
                 .hasMessage("Keycloak não retornou o identificador do usuário criado.");
 
         server.verify();

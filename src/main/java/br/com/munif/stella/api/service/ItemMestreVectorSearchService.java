@@ -9,6 +9,7 @@ import br.com.munif.stella.api.dto.ConsultaSemanticaLocalDTO;
 import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.ItemMestre;
 import br.com.munif.stella.api.entity.LocalArmazenamento;
+import br.com.munif.stella.api.exception.IntegracaoExternaException;
 import br.com.munif.stella.api.observability.StructuredBusinessLogger;
 import br.com.munif.stella.api.repository.InstanciaItemRepository;
 import br.com.munif.stella.api.repository.ItemMestreRepository;
@@ -325,7 +326,7 @@ public class ItemMestreVectorSearchService {
 
     private void validarDimensoes(float[] embedding) {
         if (embedding == null || embedding.length != embeddingsProperties.dimensions()) {
-            throw new IllegalStateException("Provider de embeddings retornou vetor com dimensões incompatíveis.");
+            throw new IntegracaoExternaException("Provider de embeddings retornou vetor com dimensões incompatíveis.");
         }
     }
 

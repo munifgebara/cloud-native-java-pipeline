@@ -60,9 +60,14 @@ public class GlobalExceptionHandler {
         return resposta(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, request, false);
     }
 
+    @ExceptionHandler(IntegracaoExternaException.class)
+    public ResponseEntity<Map<String, Object>> tratarFalhaIntegracao(IntegracaoExternaException ex, HttpServletRequest request) {
+        return resposta(HttpStatus.BAD_GATEWAY, ex.getMessage(), ex, request, true);
+    }
+
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<Map<String, Object>> tratarFalhaInfraestrutura(IllegalStateException ex, HttpServletRequest request) {
-        return resposta(HttpStatus.BAD_GATEWAY, "Serviço externo indisponível. Tente novamente em instantes.", ex, request, true);
+    public ResponseEntity<Map<String, Object>> tratarEstadoIlegal(IllegalStateException ex, HttpServletRequest request) {
+        return resposta(HttpStatus.INTERNAL_SERVER_ERROR, "Erro inesperado ao processar a solicitação.", ex, request, true);
     }
 
     @ExceptionHandler(IdentidadeException.class)

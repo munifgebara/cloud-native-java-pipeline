@@ -1,6 +1,7 @@
 package br.com.munif.stella.api.service;
 
 import br.com.munif.stella.api.config.KeycloakProperties;
+import br.com.munif.stella.api.exception.IntegracaoExternaException;
 import br.com.munif.stella.api.dto.LoginRequestDTO;
 import br.com.munif.stella.api.dto.LoginResponseDTO;
 import br.com.munif.stella.api.observability.StructuredBusinessLogger;
@@ -51,7 +52,7 @@ public class KeycloakLoginService {
             throw ex;
         } catch (ResourceAccessException ex) {
             logFailure(request.username(), inicio, ex);
-            throw new IllegalStateException("Serviço de identidade indisponível.", ex);
+            throw new IntegracaoExternaException("Serviço de identidade indisponível.", ex);
         }
 
         if (response == null) {
@@ -61,7 +62,7 @@ public class KeycloakLoginService {
                     "duration_ms", elapsedMillis(inicio),
                     "success", false
             ));
-            throw new IllegalStateException("Resposta vazia do Keycloak.");
+            throw new IntegracaoExternaException("Resposta vazia do Keycloak.");
         }
 
         StructuredBusinessLogger.info(log, "security", "login-succeeded", StructuredBusinessLogger.fields(
