@@ -18,6 +18,7 @@ import br.com.munif.stella.api.repository.ItemMestreRepository;
 import jakarta.persistence.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -105,7 +106,10 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
 
     @Transactional(readOnly = true)
     public List<ItemMestreResumoDTO> filtrar(String nome, UUID categoriaId) {
-        return repository.filtrarAtivos(ValidacoesBR.trimToNull(nome), categoriaId).stream()
+        return repository.findAll(
+                        ItemMestreRepository.filtrarAtivos(ValidacoesBR.trimToNull(nome), categoriaId),
+                        Sort.by("nome").ascending()
+                ).stream()
                 .map(ItemMestreMapper::toResumoDTO)
                 .toList();
     }

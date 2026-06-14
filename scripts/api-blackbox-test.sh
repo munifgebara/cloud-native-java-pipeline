@@ -254,7 +254,7 @@ main() {
 
   scenario "criacao de categoria retorna 201 com id"
   local cat_payload cat_created
-  cat_payload="$(python3 -c 'import json, sys; print(json.dumps({"nome": sys.argv[1], "descricao": "Categoria criada por teste caixa-preta", "icone": "category", "ativa": True}))' "$CATEGORIA_NAME")"
+  cat_payload="$(python3 -c 'import json, sys; print(json.dumps({"nome": sys.argv[1], "descricao": "Categoria criada por teste caixa-preta", "icone": "outros", "ativa": True}))' "$CATEGORIA_NAME")"
   cat_created="$(request "POST" "${API_PREFIX}/categorias" "201" "$cat_payload")"
   CATEGORIA_ID="$(json_get_field id <<<"$cat_created")" || fail "criacao de categoria nao retornou id"
   ok
@@ -281,7 +281,7 @@ main() {
   scenario "atualizacao de categoria reflete novo nome"
   local cat_update_name cat_update_payload cat_updated
   cat_update_name="${CATEGORIA_NAME} atualizada"
-  cat_update_payload="$(python3 -c 'import json, sys; print(json.dumps({"nome": sys.argv[1], "ativa": True}))' "$cat_update_name")"
+  cat_update_payload="$(python3 -c 'import json, sys; print(json.dumps({"nome": sys.argv[1], "icone": "livros", "ativa": True}))' "$cat_update_name")"
   cat_updated="$(request "PUT" "${API_PREFIX}/categorias/${CATEGORIA_ID}" "200" "$cat_update_payload")"
   json_assert_field "$cat_updated" nome "$cat_update_name" || fail "atualizacao de categoria nao refletiu o novo nome"
   ok
@@ -348,8 +348,9 @@ main() {
   ok
 
   scenario "filtro de instancias por item mestre retorna a instancia criada"
-  local inst_filtered
-  inst_filtered="$(request "GET" "${API_PREFIX}/instancias-item/filtrar?itemMestreId=${ITEM_ID}" "200")"
+  local inst_filtered encoded_item_name
+  encoded_item_name="$(urlencode "$ITEM_NAME")"
+  inst_filtered="$(request "GET" "${API_PREFIX}/instancias-item/filtrar?itemMestre=${encoded_item_name}" "200")"
   assert_json_array_contains_id "$inst_filtered" "$INSTANCIA_ID" || fail "filtro por item mestre nao retornou a instancia criada"
   ok
 

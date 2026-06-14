@@ -23,6 +23,7 @@ import br.com.munif.stella.api.repository.MovimentacaoItemRepository;
 import jakarta.persistence.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -125,11 +126,14 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
 
     @Transactional(readOnly = true)
     public List<InstanciaItemResumoDTO> filtrar(String identificacao, String itemMestre, UUID categoriaId, StatusOperacionalInstancia statusOperacional) {
-        return repository.filtrarAtivas(
-                        ValidacoesBR.trimToNull(identificacao),
-                        ValidacoesBR.trimToNull(itemMestre),
-                        categoriaId,
-                        statusOperacional
+        return repository.findAll(
+                        InstanciaItemRepository.filtrarAtivas(
+                                ValidacoesBR.trimToNull(identificacao),
+                                ValidacoesBR.trimToNull(itemMestre),
+                                categoriaId,
+                                statusOperacional
+                        ),
+                        Sort.by(Sort.Order.asc("identificador").nullsLast(), Sort.Order.asc("patrimonio").nullsLast(), Sort.Order.asc("numeroSerie").nullsLast())
                 ).stream()
                 .map(InstanciaItemMapper::toResumoDTO)
                 .toList();
