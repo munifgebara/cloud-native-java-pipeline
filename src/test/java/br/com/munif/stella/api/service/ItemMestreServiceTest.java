@@ -15,6 +15,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -238,7 +240,7 @@ class ItemMestreServiceTest {
         Categoria categoria = categoria(categoriaId, "Eletronicos", "eletronicos", true);
         ItemMestre item = item(UUID.randomUUID(), "Notebook", categoria);
 
-        when(repository.filtrarAtivos("Notebook", categoriaId)).thenReturn(List.of(item));
+        when(repository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of(item));
 
         var resposta = service.filtrar(" Notebook ", categoriaId);
 

@@ -5,13 +5,15 @@ import br.com.munif.stella.api.dto.DashboardLocalQuantidadeDTO;
 import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface InstanciaItemRepository extends SuperRepository<InstanciaItem> {
+public interface InstanciaItemRepository extends SuperRepository<InstanciaItem>, JpaSpecificationExecutor<InstanciaItem> {
 
     List<InstanciaItem> findByAtivoTrueOrderByIdentificadorAscPatrimonioAscNumeroSerieAsc();
 
@@ -33,29 +35,31 @@ public interface InstanciaItemRepository extends SuperRepository<InstanciaItem> 
 
     long countByAtivoTrueAndStatusOperacional(StatusOperacionalInstancia statusOperacional);
 
-    @Query("""
-            select instancia
-            from InstanciaItem instancia
-            join instancia.itemMestre itemMestre
-            left join itemMestre.categoria categoria
-            where instancia.ativo = true
-              and (
-                    :identificacao is null
-                    or lower(instancia.identificador) like lower(concat('%', :identificacao, '%'))
-                    or lower(instancia.patrimonio) like lower(concat('%', :identificacao, '%'))
-                    or lower(instancia.numeroSerie) like lower(concat('%', :identificacao, '%'))
-                  )
-              and (:itemMestre is null or lower(itemMestre.nome) like lower(concat('%', :itemMestre, '%')))
-              and (:categoriaId is null or categoria.id = :categoriaId)
-              and (:statusOperacional is null or instancia.statusOperacional = :statusOperacional)
-            order by instancia.identificador asc, instancia.patrimonio asc, instancia.numeroSerie asc
-            """)
-    List<InstanciaItem> filtrarAtivas(
-            @Param("identificacao") String identificacao,
-            @Param("itemMestre") String itemMestre,
-            @Param("categoriaId") UUID categoriaId,
-            @Param("statusOperacional") StatusOperacionalInstancia statusOperacional
-    );
+    static Specification<InstanciaItem> filtrarAtivas(String identificacao, String itemMestre, UUID categoriaId, StatusOperacionalInstancia statusOperacional) {
+        return (root, query, cb) -> {
+            var predicados = new java.util.ArrayList<jakarta.persistence.criteria.Predicate>();
+            predicados.add(cb.isTrue(root.get("ativo")));
+            if (identificacao != null) {
+                String pattern = "%" + identificacao.toLowerCase() + "%";
+                predicados.add(cb.or(
+                        cb.like(cb.lower(root.get("identificador")), pattern),
+                        cb.like(cb.lower(root.get("patrimonio")), pattern),
+                        cb.like(cb.lower(root.get("numeroSerie")), pattern)
+                ));
+            }
+            var itemMestreJoin = root.join("itemMestre");
+            if (itemMestre != null) {
+                predicados.add(cb.like(cb.lower(itemMestreJoin.get("nome")), "%" + itemMestre.toLowerCase() + "%"));
+            }
+            if (categoriaId != null) {
+                predicados.add(cb.equal(itemMestreJoin.join("categoria").get("id"), categoriaId));
+            }
+            if (statusOperacional != null) {
+                predicados.add(cb.equal(root.get("statusOperacional"), statusOperacional));
+            }
+            return cb.and(predicados.toArray(new jakarta.persistence.criteria.Predicate[0]));
+        };
+    }
 
     @Query("""
             select new br.com.munif.stella.api.dto.DashboardLocalQuantidadeDTO(

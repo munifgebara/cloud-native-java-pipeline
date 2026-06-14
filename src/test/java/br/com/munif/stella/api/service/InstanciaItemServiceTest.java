@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -251,7 +254,7 @@ class InstanciaItemServiceTest {
         UUID categoriaId = UUID.randomUUID();
         InstanciaItem instancia = instancia(UUID.randomUUID(), "NB-001", itemMestre(UUID.randomUUID(), "Notebook", true));
 
-        when(repository.filtrarAtivas("NB", "Notebook", categoriaId, StatusOperacionalInstancia.DISPONIVEL)).thenReturn(List.of(instancia));
+        when(repository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of(instancia));
 
         var resposta = service.filtrar(" NB ", " Notebook ", categoriaId, StatusOperacionalInstancia.DISPONIVEL);
 

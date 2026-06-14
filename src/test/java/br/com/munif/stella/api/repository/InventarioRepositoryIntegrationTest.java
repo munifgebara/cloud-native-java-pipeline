@@ -10,6 +10,7 @@ import br.com.munif.stella.api.entity.Pessoa;
 import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 import br.com.munif.stella.api.entity.TipoMovimentacaoItem;
 import br.com.munif.stella.api.service.PessoaService;
+import org.springframework.data.domain.Sort;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,7 @@ class InventarioRepositoryIntegrationTest {
         persistir(furadeira, livro);
         flushAndClear();
 
-        var itens = itemMestreRepository.filtrarAtivos("furadeira", ferramentas.getId());
+        var itens = itemMestreRepository.findAll(ItemMestreRepository.filtrarAtivos("furadeira", ferramentas.getId()), Sort.by("nome"));
 
         assertThat(itens).extracting(ItemMestre::getNome)
                 .containsExactly("ITG Furadeira de impacto");
@@ -78,11 +79,9 @@ class InventarioRepositoryIntegrationTest {
         persistir(instanciaDisponivel, instanciaEmprestada);
         flushAndClear();
 
-        var instancias = instanciaItemRepository.filtrarAtivas(
-                "pat-001",
-                "notebook",
-                categoria.getId(),
-                StatusOperacionalInstancia.DISPONIVEL
+        var instancias = instanciaItemRepository.findAll(
+                InstanciaItemRepository.filtrarAtivas("pat-001", "notebook", categoria.getId(), StatusOperacionalInstancia.DISPONIVEL),
+                Sort.by("identificador")
         );
 
         assertThat(instancias).extracting(InstanciaItem::getIdentificador)
