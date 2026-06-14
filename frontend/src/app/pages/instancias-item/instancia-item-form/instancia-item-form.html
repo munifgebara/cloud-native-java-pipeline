@@ -1,6 +1,6 @@
 <p-card>
   <ng-template pTemplate="title">
-    {{ (edicao() ? 'itemInstances.form.editTitle' : 'itemInstances.form.entryTitle') | translate }}
+    {{ 'itemInstances.form.editTitle' | translate }}
   </ng-template>
 
   <ng-template pTemplate="content">
@@ -15,16 +15,8 @@
         }
 
         <div class="field full">
-          <label for="itemMestreId">{{ 'itemInstances.form.masterItem' | translate }}</label>
-          <select id="itemMestreId" formControlName="itemMestreId">
-            <option value="">{{ 'itemInstances.form.selectMasterItem' | translate }}</option>
-            @for (item of itensMestre(); track item.id) {
-              <option [value]="item.id">{{ item.nome }}</option>
-            }
-          </select>
-          @if (campoInvalido('itemMestreId')) {
-            <small class="field-error">{{ 'itemInstances.form.masterItemInvalid' | translate }}</small>
-          }
+          <label>{{ 'itemInstances.form.masterItem' | translate }}</label>
+          <span class="field-readonly">{{ itemMestreNome() }}</span>
         </div>
 
         <div class="field full">
@@ -64,19 +56,17 @@
           }
         </div>
 
-        @if (edicao()) {
-          <div class="field full">
-            <label for="statusOperacional">{{ 'itemInstances.status' | translate }}</label>
-            <select id="statusOperacional" formControlName="statusOperacional">
-              @for (status of statusOptions; track status) {
-                <option [value]="status">{{ statusLabel(status) }}</option>
-              }
-            </select>
-            @if (campoInvalido('statusOperacional')) {
-              <small class="field-error">{{ 'itemInstances.form.statusInvalid' | translate }}</small>
+        <div class="field full">
+          <label for="statusOperacional">{{ 'itemInstances.status' | translate }}</label>
+          <select id="statusOperacional" formControlName="statusOperacional">
+            @for (status of statusOptions; track status) {
+              <option [value]="status">{{ statusLabel(status) }}</option>
             }
-          </div>
-        }
+          </select>
+          @if (campoInvalido('statusOperacional')) {
+            <small class="field-error">{{ 'itemInstances.form.statusInvalid' | translate }}</small>
+          }
+        </div>
 
         <div class="field full">
           <label for="observacoes">{{ 'itemInstances.notes' | translate }}</label>
@@ -86,15 +76,13 @@
           }
         </div>
 
-        @if (edicao()) {
-          <div class="field checkbox-field full">
-            <p-checkbox inputId="ativa" formControlName="ativa" [binary]="true"></p-checkbox>
-            <label for="ativa">{{ 'itemInstances.form.active' | translate }}</label>
-          </div>
-        }
+        <div class="field checkbox-field full">
+          <p-checkbox inputId="ativa" formControlName="ativa" [binary]="true"></p-checkbox>
+          <label for="ativa">{{ 'itemInstances.form.active' | translate }}</label>
+        </div>
 
         <div class="actions full">
-          <a routerLink="/instancias-item">{{ 'common.cancel' | translate }}</a>
+          <a (click)="voltar()" style="cursor:pointer">{{ 'common.cancel' | translate }}</a>
 
           <button
             pButton

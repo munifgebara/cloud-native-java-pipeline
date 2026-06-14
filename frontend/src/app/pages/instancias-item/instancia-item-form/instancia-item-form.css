@@ -29,6 +29,11 @@
   color: var(--stella-color-danger);
 }
 
+.field-readonly {
+  font-weight: 500;
+  padding: 0.4rem 0;
+}
+
 .message.error {
   grid-column: 1 / -1;
 }

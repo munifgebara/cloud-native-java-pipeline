@@ -12,7 +12,6 @@ import { LocalListComponent } from './pages/locais/local-list/local-list';
 import { LocalFormComponent } from './pages/locais/local-form/local-form';
 import { ItemMestreListComponent } from './pages/itens-mestre/item-mestre-list/item-mestre-list';
 import { ItemMestreFormComponent } from './pages/itens-mestre/item-mestre-form/item-mestre-form';
-import { InstanciaItemListComponent } from './pages/instancias-item/instancia-item-list/instancia-item-list';
 import { InstanciaItemFormComponent } from './pages/instancias-item/instancia-item-form/instancia-item-form';
 import { InstanciaItemHistoricoComponent } from './pages/instancias-item/instancia-item-historico/instancia-item-historico';
 import { UsuarioListComponent } from './pages/usuarios/usuario-list/usuario-list';
@@ -109,14 +108,6 @@ export const routes: Routes = [
       {
         path: 'itens-mestre/:id/editar',
         component: ItemMestreFormComponent,
-      },
-      {
-        path: 'instancias-item',
-        component: InstanciaItemListComponent,
-      },
-      {
-        path: 'instancias-item/nova',
-        component: InstanciaItemFormComponent,
       },
       {
         path: 'instancias-item/:id/historico',
