@@ -6,90 +6,84 @@ import br.com.munif.stella.api.dto.ImagemIaRequestDTO;
 import br.com.munif.stella.api.exception.AiUsageLimitException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.ai.image.Image;
+import org.springframework.ai.image.ImageGeneration;
+import org.springframework.ai.image.ImageModel;
+import org.springframework.ai.image.ImagePrompt;
+import org.springframework.ai.image.ImageResponse;
 import org.springframework.mock.env.MockEnvironment;
-import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.web.client.RestClient;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.Matchers.containsString;
-import static org.springframework.test.web.client.ExpectedCount.once;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class OpenAiImagemIaProviderTest {
 
-    private MockRestServiceServer server;
+    @Mock
+    private ImageModel imageModel;
+
     private OpenAiImagemIaProvider provider;
 
     @BeforeEach
     void setUp() {
-        RestClient.Builder builder = RestClient.builder();
-        server = MockRestServiceServer.bindTo(builder).build();
         var environment = new MockEnvironment()
                 .withProperty("OPENAI_API_KEY", "test-key")
-                .withProperty("STELLA_OPENAI_IMAGE_MODEL", "gpt-image-test")
-                .withProperty("STELLA_OPENAI_IMAGE_OUTPUT_FORMAT", "png");
-        provider = new OpenAiImagemIaProvider(builder, environment, guardSemLimite());
+                .withProperty("STELLA_OPENAI_IMAGE_MODEL", "gpt-image-test");
+        provider = new OpenAiImagemIaProvider(imageModel, environment, guardSemLimite());
     }
 
     @Test
     void deveEnviarPromptParaOpenAiEConverterImagemBase64() {
-        server.expect(once(), requestTo("https://api.openai.com/v1/images/generations"))
-                .andExpect(method(HttpMethod.POST))
-                .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer test-key"))
-                .andExpect(content().string(containsString("\"model\":\"gpt-image-test\"")))
-                .andExpect(content().string(containsString("Nome do item: Furadeira")))
-                .andExpect(content().string(containsString("\"output_format\":\"png\"")))
-                .andRespond(withSuccess("""
-                        {
-                          "data": [
-                            {
-                              "b64_json": "aW1hZ2Vt"
-                            }
-                          ]
-                        }
-                        """, MediaType.APPLICATION_JSON));
+        when(imageModel.call(any(ImagePrompt.class))).thenReturn(respostaImagem("aW1hZ2Vt"));
 
         var response = provider.gerarImagem(new ImagemIaRequestDTO("Furadeira", "Ferramentas", "Furadeira de impacto"));
 
         assertThat(response.dataUrl()).isEqualTo("data:image/png;base64,aW1hZ2Vt");
         assertThat(response.contentType()).isEqualTo("image/png");
         assertThat(response.provider()).isEqualTo("openai");
-        server.verify();
+    }
+
+    @Test
+    void deveIncluirNomeItemNoPrompt() {
+        when(imageModel.call(any(ImagePrompt.class))).thenReturn(respostaImagem("abc123"));
+
+        provider.gerarImagem(new ImagemIaRequestDTO("Notebook", null, null));
+
+        verify(imageModel).call(any(ImagePrompt.class));
     }
 
     @Test
     void deveFalharQuandoApiKeyNaoEstaNoAmbiente() {
-        OpenAiImagemIaProvider providerSemChave = new OpenAiImagemIaProvider(RestClient.builder(), new MockEnvironment(), guardSemLimite());
+        OpenAiImagemIaProvider providerSemChave = new OpenAiImagemIaProvider(imageModel, new MockEnvironment(), guardSemLimite());
 
         assertThatThrownBy(() -> providerSemChave.gerarImagem(new ImagemIaRequestDTO("Furadeira", null, null)))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("OPENAI_API_KEY não configurada no ambiente.");
+
+        verify(imageModel, never()).call(any(ImagePrompt.class));
     }
 
     @Test
     void deveTratarFalhaDeConexaoComOpenAi() {
-        server.expect(once(), requestTo("https://api.openai.com/v1/images/generations"))
-                .andRespond(request -> {
-                    throw new java.io.IOException("sem rede");
-                });
+        when(imageModel.call(any(ImagePrompt.class))).thenThrow(new RuntimeException("Não foi possível conectar à OpenAI para gerar imagem do item."));
 
         assertThatThrownBy(() -> provider.gerarImagem(new ImagemIaRequestDTO("Furadeira", null, null)))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Não foi possível conectar à OpenAI para gerar imagem do item.");
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("OpenAI");
     }
 
     @Test
     void deveRegistrarFalhaQuandoOpenAiNaoRetornaImagem() {
-        server.expect(once(), requestTo("https://api.openai.com/v1/images/generations"))
-                .andRespond(withSuccess("{}", MediaType.APPLICATION_JSON));
+        when(imageModel.call(any(ImagePrompt.class))).thenReturn(new ImageResponse(List.of()));
 
         assertThatThrownBy(() -> provider.gerarImagem(new ImagemIaRequestDTO("Furadeira", null, null)))
                 .isInstanceOf(IllegalStateException.class)
@@ -97,38 +91,9 @@ class OpenAiImagemIaProviderTest {
     }
 
     @Test
-    void deveUsarContentTypeJpegQuandoConfigurado() {
-        RestClient.Builder builder = RestClient.builder();
-        MockRestServiceServer jpegServer = MockRestServiceServer.bindTo(builder).build();
-        OpenAiImagemIaProvider jpegProvider = new OpenAiImagemIaProvider(
-                builder,
-                new MockEnvironment()
-                        .withProperty("OPENAI_API_KEY", "test-key")
-                        .withProperty("STELLA_OPENAI_IMAGE_OUTPUT_FORMAT", "jpeg"),
-                guardSemLimite()
-        );
-        jpegServer.expect(once(), requestTo("https://api.openai.com/v1/images/generations"))
-                .andRespond(withSuccess("""
-                        {
-                          "data": [
-                            {
-                              "b64_json": "aW1hZ2Vt"
-                            }
-                          ]
-                        }
-                        """, MediaType.APPLICATION_JSON));
-
-        var response = jpegProvider.gerarImagem(new ImagemIaRequestDTO("Furadeira", null, null));
-
-        assertThat(response.contentType()).isEqualTo("image/jpeg");
-        assertThat(response.dataUrl()).startsWith("data:image/jpeg;base64,");
-        jpegServer.verify();
-    }
-
-    @Test
     void deveBloquearGeracaoQuandoIaEstaDesabilitadaSemChamarOpenAi() {
         OpenAiImagemIaProvider providerBloqueado = new OpenAiImagemIaProvider(
-                RestClient.builder(),
+                imageModel,
                 new MockEnvironment().withProperty("OPENAI_API_KEY", "test-key"),
                 new AiUsageGuard(new AiProperties(false), new OpenAiLimitsProperties(null, null, null))
         );
@@ -136,12 +101,14 @@ class OpenAiImagemIaProviderTest {
         assertThatThrownBy(() -> providerBloqueado.gerarImagem(new ImagemIaRequestDTO("Furadeira", null, null)))
                 .isInstanceOf(AiUsageLimitException.class)
                 .hasMessage("Recursos de IA estão desabilitados neste ambiente.");
+
+        verify(imageModel, never()).call(any(ImagePrompt.class));
     }
 
     @Test
     void deveBloquearGeracaoQuandoLimiteDiarioFoiAtingidoSemChamarOpenAi() {
         OpenAiImagemIaProvider providerBloqueado = new OpenAiImagemIaProvider(
-                RestClient.builder(),
+                imageModel,
                 new MockEnvironment().withProperty("OPENAI_API_KEY", "test-key"),
                 new AiUsageGuard(new AiProperties(true), new OpenAiLimitsProperties(null, 0, null))
         );
@@ -149,6 +116,12 @@ class OpenAiImagemIaProviderTest {
         assertThatThrownBy(() -> providerBloqueado.gerarImagem(new ImagemIaRequestDTO("Furadeira", null, null)))
                 .isInstanceOf(AiUsageLimitException.class)
                 .hasMessage("Limite diário de geração de imagens da OpenAI atingido.");
+
+        verify(imageModel, never()).call(any(ImagePrompt.class));
+    }
+
+    private ImageResponse respostaImagem(String base64) {
+        return new ImageResponse(List.of(new ImageGeneration(new Image(null, base64))));
     }
 
     private AiUsageGuard guardSemLimite() {

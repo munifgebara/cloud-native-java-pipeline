@@ -27,6 +27,12 @@ spring:
     console:
       enabled: false
 
+  ai:
+    openai:
+      api-key: test-key-nao-usada-em-testes
+      embedding:
+        enabled: false
+
 stella:
   vector-search:
     enabled: false

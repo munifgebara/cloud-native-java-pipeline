@@ -32,6 +32,21 @@ spring:
     baseline-on-migrate: true
     schemas: public
 
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      chat:
+        options:
+          model: ${STELLA_OPENAI_MODEL:gpt-4.1-mini}
+      image:
+        options:
+          model: ${STELLA_OPENAI_IMAGE_MODEL:gpt-image-1}
+          size: ${STELLA_OPENAI_IMAGE_SIZE:1024x1024}
+          quality: ${STELLA_OPENAI_IMAGE_QUALITY:low}
+          response-format: b64_json
+      embedding:
+        enabled: false
+
   security:
     oauth2:
       resourceserver:
