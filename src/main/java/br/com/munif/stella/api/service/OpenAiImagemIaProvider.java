@@ -5,30 +5,26 @@ import br.com.munif.stella.api.dto.ImagemIaResponseDTO;
 import br.com.munif.stella.api.observability.StructuredBusinessLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.image.ImageModel;
+import org.springframework.ai.image.ImagePrompt;
+import org.springframework.ai.image.ImageResponse;
+import org.springframework.ai.openai.OpenAiImageOptions;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestClientResponseException;
-
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class OpenAiImagemIaProvider implements ImagemIaProvider {
 
-    private static final String API_URL = "https://api.openai.com/v1/images/generations";
     private static final String PROVIDER = "openai";
+    private static final String CONTENT_TYPE = "image/png";
     private static final Logger log = LoggerFactory.getLogger(OpenAiImagemIaProvider.class);
 
-    private final RestClient restClient;
+    private final ImageModel imageModel;
     private final Environment environment;
     private final AiUsageGuard aiUsageGuard;
 
-    public OpenAiImagemIaProvider(RestClient.Builder restClientBuilder, Environment environment, AiUsageGuard aiUsageGuard) {
-        this.restClient = restClientBuilder.build();
+    public OpenAiImagemIaProvider(ImageModel imageModel, Environment environment, AiUsageGuard aiUsageGuard) {
+        this.imageModel = imageModel;
         this.environment = environment;
         this.aiUsageGuard = aiUsageGuard;
     }
@@ -40,20 +36,23 @@ public class OpenAiImagemIaProvider implements ImagemIaProvider {
         if (apiKey == null || apiKey.isBlank()) {
             throw new IllegalStateException("OPENAI_API_KEY não configurada no ambiente.");
         }
+
         String modelo = modelo();
         long inicio = System.nanoTime();
 
         try {
             aiUsageGuard.consume(AiOperation.IMAGE_GENERATION);
-            Map<String, Object> response = restClient.post()
-                    .uri(API_URL)
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(requestBody(request))
-                    .retrieve()
-                    .body(Map.class);
+            var options = OpenAiImageOptions.builder()
+                    .apiKey(apiKey)
+                    .model(modelo)
+                    .size(environment.getProperty("STELLA_OPENAI_IMAGE_SIZE", "1024x1024"))
+                    .quality(environment.getProperty("STELLA_OPENAI_IMAGE_QUALITY", "low"))
+                    .n(1)
+                    .build();
 
-            ImagemIaResponseDTO resultado = parseResponse(response);
+            ImageResponse response = imageModel.call(new ImagePrompt(prompt(request), options));
+
+            var resultado = parseResponse(response);
             StructuredBusinessLogger.info(log, "ai", "image-generation", StructuredBusinessLogger.fields(
                     "ai_provider", PROVIDER,
                     "ai_model", modelo,
@@ -62,48 +61,27 @@ public class OpenAiImagemIaProvider implements ImagemIaProvider {
                     "success", true
             ));
             return resultado;
-        } catch (RestClientResponseException ex) {
-            logFailure(modelo, inicio, ex);
-            throw new IllegalStateException("Falha ao consultar OpenAI para gerar imagem do item.", ex);
-        } catch (RestClientException ex) {
-            logFailure(modelo, inicio, ex);
-            throw new IllegalStateException("Não foi possível conectar à OpenAI para gerar imagem do item.", ex);
         } catch (RuntimeException ex) {
             logFailure(modelo, inicio, ex);
             throw ex;
         }
     }
 
-    private Map<String, Object> requestBody(ImagemIaRequestDTO request) {
-        String size = environment.getProperty("STELLA_OPENAI_IMAGE_SIZE", "1024x1024");
-        String quality = environment.getProperty("STELLA_OPENAI_IMAGE_QUALITY", "low");
-        String outputFormat = environment.getProperty("STELLA_OPENAI_IMAGE_OUTPUT_FORMAT", "png");
+    private ImagemIaResponseDTO parseResponse(ImageResponse response) {
+        if (response == null || response.getResults().isEmpty()) {
+            throw new IllegalStateException("OpenAI retornou resposta vazia para a imagem.");
+        }
 
-        return Map.of(
-                "model", modelo(),
-                "prompt", prompt(request),
-                "size", size,
-                "quality", quality,
-                "output_format", outputFormat,
-                "n", 1
-        );
+        String base64 = response.getResult().getOutput().getB64Json();
+        if (base64 == null || base64.isBlank()) {
+            throw new IllegalStateException("OpenAI não retornou a imagem em base64.");
+        }
+
+        return new ImagemIaResponseDTO("data:%s;base64,%s".formatted(CONTENT_TYPE, base64), CONTENT_TYPE, PROVIDER);
     }
 
     private String modelo() {
         return environment.getProperty("STELLA_OPENAI_IMAGE_MODEL", "gpt-image-1");
-    }
-
-    private void logFailure(String modelo, long inicio, Exception ex) {
-        StructuredBusinessLogger.error(log, "ai", "image-generation", StructuredBusinessLogger.fields(
-                "ai_provider", PROVIDER,
-                "ai_model", modelo,
-                "duration_ms", elapsedMillis(inicio),
-                "success", false
-        ), ex);
-    }
-
-    private long elapsedMillis(long inicio) {
-        return (System.nanoTime() - inicio) / 1_000_000L;
     }
 
     private String prompt(ImagemIaRequestDTO request) {
@@ -122,26 +100,16 @@ public class OpenAiImagemIaProvider implements ImagemIaProvider {
         );
     }
 
-    @SuppressWarnings("unchecked")
-    private ImagemIaResponseDTO parseResponse(Map<String, Object> response) {
-        if (response == null || !(response.get("data") instanceof List<?> imagens) || imagens.isEmpty()) {
-            throw new IllegalStateException("OpenAI retornou resposta vazia para a imagem.");
-        }
-
-        Object primeira = imagens.getFirst();
-        if (!(primeira instanceof Map<?, ?> imagem) || !(imagem.get("b64_json") instanceof String base64) || base64.isBlank()) {
-            throw new IllegalStateException("OpenAI não retornou a imagem em base64.");
-        }
-
-        String contentType = contentType();
-        return new ImagemIaResponseDTO("data:%s;base64,%s".formatted(contentType, base64), contentType, PROVIDER);
+    private void logFailure(String modelo, long inicio, Exception ex) {
+        StructuredBusinessLogger.error(log, "ai", "image-generation", StructuredBusinessLogger.fields(
+                "ai_provider", PROVIDER,
+                "ai_model", modelo,
+                "duration_ms", elapsedMillis(inicio),
+                "success", false
+        ), ex);
     }
 
-    private String contentType() {
-        return switch (environment.getProperty("STELLA_OPENAI_IMAGE_OUTPUT_FORMAT", "png").toLowerCase()) {
-            case "jpeg" -> "image/jpeg";
-            case "webp" -> "image/webp";
-            default -> "image/png";
-        };
+    private long elapsedMillis(long inicio) {
+        return (System.nanoTime() - inicio) / 1_000_000L;
     }
 }
