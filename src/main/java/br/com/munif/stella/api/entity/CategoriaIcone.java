@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
  * O conjunto de chaves válidas é pré-computado em {@link #CHAVES} para validações eficientes
  * sem necessidade de iteração linear.</p>
  *
- * <p>Uso típico: o campo {@link Categoria#getIcone()} armazena a {@link #chave} do enum
+ * <p>Uso típico: o campo {@code icone} de {@link Categoria} armazena a {@link #getChave() chave} do enum
  * como string, e o método {@link #isChaveValida(String)} valida o valor recebido via API.</p>
  */
 public enum CategoriaIcone {
