@@ -29,6 +29,16 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Serviço responsável pelas operações de negócio sobre {@link LocalArmazenamento}.
+ *
+ * <p>Gerencia o ciclo de vida dos locais de armazenamento do inventário, que podem
+ * ser organizados em hierarquia pai-filho (ex.: Prédio > Sala > Armário).
+ * Inclui suporte a upload de imagem via MinIO e consulta de revisões de auditoria.</p>
+ *
+ * <p>A listagem retorna os locais já ordenados em profundidade primeiro (DFS),
+ * com o caminho completo de cada nó para facilitar a exibição em listas hierárquicas.</p>
+ */
 @Service
 public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, LocalArmazenamentoRepository> {
 
@@ -45,6 +55,13 @@ public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, 
         this.imagemStorageService = imagemStorageService;
     }
 
+    /**
+     * Cria um novo local de armazenamento.
+     *
+     * @param dto dados de criação validados pelo Bean Validation
+     * @return DTO completo do local criado
+     * @throws IllegalArgumentException se o local pai informado não existir ou estiver inativo
+     */
     @Transactional
     public LocalArmazenamentoResponseDTO criar(LocalArmazenamentoCreateDTO dto) {
         LocalArmazenamento local = LocalArmazenamentoMapper.toEntity(dto);
@@ -66,21 +83,45 @@ public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, 
         return LocalArmazenamentoMapper.toResponseDTO(salvo);
     }
 
+    /**
+     * Retorna o DTO completo de um local pelo seu identificador.
+     *
+     * @param id UUID do local
+     * @return DTO completo do local
+     * @throws jakarta.persistence.EntityNotFoundException se o local não existir
+     */
     @Transactional(readOnly = true)
     public LocalArmazenamentoResponseDTO buscarResponsePorId(UUID id) {
         return LocalArmazenamentoMapper.toResponseDTO(buscarPorId(id));
     }
 
+    /**
+     * Lista todos os locais ativos em ordem hierárquica (DFS), com caminho e nível de cada nó.
+     *
+     * @return lista de DTOs de resumo dos locais ativos
+     */
     @Transactional(readOnly = true)
     public List<LocalArmazenamentoResumoDTO> listarResumo() {
         return montarHierarquia(repository.findByAtivoTrueOrderByNomeAsc());
     }
 
+    /**
+     * Lista todos os locais, incluindo os inativados, em ordem hierárquica (DFS).
+     *
+     * @return lista de DTOs de resumo de todos os locais
+     */
     @Transactional(readOnly = true)
     public List<LocalArmazenamentoResumoDTO> listarResumoIncluindoInativos() {
         return montarHierarquia(listarTodosIncluindoInativos());
     }
 
+    /**
+     * Busca locais ativos cujo nome contenha o texto informado (case-insensitive),
+     * retornando a lista em ordem hierárquica.
+     *
+     * @param nome substring a buscar no nome do local; retorna lista vazia se em branco
+     * @return lista de DTOs de resumo dos locais encontrados
+     */
     @Transactional(readOnly = true)
     public List<LocalArmazenamentoResumoDTO> buscarPorNome(String nome) {
         String nomeTratado = ValidacoesBR.trimToNull(nome);
@@ -91,6 +132,15 @@ public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, 
         return montarHierarquia(repository.findByAtivoTrueAndNomeContainingIgnoreCaseOrderByNomeAsc(nomeTratado));
     }
 
+    /**
+     * Atualiza os dados de um local existente, validando a hierarquia pai-filho.
+     *
+     * @param id  UUID do local a atualizar
+     * @param dto dados de atualização validados pelo Bean Validation
+     * @return DTO completo do local atualizado
+     * @throws IllegalArgumentException se o local pai estiver inativo, for o próprio local
+     *                                  ou for descendente do local a ser atualizado
+     */
     @Transactional
     public LocalArmazenamentoResponseDTO atualizar(UUID id, LocalArmazenamentoUpdateDTO dto) {
         LocalArmazenamento local = buscarPorId(id);
@@ -111,6 +161,13 @@ public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, 
         return LocalArmazenamentoMapper.toResponseDTO(salvo);
     }
 
+    /**
+     * Atualiza a imagem do local, armazenando-a no MinIO e removendo a anterior.
+     *
+     * @param id      UUID do local
+     * @param arquivo arquivo de imagem enviado pelo cliente
+     * @return DTO completo do local com os novos metadados de imagem
+     */
     @Transactional
     public LocalArmazenamentoResponseDTO atualizarImagem(UUID id, MultipartFile arquivo) {
         LocalArmazenamento local = buscarPorId(id);
@@ -135,6 +192,12 @@ public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, 
         return LocalArmazenamentoMapper.toResponseDTO(salvo);
     }
 
+    /**
+     * Remove a imagem do local, excluindo-a do MinIO e limpando os metadados.
+     *
+     * @param id UUID do local
+     * @return DTO completo do local sem metadados de imagem
+     */
     @Transactional
     public LocalArmazenamentoResponseDTO removerImagem(UUID id) {
         LocalArmazenamento local = buscarPorId(id);
@@ -156,6 +219,13 @@ public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, 
         return LocalArmazenamentoMapper.toResponseDTO(salvo);
     }
 
+    /**
+     * Retorna os metadados da imagem de um local (bucket, objectKey, contentType e tamanho).
+     *
+     * @param id UUID do local
+     * @return DTO com os metadados necessários para recuperar o arquivo no MinIO
+     * @throws IllegalArgumentException se o local não possuir imagem cadastrada
+     */
     @Transactional(readOnly = true)
     public ImagemItemMestreDTO buscarMetadadosImagem(UUID id) {
         LocalArmazenamento local = buscarPorId(id);
@@ -170,12 +240,26 @@ public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, 
         );
     }
 
+    /**
+     * Abre um stream de leitura da imagem do local no MinIO.
+     * O chamador é responsável por fechar o stream após o uso.
+     *
+     * @param id UUID do local
+     * @return stream de leitura da imagem
+     * @throws IllegalArgumentException se o local não possuir imagem cadastrada
+     */
     @Transactional(readOnly = true)
     public InputStream abrirImagem(UUID id) {
         ImagemItemMestreDTO imagem = buscarMetadadosImagem(id);
         return imagemStorageService.abrir(imagem.bucket(), imagem.objectKey());
     }
 
+    /**
+     * Inativa logicamente um local de armazenamento.
+     *
+     * @param id UUID do local a inativar
+     * @throws jakarta.persistence.EntityNotFoundException se o local não existir
+     */
     @Transactional
     public void excluirLogicamente(UUID id) {
         LocalArmazenamento local = buscarPorId(id);
@@ -187,6 +271,12 @@ public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, 
         ));
     }
 
+    /**
+     * Retorna o histórico de revisões anteriores de um local (Hibernate Envers).
+     *
+     * @param id UUID do local
+     * @return lista de revisões em ordem cronológica; lista vazia se não houver histórico
+     */
     @Transactional(readOnly = true)
     public List<RevisaoDTO<LocalArmazenamento>> listarRevisoes(UUID id) {
         return listarVersoesAnteriores(id);

@@ -21,6 +21,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
+/**
+ * Serviço responsável pelas operações de empréstimo e devolução de instâncias de itens.
+ *
+ * <p>Um empréstimo marca uma instância como {@code EMPRESTADO}, desvincula-a do local atual
+ * e associa-a a uma pessoa. A devolução restaura o status para {@code DISPONIVEL} e
+ * define o local de retorno informado.</p>
+ *
+ * <p>Regras de estado da instância são validadas por {@link InstanciaItemRegras} antes
+ * de qualquer alteração de dados.</p>
+ */
 @Service
 public class EmprestimoItemService extends SuperService<EmprestimoItem, EmprestimoItemRepository> {
 
@@ -41,6 +51,15 @@ public class EmprestimoItemService extends SuperService<EmprestimoItem, Empresti
         this.localArmazenamentoRepository = localArmazenamentoRepository;
     }
 
+    /**
+     * Registra o empréstimo de uma instância a uma pessoa.
+     * A instância é desvinculada do local e tem status alterado para {@code EMPRESTADO}.
+     *
+     * @param dto dados do empréstimo validados pelo Bean Validation
+     * @return DTO do empréstimo registrado
+     * @throws IllegalArgumentException se a instância ou pessoa não existirem, se a instância
+     *                                  não estiver disponível, ou se já houver empréstimo aberto
+     */
     @Transactional
     public EmprestimoItemResponseDTO registrarEmprestimo(EmprestimoItemCreateDTO dto) {
         InstanciaItem instancia = instanciaItemRepository.findById(dto.instanciaItemId())
@@ -74,6 +93,16 @@ public class EmprestimoItemService extends SuperService<EmprestimoItem, Empresti
         return EmprestimoItemMapper.toResponseDTO(salvar(emprestimo));
     }
 
+    /**
+     * Registra a devolução de uma instância emprestada.
+     * A instância é associada ao local de retorno informado e tem status restaurado para {@code DISPONIVEL}.
+     *
+     * @param dto dados da devolução validados pelo Bean Validation
+     * @return DTO do empréstimo com a data de devolução preenchida
+     * @throws IllegalArgumentException se não houver empréstimo aberto para a instância,
+     *                                  se a instância não estiver emprestada, ou se o local
+     *                                  de retorno não existir ou estiver inativo
+     */
     @Transactional
     public EmprestimoItemResponseDTO registrarDevolucao(EmprestimoItemDevolucaoDTO dto) {
         EmprestimoItem emprestimo = repository.findByInstanciaItemIdAndDataDevolucaoIsNull(dto.instanciaItemId())

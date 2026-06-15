@@ -24,12 +24,26 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Controller REST para gerenciamento de categorias de itens.
+ *
+ * <p>Expõe o recurso {@code /api/v0/categorias} com CRUD completo,
+ * busca por nome e consulta de histórico de auditoria.</p>
+ *
+ * <p>Categorias agrupam itens mestres por tipo (ex.: "Eletrônicos", "Mobiliário")
+ * e são usadas na filtragem e no dashboard.</p>
+ */
 @RestController
 @RequestMapping("/api/v0/categorias")
 public class CategoriaController extends SuperController<CategoriaResumoDTO, CategoriaResponseDTO, CategoriaCreateDTO, CategoriaUpdateDTO, Categoria> {
 
     private final CategoriaService service;
 
+    /**
+     * Constrói o controller injetando o serviço de categorias.
+     *
+     * @param service serviço de negócio de categorias
+     */
     public CategoriaController(CategoriaService service) {
         this.service = service;
     }
@@ -52,6 +66,12 @@ public class CategoriaController extends SuperController<CategoriaResumoDTO, Cat
         return ResponseEntity.ok(service.listarResumo());
     }
 
+    /**
+     * Busca categorias ativas cujo nome contenha o texto informado (case-insensitive).
+     *
+     * @param nome substring a buscar no nome da categoria
+     * @return {@code 200 OK} com a lista de categorias encontradas
+     */
     @GetMapping("/buscar")
     public ResponseEntity<List<CategoriaResumoDTO>> buscarPorNome(@RequestParam String nome) {
         return ResponseEntity.ok(service.buscarPorNome(nome));

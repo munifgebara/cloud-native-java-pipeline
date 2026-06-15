@@ -23,6 +23,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+/**
+ * Serviço responsável pelo registro de movimentações de instâncias de itens.
+ *
+ * <p>Implementa as três operações de movimentação do inventário:</p>
+ * <ul>
+ *   <li><strong>Entrada</strong> — cria a instância física e a associa a um local inicial.</li>
+ *   <li><strong>Saída</strong> — retira a instância do inventário ativo, desvinculando-a do local.</li>
+ *   <li><strong>Transferência</strong> — move a instância de um local para outro.</li>
+ * </ul>
+ *
+ * <p>Cada operação valida o estado atual da instância por meio de {@link InstanciaItemRegras}
+ * antes de persistir o registro de movimentação.</p>
+ */
 @Service
 public class MovimentacaoItemService extends SuperService<MovimentacaoItem, MovimentacaoItemRepository> {
 
@@ -43,6 +56,15 @@ public class MovimentacaoItemService extends SuperService<MovimentacaoItem, Movi
         this.localArmazenamentoRepository = localArmazenamentoRepository;
     }
 
+    /**
+     * Registra a entrada de um novo bem no inventário, criando a instância e
+     * associando-a ao local de destino informado com status {@code DISPONIVEL}.
+     *
+     * @param dto dados de entrada validados pelo Bean Validation
+     * @return DTO da movimentação de entrada registrada
+     * @throws IllegalArgumentException se o item mestre ou local não existirem, estiverem inativos,
+     *                                  ou se nenhum identificador for informado
+     */
     @Transactional
     public MovimentacaoItemResponseDTO registrarEntrada(MovimentacaoEntradaCreateDTO dto) {
         InstanciaItem instancia = new InstanciaItem();
@@ -67,6 +89,15 @@ public class MovimentacaoItemService extends SuperService<MovimentacaoItem, Movi
         return MovimentacaoItemMapper.toResponseDTO(salvar(movimentacao));
     }
 
+    /**
+     * Registra a saída de uma instância do inventário.
+     * A instância é desvinculada do local e tem status alterado para {@code EM_MOVIMENTACAO}.
+     *
+     * @param dto dados da saída validados pelo Bean Validation
+     * @return DTO da movimentação de saída registrada
+     * @throws IllegalArgumentException se a instância não existir, não estiver disponível,
+     *                                  não tiver local atual, ou se o motivo for omitido
+     */
     @Transactional
     public MovimentacaoItemResponseDTO registrarSaida(MovimentacaoSaidaCreateDTO dto) {
         InstanciaItem instancia = instanciaItemRepository.findById(dto.instanciaItemId())
@@ -98,6 +129,16 @@ public class MovimentacaoItemService extends SuperService<MovimentacaoItem, Movi
         return MovimentacaoItemMapper.toResponseDTO(salvar(movimentacao));
     }
 
+    /**
+     * Registra a transferência de uma instância do local atual para um local de destino diferente.
+     * O status da instância permanece {@code DISPONIVEL} após a transferência.
+     *
+     * @param dto dados da transferência validados pelo Bean Validation
+     * @return DTO da movimentação de transferência registrada
+     * @throws IllegalArgumentException se a instância não existir, não estiver disponível,
+     *                                  se o local de destino não existir ou estiver inativo, ou
+     *                                  se o local de destino for igual ao local atual
+     */
     @Transactional
     public MovimentacaoItemResponseDTO registrarTransferencia(MovimentacaoTransferenciaCreateDTO dto) {
         InstanciaItem instancia = instanciaItemRepository.findById(dto.instanciaItemId())

@@ -6,6 +6,23 @@ import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
 
+/**
+ * DTO de atualização de uma instância de item.
+ *
+ * <p>Contém os campos que podem ser alterados em uma instância já cadastrada.
+ * Todos os campos (exceto {@code itemMestreId}) são opcionais: valores {@code null}
+ * limpam o campo correspondente na entidade.</p>
+ *
+ * @param itemMestreId      identificador do item mestre ao qual esta instância pertence; obrigatório
+ * @param localAtualId      identificador do novo local de armazenamento; {@code null} remove a localização
+ * @param identificador     código interno de identificação (até 100 caracteres); opcional
+ * @param patrimonio        número de patrimônio (até 100 caracteres); opcional
+ * @param numeroSerie       número de série do fabricante (até 150 caracteres); opcional
+ * @param statusOperacional novo status operacional da instância; opcional
+ * @param observacoes       observações internas (até 1000 caracteres); opcional
+ * @param origemCadastro    origem do cadastro (até 50 caracteres); opcional
+ * @param ativa             indica se a instância está ativa; opcional
+ */
 public record InstanciaItemUpdateDTO(
         @NotNull(message = "Item mestre é obrigatório.")
         UUID itemMestreId,

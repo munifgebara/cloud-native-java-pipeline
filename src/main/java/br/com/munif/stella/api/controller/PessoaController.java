@@ -16,12 +16,23 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Controller REST para gerenciamento de pessoas (físicas ou jurídicas).
+ *
+ * <p>Expõe o recurso {@code /api/v0/pessoas} com CRUD, busca por nome
+ * e histórico de revisões de auditoria.</p>
+ */
 @RestController
 @RequestMapping("/api/v0/pessoas")
 public class PessoaController extends SuperController<PessoaResumoDTO, PessoaResponseDTO, PessoaCreateDTO, PessoaUpdateDTO, Pessoa> {
 
     private final PessoaService service;
 
+    /**
+     * Constrói o controller injetando o serviço de negócio de pessoas.
+     *
+     * @param service serviço de pessoas
+     */
     public PessoaController(PessoaService service) {
         this.service = service;
     }
@@ -44,6 +55,12 @@ public class PessoaController extends SuperController<PessoaResumoDTO, PessoaRes
         return ResponseEntity.ok(service.listarResumo());
     }
 
+    /**
+     * Busca pessoas ativas cujo nome contenha o texto informado (busca parcial, case-insensitive).
+     *
+     * @param nome substring a buscar no nome da pessoa
+     * @return {@code 200 OK} com a lista de pessoas encontradas
+     */
     @GetMapping("/buscar")
     public ResponseEntity<List<PessoaResumoDTO>> buscarPorNome(@RequestParam String nome) {
         return ResponseEntity.ok(service.buscarPorNome(nome));
