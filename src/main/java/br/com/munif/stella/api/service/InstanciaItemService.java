@@ -31,6 +31,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Serviço responsável pelas operações de negócio sobre {@link InstanciaItem}.
+ *
+ * <p>Gerencia o ciclo de vida das instâncias físicas de itens de inventário:
+ * criação via entrada, atualização de local e status, exclusão lógica e consulta
+ * de histórico de movimentações.</p>
+ *
+ * <p>Regras de negócio sobre a consistência entre status e localização são
+ * delegadas à classe {@link InstanciaItemRegras}.</p>
+ */
 @Service
 public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaItemRepository> {
 
@@ -56,6 +66,15 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
         this.emprestimoItemRepository = emprestimoItemRepository;
     }
 
+    /**
+     * Cria uma nova instância de item no inventário.
+     *
+     * @param dto dados de criação validados pelo Bean Validation
+     * @return DTO completo da instância criada
+     * @throws IllegalArgumentException se o item mestre ou local não existirem, estiverem inativos,
+     *                                  se nenhum identificador for informado, ou se o status e
+     *                                  o local forem incompatíveis
+     */
     @Transactional
     public InstanciaItemResponseDTO criar(InstanciaItemCreateDTO dto) {
         InstanciaItem instancia = InstanciaItemMapper.toEntity(dto);
@@ -80,11 +99,24 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
         return InstanciaItemMapper.toResponseDTO(salva);
     }
 
+    /**
+     * Retorna o DTO completo de uma instância pelo seu identificador.
+     *
+     * @param id UUID da instância
+     * @return DTO completo da instância
+     * @throws jakarta.persistence.EntityNotFoundException se a instância não existir
+     */
     @Transactional(readOnly = true)
     public InstanciaItemResponseDTO buscarResponsePorId(UUID id) {
         return InstanciaItemMapper.toResponseDTO(buscarPorId(id));
     }
 
+    /**
+     * Retorna o histórico completo de movimentações de uma instância.
+     *
+     * @param id UUID da instância
+     * @return DTO com a instância e sua lista de movimentações em ordem cronológica
+     */
     @Transactional(readOnly = true)
     public InstanciaItemHistoricoDTO buscarHistorico(UUID id) {
         InstanciaItem instancia = buscarPorId(id);
@@ -98,6 +130,11 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
         );
     }
 
+    /**
+     * Lista todas as instâncias ativas ordenadas por identificador, patrimônio e número de série.
+     *
+     * @return lista de DTOs de resumo das instâncias ativas
+     */
     @Transactional(readOnly = true)
     public List<InstanciaItemResumoDTO> listarResumo() {
         return repository.findByAtivoTrueOrderByIdentificadorAscPatrimonioAscNumeroSerieAsc().stream()
@@ -105,6 +142,11 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
                 .toList();
     }
 
+    /**
+     * Lista todas as instâncias, incluindo as inativadas logicamente.
+     *
+     * @return lista de DTOs de resumo de todas as instâncias
+     */
     @Transactional(readOnly = true)
     public List<InstanciaItemResumoDTO> listarResumoIncluindoInativos() {
         return listarTodosIncluindoInativos().stream()
@@ -112,6 +154,12 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
                 .toList();
     }
 
+    /**
+     * Busca instâncias ativas cujo campo {@code identificador} contenha o texto informado.
+     *
+     * @param identificador texto a buscar; retorna lista vazia se em branco
+     * @return lista de DTOs de resumo ordenada por identificador
+     */
     @Transactional(readOnly = true)
     public List<InstanciaItemResumoDTO> buscarPorIdentificador(String identificador) {
         String valor = ValidacoesBR.trimToNull(identificador);
@@ -124,6 +172,16 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
                 .toList();
     }
 
+    /**
+     * Filtra instâncias ativas combinando múltiplos critérios opcionais.
+     * Parâmetros nulos ou em branco são ignorados.
+     *
+     * @param identificacao  texto a buscar em identificador, patrimônio ou número de série
+     * @param itemMestre     substring do nome do item mestre
+     * @param categoriaId    UUID da categoria do item mestre
+     * @param statusOperacional status operacional desejado
+     * @return lista de DTOs ordenada por identificador, patrimônio e número de série
+     */
     @Transactional(readOnly = true)
     public List<InstanciaItemResumoDTO> filtrar(String identificacao, String itemMestre, UUID categoriaId, StatusOperacionalInstancia statusOperacional) {
         return repository.findAll(
@@ -139,6 +197,17 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
                 .toList();
     }
 
+    /**
+     * Atualiza os dados de uma instância existente.
+     *
+     * @param id  UUID da instância a atualizar
+     * @param dto dados de atualização validados pelo Bean Validation
+     * @return DTO completo da instância atualizada
+     * @throws jakarta.persistence.EntityNotFoundException se a instância não existir
+     * @throws IllegalArgumentException se o item mestre ou local forem inválidos,
+     *                                  se nenhum identificador for informado, ou se
+     *                                  o status e o local forem incompatíveis
+     */
     @Transactional
     public InstanciaItemResponseDTO atualizar(UUID id, InstanciaItemUpdateDTO dto) {
         InstanciaItem instancia = buscarPorId(id);

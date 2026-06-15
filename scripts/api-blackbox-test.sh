@@ -19,7 +19,7 @@ ITEM_NAME="Teste caixa preta Stella ${TEST_SUFFIX}"
 ITEM_DESCRIPTION="Item temporario criado por scripts/api-blackbox-test.sh"
 CATEGORIA_NAME="Categoria Teste ${TEST_SUFFIX}"
 LOCAL_NAME="Local Teste ${TEST_SUFFIX}"
-PESSOA_CPF="$(python3 -c 'import random; d=random.sample(range(10),9); rest=lambda s,w: (11-(sum(a*b for a,b in zip(s,w))%11))%10; v1=rest(d,[10,9,8,7,6,5,4,3,2]); v2=rest(d+[v1],[11,10,9,8,7,6,5,4,3,2]); print("".join(map(str,d+[v1,v2])))')"
+PESSOA_CPF="$(python3 -c 'import random; d=random.sample(range(10),9); rest=lambda s,w: (lambda r: 0 if r<2 else 11-r)(sum(a*b for a,b in zip(s,w))%11); v1=rest(d,[10,9,8,7,6,5,4,3,2]); v2=rest(d+[v1],[11,10,9,8,7,6,5,4,3,2]); print("".join(map(str,d+[v1,v2])))')"
 
 TOTAL=0
 PASSED=0

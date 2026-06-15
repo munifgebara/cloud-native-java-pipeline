@@ -26,12 +26,26 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Controller REST para gerenciamento de locais de armazenamento.
+ *
+ * <p>Expõe o recurso {@code /api/v0/locais} com CRUD completo, busca por nome,
+ * upload e remoção de imagem de representação, e consulta de revisões de auditoria.</p>
+ *
+ * <p>Locais podem ser organizados em hierarquia pai-filho. A listagem retorna os
+ * nós em profundidade primeiro, com caminho completo e nível de cada nó.</p>
+ */
 @RestController
 @RequestMapping("/api/v0/locais")
 public class LocalArmazenamentoController extends SuperController<LocalArmazenamentoResumoDTO, LocalArmazenamentoResponseDTO, LocalArmazenamentoCreateDTO, LocalArmazenamentoUpdateDTO, LocalArmazenamento> {
 
     private final LocalArmazenamentoService service;
 
+    /**
+     * Constrói o controller injetando o serviço de locais de armazenamento.
+     *
+     * @param service serviço de negócio de locais
+     */
     public LocalArmazenamentoController(LocalArmazenamentoService service) {
         this.service = service;
     }
@@ -54,16 +68,36 @@ public class LocalArmazenamentoController extends SuperController<LocalArmazenam
         return ResponseEntity.ok(service.listarResumo());
     }
 
+    /**
+     * Busca locais ativos cujo nome contenha o texto informado (case-insensitive).
+     * Retorna os resultados em ordem hierárquica.
+     *
+     * @param nome substring a buscar no nome do local
+     * @return {@code 200 OK} com a lista de locais encontrados
+     */
     @GetMapping("/buscar")
     public ResponseEntity<List<LocalArmazenamentoResumoDTO>> buscarPorNome(@RequestParam String nome) {
         return ResponseEntity.ok(service.buscarPorNome(nome));
     }
 
+    /**
+     * Atualiza a imagem de representação de um local via upload de arquivo.
+     *
+     * @param id      UUID do local
+     * @param arquivo arquivo de imagem enviado pelo cliente
+     * @return {@code 200 OK} com o DTO completo do local atualizado
+     */
     @PostMapping(value = "/{id}/imagem", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<LocalArmazenamentoResponseDTO> atualizarImagem(@PathVariable UUID id, @RequestParam("arquivo") MultipartFile arquivo) {
         return ResponseEntity.ok(service.atualizarImagem(id, arquivo));
     }
 
+    /**
+     * Remove a imagem de representação de um local e exclui o arquivo do MinIO.
+     *
+     * @param id UUID do local
+     * @return {@code 200 OK} com o DTO completo do local sem imagem
+     */
     @DeleteMapping("/{id}/imagem")
     public ResponseEntity<LocalArmazenamentoResponseDTO> removerImagem(@PathVariable UUID id) {
         return ResponseEntity.ok(service.removerImagem(id));

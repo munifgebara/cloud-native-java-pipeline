@@ -26,13 +26,35 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Serviço responsável pelas operações de negócio sobre {@link Pessoa}.
+ *
+ * <p>Cobre validação de CPF/CNPJ, normalização de dados (somente dígitos em campos numéricos,
+ * letras maiúsculas na UF etc.) e consulta ao histórico de revisões com identificação dos
+ * campos alterados entre versões.</p>
+ */
 @Service
 public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
 
+    /**
+     * Constrói o serviço injetando repositório e {@code EntityManager}.
+     *
+     * @param repository    repositório JPA de pessoas
+     * @param entityManager gerenciador de entidades usado pelo {@code SuperService} para Envers
+     */
     public PessoaService(PessoaRepository repository, EntityManager entityManager) {
         super(repository, entityManager, Pessoa.class);
     }
 
+    /**
+     * Cadastra uma nova pessoa após validação do CPF/CNPJ e verificação de duplicidade.
+     *
+     * @param dto dados de criação validados pelo Bean Validation
+     * @return DTO completo da pessoa criada
+     * @throws IllegalArgumentException       se o CPF/CNPJ for inválido ou outros campos opcionais
+     *                                        forem informados com formato incorreto
+     * @throws CadastroDuplicadoException     se já existir pessoa com o mesmo CPF/CNPJ
+     */
     @Transactional
     public PessoaResponseDTO criar(PessoaCreateDTO dto) {
         validarCreate(dto);
@@ -51,11 +73,23 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
         return PessoaMapper.toResponseDTO(salva);
     }
 
+    /**
+     * Retorna o DTO completo de uma pessoa pelo seu identificador.
+     *
+     * @param id UUID da pessoa
+     * @return DTO completo da pessoa
+     * @throws jakarta.persistence.EntityNotFoundException se a pessoa não existir
+     */
     @Transactional(readOnly = true)
     public PessoaResponseDTO buscarResponsePorId(UUID id) {
         return PessoaMapper.toResponseDTO(buscarPorId(id));
     }
 
+    /**
+     * Lista todas as pessoas ativas em ordem alfabética pelo nome.
+     *
+     * @return lista de DTOs de resumo das pessoas ativas
+     */
     @Transactional(readOnly = true)
     public List<PessoaResumoDTO> listarResumo() {
         return repository.findByAtivoTrueOrderByNomeAsc().stream()
@@ -63,6 +97,11 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
                 .toList();
     }
 
+    /**
+     * Lista todas as pessoas, incluindo as inativas.
+     *
+     * @return lista de DTOs de resumo de todas as pessoas
+     */
     @Transactional(readOnly = true)
     public List<PessoaResumoDTO> listarResumoIncluindoInativos() {
         return listarTodosIncluindoInativos().stream()
@@ -70,6 +109,17 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
                 .toList();
     }
 
+    /**
+     * Atualiza os dados de uma pessoa existente.
+     *
+     * <p>O CPF/CNPJ não é alterável após o cadastro inicial.</p>
+     *
+     * @param id  UUID da pessoa a atualizar
+     * @param dto dados de atualização validados pelo Bean Validation
+     * @return DTO completo da pessoa atualizada
+     * @throws jakarta.persistence.EntityNotFoundException se a pessoa não existir
+     * @throws IllegalArgumentException se telefone, e-mail, CEP ou UF forem inválidos
+     */
     @Transactional
     public PessoaResponseDTO atualizar(UUID id, PessoaUpdateDTO dto) {
         validarUpdate(dto);
@@ -82,11 +132,23 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
         return PessoaMapper.toResponseDTO(salva);
     }
 
+    /**
+     * Inativa logicamente uma pessoa (define {@code ativo = false}).
+     *
+     * @param id UUID da pessoa a inativar
+     * @throws jakarta.persistence.EntityNotFoundException se a pessoa não existir
+     */
     @Transactional
     public void excluirLogicamente(UUID id) {
         excluir(id);
     }
 
+    /**
+     * Busca pessoas ativas cujo nome contenha o texto informado (busca parcial, sem distinção de maiúsculas).
+     *
+     * @param nome texto a buscar; retorna lista vazia se em branco
+     * @return lista de DTOs de resumo das pessoas encontradas
+     */
     @Transactional(readOnly = true)
     public List<PessoaResumoDTO> buscarPorNome(String nome) {
         String nomeTratado = ValidacoesBR.trimToNull(nome);
@@ -99,6 +161,17 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
                 .toList();
     }
 
+    /**
+     * Retorna o histórico de revisões de uma pessoa com identificação dos campos alterados.
+     *
+     * <p>Utiliza o Hibernate Envers para consultar as revisões em ordem decrescente.
+     * Para cada par de revisões consecutivas, compara os campos e lista os que foram modificados.</p>
+     *
+     * @param id UUID da pessoa
+     * @return lista de {@link PessoaRevisaoDTO} em ordem decrescente de revisão,
+     *         cada um contendo os campos que mudaram em relação à versão anterior
+     * @throws jakarta.persistence.EntityNotFoundException se a pessoa não existir
+     */
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     public List<PessoaRevisaoDTO> listarRevisoes(UUID id) {
@@ -118,6 +191,12 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
         return adicionarCamposAlterados(revisoes);
     }
 
+    /**
+     * Conta o total de pessoas ativas no cadastro.
+     * Utilizado pelo dashboard para exibir o indicador de pessoas cadastradas.
+     *
+     * @return número de pessoas com {@code ativo = true}
+     */
     @Transactional(readOnly = true)
     public long contarPessoasAtivas() {
         return repository.countByAtivoTrue();
@@ -225,19 +304,29 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
         return valor == null ? null : valor.toUpperCase(Locale.ROOT);
     }
 
+    /**
+     * Converte o array de três elementos retornado pelo Envers em um {@link PessoaRevisaoDTO}.
+     *
+     * <p>O Envers retorna cada revisão como {@code Object[] { entidade, revisão, tipoRevisão }}.
+     * Usamos destructuring via cast explícito, pois a API do Envers não oferece tipagem genérica.</p>
+     *
+     * @param item array {@code [Pessoa, MRevisionEntity, RevisionType]} retornado pelo Envers
+     * @return DTO de revisão com campos alterados ainda vazios (preenchidos por {@link #adicionarCamposAlterados})
+     */
     private PessoaRevisaoDTO toPessoaRevisaoDTO(Object item) {
-        Object[] dadosRevisao = (Object[]) item;
-        Pessoa pessoa = (Pessoa) dadosRevisao[0];
-        MRevisionEntity revisao = (MRevisionEntity) dadosRevisao[1];
-        RevisionType tipo = (RevisionType) dadosRevisao[2];
-
-        return new PessoaRevisaoDTO(
-                revisao.getId(),
-                revisao.getTimestamp(),
-                tipo.name(),
-                PessoaMapper.toResponseDTO(pessoa),
-                List.of()
-        );
+        if (item instanceof Object[] dadosRevisao
+                && dadosRevisao[0] instanceof Pessoa pessoa
+                && dadosRevisao[1] instanceof MRevisionEntity revisao
+                && dadosRevisao[2] instanceof RevisionType tipo) {
+            return new PessoaRevisaoDTO(
+                    revisao.getId(),
+                    revisao.getTimestamp(),
+                    tipo.name(),
+                    PessoaMapper.toResponseDTO(pessoa),
+                    List.of()
+            );
+        }
+        throw new IllegalStateException("Formato inesperado de dados de revisão do Envers.");
     }
 
     private List<PessoaRevisaoDTO> adicionarCamposAlterados(List<PessoaRevisaoDTO> revisoes) {

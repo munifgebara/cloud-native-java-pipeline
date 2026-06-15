@@ -9,6 +9,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Serviço responsável por consolidar os indicadores operacionais do inventário
+ * para exibição no dashboard da aplicação.
+ *
+ * <p>Agrega contagens de pessoas, itens mestres, instâncias por status,
+ * locais, itens sem imagem, itens cadastrados por IA e consultas vetoriais,
+ * além dos rankings de locais e categorias com mais itens.</p>
+ */
 @Service
 public class DashboardService {
 
@@ -35,6 +43,11 @@ public class DashboardService {
         this.consultaVetorialMetricasService = consultaVetorialMetricasService;
     }
 
+    /**
+     * Carrega e retorna o resumo consolidado do inventário.
+     *
+     * @return DTO com todos os indicadores e rankings do dashboard
+     */
     @Transactional(readOnly = true)
     public DashboardResumoDTO carregarResumo() {
         return new DashboardResumoDTO(

@@ -3,15 +3,24 @@ package br.com.munif.stella.api.repository;
 import br.com.munif.comum.persistencia.SuperRepository;
 import br.com.munif.stella.api.dto.DashboardCategoriaQuantidadeDTO;
 import br.com.munif.stella.api.entity.ItemMestre;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public interface ItemMestreRepository extends SuperRepository<ItemMestre>, org.springframework.data.jpa.repository.JpaSpecificationExecutor<ItemMestre> {
+/**
+ * Repositório de persistência para {@link ItemMestre}.
+ *
+ * <p>Além dos métodos herdados de {@link SuperRepository}, expõe consultas
+ * por nome, filtros com {@link Specification} e projeções para o dashboard.</p>
+ */
+public interface ItemMestreRepository extends SuperRepository<ItemMestre>, JpaSpecificationExecutor<ItemMestre> {
 
     List<ItemMestre> findByAtivoTrueOrderByNomeAsc();
 
@@ -44,9 +53,20 @@ public interface ItemMestreRepository extends SuperRepository<ItemMestre>, org.s
             """)
     List<DashboardCategoriaQuantidadeDTO> buscarCategoriasComMaisItens(Pageable pageable);
 
+    /**
+     * Constrói uma {@link Specification} para filtrar itens mestres ativos com critérios opcionais.
+     *
+     * <p>Parâmetros {@code null} são simplesmente ignorados — nenhum predicado é gerado para eles.
+     * Isso evita o problema de inferência de tipo de parâmetros nulos no PostgreSQL que ocorre
+     * com consultas JPQL usando a construção {@code (:param is null or ...)}.</p>
+     *
+     * @param nome        substring a buscar no nome do item (busca case-insensitive); {@code null} ignora o filtro
+     * @param categoriaId UUID da categoria; {@code null} ignora o filtro
+     * @return especificação combinando os filtros informados com {@code AND}
+     */
     static Specification<ItemMestre> filtrarAtivos(String nome, UUID categoriaId) {
         return (root, query, cb) -> {
-            var predicados = new java.util.ArrayList<jakarta.persistence.criteria.Predicate>();
+            List<Predicate> predicados = new ArrayList<>();
             predicados.add(cb.isTrue(root.get("ativo")));
             if (nome != null) {
                 predicados.add(cb.like(cb.lower(root.get("nome")), "%" + nome.toLowerCase() + "%"));
@@ -54,7 +74,7 @@ public interface ItemMestreRepository extends SuperRepository<ItemMestre>, org.s
             if (categoriaId != null) {
                 predicados.add(cb.equal(root.join("categoria").get("id"), categoriaId));
             }
-            return cb.and(predicados.toArray(new jakarta.persistence.criteria.Predicate[0]));
+            return cb.and(predicados.toArray(Predicate[]::new));
         };
     }
 
