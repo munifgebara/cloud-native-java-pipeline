@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>br.com.munif.stella</groupId>
 	<artifactId>stella-api</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<name>stella-api</name>
 	<description>Sistema de Inventario Pessoal</description>
 	<url/>
@@ -294,6 +294,21 @@
 											<counter>INSTRUCTION</counter>
 											<value>COVEREDRATIO</value>
 											<minimum>0.50</minimum>
+										</limit>
+										<limit>
+											<counter>BRANCH</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.67</minimum>
+										</limit>
+										<limit>
+											<counter>METHOD</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.84</minimum>
+										</limit>
+										<limit>
+											<counter>COMPLEXITY</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.67</minimum>
 										</limit>
 									</limits>
 								</rule>
