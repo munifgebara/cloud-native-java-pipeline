@@ -5,81 +5,81 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Enumeração dos ícones disponíveis para identificação visual de categorias de itens.
+ * Enumeration of available icons for visual identification of item categories.
  *
- * <p>Cada valor corresponde a um identificador de ícone utilizado pela interface frontend.
- * O conjunto de chaves válidas é pré-computado em {@link #CHAVES} para validações eficientes
- * sem necessidade de iteração linear.</p>
+ * <p>Each value corresponds to an icon identifier used by the frontend interface.
+ * The set of valid keys is pre-computed in {@link #CHAVES} for efficient validation
+ * without the need for linear iteration.</p>
  *
- * <p>Uso típico: o campo {@code icone} de {@link Categoria} armazena a {@link #getChave() chave} do enum
- * como string, e o método {@link #isChaveValida(String)} valida o valor recebido via API.</p>
+ * <p>Typical usage: the {@code icone} field of {@link Categoria} stores the {@link #getChave() key} of the enum
+ * as a string, and the method {@link #isChaveValida(String)} validates the value received via API.</p>
  */
 public enum CategoriaIcone {
 
-    /** Ícone para itens eletrônicos (computadores, celulares, equipamentos de TI). */
+    /** Icon for electronic items (computers, phones, IT equipment). */
     ELETRONICOS("eletronicos"),
 
-    /** Ícone para móveis e itens de mobiliário (cadeiras, mesas, armários). */
+    /** Icon for furniture and furnishing items (chairs, tables, cabinets). */
     MOVEIS("moveis"),
 
-    /** Ícone para ferramentas manuais e equipamentos de manutenção. */
+    /** Icon for hand tools and maintenance equipment. */
     FERRAMENTAS("ferramentas"),
 
-    /** Ícone para livros, publicações e material bibliográfico. */
+    /** Icon for books, publications, and bibliographic materials. */
     LIVROS("livros"),
 
-    /** Ícone para roupas, uniformes e indumentárias. */
+    /** Icon for clothing, uniforms, and apparel. */
     ROUPAS("roupas"),
 
-    /** Ícone para utensílios de cozinha e equipamentos de copa. */
+    /** Icon for kitchen utensils and pantry equipment. */
     COZINHA("cozinha"),
 
-    /** Ícone para equipamentos esportivos e de lazer. */
+    /** Icon for sports and leisure equipment. */
     ESPORTES("esportes"),
 
-    /** Ícone para documentos, arquivos e material impresso. */
+    /** Icon for documents, files, and printed materials. */
     DOCUMENTOS("documentos"),
 
-    /** Ícone genérico para itens que não se encaixam nas demais categorias. */
+    /** Generic icon for items that do not fit into the other categories. */
     OUTROS("outros");
 
     /**
-     * Conjunto imutável de todas as chaves válidas, pré-computado na inicialização da classe.
-     * Utilizado por {@link #isChaveValida(String)} para validação em tempo constante.
+     * Immutable set of all valid keys, pre-computed at class initialization.
+     * Used by {@link #isChaveValida(String)} for constant-time validation.
      */
     private static final Set<String> CHAVES = Arrays.stream(values())
             .map(CategoriaIcone::getChave)
             .collect(Collectors.toUnmodifiableSet());
 
-    /** Identificador string do ícone, conforme esperado pelo frontend. */
+    /** String identifier of the icon, as expected by the frontend. */
     private final String chave;
 
     /**
-     * Construtor do enum.
+     * Enum constructor.
      *
-     * @param chave identificador string do ícone
+     * @param chave string identifier of the icon
      */
     CategoriaIcone(String chave) {
         this.chave = chave;
     }
 
     /**
-     * Retorna o identificador string deste ícone, conforme utilizado pela interface frontend.
+     * Returns the string identifier of this icon, as used by the frontend interface.
      *
-     * @return a chave do ícone (ex.: {@code "eletronicos"})
+     * @return the icon key (e.g.: {@code "eletronicos"})
      */
     public String getChave() {
         return chave;
     }
 
     /**
-     * Verifica se a chave informada corresponde a um ícone válido.
+     * Checks whether the provided key corresponds to a valid icon.
      *
-     * <p>Retorna {@code true} também para {@code null}, permitindo que o campo seja opcional
-     * nas entidades e DTOs sem disparar erros de validação.</p>
+     * <p>Returns {@code true} also for {@code null}, allowing the field to be optional
+     * in entities and DTOs without triggering validation errors.</p>
      *
-     * @param chave o identificador de ícone a verificar; pode ser {@code null}
-     * @return {@code true} se a chave for {@code null} ou estiver entre os valores cadastrados
+     * @param chave the icon identifier to check; may be {@code null}
+     * @return {@code true} if the key is {@code null} or among the registered values
      */
     public static boolean isChaveValida(String chave) {
         return chave == null || CHAVES.contains(chave);

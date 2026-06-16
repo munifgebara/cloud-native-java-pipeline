@@ -20,24 +20,23 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Tratador global de exceções para todos os controllers REST da aplicação.
+ * Global exception handler for all REST controllers in the application.
  *
- * <p>Centraliza o tratamento de erros, garantindo que todas as respostas de erro
- * sigam um formato JSON consistente:</p>
+ * <p>Centralizes error handling, ensuring that all error responses follow
+ * a consistent JSON format:</p>
  * <pre>
  * {
  *   "timestamp": "2024-01-15T10:30:00Z",
  *   "status": 400,
  *   "codigo": "Bad Request",
- *   "erro": "Mensagem legível para o usuário",
- *   "path": "/api/v0/recurso"
+ *   "erro": "Human-readable message for the user",
+ *   "path": "/api/v0/resource"
  * }
  * </pre>
  *
- * <p>A anotação {@link RestControllerAdvice} faz com que o Spring intercepte
- * automaticamente qualquer exceção lançada nos controllers e chame o método
- * {@link ExceptionHandler} correspondente, sem necessidade de blocos try/catch
- * nos controllers.</p>
+ * <p>The {@link RestControllerAdvice} annotation makes Spring automatically intercept
+ * any exception thrown in the controllers and call the corresponding
+ * {@link ExceptionHandler} method, without needing try/catch blocks in controllers.</p>
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -45,210 +44,210 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /**
-     * Trata falhas de validação Bean Validation (anotações como {@code @NotBlank}, {@code @Size} etc.).
+     * Handles Bean Validation failures (annotations such as {@code @NotBlank}, {@code @Size}, etc.).
      *
-     * <p>Retorna {@code 400 Bad Request} com a lista de campos inválidos e suas mensagens.</p>
+     * <p>Returns {@code 400 Bad Request} with the list of invalid fields and their messages.</p>
      *
-     * @param ex      exceção com os detalhes dos campos inválidos
-     * @param request requisição HTTP que originou o erro
-     * @return resposta 400 com mapa de erros por campo
+     * @param ex      exception with details of invalid fields
+     * @param request HTTP request that originated the error
+     * @return 400 response with a map of errors per field
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> tratarValidacao(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        Map<String, String> erros = new LinkedHashMap<>();
+    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        Map<String, String> errors = new LinkedHashMap<>();
+
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
-            erros.put(error.getField(), error.getDefaultMessage());
+            errors.put(error.getField(), error.getDefaultMessage());
         }
 
-        log.warn("Erro de validação em {} {}: {}", request.getMethod(), request.getRequestURI(), erros);
+        log.warn("Validation error in {} {}: {}", request.getMethod(), request.getRequestURI(), errors);
 
-        Map<String, Object> corpo = corpo(HttpStatus.BAD_REQUEST, "Dados inválidos.", request);
-        corpo.put("campos", erros);
-        return ResponseEntity.badRequest().body(corpo);
+        Map<String, Object> body = body(HttpStatus.BAD_REQUEST, "Invalid data.", request);
+        body.put("campos", errors);
+
+        return ResponseEntity.badRequest().body(body);
     }
 
     /**
-     * Trata registros não encontrados no banco de dados.
-     * Retorna {@code 404 Not Found}.
+     * Handles records not found in the database.
+     * Returns {@code 404 Not Found}.
      *
-     * @param ex      exceção com a mensagem de "não encontrado"
-     * @param request requisição que originou o erro
-     * @return resposta 404
+     * @param ex      exception with the "not found" message
+     * @param request request that originated the error
+     * @return 404 response
      */
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> tratarNaoEncontrado(EntityNotFoundException ex, HttpServletRequest request) {
-        return resposta(HttpStatus.NOT_FOUND, ex.getMessage(), ex, request, false);
+    public ResponseEntity<Map<String, Object>> handleNotFound(EntityNotFoundException ex, HttpServletRequest request) {
+        return response(HttpStatus.NOT_FOUND, ex.getMessage(), ex, request, false);
     }
 
     /**
-     * Trata tentativas de cadastro duplicado (ex.: CPF já existente).
-     * Retorna {@code 409 Conflict}.
+     * Handles duplicate registration attempts (e.g., CPF already exists).
+     * Returns {@code 409 Conflict}.
      *
-     * @param ex      exceção indicando conflito de dados
-     * @param request requisição que originou o erro
-     * @return resposta 409
+     * @param ex      exception indicating a data conflict
+     * @param request request that originated the error
+     * @return 409 response
      */
-    @ExceptionHandler(CadastroDuplicadoException.class)
-    public ResponseEntity<Map<String, Object>> tratarDuplicidade(CadastroDuplicadoException ex, HttpServletRequest request) {
-        return resposta(HttpStatus.CONFLICT, ex.getMessage(), ex, request, false);
+    @ExceptionHandler(DuplicateRegistrationException.class)
+    public ResponseEntity<Map<String, Object>> handleDuplicate(DuplicateRegistrationException ex, HttpServletRequest request) {
+        return response(HttpStatus.CONFLICT, ex.getMessage(), ex, request, false);
     }
 
     /**
-     * Trata limites de uso de IA excedidos.
-     * O status HTTP é definido pela própria exceção (pode ser {@code 429 Too Many Requests}
-     * ou outro código indicado pelo serviço de IA).
+     * Handles exceeded AI usage limits.
+     * The HTTP status is defined by the exception itself (may be {@code 429 Too Many Requests}
+     * or another code indicated by the AI service).
      *
-     * @param ex      exceção com o status e a mensagem de limite excedido
-     * @param request requisição que originou o erro
-     * @return resposta com o status definido pela exceção
+     * @param ex      exception with the status and exceeded-limit message
+     * @param request request that originated the error
+     * @return response with the status defined by the exception
      */
     @ExceptionHandler(AiUsageLimitException.class)
-    public ResponseEntity<Map<String, Object>> tratarUsoIa(AiUsageLimitException ex, HttpServletRequest request) {
-        return resposta(ex.getStatus(), ex.getMessage(), ex, request, false);
+    public ResponseEntity<Map<String, Object>> handleAiUsageLimit(AiUsageLimitException ex, HttpServletRequest request) {
+        return response(ex.getStatus(), ex.getMessage(), ex, request, false);
     }
 
     /**
-     * Trata violações de regras de negócio expressas como {@link IllegalArgumentException}.
-     * Retorna {@code 400 Bad Request}.
+     * Handles business rule violations expressed as {@link IllegalArgumentException}.
+     * Returns {@code 400 Bad Request}.
      *
-     * <p>Esta é a forma preferida de sinalizar erros de validação de negócio
-     * nos serviços (ex.: "CPF inválido", "Local deve estar ativo").</p>
+     * <p>This is the preferred way to signal business validation errors
+     * in services (e.g., "Invalid CPF", "Storage location must be active").</p>
      *
-     * @param ex      exceção com a mensagem da regra violada
-     * @param request requisição que originou o erro
-     * @return resposta 400
+     * @param ex      exception with the violated rule message
+     * @param request request that originated the error
+     * @return 400 response
      */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> tratarRegraNegocio(IllegalArgumentException ex, HttpServletRequest request) {
-        return resposta(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, request, false);
+    public ResponseEntity<Map<String, Object>> handleBusinessRule(IllegalArgumentException ex, HttpServletRequest request) {
+        return response(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, request, false);
     }
 
     /**
-     * Trata falhas em integrações externas (ex.: Keycloak, MinIO, OpenAI).
-     * Retorna {@code 502 Bad Gateway}, indicando que o problema é em um serviço externo,
-     * não na requisição do cliente.
+     * Handles failures in external integrations (e.g., Keycloak, MinIO, OpenAI).
+     * Returns {@code 502 Bad Gateway}, indicating the problem is in an external service,
+     * not in the client's request.
      *
-     * @param ex      exceção com detalhes da falha de integração
-     * @param request requisição que originou o erro
-     * @return resposta 502
+     * @param ex      exception with integration failure details
+     * @param request request that originated the error
+     * @return 502 response
      */
-    @ExceptionHandler(IntegracaoExternaException.class)
-    public ResponseEntity<Map<String, Object>> tratarFalhaIntegracao(IntegracaoExternaException ex, HttpServletRequest request) {
-        return resposta(HttpStatus.BAD_GATEWAY, ex.getMessage(), ex, request, true);
+    @ExceptionHandler(ExternalIntegrationException.class)
+    public ResponseEntity<Map<String, Object>> handleExternalIntegration(ExternalIntegrationException ex, HttpServletRequest request) {
+        return response(HttpStatus.BAD_GATEWAY, ex.getMessage(), ex, request, true);
     }
 
     /**
-     * Trata estados ilegais inesperados da aplicação.
-     * Retorna {@code 500 Internal Server Error} e registra o erro completo no log.
+     * Handles unexpected illegal states in the application.
+     * Returns {@code 500 Internal Server Error} and logs the full error.
      *
-     * @param ex      exceção de estado ilegal
-     * @param request requisição que originou o erro
-     * @return resposta 500
+     * @param ex      illegal state exception
+     * @param request request that originated the error
+     * @return 500 response
      */
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<Map<String, Object>> tratarEstadoIlegal(IllegalStateException ex, HttpServletRequest request) {
-        return resposta(HttpStatus.INTERNAL_SERVER_ERROR, "Erro inesperado ao processar a solicitação.", ex, request, true);
+    public ResponseEntity<Map<String, Object>> handleUnexpectedState(IllegalStateException ex, HttpServletRequest request) {
+        return response(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error while processing the request.", ex, request, true);
     }
 
     /**
-     * Trata erros de comunicação com o provedor de identidade (Keycloak).
-     * O status HTTP é definido pela própria exceção.
+     * Handles communication errors with the identity provider (Keycloak).
+     * The HTTP status is defined by the exception itself.
      *
-     * @param ex      exceção com o status e a mensagem de erro de identidade
-     * @param request requisição que originou o erro
-     * @return resposta com o status definido pela exceção
+     * @param ex      exception with the status and identity error message
+     * @param request request that originated the error
+     * @return response with the status defined by the exception
      */
-    @ExceptionHandler(IdentidadeException.class)
-    public ResponseEntity<Map<String, Object>> tratarIdentidade(IdentidadeException ex, HttpServletRequest request) {
-        return resposta(ex.getStatus(), ex.getMessage(), ex, request, ex.getStatus().is5xxServerError());
+    @ExceptionHandler(IdentityException.class)
+    public ResponseEntity<Map<String, Object>> handleIdentity(IdentityException ex, HttpServletRequest request) {
+        return response(ex.getStatus(), ex.getMessage(), ex, request, ex.getStatus().is5xxServerError());
     }
 
     /**
-     * Trata violações de integridade referencial no banco de dados.
-     * Retorna {@code 409 Conflict} com mensagem genérica para não expor detalhes do schema.
+     * Handles referential integrity violations in the database.
+     * Returns {@code 409 Conflict} with a generic message to avoid exposing schema details.
      *
-     * @param ex      exceção de integridade relacional lançada pelo JPA/Hibernate
-     * @param request requisição que originou o erro
-     * @return resposta 409
+     * @param ex      relational integrity exception thrown by JPA/Hibernate
+     * @param request request that originated the error
+     * @return 409 response
      */
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, Object>> tratarIntegridade(DataIntegrityViolationException ex, HttpServletRequest request) {
-        return resposta(HttpStatus.CONFLICT,
-                "Não foi possível concluir a operação por conflito com dados já existentes ou vinculados.",
-                ex, request, true);
+    public ResponseEntity<Map<String, Object>> handleIntegrity(DataIntegrityViolationException ex, HttpServletRequest request) {
+        return response(HttpStatus.CONFLICT, "Unable to complete the operation due to conflict with existing or linked data.", ex, request, true);
     }
 
     /**
-     * Trata requisições malformadas: JSON inválido, parâmetro ausente ou tipo de parâmetro errado.
-     * Retorna {@code 400 Bad Request}.
+     * Handles malformed requests: invalid JSON, missing parameter, or wrong parameter type.
+     * Returns {@code 400 Bad Request}.
      *
-     * @param ex      exceção de leitura ou binding da requisição
-     * @param request requisição que originou o erro
-     * @return resposta 400
+     * @param ex      request reading or binding exception
+     * @param request request that originated the error
+     * @return 400 response
      */
     @ExceptionHandler({
             HttpMessageNotReadableException.class,
             MissingServletRequestParameterException.class,
             MethodArgumentTypeMismatchException.class
     })
-    public ResponseEntity<Map<String, Object>> tratarRequisicaoInvalida(Exception ex, HttpServletRequest request) {
-        return resposta(HttpStatus.BAD_REQUEST, "Requisição inválida. Confira os dados enviados.", ex, request, false);
+    public ResponseEntity<Map<String, Object>> handleInvalidRequest(Exception ex, HttpServletRequest request) {
+        return response(HttpStatus.BAD_REQUEST, "Invalid request. Please check the submitted data.", ex, request, false);
     }
 
     /**
-     * Tratador de último recurso para qualquer exceção não coberta pelos outros handlers.
-     * Retorna {@code 500 Internal Server Error} e registra o stack trace completo.
+     * Last-resort handler for any exception not covered by other handlers.
+     * Returns {@code 500 Internal Server Error} and logs the full stack trace.
      *
-     * @param ex      qualquer exceção não tratada
-     * @param request requisição que originou o erro
-     * @return resposta 500
+     * @param ex      any unhandled exception
+     * @param request request that originated the error
+     * @return 500 response
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> tratarErroInesperado(Exception ex, HttpServletRequest request) {
-        return resposta(HttpStatus.INTERNAL_SERVER_ERROR, "Erro inesperado ao processar a solicitação.", ex, request, true);
+    public ResponseEntity<Map<String, Object>> handleUnexpectedError(Exception ex, HttpServletRequest request) {
+        return response(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error while processing the request.", ex, request, true);
     }
 
     /**
-     * Monta a resposta de erro, registra no log e retorna o {@link ResponseEntity}.
+     * Builds the error response, logs it, and returns the {@link ResponseEntity}.
      *
-     * @param status             código HTTP da resposta
-     * @param mensagem           mensagem legível para o usuário
-     * @param ex                 exceção original (usada no log)
-     * @param request            requisição HTTP
-     * @param incluirCausaNoLog  se {@code true}, registra o stack trace completo; caso contrário, apenas a mensagem
-     * @return resposta HTTP com corpo JSON padronizado
+     * @param status           HTTP status code
+     * @param message          human-readable message for the user
+     * @param ex               original exception (used in logging)
+     * @param request          HTTP request
+     * @param includeStackTrace if {@code true}, logs the full stack trace; otherwise only the message
+     * @return HTTP response with standardized JSON body
      */
-    private ResponseEntity<Map<String, Object>> resposta(
+    private ResponseEntity<Map<String, Object>> response(
             HttpStatus status,
-            String mensagem,
+            String message,
             Exception ex,
             HttpServletRequest request,
-            boolean incluirCausaNoLog
+            boolean includeStackTrace
     ) {
-        if (status.is5xxServerError() || incluirCausaNoLog) {
-            log.error("Erro em {} {}: {}", request.getMethod(), request.getRequestURI(), mensagem, ex);
+        if (status.is5xxServerError() || includeStackTrace) {
+            log.error("Error in {} {}: {}", request.getMethod(), request.getRequestURI(), message, ex);
         } else {
-            log.warn("Erro em {} {}: {}", request.getMethod(), request.getRequestURI(), mensagem);
+            log.warn("Error in {} {}: {}", request.getMethod(), request.getRequestURI(), message);
         }
 
-        return ResponseEntity.status(status).body(corpo(status, mensagem, request));
+        return ResponseEntity.status(status).body(body(status, message, request));
     }
 
     /**
-     * Constrói o corpo JSON padronizado das respostas de erro.
+     * Builds the standardized JSON body for error responses.
      *
-     * @param status   código HTTP
-     * @param mensagem mensagem de erro
-     * @param request  requisição HTTP (para extrair o path)
-     * @return mapa com os campos {@code timestamp}, {@code status}, {@code codigo}, {@code erro} e {@code path}
+     * @param status  HTTP status code
+     * @param message error message
+     * @param request HTTP request (to extract the path)
+     * @return map with fields {@code timestamp}, {@code status}, {@code codigo}, {@code erro}, and {@code path}
      */
-    private Map<String, Object> corpo(HttpStatus status, String mensagem, HttpServletRequest request) {
-        Map<String, Object> corpo = new LinkedHashMap<>();
-        corpo.put("timestamp", Instant.now());
-        corpo.put("status", status.value());
-        corpo.put("codigo", status.getReasonPhrase());
-        corpo.put("erro", mensagem);
-        corpo.put("path", request.getRequestURI());
-        return corpo;
+    private Map<String, Object> body(HttpStatus status, String message, HttpServletRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", Instant.now());
+        body.put("status", status.value());
+        body.put("codigo", status.getReasonPhrase());
+        body.put("erro", message);
+        body.put("path", request.getRequestURI());
+        return body;
     }
 }

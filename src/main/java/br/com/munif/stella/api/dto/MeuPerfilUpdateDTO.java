@@ -4,13 +4,13 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 
 public record MeuPerfilUpdateDTO(
-        @Size(max = 100, message = "Nome deve ter no máximo 100 caracteres.")
+        @Size(max = 100, message = "Name must not exceed 100 characters.")
         String firstName,
 
-        @Size(max = 100, message = "Sobrenome deve ter no máximo 100 caracteres.")
+        @Size(max = 100, message = "Last name must not exceed 100 characters.")
         String lastName,
 
-        @Email(message = "E-mail deve ser válido.")
-        @Size(max = 150, message = "E-mail deve ter no máximo 150 caracteres.")
+        @Email(message = "E-mail must be valid.")
+        @Size(max = 150, message = "E-mail must not exceed 150 characters.")
         String email
 ) {}

@@ -7,43 +7,43 @@ import jakarta.validation.constraints.Size;
 import java.util.UUID;
 
 /**
- * DTO de atualização de uma instância de item.
+ * Update DTO for an item instance.
  *
- * <p>Contém os campos que podem ser alterados em uma instância já cadastrada.
- * Todos os campos (exceto {@code itemMestreId}) são opcionais: valores {@code null}
- * limpam o campo correspondente na entidade.</p>
+ * <p>Contains the fields that can be changed in an already registered instance.
+ * All fields (except {@code itemMestreId}) are optional: {@code null} values
+ * clear the corresponding field in the entity.</p>
  *
- * @param itemMestreId      identificador do item mestre ao qual esta instância pertence; obrigatório
- * @param localAtualId      identificador do novo local de armazenamento; {@code null} remove a localização
- * @param identificador     código interno de identificação (até 100 caracteres); opcional
- * @param patrimonio        número de patrimônio (até 100 caracteres); opcional
- * @param numeroSerie       número de série do fabricante (até 150 caracteres); opcional
- * @param statusOperacional novo status operacional da instância; opcional
- * @param observacoes       observações internas (até 1000 caracteres); opcional
- * @param origemCadastro    origem do cadastro (até 50 caracteres); opcional
- * @param ativa             indica se a instância está ativa; opcional
+ * @param itemMestreId      identifier of the main item to which this instance belongs; required
+ * @param localAtualId      identifier of the new storage location; {@code null} removes the location
+ * @param identificador     internal identification code (up to 100 characters); optional
+ * @param patrimonio        asset number (up to 100 characters); optional
+ * @param numeroSerie       manufacturer's serial number (up to 150 characters); optional
+ * @param statusOperacional new operational status of the instance; optional
+ * @param observacoes       internal notes (up to 1000 characters); optional
+ * @param origemCadastro    registration origin (up to 50 characters); optional
+ * @param ativa             indicates whether the instance is active; optional
  */
 public record InstanciaItemUpdateDTO(
-        @NotNull(message = "Item mestre é obrigatório.")
+        @NotNull(message = "Main item is required.")
         UUID itemMestreId,
 
         UUID localAtualId,
 
-        @Size(max = 100, message = "Identificador deve ter no máximo 100 caracteres.")
+        @Size(max = 100, message = "Identifier must not exceed 100 characters.")
         String identificador,
 
-        @Size(max = 100, message = "Patrimônio deve ter no máximo 100 caracteres.")
+        @Size(max = 100, message = "Asset number must not exceed 100 characters.")
         String patrimonio,
 
-        @Size(max = 150, message = "Número de série deve ter no máximo 150 caracteres.")
+        @Size(max = 150, message = "Serial number must not exceed 150 characters.")
         String numeroSerie,
 
         StatusOperacionalInstancia statusOperacional,
 
-        @Size(max = 1000, message = "Observações devem ter no máximo 1000 caracteres.")
+        @Size(max = 1000, message = "Notes must not exceed 1000 characters.")
         String observacoes,
 
-        @Size(max = 50, message = "Origem do cadastro deve ter no máximo 50 caracteres.")
+        @Size(max = 50, message = "Registration origin must not exceed 50 characters.")
         String origemCadastro,
 
         Boolean ativa

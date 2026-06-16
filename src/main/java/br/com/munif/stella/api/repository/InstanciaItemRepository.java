@@ -16,11 +16,11 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Repositório de persistência para {@link InstanciaItem}.
+ * Persistence repository for {@link InstanciaItem}.
  *
- * <p>Além dos métodos herdados de {@link SuperRepository}, expõe buscas
- * por identificador, filtros dinâmicos com {@link Specification} e projeções
- * para o dashboard e buscas em lote por item mestre.</p>
+ * <p>In addition to the methods inherited from {@link SuperRepository}, it exposes searches
+ * by identifier, dynamic filters with {@link Specification}, and projections
+ * for the dashboard and batch searches by main item.</p>
  */
 public interface InstanciaItemRepository extends SuperRepository<InstanciaItem>, JpaSpecificationExecutor<InstanciaItem> {
 
@@ -45,19 +45,19 @@ public interface InstanciaItemRepository extends SuperRepository<InstanciaItem>,
     long countByAtivoTrueAndStatusOperacional(StatusOperacionalInstancia statusOperacional);
 
     /**
-     * Constrói uma {@link Specification} para filtrar instâncias ativas com múltiplos critérios opcionais.
+     * Builds a {@link Specification} to filter active instances with multiple optional criteria.
      *
-     * <p>Parâmetros {@code null} são ignorados — nenhum predicado é gerado para eles.
-     * Isso resolve o problema de inferência de tipo para parâmetros nulos com UUID e enums
-     * no PostgreSQL, que ocorre quando se usa {@code (:param is null or ...)} em JPQL.</p>
+     * <p>{@code null} parameters are ignored — no predicate is generated for them.
+     * This solves the null parameter type inference issue for UUID and enum parameters
+     * in PostgreSQL that occurs when using {@code (:param is null or ...)} in JPQL.</p>
      *
-     * @param identificacao  texto a buscar em identificador, patrimônio ou número de série (case-insensitive);
-     *                       {@code null} ignora o filtro
-     * @param itemMestre     substring a buscar no nome do item mestre (case-insensitive);
-     *                       {@code null} ignora o filtro
-     * @param categoriaId    UUID da categoria do item mestre; {@code null} ignora o filtro
-     * @param statusOperacional status operacional da instância; {@code null} ignora o filtro
-     * @return especificação combinando os filtros informados com {@code AND}
+     * @param identificacao     text to search in identifier, asset number or serial number (case-insensitive);
+     *                          {@code null} ignores the filter
+     * @param itemMestre        substring to search in the main item name (case-insensitive);
+     *                          {@code null} ignores the filter
+     * @param categoriaId       UUID of the main item category; {@code null} ignores the filter
+     * @param statusOperacional operational status of the instance; {@code null} ignores the filter
+     * @return specification combining the given filters with {@code AND}
      */
     static Specification<InstanciaItem> filtrarAtivas(
             String identificacao,

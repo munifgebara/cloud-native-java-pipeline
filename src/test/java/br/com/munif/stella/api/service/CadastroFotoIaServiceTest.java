@@ -18,7 +18,7 @@ class CadastroFotoIaServiceTest {
 
         assertThatThrownBy(() -> service.sugerirCadastro(arquivo))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Envie uma imagem para análise.");
+                .hasMessage("Please send an image for analysis.");
     }
 
     @Test
@@ -27,6 +27,6 @@ class CadastroFotoIaServiceTest {
 
         assertThatThrownBy(() -> service.sugerirCadastro(arquivo))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Formato de imagem não suportado. Use PNG, JPEG, WEBP ou GIF.");
+                .hasMessage("Unsupported image format. Use PNG, JPEG, WEBP or GIF.");
     }
 }

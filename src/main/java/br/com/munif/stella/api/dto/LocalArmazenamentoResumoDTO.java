@@ -3,20 +3,20 @@ package br.com.munif.stella.api.dto;
 import java.util.UUID;
 
 /**
- * DTO resumido de um local de armazenamento, utilizado em listagens.
+ * Summary DTO of a storage location, used in listings.
  *
- * <p>Inclui informações de hierarquia (pai, caminho e nível) para facilitar
- * a exibição em estruturas de árvore e listas hierárquicas na interface.</p>
+ * <p>Includes hierarchy information (parent, path and level) to facilitate
+ * display in tree structures and hierarchical lists in the interface.</p>
  *
- * @param id        identificador único do local
- * @param nome      nome do local
- * @param descricao descrição do local; pode ser {@code null}
- * @param paiId     identificador do local pai; {@code null} para locais raiz
- * @param paiNome   nome do local pai (desnormalizado); {@code null} para locais raiz
- * @param caminho   caminho completo do local na hierarquia (ex.: {@code "Prédio A > Sala 101 > Armário 2"})
- * @param nivel     profundidade na hierarquia: {@code 0} para locais raiz, {@code 1} para filhos, etc.
- * @param imagemUrl URL relativa para acesso à imagem do local; {@code null} quando sem imagem
- * @param ativa     indica se o local está ativo no sistema
+ * @param id        unique identifier of the location
+ * @param nome      location name
+ * @param descricao description of the location; may be {@code null}
+ * @param paiId     identifier of the parent location; {@code null} for root locations
+ * @param paiNome   parent location name (denormalized); {@code null} for root locations
+ * @param caminho   full path of the location in the hierarchy (e.g.: {@code "Building A > Room 101 > Cabinet 2"})
+ * @param nivel     depth in the hierarchy: {@code 0} for root locations, {@code 1} for children, etc.
+ * @param imagemUrl relative URL for accessing the location image; {@code null} when no image
+ * @param ativa     indicates whether the location is active in the system
  */
 public record LocalArmazenamentoResumoDTO(
         UUID id,

@@ -17,10 +17,10 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Controller REST para gerenciamento de pessoas (físicas ou jurídicas).
+ * REST controller for managing persons (individuals or legal entities).
  *
- * <p>Expõe o recurso {@code /api/v0/pessoas} com CRUD, busca por nome
- * e histórico de revisões de auditoria.</p>
+ * <p>Exposes the {@code /api/v0/pessoas} resource with CRUD, name search,
+ * and audit revision history.</p>
  */
 @RestController
 @RequestMapping("/api/v0/pessoas")
@@ -29,9 +29,9 @@ public class PessoaController extends SuperController<PessoaResumoDTO, PessoaRes
     private final PessoaService service;
 
     /**
-     * Constrói o controller injetando o serviço de negócio de pessoas.
+     * Constructs the controller injecting the person business service.
      *
-     * @param service serviço de pessoas
+     * @param service person service
      */
     public PessoaController(PessoaService service) {
         this.service = service;
@@ -56,10 +56,10 @@ public class PessoaController extends SuperController<PessoaResumoDTO, PessoaRes
     }
 
     /**
-     * Busca pessoas ativas cujo nome contenha o texto informado (busca parcial, case-insensitive).
+     * Finds active persons whose name contains the given text (partial, case-insensitive search).
      *
-     * @param nome substring a buscar no nome da pessoa
-     * @return {@code 200 OK} com a lista de pessoas encontradas
+     * @param nome substring to search in the person's name
+     * @return {@code 200 OK} with the list of found persons
      */
     @GetMapping("/buscar")
     public ResponseEntity<List<PessoaResumoDTO>> buscarPorNome(@RequestParam String nome) {

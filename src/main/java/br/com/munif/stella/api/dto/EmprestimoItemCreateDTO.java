@@ -7,14 +7,14 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 public record EmprestimoItemCreateDTO(
-        @NotNull(message = "Instância é obrigatória.")
+        @NotNull(message = "Instance is required.")
         UUID instanciaItemId,
 
-        @NotNull(message = "Pessoa é obrigatória.")
+        @NotNull(message = "Person is required.")
         UUID pessoaId,
 
         LocalDate previsaoDevolucao,
 
-        @Size(max = 1000, message = "Observação deve ter no máximo 1000 caracteres.")
+        @Size(max = 1000, message = "Observation must not exceed 1000 characters.")
         String observacao
 ) {}

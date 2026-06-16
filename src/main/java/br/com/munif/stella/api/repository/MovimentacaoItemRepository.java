@@ -7,31 +7,31 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Repositório JPA para operações de persistência de {@link MovimentacaoItem}.
+ * JPA repository for persistence operations of {@link MovimentacaoItem}.
  *
- * <p>Estende {@code SuperRepository} que já provê os métodos padrão de CRUD
- * e paginação. Os métodos declarados aqui são gerados automaticamente pelo
- * Spring Data JPA a partir da convenção de nomenclatura.</p>
+ * <p>Extends {@code SuperRepository} which already provides the standard CRUD
+ * and pagination methods. The methods declared here are generated automatically by
+ * Spring Data JPA from the naming convention.</p>
  */
 public interface MovimentacaoItemRepository extends SuperRepository<MovimentacaoItem> {
 
     /**
-     * Verifica se existe alguma movimentação registrada para a instância de item informada.
-     * Utilizado para impedir a exclusão de instâncias que já possuem histórico de movimentação.
+     * Checks whether any movement is registered for the given item instance.
+     * Used to prevent deletion of instances that already have a movement history.
      *
-     * @param instanciaItemId identificador da instância de item
-     * @return {@code true} se existir ao menos uma movimentação para esta instância
+     * @param instanciaItemId identifier of the item instance
+     * @return {@code true} if at least one movement exists for this instance
      */
     boolean existsByInstanciaItemId(UUID instanciaItemId);
 
     /**
-     * Retorna o histórico completo de movimentações de uma instância, ordenado cronologicamente.
+     * Returns the full movement history of an instance, ordered chronologically.
      *
-     * <p>A ordenação por {@code dataMovimentacao} e depois por {@code criadoEm} garante
-     * consistência quando várias movimentações ocorrem no mesmo instante.</p>
+     * <p>Ordering by {@code dataMovimentacao} and then by {@code criadoEm} ensures
+     * consistency when multiple movements occur at the same instant.</p>
      *
-     * @param instanciaItemId identificador da instância de item
-     * @return lista de movimentações em ordem cronológica crescente; nunca {@code null}, pode ser vazia
+     * @param instanciaItemId identifier of the item instance
+     * @return list of movements in ascending chronological order; never {@code null}, may be empty
      */
     List<MovimentacaoItem> findByInstanciaItemIdOrderByDataMovimentacaoAscCriadoEmAsc(UUID instanciaItemId);
 }

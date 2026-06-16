@@ -27,14 +27,14 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Controller REST para gerenciamento de instâncias físicas de itens do inventário.
+ * REST controller for managing physical instances of inventory items.
  *
- * <p>Expõe os endpoints do recurso {@code /api/v0/instancias-item}, cobrindo CRUD,
- * filtros, histórico de movimentações e consulta de revisões de auditoria.</p>
+ * <p>Exposes the endpoints for the {@code /api/v0/instancias-item} resource, covering CRUD,
+ * filters, movement history and audit revision queries.</p>
  *
- * <p>Uma instância é a ocorrência física de um {@link br.com.munif.stella.api.entity.ItemMestre}.
- * Por exemplo: o item mestre "Notebook Dell" pode ter 10 instâncias cadastradas,
- * cada uma com seu próprio patrimônio, local e status operacional.</p>
+ * <p>An instance is the physical occurrence of an {@link br.com.munif.stella.api.entity.ItemMestre}.
+ * For example: the main item "Notebook Dell" can have 10 registered instances,
+ * each with its own asset tag, location and operational status.</p>
  */
 @RestController
 @RequestMapping("/api/v0/instancias-item")
@@ -43,9 +43,9 @@ public class InstanciaItemController extends SuperController<InstanciaItemResumo
     private final InstanciaItemService service;
 
     /**
-     * Constrói o controller injetando o serviço de negócio.
+     * Constructs the controller injecting the business service.
      *
-     * @param service serviço de instâncias de item
+     * @param service item instance service
      */
     public InstanciaItemController(InstanciaItemService service) {
         this.service = service;
@@ -64,10 +64,10 @@ public class InstanciaItemController extends SuperController<InstanciaItemResumo
     }
 
     /**
-     * Retorna o histórico de movimentações de uma instância específica.
+     * Returns the movement history of a specific instance.
      *
-     * @param id UUID da instância
-     * @return {@code 200 OK} com a instância e sua lista de movimentações em ordem cronológica
+     * @param id UUID of the instance
+     * @return {@code 200 OK} with the instance and its list of movements in chronological order
      */
     @GetMapping("/{id}/historico")
     public ResponseEntity<InstanciaItemHistoricoDTO> buscarHistorico(@PathVariable UUID id) {
@@ -81,10 +81,10 @@ public class InstanciaItemController extends SuperController<InstanciaItemResumo
     }
 
     /**
-     * Busca instâncias ativas cujo identificador contenha o texto informado.
+     * Finds active instances whose identifier contains the given text.
      *
-     * @param identificador texto a buscar no campo {@code identificador}
-     * @return {@code 200 OK} com a lista de instâncias encontradas
+     * @param identificador text to search in the {@code identificador} field
+     * @return {@code 200 OK} with the list of found instances
      */
     @GetMapping("/buscar")
     public ResponseEntity<List<InstanciaItemResumoDTO>> buscarPorIdentificador(@RequestParam String identificador) {
@@ -92,14 +92,14 @@ public class InstanciaItemController extends SuperController<InstanciaItemResumo
     }
 
     /**
-     * Filtra instâncias ativas com múltiplos critérios opcionais.
-     * Parâmetros não informados são ignorados (sem restrição sobre o campo correspondente).
+     * Filters active instances with multiple optional criteria.
+     * Parameters not provided are ignored (no restriction on the corresponding field).
      *
-     * @param identificacao   texto a buscar em identificador, patrimônio ou número de série
-     * @param itemMestre      substring do nome do item mestre
-     * @param categoriaId     UUID da categoria
-     * @param statusOperacional status operacional desejado
-     * @return {@code 200 OK} com a lista de instâncias que satisfazem os critérios
+     * @param identificacao   text to search in identifier, asset tag or serial number
+     * @param itemMestre      substring of the main item name
+     * @param categoriaId     UUID of the category
+     * @param statusOperacional desired operational status
+     * @return {@code 200 OK} with the list of instances satisfying the criteria
      */
     @GetMapping("/filtrar")
     public ResponseEntity<List<InstanciaItemResumoDTO>> filtrar(

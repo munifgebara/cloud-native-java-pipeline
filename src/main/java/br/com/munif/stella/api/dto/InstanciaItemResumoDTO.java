@@ -5,23 +5,23 @@ import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 import java.util.UUID;
 
 /**
- * DTO resumido de uma instância de item, utilizado em listagens.
+ * Summary DTO of an item instance, used in listings.
  *
- * <p>Contém apenas os campos essenciais para identificação e localização rápida
- * da instância, sem incluir campos menos utilizados como observações.</p>
+ * <p>Contains only the essential fields for quick identification and location
+ * of the instance, without including less-used fields such as notes.</p>
  *
- * @param id                identificador único da instância
- * @param itemMestreId      identificador do item mestre ao qual esta instância pertence
- * @param itemMestreNome    nome do item mestre (desnormalizado para evitar joins no cliente)
- * @param categoriaNome     nome da categoria do item mestre; pode ser {@code null}
- * @param categoriaIcone    chave do ícone da categoria; pode ser {@code null}
- * @param localAtualId      identificador do local de armazenamento atual; pode ser {@code null}
- * @param localAtualNome    nome do local atual (desnormalizado para evitar joins no cliente); pode ser {@code null}
- * @param identificador     código interno de identificação da instância; pode ser {@code null}
- * @param patrimonio        número de patrimônio; pode ser {@code null}
- * @param numeroSerie       número de série do fabricante; pode ser {@code null}
- * @param statusOperacional status operacional atual da instância
- * @param ativa             indica se a instância está ativa no sistema
+ * @param id                unique identifier of the instance
+ * @param itemMestreId      identifier of the main item to which this instance belongs
+ * @param itemMestreNome    main item name (denormalized to avoid joins on the client)
+ * @param categoriaNome     category name of the main item; may be {@code null}
+ * @param categoriaIcone    category icon key; may be {@code null}
+ * @param localAtualId      identifier of the current storage location; may be {@code null}
+ * @param localAtualNome    current location name (denormalized to avoid joins on the client); may be {@code null}
+ * @param identificador     internal identification code of the instance; may be {@code null}
+ * @param patrimonio        asset number; may be {@code null}
+ * @param numeroSerie       manufacturer's serial number; may be {@code null}
+ * @param statusOperacional current operational status of the instance
+ * @param ativa             indicates whether the instance is active in the system
  */
 public record InstanciaItemResumoDTO(
         UUID id,

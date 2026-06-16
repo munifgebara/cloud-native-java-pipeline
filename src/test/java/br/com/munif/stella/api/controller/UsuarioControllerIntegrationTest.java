@@ -2,7 +2,7 @@ package br.com.munif.stella.api.controller;
 
 import br.com.munif.stella.api.dto.MeuPerfilResponseDTO;
 import br.com.munif.stella.api.dto.UsuarioCreateDTO;
-import br.com.munif.stella.api.exception.IdentidadeException;
+import br.com.munif.stella.api.exception.IdentityException;
 import br.com.munif.stella.api.service.KeycloakUsuarioService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -66,9 +66,9 @@ class UsuarioControllerIntegrationTest {
 
     @Test
     void deveTraduzirFalhaDoKeycloakNoMeuPerfilSemErroInterno() throws Exception {
-        when(usuarioService.meuPerfil(any(Jwt.class))).thenThrow(new IdentidadeException(
+        when(usuarioService.meuPerfil(any(Jwt.class))).thenThrow(new IdentityException(
                 HttpStatus.BAD_GATEWAY,
-                "Serviço de identidade indisponível. Tente novamente em instantes.",
+                "Identity service unavailable. Please try again in a moment.",
                 null
         ));
 
@@ -80,14 +80,14 @@ class UsuarioControllerIntegrationTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadGateway())
                 .andExpect(jsonPath("$.status").value(502))
-                .andExpect(jsonPath("$.erro").value("Serviço de identidade indisponível. Tente novamente em instantes."));
+                .andExpect(jsonPath("$.erro").value("Identity service unavailable. Please try again in a moment."));
     }
 
     @Test
     void deveTraduzirConflitoDoKeycloakNoCadastroSemErroInterno() throws Exception {
-        when(usuarioService.criar(any(UsuarioCreateDTO.class))).thenThrow(new IdentidadeException(
+        when(usuarioService.criar(any(UsuarioCreateDTO.class))).thenThrow(new IdentityException(
                 HttpStatus.CONFLICT,
-                "Usuário já existe ou há conflito no provedor de identidade.",
+                "User already exists or there is a conflict in the identity provider.",
                 null
         ));
 
@@ -108,6 +108,6 @@ class UsuarioControllerIntegrationTest {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.status").value(409))
-                .andExpect(jsonPath("$.erro").value("Usuário já existe ou há conflito no provedor de identidade."));
+                .andExpect(jsonPath("$.erro").value("User already exists or there is a conflict in the identity provider."));
     }
 }

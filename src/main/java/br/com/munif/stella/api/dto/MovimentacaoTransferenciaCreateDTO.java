@@ -6,12 +6,12 @@ import jakarta.validation.constraints.Size;
 import java.util.UUID;
 
 public record MovimentacaoTransferenciaCreateDTO(
-        @NotNull(message = "Instância é obrigatória.")
+        @NotNull(message = "Instance is required.")
         UUID instanciaItemId,
 
-        @NotNull(message = "Local destino é obrigatório.")
+        @NotNull(message = "Destination location is required.")
         UUID localDestinoId,
 
-        @Size(max = 1000, message = "Observação deve ter no máximo 1000 caracteres.")
+        @Size(max = 1000, message = "Observation must not exceed 1000 characters.")
         String observacao
 ) {}

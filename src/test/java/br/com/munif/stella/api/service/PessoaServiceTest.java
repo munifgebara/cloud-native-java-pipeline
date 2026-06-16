@@ -2,7 +2,7 @@ package br.com.munif.stella.api.service;
 
 import br.com.munif.stella.api.dto.PessoaCreateDTO;
 import br.com.munif.stella.api.entity.Pessoa;
-import br.com.munif.stella.api.exception.CadastroDuplicadoException;
+import br.com.munif.stella.api.exception.DuplicateRegistrationException;
 import br.com.munif.stella.api.repository.PessoaRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
@@ -98,7 +98,7 @@ class PessoaServiceTest {
                 null,
                 null
         )))
-                .isInstanceOf(CadastroDuplicadoException.class)
+                .isInstanceOf(DuplicateRegistrationException.class)
                 .hasMessageContaining("CPF/CNPJ");
 
         verify(repository, never()).save(any(Pessoa.class));

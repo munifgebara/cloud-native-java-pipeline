@@ -129,7 +129,7 @@ class ControllerUnitTest {
         when(service.listarResumo()).thenReturn(List.of(resumo));
         when(service.buscarPorNome("livro")).thenReturn(List.of(resumo));
         when(service.filtrar("livro", categoriaId)).thenReturn(List.of(resumo));
-        when(service.buscarSemanticamente("onde esta livro")).thenReturn(List.of(resultadoSemantico));
+        when(service.buscarSemanticamente("where is book")).thenReturn(List.of(resultadoSemantico));
         when(service.reindexarBuscaSemantica()).thenReturn(2);
         when(service.atualizarImagemPrincipal(id, arquivo, true, "openai")).thenReturn(response);
         when(imagemIaService.gerarImagem(imagemIaRequest)).thenReturn(imagemIaResponse);
@@ -142,7 +142,7 @@ class ControllerUnitTest {
         assertThat(controller.listar().getBody()).containsExactly(resumo);
         assertThat(controller.buscarPorNome("livro").getBody()).containsExactly(resumo);
         assertThat(controller.filtrar("livro", categoriaId).getBody()).containsExactly(resumo);
-        assertThat(controller.buscarSemanticamente("onde esta livro").getBody()).containsExactly(resultadoSemantico);
+        assertThat(controller.buscarSemanticamente("where is book").getBody()).containsExactly(resultadoSemantico);
         assertThat(controller.reindexarBuscaSemantica().getBody()).containsEntry("itensReindexados", 2);
         assertThat(controller.atualizarImagemPrincipal(id, arquivo, true, "openai").getBody()).isEqualTo(response);
         assertThat(controller.gerarImagemIa(imagemIaRequest).getBody()).isEqualTo(imagemIaResponse);
@@ -281,7 +281,7 @@ class ControllerUnitTest {
         assertThat(me).containsEntry("subject", "user-1");
         assertThat(me).containsEntry("username", "usuario");
         assertThat(new DashboardController(dashboardService).resumo()).isEqualTo(resumo);
-        assertThat(new HomeController().test()).contains("API Stella");
+        assertThat(new HomeController().test()).contains("Stella API");
         assertThat(new PublicAuthController(loginService).login(null)).isEqualTo(login);
     }
 

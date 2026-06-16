@@ -13,19 +13,19 @@ import lombok.Setter;
 import org.hibernate.envers.Audited;
 
 /**
- * Entidade que representa um item mestre do inventário.
+ * Entity representing a main item in the inventory.
  *
- * <p>O item mestre é o "modelo" ou "tipo" de um bem patrimonial — por exemplo,
- * "Notebook Dell Inspiron 15". Cada item mestre pode ter várias
- * {@link InstanciaItem instâncias físicas} associadas, cada uma com seu próprio
- * número de série, patrimônio e localização.</p>
+ * <p>The main item is the "model" or "type" of a physical asset — for example,
+ * "Dell Inspiron 15 Laptop". Each main item can have multiple
+ * {@link InstanciaItem physical instances} associated with it, each with its own
+ * serial number, asset tag, and location.</p>
  *
- * <p>O item pode ter uma imagem armazenada em um serviço de object storage (ex.: S3).
- * Os campos {@code imagemBucket}, {@code imagemObjectKey} e demais metadados de imagem
- * permitem recuperar e exibir essa imagem.</p>
+ * <p>The item may have an image stored in an object storage service (e.g.: S3).
+ * The fields {@code imagemBucket}, {@code imagemObjectKey} and other image metadata
+ * allow retrieving and displaying that image.</p>
  *
- * <p>A entidade é auditada pelo Hibernate Envers: todas as alterações são registradas
- * na tabela {@code item_mestre_aud}.</p>
+ * <p>This entity is audited by Hibernate Envers: all changes are recorded
+ * in the {@code item_mestre_aud} table.</p>
  */
 @Entity
 @Audited
@@ -36,85 +36,85 @@ import org.hibernate.envers.Audited;
 public class ItemMestre extends Entidade {
 
     /**
-     * Nome do item mestre. Obrigatório, com até 150 caracteres.
-     * Exemplo: {@code "Notebook Dell Inspiron 15"}.
+     * Name of the main item. Required, up to 150 characters.
+     * Example: {@code "Dell Inspiron 15 Laptop"}.
      */
     @Column(name = "nome", nullable = false, length = 150)
     private String nome;
 
     /**
-     * Descrição detalhada do item, contendo características relevantes.
-     * Opcional, com até 500 caracteres.
+     * Detailed description of the item, containing relevant characteristics.
+     * Optional, up to 500 characters.
      */
     @Column(name = "descricao", length = 500)
     private String descricao;
 
     /**
-     * Observações internas sobre o item (histórico de manutenção, restrições de uso, etc.).
-     * Opcional, com até 1000 caracteres.
+     * Internal notes about the item (maintenance history, usage restrictions, etc.).
+     * Optional, up to 1000 characters.
      */
     @Column(name = "observacoes", length = 1000)
     private String observacoes;
 
     /**
-     * Indica a origem do cadastro do item (ex.: {@code "MANUAL"}, {@code "IA"}, {@code "FOTO"}).
-     * Usado para rastrear como o item foi inserido no sistema.
-     * Até 50 caracteres.
+     * Indicates the registration origin of the item (e.g.: {@code "MANUAL"}, {@code "IA"}, {@code "FOTO"}).
+     * Used to track how the item was entered into the system.
+     * Up to 50 characters.
      */
     @Column(name = "origem_cadastro", length = 50)
     private String origemCadastro;
 
     /**
-     * Nome do bucket no serviço de object storage onde a imagem do item está armazenada.
-     * {@code null} quando o item não possui imagem cadastrada.
-     * Até 100 caracteres.
+     * Name of the bucket in the object storage service where the item's image is stored.
+     * {@code null} when the item has no registered image.
+     * Up to 100 characters.
      */
     @Column(name = "imagem_bucket", length = 100)
     private String imagemBucket;
 
     /**
-     * Chave (caminho/nome do objeto) da imagem dentro do bucket de object storage.
-     * Usado em conjunto com {@link #imagemBucket} para localizar o arquivo.
-     * Até 500 caracteres.
+     * Key (path/object name) of the image within the object storage bucket.
+     * Used together with {@link #imagemBucket} to locate the file.
+     * Up to 500 characters.
      */
     @Column(name = "imagem_object_key", length = 500)
     private String imagemObjectKey;
 
     /**
-     * Tipo MIME da imagem armazenada (ex.: {@code "image/jpeg"}, {@code "image/png"}).
-     * Necessário para servir o arquivo com o cabeçalho {@code Content-Type} correto.
-     * Até 100 caracteres.
+     * MIME type of the stored image (e.g.: {@code "image/jpeg"}, {@code "image/png"}).
+     * Required to serve the file with the correct {@code Content-Type} header.
+     * Up to 100 characters.
      */
     @Column(name = "imagem_content_type", length = 100)
     private String imagemContentType;
 
     /**
-     * Tamanho da imagem em bytes. Útil para exibição de informações ao usuário
-     * e para verificações de quota de armazenamento.
+     * Size of the image in bytes. Useful for displaying information to the user
+     * and for storage quota checks.
      */
     @Column(name = "imagem_tamanho_bytes")
     private Long imagemTamanhoBytes;
 
     /**
-     * Indica se a imagem foi gerada por inteligência artificial.
-     * {@code true} quando a imagem foi produzida por um modelo de IA;
-     * {@code false} quando foi enviada manualmente pelo usuário.
+     * Indicates whether the image was generated by artificial intelligence.
+     * {@code true} when the image was produced by an AI model;
+     * {@code false} when it was manually uploaded by the user.
      */
     @Column(name = "imagem_generated_by_ai", nullable = false)
     private boolean imagemGeneratedByAi;
 
     /**
-     * Identificador do provedor de IA que gerou a imagem (ex.: {@code "openai"}, {@code "anthropic"}).
-     * {@code null} quando {@link #imagemGeneratedByAi} for {@code false}.
-     * Até 50 caracteres.
+     * Identifier of the AI provider that generated the image (e.g.: {@code "openai"}, {@code "anthropic"}).
+     * {@code null} when {@link #imagemGeneratedByAi} is {@code false}.
+     * Up to 50 characters.
      */
     @Column(name = "imagem_provider", length = 50)
     private String imagemProvider;
 
     /**
-     * Categoria à qual este item pertence.
-     * Relacionamento opcional: um item pode existir sem categoria definida.
-     * Carregado de forma lazy para evitar joins desnecessários.
+     * Category to which this item belongs.
+     * Optional relationship: an item may exist without a defined category.
+     * Loaded lazily to avoid unnecessary joins.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id")

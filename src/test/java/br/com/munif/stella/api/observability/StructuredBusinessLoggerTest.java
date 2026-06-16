@@ -27,8 +27,8 @@ class StructuredBusinessLoggerTest {
             StructuredBusinessLogger.info(logger, "inventory", "item-created", StructuredBusinessLogger.fields(
                     "item_id", "123",
                     "success", true,
-                    "access_token", "nao-deve-aparecer",
-                    "image_base64", "nao-deve-aparecer"
+                    "access_token", "should-not-appear",
+                    "image_base64", "should-not-appear"
             ));
 
             assertThat(appender.list).hasSize(1);

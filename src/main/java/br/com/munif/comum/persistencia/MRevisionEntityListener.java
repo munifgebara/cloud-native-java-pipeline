@@ -7,23 +7,23 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
- * Listener do Hibernate Envers responsável por enriquecer cada revisão com
- * informações de contexto — quem fez a alteração e de onde.
+ * Hibernate Envers listener responsible for enriching each revision with
+ * context information — who made the change and from where.
  *
- * <p>Este listener é chamado automaticamente pelo Envers antes de persistir
- * uma nova linha na tabela {@code versao} ({@link MRevisionEntity}).
- * Extrai o usuário autenticado do {@link SecurityContextHolder} e o IP
- * da requisição HTTP em andamento (quando disponível).</p>
+ * <p>This listener is called automatically by Envers before persisting
+ * a new row in the {@code versao} table ({@link MRevisionEntity}).
+ * It extracts the authenticated user from {@link SecurityContextHolder} and the IP
+ * from the current HTTP request (when available).</p>
  *
  * @see MRevisionEntity
  */
 public class MRevisionEntityListener implements RevisionListener {
 
     /**
-     * Preenche os campos de contexto da revisão antes que o Envers a persista.
+     * Populates the revision context fields before Envers persists it.
      *
-     * @param revisionEntity instância de {@link MRevisionEntity} criada pelo Envers
-     *                       para representar o momento da auditoria
+     * @param revisionEntity instance of {@link MRevisionEntity} created by Envers
+     *                       to represent the audit moment
      */
     @Override
     public void newRevision(Object revisionEntity) {
@@ -34,8 +34,8 @@ public class MRevisionEntityListener implements RevisionListener {
     }
 
     /**
-     * Retorna o nome do usuário autenticado no contexto de segurança do Spring,
-     * ou {@code "anonimo"} quando não houver autenticação ativa.
+     * Returns the name of the authenticated user from the Spring security context,
+     * or {@code "anonimo"} when there is no active authentication.
      */
     private String resolverUsuario() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -46,8 +46,8 @@ public class MRevisionEntityListener implements RevisionListener {
     }
 
     /**
-     * Retorna o endereço IP da requisição HTTP atual, ou {@code "desconhecido"}
-     * quando chamado fora de um contexto de requisição web (ex.: tarefas agendadas).
+     * Returns the IP address of the current HTTP request, or {@code "desconhecido"}
+     * when called outside a web request context (e.g.: scheduled tasks).
      */
     private String resolverIp() {
         ServletRequestAttributes attrs =

@@ -4,26 +4,26 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 /**
- * DTO de atualização de uma categoria de itens.
+ * Update DTO for an item category.
  *
- * <p>Contém os campos editáveis de uma categoria já cadastrada.
- * Todos os campos são substituídos integralmente — campos omitidos ({@code null})
- * limpam o valor existente, exceto o nome que é obrigatório.</p>
+ * <p>Contains the editable fields of an already registered category.
+ * All fields are fully replaced — omitted fields ({@code null})
+ * clear the existing value, except the name which is required.</p>
  *
- * @param nome      nome da categoria; obrigatório, até 150 caracteres
- * @param descricao texto explicativo sobre o escopo da categoria; até 500 caracteres; opcional
- * @param icone     chave do ícone visual (ex.: {@code "ferramentas"}); até 50 caracteres; opcional
- * @param ativa     indica se a categoria está ativa; opcional
+ * @param nome      category name; required, up to 150 characters
+ * @param descricao explanatory text about the category scope; up to 500 characters; optional
+ * @param icone     visual icon key (e.g.: {@code "ferramentas"}); up to 50 characters; optional
+ * @param ativa     indicates whether the category is active; optional
  */
 public record CategoriaUpdateDTO(
-        @NotBlank(message = "Nome é obrigatório.")
-        @Size(max = 150, message = "Nome deve ter no máximo 150 caracteres.")
+        @NotBlank(message = "Name is required.")
+        @Size(max = 150, message = "Name must not exceed 150 characters.")
         String nome,
 
-        @Size(max = 500, message = "Descrição deve ter no máximo 500 caracteres.")
+        @Size(max = 500, message = "Description must not exceed 500 characters.")
         String descricao,
 
-        @Size(max = 50, message = "Ícone deve ter no máximo 50 caracteres.")
+        @Size(max = 50, message = "Icon must not exceed 50 characters.")
         String icone,
 
         Boolean ativa

@@ -86,7 +86,7 @@ class CategoriaServiceTest {
     void deveRejeitarIconeForaDaListaControlada() {
         assertThatThrownBy(() -> service.criar(new CategoriaCreateDTO("Livros", null, "classe-css-livre", true)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Ícone");
+                .hasMessageContaining("Invalid category icon");
     }
 
     @Test

@@ -7,8 +7,8 @@ import br.com.munif.stella.api.dto.MeuPerfilUpdateDTO;
 import br.com.munif.stella.api.dto.UsuarioCreateDTO;
 import br.com.munif.stella.api.dto.UsuarioResponseDTO;
 import br.com.munif.stella.api.dto.UsuarioUpdateDTO;
-import br.com.munif.stella.api.exception.IdentidadeException;
-import br.com.munif.stella.api.exception.IntegracaoExternaException;
+import br.com.munif.stella.api.exception.ExternalIntegrationException;
+import br.com.munif.stella.api.exception.IdentityException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -152,7 +152,7 @@ public class KeycloakUsuarioService {
             if (ex.getStatusCode().value() != 400 && ex.getStatusCode().value() != 401) {
                 throw traduzirErroKeycloak(ex);
             }
-            throw new IllegalArgumentException("Senha atual inválida.");
+            throw new IllegalArgumentException("Invalid current password.");
         }
     }
 
@@ -217,11 +217,11 @@ public class KeycloakUsuarioService {
     private Map<String, Object> buscarUsuarioMap(String id) {
         try {
             return getMap("/users/" + id);
-        } catch (IdentidadeException ex) {
+        } catch (IdentityException ex) {
             if (ex.getStatus() != HttpStatus.NOT_FOUND) {
                 throw ex;
             }
-            throw new EntityNotFoundException("Usuário não encontrado.");
+            throw new EntityNotFoundException("User not found.");
         }
     }
 
@@ -268,7 +268,7 @@ public class KeycloakUsuarioService {
         }
 
         if (isBlank(keycloakProperties.adminUsername()) || isBlank(keycloakProperties.adminPassword())) {
-            throw new IllegalStateException("Credenciais administrativas do Keycloak não configuradas.");
+            throw new IllegalStateException("Keycloak administrative credentials not configured.");
         }
 
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
@@ -285,7 +285,7 @@ public class KeycloakUsuarioService {
                 .body(Map.class));
 
         if (response == null || response.get("access_token") == null) {
-            throw new IntegracaoExternaException("Resposta administrativa vazia do Keycloak.");
+            throw new ExternalIntegrationException("Empty administrative response from Keycloak.");
         }
 
         return (String) response.get("access_token");
@@ -306,7 +306,7 @@ public class KeycloakUsuarioService {
                 .body(Map.class));
 
         if (response == null || response.get("access_token") == null) {
-            throw new IntegracaoExternaException("Resposta administrativa vazia do Keycloak.");
+            throw new ExternalIntegrationException("Empty administrative response from Keycloak.");
         }
 
         return (String) response.get("access_token");
@@ -338,7 +338,7 @@ public class KeycloakUsuarioService {
 
     private String extrairIdCriado(URI location) {
         if (location == null) {
-            throw new IntegracaoExternaException("Keycloak não retornou o identificador do usuário criado.");
+            throw new ExternalIntegrationException("Keycloak did not return the identifier of the created user.");
         }
 
         String path = location.getPath();
@@ -391,11 +391,11 @@ public class KeycloakUsuarioService {
         } catch (RestClientResponseException ex) {
             throw traduzirErroKeycloak(ex);
         } catch (ResourceAccessException ex) {
-            throw new IdentidadeException(HttpStatus.BAD_GATEWAY, "Serviço de identidade indisponível. Tente novamente em instantes.", ex);
+            throw new IdentityException(HttpStatus.BAD_GATEWAY, "Identity service unavailable. Please try again in a moment.", ex);
         }
     }
 
-    private IdentidadeException traduzirErroKeycloak(RestClientResponseException ex) {
+    private IdentityException traduzirErroKeycloak(RestClientResponseException ex) {
         HttpStatus status = switch (ex.getStatusCode().value()) {
             case 400 -> HttpStatus.BAD_REQUEST;
             case 404 -> HttpStatus.NOT_FOUND;
@@ -403,13 +403,13 @@ public class KeycloakUsuarioService {
             default -> HttpStatus.BAD_GATEWAY;
         };
 
-        String mensagem = switch (status) {
-            case BAD_REQUEST -> "Dados rejeitados pelo provedor de identidade.";
-            case NOT_FOUND -> "Recurso de identidade não encontrado.";
-            case CONFLICT -> "Usuário já existe ou há conflito no provedor de identidade.";
-            default -> "Serviço de identidade indisponível. Tente novamente em instantes.";
+        String message = switch (status) {
+            case BAD_REQUEST -> "Data rejected by the identity provider.";
+            case NOT_FOUND -> "Identity resource not found.";
+            case CONFLICT -> "User already exists or there is a conflict in the identity provider.";
+            default -> "Identity service unavailable. Please try again in a moment.";
         };
 
-        return new IdentidadeException(status, mensagem, ex);
+        return new IdentityException(status, message, ex);
     }
 }

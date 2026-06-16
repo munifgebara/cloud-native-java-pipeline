@@ -6,8 +6,8 @@ import br.com.munif.stella.api.dto.MeuPerfilUpdateDTO;
 import br.com.munif.stella.api.dto.UsuarioCreateDTO;
 import br.com.munif.stella.api.dto.UsuarioResponseDTO;
 import br.com.munif.stella.api.dto.UsuarioUpdateDTO;
-import br.com.munif.stella.api.exception.IdentidadeException;
-import br.com.munif.stella.api.exception.IntegracaoExternaException;
+import br.com.munif.stella.api.exception.ExternalIntegrationException;
+import br.com.munif.stella.api.exception.IdentityException;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -166,8 +166,8 @@ class KeycloakUsuarioServiceTest {
                 true,
                 List.of("usuario")
         )))
-                .isInstanceOf(IdentidadeException.class)
-                .hasMessage("Usuário já existe ou há conflito no provedor de identidade.")
+                .isInstanceOf(IdentityException.class)
+                .hasMessage("User already exists or there is a conflict in the identity provider.")
                 .extracting("status")
                 .isEqualTo(HttpStatus.CONFLICT);
 
@@ -181,8 +181,8 @@ class KeycloakUsuarioServiceTest {
                 .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
 
         assertThatThrownBy(() -> service.listar())
-                .isInstanceOf(IdentidadeException.class)
-                .hasMessage("Serviço de identidade indisponível. Tente novamente em instantes.")
+                .isInstanceOf(IdentityException.class)
+                .hasMessage("Identity service unavailable. Please try again in a moment.")
                 .extracting("status")
                 .isEqualTo(HttpStatus.BAD_GATEWAY);
 
@@ -211,8 +211,8 @@ class KeycloakUsuarioServiceTest {
         );
 
         assertThatThrownBy(servicoIndisponivel::listar)
-                .isInstanceOf(IdentidadeException.class)
-                .hasMessage("Serviço de identidade indisponível. Tente novamente em instantes.")
+                .isInstanceOf(IdentityException.class)
+                .hasMessage("Identity service unavailable. Please try again in a moment.")
                 .extracting("status")
                 .isEqualTo(HttpStatus.BAD_GATEWAY);
     }
@@ -433,7 +433,7 @@ class KeycloakUsuarioServiceTest {
 
         assertThatThrownBy(() -> service.buscarPorId("desconhecido"))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Usuário não encontrado.");
+                .hasMessage("User not found.");
 
         server.verify();
     }
@@ -446,7 +446,7 @@ class KeycloakUsuarioServiceTest {
 
         assertThatThrownBy(() -> service.alterarMinhaSenha(jwt("user-6", "usuario6"), new AlterarSenhaDTO("errada", "nova123")))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Senha atual inválida.");
+                .hasMessage("Invalid current password.");
 
         server.verify();
     }
@@ -462,7 +462,7 @@ class KeycloakUsuarioServiceTest {
 
         assertThatThrownBy(() -> service.listar())
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Credenciais administrativas do Keycloak não configuradas.");
+                .hasMessage("Keycloak administrative credentials not configured.");
 
         server.verify();
     }
@@ -483,8 +483,8 @@ class KeycloakUsuarioServiceTest {
                 true,
                 List.of("usuario")
         )))
-                .isInstanceOf(IntegracaoExternaException.class)
-                .hasMessage("Keycloak não retornou o identificador do usuário criado.");
+                .isInstanceOf(ExternalIntegrationException.class)
+                .hasMessage("Keycloak did not return the identifier of the created user.");
 
         server.verify();
     }

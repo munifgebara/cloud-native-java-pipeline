@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Controller REST para o dashboard de resumo operacional do inventário.
+ * REST controller for the inventory operational summary dashboard.
  *
- * <p>Fornece indicadores consolidados — total de itens, instâncias, pessoas e
- * distribuição por categoria e local — para a tela inicial da aplicação.</p>
+ * <p>Provides consolidated indicators — total items, instances, persons and
+ * distribution by category and location — for the application's home screen.</p>
  */
 @RestController
 public class DashboardController {
@@ -17,19 +17,19 @@ public class DashboardController {
     private final DashboardService dashboardService;
 
     /**
-     * Constrói o controller injetando o serviço de dashboard.
+     * Constructs the controller injecting the dashboard service.
      *
-     * @param dashboardService serviço responsável por calcular os indicadores do resumo
+     * @param dashboardService service responsible for calculating the summary indicators
      */
     public DashboardController(DashboardService dashboardService) {
         this.dashboardService = dashboardService;
     }
 
     /**
-     * Retorna o resumo consolidado do inventário para exibição no dashboard.
+     * Returns the consolidated inventory summary for display on the dashboard.
      *
-     * @return DTO com totais e distribuições de itens, instâncias, pessoas,
-     *         categorias e locais de armazenamento
+     * @return DTO with totals and distributions of items, instances, persons,
+     *         categories and storage locations
      */
     @GetMapping("/api/v0/dashboard/resumo")
     public DashboardResumoDTO resumo() {

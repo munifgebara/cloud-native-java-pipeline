@@ -19,34 +19,34 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Serviço responsável pelas operações de negócio sobre {@link Categoria}.
+ * Service responsible for business operations on {@link Categoria}.
  *
- * <p>Orquestra persistência, normalização de campos e consultas, delegando ao
- * {@link CategoriaRepository} e ao {@link CategoriaMapper} conforme necessário.</p>
+ * <p>Orchestrates persistence, field normalization, and queries, delegating to
+ * {@link CategoriaRepository} and {@link CategoriaMapper} as needed.</p>
  */
 @Service
 public class CategoriaService extends SuperService<Categoria, CategoriaRepository> {
 
     /**
-     * Constrói o serviço injetando o repositório e o {@code EntityManager}.
+     * Constructs the service injecting the repository and the {@code EntityManager}.
      *
-     * @param repository    repositório JPA de categorias
-     * @param entityManager gerenciador de entidades, usado internamente pelo {@code SuperService}
-     *                      para consultas Envers
+     * @param repository    JPA repository for categories
+     * @param entityManager entity manager, used internally by {@code SuperService}
+     *                      for Envers queries
      */
     public CategoriaService(CategoriaRepository repository, EntityManager entityManager) {
         super(repository, entityManager, Categoria.class);
     }
 
     /**
-     * Cria uma nova categoria a partir do DTO de entrada.
+     * Creates a new category from the input DTO.
      *
-     * <p>Se o campo {@code ativa} do DTO for {@code false}, a categoria é criada ativa
-     * (restrição do {@code @PrePersist}) e depois inativada em uma segunda operação.</p>
+     * <p>If the DTO {@code ativa} field is {@code false}, the category is created active
+     * ({@code @PrePersist} constraint) and then deactivated in a second operation.</p>
      *
-     * @param dto dados de criação validados pelo Bean Validation
-     * @return DTO completo da categoria criada
-     * @throws IllegalArgumentException se o ícone fornecido for inválido
+     * @param dto creation data validated by Bean Validation
+     * @return full DTO of the created category
+     * @throws IllegalArgumentException if the provided icon is invalid
      */
     @Transactional
     public CategoriaResponseDTO criar(CategoriaCreateDTO dto) {
@@ -63,11 +63,11 @@ public class CategoriaService extends SuperService<Categoria, CategoriaRepositor
     }
 
     /**
-     * Retorna o DTO completo de uma categoria pelo seu identificador.
+     * Returns the full DTO of a category by its identifier.
      *
-     * @param id UUID da categoria
-     * @return DTO completo da categoria
-     * @throws jakarta.persistence.EntityNotFoundException se a categoria não existir
+     * @param id UUID of the category
+     * @return full DTO of the category
+     * @throws jakarta.persistence.EntityNotFoundException if the category does not exist
      */
     @Transactional(readOnly = true)
     public CategoriaResponseDTO buscarResponsePorId(UUID id) {
@@ -75,9 +75,9 @@ public class CategoriaService extends SuperService<Categoria, CategoriaRepositor
     }
 
     /**
-     * Lista todas as categorias ativas em ordem alfabética pelo nome.
+     * Lists all active categories in alphabetical order by name.
      *
-     * @return lista de DTOs de resumo das categorias ativas
+     * @return list of summary DTOs of active categories
      */
     @Transactional(readOnly = true)
     public List<CategoriaResumoDTO> listarResumo() {
@@ -87,9 +87,9 @@ public class CategoriaService extends SuperService<Categoria, CategoriaRepositor
     }
 
     /**
-     * Lista todas as categorias, incluindo as inativas.
+     * Lists all categories, including inactive ones.
      *
-     * @return lista de DTOs de resumo de todas as categorias
+     * @return list of summary DTOs of all categories
      */
     @Transactional(readOnly = true)
     public List<CategoriaResumoDTO> listarResumoIncluindoInativos() {
@@ -99,10 +99,10 @@ public class CategoriaService extends SuperService<Categoria, CategoriaRepositor
     }
 
     /**
-     * Busca categorias ativas cujo nome contenha o texto informado (busca parcial, sem distinção de maiúsculas).
+     * Finds active categories whose name contains the given text (partial, case-insensitive search).
      *
-     * @param nome texto a buscar no nome da categoria; retorna lista vazia se em branco
-     * @return lista de DTOs de resumo das categorias encontradas
+     * @param nome text to search in the category name; returns empty list if blank
+     * @return list of summary DTOs of the found categories
      */
     @Transactional(readOnly = true)
     public List<CategoriaResumoDTO> buscarPorNome(String nome) {
@@ -117,13 +117,13 @@ public class CategoriaService extends SuperService<Categoria, CategoriaRepositor
     }
 
     /**
-     * Atualiza os dados de uma categoria existente.
+     * Updates the data of an existing category.
      *
-     * @param id  UUID da categoria a atualizar
-     * @param dto dados de atualização validados pelo Bean Validation
-     * @return DTO completo da categoria atualizada
-     * @throws jakarta.persistence.EntityNotFoundException se a categoria não existir
-     * @throws IllegalArgumentException se o ícone fornecido for inválido
+     * @param id  UUID of the category to update
+     * @param dto update data validated by Bean Validation
+     * @return full DTO of the updated category
+     * @throws jakarta.persistence.EntityNotFoundException if the category does not exist
+     * @throws IllegalArgumentException if the provided icon is invalid
      */
     @Transactional
     public CategoriaResponseDTO atualizar(UUID id, CategoriaUpdateDTO dto) {
@@ -136,10 +136,10 @@ public class CategoriaService extends SuperService<Categoria, CategoriaRepositor
     }
 
     /**
-     * Inativa logicamente uma categoria (define {@code ativo = false}).
+     * Logically deactivates a category (sets {@code ativo = false}).
      *
-     * @param id UUID da categoria a inativar
-     * @throws jakarta.persistence.EntityNotFoundException se a categoria não existir
+     * @param id UUID of the category to deactivate
+     * @throws jakarta.persistence.EntityNotFoundException if the category does not exist
      */
     @Transactional
     public void excluirLogicamente(UUID id) {
@@ -147,10 +147,10 @@ public class CategoriaService extends SuperService<Categoria, CategoriaRepositor
     }
 
     /**
-     * Retorna o histórico de revisões anteriores de uma categoria (Hibernate Envers).
+     * Returns the previous revision history of a category (Hibernate Envers).
      *
-     * @param id UUID da categoria
-     * @return lista de revisões em ordem cronológica; lista vazia se não houver histórico
+     * @param id UUID of the category
+     * @return list of revisions in chronological order; empty list if there is no history
      */
     @Transactional(readOnly = true)
     public List<RevisaoDTO<Categoria>> listarRevisoes(UUID id) {
@@ -166,7 +166,7 @@ public class CategoriaService extends SuperService<Categoria, CategoriaRepositor
     private String normalizarIcone(String icone) {
         String valor = ValidacoesBR.trimToNull(icone);
         if (!CategoriaIcone.isChaveValida(valor)) {
-            throw new IllegalArgumentException("Ícone de categoria inválido.");
+            throw new IllegalArgumentException("Invalid category icon.");
         }
         return valor;
     }

@@ -6,23 +6,23 @@ import jakarta.validation.constraints.Size;
 import java.util.UUID;
 
 /**
- * DTO de atualização de um local de armazenamento.
+ * Update DTO for a storage location.
  *
- * <p>Permite alterar o nome, descrição, local pai e status ativo de um local já cadastrado.
- * A imagem é atualizada por endpoint separado. Informar {@code null} em {@code paiId}
- * remove a hierarquia, tornando o local um nó raiz.</p>
+ * <p>Allows changing the name, description, parent location and active status of an already registered location.
+ * The image is updated via a separate endpoint. Providing {@code null} for {@code paiId}
+ * removes the hierarchy, making the location a root node.</p>
  *
- * @param nome      nome do local; obrigatório, até 150 caracteres
- * @param descricao descrição opcional; até 500 caracteres; opcional
- * @param paiId     identificador do novo local pai; {@code null} torna o local raiz
- * @param ativa     indica se o local está ativo; opcional
+ * @param nome      location name; required, up to 150 characters
+ * @param descricao optional description; up to 500 characters; optional
+ * @param paiId     identifier of the new parent location; {@code null} makes the location a root
+ * @param ativa     indicates whether the location is active; optional
  */
 public record LocalArmazenamentoUpdateDTO(
-        @NotBlank(message = "Nome é obrigatório.")
-        @Size(max = 150, message = "Nome deve ter no máximo 150 caracteres.")
+        @NotBlank(message = "Name is required.")
+        @Size(max = 150, message = "Name must not exceed 150 characters.")
         String nome,
 
-        @Size(max = 500, message = "Descrição deve ter no máximo 500 caracteres.")
+        @Size(max = 500, message = "Description must not exceed 500 characters.")
         String descricao,
 
         UUID paiId,

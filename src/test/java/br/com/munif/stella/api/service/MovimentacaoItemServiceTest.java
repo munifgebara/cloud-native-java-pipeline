@@ -113,7 +113,7 @@ class MovimentacaoItemServiceTest {
 
         assertThatThrownBy(() -> service.registrarEntrada(new MovimentacaoEntradaCreateDTO(itemMestreId, localId, " ", null, null, null)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("identificador");
+                .hasMessageContaining("identifier");
 
         verify(instanciaItemRepository, never()).save(any(InstanciaItem.class));
         verify(repository, never()).save(any(MovimentacaoItem.class));
@@ -136,8 +136,8 @@ class MovimentacaoItemServiceTest {
 
         var resposta = service.registrarSaida(new MovimentacaoSaidaCreateDTO(
                 instanciaId,
-                "  Retirada para manutenção  ",
-                "  Equipamento enviado ao técnico  "
+                "  Maintenance withdrawal  ",
+                "  Equipment sent to the technician  "
         ));
 
         ArgumentCaptor<InstanciaItem> instanciaCaptor = ArgumentCaptor.forClass(InstanciaItem.class);
@@ -154,8 +154,8 @@ class MovimentacaoItemServiceTest {
         assertThat(movimentacao.getInstanciaItem()).isEqualTo(instancia);
         assertThat(movimentacao.getLocalOrigem()).isEqualTo(local);
         assertThat(movimentacao.getLocalDestino()).isNull();
-        assertThat(movimentacao.getMotivo()).isEqualTo("Retirada para manutenção");
-        assertThat(movimentacao.getObservacao()).isEqualTo("Equipamento enviado ao técnico");
+        assertThat(movimentacao.getMotivo()).isEqualTo("Maintenance withdrawal");
+        assertThat(movimentacao.getObservacao()).isEqualTo("Equipment sent to the technician");
         assertThat(resposta.tipo()).isEqualTo(TipoMovimentacaoItem.SAIDA);
         assertThat(resposta.localOrigemId()).isEqualTo(localId);
         assertThat(resposta.localDestinoId()).isNull();
@@ -170,7 +170,7 @@ class MovimentacaoItemServiceTest {
 
         assertThatThrownBy(() -> service.registrarSaida(new MovimentacaoSaidaCreateDTO(instanciaId, "Retirada", null)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("disponíveis");
+                .hasMessageContaining("available instances");
 
         verify(instanciaItemRepository, never()).save(any(InstanciaItem.class));
         verify(repository, never()).save(any(MovimentacaoItem.class));
@@ -182,7 +182,7 @@ class MovimentacaoItemServiceTest {
         UUID origemId = UUID.randomUUID();
         UUID destinoId = UUID.randomUUID();
         LocalArmazenamento origem = local(origemId, "Biblioteca", true);
-        LocalArmazenamento destino = local(destinoId, "Laboratório", true);
+        LocalArmazenamento destino = local(destinoId, "Laboratory", true);
         InstanciaItem instancia = instancia(instanciaId, origem, StatusOperacionalInstancia.DISPONIVEL, true);
 
         when(instanciaItemRepository.findById(instanciaId)).thenReturn(Optional.of(instancia));
@@ -197,7 +197,7 @@ class MovimentacaoItemServiceTest {
         var resposta = service.registrarTransferencia(new MovimentacaoTransferenciaCreateDTO(
                 instanciaId,
                 destinoId,
-                "  Transferência para conferência  "
+                "  Transfer for conference  "
         ));
 
         ArgumentCaptor<InstanciaItem> instanciaCaptor = ArgumentCaptor.forClass(InstanciaItem.class);
@@ -214,7 +214,7 @@ class MovimentacaoItemServiceTest {
         assertThat(movimentacao.getInstanciaItem()).isEqualTo(instancia);
         assertThat(movimentacao.getLocalOrigem()).isEqualTo(origem);
         assertThat(movimentacao.getLocalDestino()).isEqualTo(destino);
-        assertThat(movimentacao.getObservacao()).isEqualTo("Transferência para conferência");
+        assertThat(movimentacao.getObservacao()).isEqualTo("Transfer for conference");
         assertThat(resposta.tipo()).isEqualTo(TipoMovimentacaoItem.TRANSFERENCIA);
         assertThat(resposta.localOrigemId()).isEqualTo(origemId);
         assertThat(resposta.localDestinoId()).isEqualTo(destinoId);
@@ -232,7 +232,7 @@ class MovimentacaoItemServiceTest {
 
         assertThatThrownBy(() -> service.registrarTransferencia(new MovimentacaoTransferenciaCreateDTO(instanciaId, localId, null)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("diferente");
+                .hasMessageContaining("different");
 
         verify(instanciaItemRepository, never()).save(any(InstanciaItem.class));
         verify(repository, never()).save(any(MovimentacaoItem.class));

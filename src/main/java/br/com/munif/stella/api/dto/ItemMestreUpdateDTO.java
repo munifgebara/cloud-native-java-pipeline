@@ -6,31 +6,31 @@ import jakarta.validation.constraints.Size;
 import java.util.UUID;
 
 /**
- * DTO de atualização de um item mestre.
+ * Update DTO for a main item.
  *
- * <p>Contém os campos editáveis de um item mestre já cadastrado.
- * Campos de imagem não são atualizados por este DTO — utilize o endpoint
- * de upload de imagem para substituir a imagem do item.</p>
+ * <p>Contains the editable fields of an already registered main item.
+ * Image fields are not updated by this DTO — use the image upload endpoint
+ * to replace the item's image.</p>
  *
- * @param nome           nome do item mestre; obrigatório, até 150 caracteres
- * @param descricao      descrição detalhada do item; até 500 caracteres; opcional
- * @param observacoes    observações internas; até 1000 caracteres; opcional
- * @param origemCadastro origem do cadastro; até 50 caracteres; opcional
- * @param categoriaId    identificador da categoria; {@code null} remove a associação com a categoria
- * @param ativa          indica se o item está ativo; opcional
+ * @param nome           main item name; required, up to 150 characters
+ * @param descricao      detailed description of the item; up to 500 characters; optional
+ * @param observacoes    internal notes; up to 1000 characters; optional
+ * @param origemCadastro registration origin; up to 50 characters; optional
+ * @param categoriaId    category identifier; {@code null} removes the association with the category
+ * @param ativa          indicates whether the item is active; optional
  */
 public record ItemMestreUpdateDTO(
-        @NotBlank(message = "Nome é obrigatório.")
-        @Size(max = 150, message = "Nome deve ter no máximo 150 caracteres.")
+        @NotBlank(message = "Name is required.")
+        @Size(max = 150, message = "Name must not exceed 150 characters.")
         String nome,
 
-        @Size(max = 500, message = "Descrição deve ter no máximo 500 caracteres.")
+        @Size(max = 500, message = "Description must not exceed 500 characters.")
         String descricao,
 
-        @Size(max = 1000, message = "Observações devem ter no máximo 1000 caracteres.")
+        @Size(max = 1000, message = "Notes must not exceed 1000 characters.")
         String observacoes,
 
-        @Size(max = 50, message = "Origem do cadastro deve ter no máximo 50 caracteres.")
+        @Size(max = 50, message = "Registration origin must not exceed 50 characters.")
         String origemCadastro,
 
         UUID categoriaId,

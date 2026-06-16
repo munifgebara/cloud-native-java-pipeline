@@ -13,17 +13,17 @@ import lombok.Setter;
 import org.hibernate.envers.Audited;
 
 /**
- * Entidade que representa um local de armazenamento de itens do inventário.
+ * Entity representing a storage location for inventory items.
  *
- * <p>Locais de armazenamento formam uma estrutura hierárquica: um local pode ter um
- * local pai ({@link #pai}), permitindo representar prédios, andares, salas e armários
- * de forma aninhada. Por exemplo: "Prédio A" &gt; "Sala 101" &gt; "Armário 3".</p>
+ * <p>Storage locations form a hierarchical structure: a location can have a
+ * parent location ({@link #pai}), allowing buildings, floors, rooms and cabinets
+ * to be represented in a nested fashion. For example: "Building A" &gt; "Room 101" &gt; "Cabinet 3".</p>
  *
- * <p>Cada local pode ter uma imagem associada, armazenada em um serviço de object storage,
- * para facilitar a identificação visual pelos usuários.</p>
+ * <p>Each location can have an associated image, stored in an object storage service,
+ * to facilitate visual identification by users.</p>
  *
- * <p>A entidade é auditada pelo Hibernate Envers: todas as alterações são registradas
- * na tabela {@code local_armazenamento_aud}.</p>
+ * <p>This entity is audited by Hibernate Envers: all changes are recorded
+ * in the {@code local_armazenamento_aud} table.</p>
  */
 @Entity
 @Audited
@@ -34,55 +34,55 @@ import org.hibernate.envers.Audited;
 public class LocalArmazenamento extends Entidade {
 
     /**
-     * Nome do local de armazenamento. Obrigatório, com até 150 caracteres.
-     * Exemplos: {@code "Depósito Principal"}, {@code "Sala de TI"}, {@code "Armário 02"}.
+     * Name of the storage location. Required, up to 150 characters.
+     * Examples: {@code "Main Warehouse"}, {@code "IT Room"}, {@code "Cabinet 02"}.
      */
     @Column(name = "nome", nullable = false, length = 150)
     private String nome;
 
     /**
-     * Texto descritivo opcional com informações adicionais sobre o local
-     * (ex.: capacidade, tipo de itens armazenados, restrições de acesso).
-     * Até 500 caracteres.
+     * Optional descriptive text with additional information about the location
+     * (e.g.: capacity, type of stored items, access restrictions).
+     * Up to 500 characters.
      */
     @Column(name = "descricao", length = 500)
     private String descricao;
 
     /**
-     * Nome do bucket no serviço de object storage onde a imagem do local está armazenada.
-     * {@code null} quando o local não possui imagem cadastrada.
-     * Até 100 caracteres.
+     * Name of the bucket in the object storage service where the location's image is stored.
+     * {@code null} when the location has no registered image.
+     * Up to 100 characters.
      */
     @Column(name = "imagem_bucket", length = 100)
     private String imagemBucket;
 
     /**
-     * Chave (caminho/nome do objeto) da imagem dentro do bucket de object storage.
-     * Usado em conjunto com {@link #imagemBucket} para localizar o arquivo.
-     * Até 500 caracteres.
+     * Key (path/object name) of the image within the object storage bucket.
+     * Used together with {@link #imagemBucket} to locate the file.
+     * Up to 500 characters.
      */
     @Column(name = "imagem_object_key", length = 500)
     private String imagemObjectKey;
 
     /**
-     * Tipo MIME da imagem armazenada (ex.: {@code "image/jpeg"}, {@code "image/png"}).
-     * Necessário para servir o arquivo com o cabeçalho {@code Content-Type} correto.
-     * Até 100 caracteres.
+     * MIME type of the stored image (e.g.: {@code "image/jpeg"}, {@code "image/png"}).
+     * Required to serve the file with the correct {@code Content-Type} header.
+     * Up to 100 characters.
      */
     @Column(name = "imagem_content_type", length = 100)
     private String imagemContentType;
 
     /**
-     * Tamanho da imagem em bytes. Útil para exibição de informações ao usuário
-     * e para verificações de quota de armazenamento.
+     * Size of the image in bytes. Useful for displaying information to the user
+     * and for storage quota checks.
      */
     @Column(name = "imagem_tamanho_bytes")
     private Long imagemTamanhoBytes;
 
     /**
-     * Local pai na hierarquia de armazenamento.
-     * {@code null} indica que este é um local raiz (nível mais alto da hierarquia).
-     * Carregado de forma lazy para evitar joins encadeados desnecessários.
+     * Parent location in the storage hierarchy.
+     * {@code null} indicates this is a root location (top level of the hierarchy).
+     * Loaded lazily to avoid unnecessary chained joins.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "local_pai_id")

@@ -4,63 +4,63 @@ import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 
 /**
- * Regras de negócio isoladas para validação do estado de uma {@link InstanciaItem}.
+ * Isolated business rules for validating the state of an {@link InstanciaItem}.
  *
- * <p>Esta classe agrupa verificações que dependem apenas dos dados internos da instância,
- * sem acesso a repositórios ou outros serviços. Mantê-las separadas do
- * {@link InstanciaItemService} facilita os testes unitários e torna as regras
- * mais fáceis de localizar e manter.</p>
+ * <p>This class groups verifications that depend only on the internal data of the instance,
+ * without access to repositories or other services. Keeping them separate from
+ * {@link InstanciaItemService} makes unit testing easier and makes the rules
+ * easier to locate and maintain.</p>
  *
- * <p>Visibilidade de pacote — esta classe não faz parte da API pública do sistema.</p>
+ * <p>Package visibility — this class is not part of the public API of the system.</p>
  */
 final class InstanciaItemRegras {
 
     private InstanciaItemRegras() {
-        // Utilitário sem estado — não instanciável
+        // Stateless utility — not instantiable
     }
 
     /**
-     * Valida a coerência entre o status operacional da instância e a presença de um local atual.
+     * Validates the consistency between the operational status of the instance and the presence of a current location.
      *
-     * <p>Regras:</p>
+     * <p>Rules:</p>
      * <ul>
-     *   <li>{@code DISPONIVEL} → exige local atual (o item está guardado em algum lugar).</li>
-     *   <li>{@code EMPRESTADO} → não deve ter local atual (o item está com um responsável).</li>
-     *   <li>{@code EM_MOVIMENTACAO} → não deve ter local atual (está em trânsito).</li>
-     *   <li>{@code INATIVO} → não deve ter local atual (foi retirado do inventário).</li>
+     *   <li>{@code DISPONIVEL} → requires a current location (the item is stored somewhere).</li>
+     *   <li>{@code EMPRESTADO} → must not have a current location (the item is with a responsible party).</li>
+     *   <li>{@code EM_MOVIMENTACAO} → must not have a current location (it is in transit).</li>
+     *   <li>{@code INATIVO} → must not have a current location (it has been removed from inventory).</li>
      * </ul>
      *
-     * @param instancia instância a validar
-     * @throws IllegalArgumentException se o status e a localização forem incompatíveis
+     * @param instancia instance to validate
+     * @throws IllegalArgumentException if the status and location are incompatible
      */
     static void validarCoerenciaStatusLocal(InstanciaItem instancia) {
         StatusOperacionalInstancia status = instancia.getStatusOperacional();
 
         if (status == StatusOperacionalInstancia.DISPONIVEL && instancia.getLocalAtual() == null) {
-            throw new IllegalArgumentException("Instância disponível deve possuir local atual.");
+            throw new IllegalArgumentException("Available instance must have a current location.");
         }
         if (status == StatusOperacionalInstancia.EMPRESTADO && instancia.getLocalAtual() != null) {
-            throw new IllegalArgumentException("Instância emprestada não deve possuir local atual.");
+            throw new IllegalArgumentException("Loaned instance must not have a current location.");
         }
         if (status == StatusOperacionalInstancia.EM_MOVIMENTACAO && instancia.getLocalAtual() != null) {
-            throw new IllegalArgumentException("Instância em movimentação não deve possuir local atual.");
+            throw new IllegalArgumentException("Instance in transit must not have a current location.");
         }
         if (status == StatusOperacionalInstancia.INATIVO && instancia.getLocalAtual() != null) {
-            throw new IllegalArgumentException("Instância inativa não deve possuir local atual.");
+            throw new IllegalArgumentException("Inactive instance must not have a current location.");
         }
     }
 
     /**
-     * Garante que a instância está ativa, disponível e possui local atual.
+     * Ensures the instance is active, available, and has a current location.
      *
-     * <p>Utilizado antes de operações que exigem que o item esteja fisicamente
-     * presente e pronto para uso, como empréstimos e transferências.</p>
+     * <p>Used before operations that require the item to be physically
+     * present and ready for use, such as loans and transfers.</p>
      *
-     * @param instancia                a instância a verificar
-     * @param mensagemInstanciaInativa mensagem de erro caso a instância esteja inativa
-     * @param mensagemStatusInvalido   mensagem de erro caso o status não seja {@code DISPONIVEL}
-     * @param mensagemLocalAusente     mensagem de erro caso não haja local atual informado
-     * @throws IllegalArgumentException se qualquer uma das condições não for satisfeita
+     * @param instancia                the instance to check
+     * @param mensagemInstanciaInativa error message if the instance is inactive
+     * @param mensagemStatusInvalido   error message if the status is not {@code DISPONIVEL}
+     * @param mensagemLocalAusente     error message if there is no current location
+     * @throws IllegalArgumentException if any of the conditions is not met
      */
     static void exigirDisponivelComLocal(
             InstanciaItem instancia,
@@ -80,13 +80,13 @@ final class InstanciaItemRegras {
     }
 
     /**
-     * Garante que a instância está com status {@code EMPRESTADO}.
+     * Ensures the instance has status {@code EMPRESTADO}.
      *
-     * <p>Utilizado antes de registrar a devolução de um item emprestado.</p>
+     * <p>Used before registering the return of a loaned item.</p>
      *
-     * @param instancia              a instância a verificar
-     * @param mensagemStatusInvalido mensagem de erro caso o status não seja {@code EMPRESTADO}
-     * @throws IllegalArgumentException se a instância não estiver emprestada
+     * @param instancia              the instance to check
+     * @param mensagemStatusInvalido error message if the status is not {@code EMPRESTADO}
+     * @throws IllegalArgumentException if the instance is not loaned
      */
     static void exigirEmprestada(InstanciaItem instancia, String mensagemStatusInvalido) {
         if (instancia.getStatusOperacional() != StatusOperacionalInstancia.EMPRESTADO) {

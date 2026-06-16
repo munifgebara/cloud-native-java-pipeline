@@ -10,14 +10,14 @@ import lombok.Setter;
 import org.hibernate.envers.Audited;
 
 /**
- * Entidade que representa uma categoria de itens do inventário.
+ * Entity representing an inventory item category.
  *
- * <p>Categorias organizam os {@link ItemMestre itens mestres} em grupos temáticos
- * (ex.: Eletrônicos, Móveis, Ferramentas), facilitando a busca e o filtro no sistema.
- * Cada categoria pode ter um ícone associado para identificação visual na interface.</p>
+ * <p>Categories organize {@link ItemMestre main items} into thematic groups
+ * (e.g.: Electronics, Furniture, Tools), making search and filtering easier in the system.
+ * Each category can have an associated icon for visual identification in the UI.</p>
  *
- * <p>A entidade é auditada pelo Hibernate Envers: todas as alterações são registradas
- * na tabela {@code categoria_aud}.</p>
+ * <p>This entity is audited by Hibernate Envers: all changes are recorded
+ * in the {@code categoria_aud} table.</p>
  */
 @Entity
 @Audited
@@ -28,23 +28,23 @@ import org.hibernate.envers.Audited;
 public class Categoria extends Entidade {
 
     /**
-     * Nome de exibição da categoria.
-     * Obrigatório, com até 150 caracteres.
+     * Display name of the category.
+     * Required, up to 150 characters.
      */
     @Column(name = "nome", nullable = false, length = 150)
     private String nome;
 
     /**
-     * Texto descritivo opcional que detalha o propósito ou escopo da categoria.
-     * Permite até 500 caracteres.
+     * Optional descriptive text that details the purpose or scope of the category.
+     * Up to 500 characters.
      */
     @Column(name = "descricao", length = 500)
     private String descricao;
 
     /**
-     * Identificador do ícone visual associado à categoria (ex.: {@code "eletronicos"}, {@code "moveis"}).
-     * Os valores válidos são definidos por {@link CategoriaIcone}.
-     * Permite até 50 caracteres.
+     * Identifier of the visual icon associated with the category (e.g.: {@code "eletronicos"}, {@code "moveis"}).
+     * Valid values are defined by {@link CategoriaIcone}.
+     * Up to 50 characters.
      */
     @Column(name = "icone", length = 50)
     private String icone;

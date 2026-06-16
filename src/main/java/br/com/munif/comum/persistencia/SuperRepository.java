@@ -7,29 +7,29 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Repositório base para todas as entidades do sistema.
+ * Base repository for all entities in the system.
  *
- * <p>Estende {@link JpaRepository} com operações complementares às listagens
- * filtradas implementadas nos repositórios concretos.
- * O parâmetro de tipo {@code T} deve ser uma subclasse de {@link Entidade}.</p>
+ * <p>Extends {@link JpaRepository} with complementary operations to the filtered listings
+ * implemented in concrete repositories.
+ * The type parameter {@code T} must be a subclass of {@link Entidade}.</p>
  *
- * <p>A anotação {@link NoRepositoryBean} indica ao Spring Data que esta interface
- * não deve gerar um bean de repositório por si só — apenas as subinterfaces
- * concretas ganham implementações automáticas.</p>
+ * <p>The {@link NoRepositoryBean} annotation tells Spring Data that this interface
+ * should not generate a repository bean on its own — only the concrete subinterfaces
+ * receive automatic implementations.</p>
  *
- * @param <T> tipo da entidade gerenciada por este repositório
+ * @param <T> type of the entity managed by this repository
  */
 @NoRepositoryBean
 public interface SuperRepository<T extends Entidade> extends JpaRepository<T, UUID> {
 
     /**
-     * Retorna todos os registros da entidade, ativos e inativos.
+     * Returns all records of the entity, both active and inactive.
      *
-     * <p>Por padrão, os repositórios concretos expõem apenas registros com
-     * {@code ativo = true}. Este método contorna esse filtro quando for necessário
-     * visualizar o histórico completo, por exemplo em telas administrativas.</p>
+     * <p>By default, concrete repositories expose only records with
+     * {@code ativo = true}. This method bypasses that filter when it is necessary
+     * to view the full history, for example in administrative screens.</p>
      *
-     * @return lista com todos os registros, independentemente do campo {@code ativo}
+     * @return list with all records, regardless of the {@code ativo} field
      */
     default List<T> listarTodosIncluindoInativos() {
         return findAll();

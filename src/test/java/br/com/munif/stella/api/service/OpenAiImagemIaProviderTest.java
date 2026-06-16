@@ -4,7 +4,7 @@ import br.com.munif.stella.api.config.AiProperties;
 import br.com.munif.stella.api.config.OpenAiLimitsProperties;
 import br.com.munif.stella.api.dto.ImagemIaRequestDTO;
 import br.com.munif.stella.api.exception.AiUsageLimitException;
-import br.com.munif.stella.api.exception.IntegracaoExternaException;
+import br.com.munif.stella.api.exception.ExternalIntegrationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -68,14 +68,14 @@ class OpenAiImagemIaProviderTest {
 
         assertThatThrownBy(() -> providerSemChave.gerarImagem(new ImagemIaRequestDTO("Furadeira", null, null)))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessage("OPENAI_API_KEY não configurada no ambiente.");
+                .hasMessage("OPENAI_API_KEY not configured in the environment.");
 
         verify(imageModel, never()).call(any(ImagePrompt.class));
     }
 
     @Test
     void deveTratarFalhaDeConexaoComOpenAi() {
-        when(imageModel.call(any(ImagePrompt.class))).thenThrow(new RuntimeException("Não foi possível conectar à OpenAI para gerar imagem do item."));
+        when(imageModel.call(any(ImagePrompt.class))).thenThrow(new RuntimeException("Could not connect to OpenAI to generate item image."));
 
         assertThatThrownBy(() -> provider.gerarImagem(new ImagemIaRequestDTO("Furadeira", null, null)))
                 .isInstanceOf(RuntimeException.class)
@@ -87,8 +87,8 @@ class OpenAiImagemIaProviderTest {
         when(imageModel.call(any(ImagePrompt.class))).thenReturn(new ImageResponse(List.of()));
 
         assertThatThrownBy(() -> provider.gerarImagem(new ImagemIaRequestDTO("Furadeira", null, null)))
-                .isInstanceOf(IntegracaoExternaException.class)
-                .hasMessage("OpenAI retornou resposta vazia para a imagem.");
+                .isInstanceOf(ExternalIntegrationException.class)
+                .hasMessage("OpenAI returned an empty response for the image.");
     }
 
     @Test
@@ -101,7 +101,7 @@ class OpenAiImagemIaProviderTest {
 
         assertThatThrownBy(() -> providerBloqueado.gerarImagem(new ImagemIaRequestDTO("Furadeira", null, null)))
                 .isInstanceOf(AiUsageLimitException.class)
-                .hasMessage("Recursos de IA estão desabilitados neste ambiente.");
+                .hasMessage("AI features are disabled in this environment.");
 
         verify(imageModel, never()).call(any(ImagePrompt.class));
     }
@@ -116,7 +116,7 @@ class OpenAiImagemIaProviderTest {
 
         assertThatThrownBy(() -> providerBloqueado.gerarImagem(new ImagemIaRequestDTO("Furadeira", null, null)))
                 .isInstanceOf(AiUsageLimitException.class)
-                .hasMessage("Limite diário de geração de imagens da OpenAI atingido.");
+                .hasMessage("Daily limit for OpenAI image generation reached.");
 
         verify(imageModel, never()).call(any(ImagePrompt.class));
     }

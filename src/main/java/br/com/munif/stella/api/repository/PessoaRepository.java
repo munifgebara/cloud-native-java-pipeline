@@ -7,54 +7,54 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Repositório JPA para operações de persistência de {@link Pessoa}.
+ * JPA repository for persistence operations of {@link Pessoa}.
  *
- * <p>Estende {@code SuperRepository} que já provê os métodos padrão de CRUD
- * e paginação. Os métodos declarados aqui são gerados automaticamente pelo
- * Spring Data JPA a partir da convenção de nomenclatura.</p>
+ * <p>Extends {@code SuperRepository} which already provides the standard CRUD
+ * and pagination methods. The methods declared here are generated automatically by
+ * Spring Data JPA from the naming convention.</p>
  */
 public interface PessoaRepository extends SuperRepository<Pessoa> {
 
     /**
-     * Busca uma pessoa pelo CPF ou CNPJ exato.
-     * Utilizado para verificar duplicidade antes de cadastrar e para autenticar
-     * buscas por documento.
+     * Finds a person by exact CPF or CNPJ.
+     * Used to check for duplicates before registering and to authenticate
+     * searches by document.
      *
-     * @param cpfCnpj CPF (11 dígitos) ou CNPJ (14 dígitos) sem formatação
-     * @return {@link Optional} com a pessoa encontrada, ou vazio se não existir
+     * @param cpfCnpj CPF (11 digits) or CNPJ (14 digits) without formatting
+     * @return {@link Optional} with the found person, or empty if not found
      */
     Optional<Pessoa> findByCpfCnpj(String cpfCnpj);
 
     /**
-     * Verifica se já existe uma pessoa cadastrada com o CPF/CNPJ informado.
-     * Mais eficiente que {@link #findByCpfCnpj} quando apenas a existência é necessária.
+     * Checks whether a person already exists with the given CPF/CNPJ.
+     * More efficient than {@link #findByCpfCnpj} when only existence needs to be checked.
      *
-     * @param cpfCnpj CPF ou CNPJ a verificar
-     * @return {@code true} se existir uma pessoa com este documento
+     * @param cpfCnpj CPF or CNPJ to check
+     * @return {@code true} if a person exists with this document
      */
     boolean existsByCpfCnpj(String cpfCnpj);
 
     /**
-     * Busca pessoas ativas cujo nome contenha o trecho informado,
-     * sem distinção de maiúsculas/minúsculas.
+     * Finds active persons whose name contains the given substring,
+     * case-insensitively.
      *
-     * @param nome trecho do nome a pesquisar (busca parcial, case-insensitive)
-     * @return lista de pessoas correspondentes; nunca {@code null}, pode ser vazia
+     * @param nome name substring to search (partial, case-insensitive)
+     * @return list of matching persons; never {@code null}, may be empty
      */
     List<Pessoa> findByAtivoTrueAndNomeContainingIgnoreCase(String nome);
 
     /**
-     * Retorna todas as pessoas ativas, ordenadas pelo nome em ordem crescente.
+     * Returns all active persons, ordered by name in ascending order.
      *
-     * @return lista de pessoas ativas; nunca {@code null}, pode ser vazia
+     * @return list of active persons; never {@code null}, may be empty
      */
     List<Pessoa> findByAtivoTrueOrderByNomeAsc();
 
     /**
-     * Conta o total de pessoas ativas no sistema.
-     * Utilizado para estatísticas exibidas no painel de controle.
+     * Counts the total active persons in the system.
+     * Used for statistics displayed on the control panel.
      *
-     * @return quantidade de pessoas com {@code ativo = true}
+     * @return number of persons with {@code ativo = true}
      */
     long countByAtivoTrue();
 }

@@ -16,13 +16,13 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Controller REST público para servir a imagem de representação de locais de armazenamento.
+ * Public REST controller for serving the representation image of storage locations.
  *
- * <p>Expõe o endpoint {@code GET /api/public/locais/{id}/imagem}
- * sem exigir autenticação JWT, permitindo exibição direta em navegadores.</p>
+ * <p>Exposes the {@code GET /api/public/locais/{id}/imagem} endpoint
+ * without requiring JWT authentication, allowing direct display in browsers.</p>
  *
- * <p>As respostas incluem cabeçalho {@code Cache-Control: public, max-age=3600}
- * para cache pelo navegador por 1 hora.</p>
+ * <p>Responses include the {@code Cache-Control: public, max-age=3600} header
+ * for browser caching for 1 hour.</p>
  */
 @RestController
 @RequestMapping("/api/public/locais")
@@ -31,20 +31,20 @@ public class PublicLocalArmazenamentoImagemController {
     private final LocalArmazenamentoService localArmazenamentoService;
 
     /**
-     * Constrói o controller injetando o serviço de locais de armazenamento.
+     * Constructs the controller injecting the storage location service.
      *
-     * @param localArmazenamentoService serviço responsável por recuperar metadados e streams de imagem
+     * @param localArmazenamentoService service responsible for retrieving image metadata and streams
      */
     public PublicLocalArmazenamentoImagemController(LocalArmazenamentoService localArmazenamentoService) {
         this.localArmazenamentoService = localArmazenamentoService;
     }
 
     /**
-     * Retorna a imagem de um local como stream binário.
+     * Returns the image of a location as a binary stream.
      *
-     * @param id UUID do local de armazenamento
-     * @return {@code 200 OK} com o conteúdo da imagem e cabeçalhos de tipo e cache
-     * @throws IllegalArgumentException se o local não possuir imagem cadastrada
+     * @param id UUID of the storage location
+     * @return {@code 200 OK} with the image content and content-type and cache headers
+     * @throws IllegalArgumentException if the location does not have a registered image
      */
     @GetMapping("/{id}/imagem")
     public ResponseEntity<InputStreamResource> buscarImagem(@PathVariable UUID id) {

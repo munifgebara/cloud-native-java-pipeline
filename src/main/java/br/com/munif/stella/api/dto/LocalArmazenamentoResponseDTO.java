@@ -3,22 +3,22 @@ package br.com.munif.stella.api.dto;
 import java.util.UUID;
 
 /**
- * DTO completo de resposta de um local de armazenamento.
+ * Full response DTO of a storage location.
  *
- * <p>Retornado nas operações de criação, atualização e consulta individual.
- * Inclui metadados completos da imagem e informações de hierarquia.</p>
+ * <p>Returned in create, update, and individual query operations.
+ * Includes complete image metadata and hierarchy information.</p>
  *
- * @param id                 identificador único do local
- * @param nome               nome do local
- * @param descricao          descrição do local; pode ser {@code null}
- * @param paiId              identificador do local pai; {@code null} para locais raiz
- * @param paiNome            nome do local pai (desnormalizado); {@code null} para locais raiz
- * @param caminho            caminho completo na hierarquia (ex.: {@code "Prédio A > Sala 101"})
- * @param nivel              profundidade na hierarquia: {@code 0} para locais raiz
- * @param imagemUrl          URL relativa para acesso à imagem; {@code null} quando sem imagem
- * @param imagemContentType  tipo MIME da imagem (ex.: {@code "image/jpeg"}); pode ser {@code null}
- * @param imagemTamanhoBytes tamanho da imagem em bytes; pode ser {@code null}
- * @param ativa              indica se o local está ativo no sistema
+ * @param id                 unique identifier of the location
+ * @param nome               location name
+ * @param descricao          description of the location; may be {@code null}
+ * @param paiId              identifier of the parent location; {@code null} for root locations
+ * @param paiNome            parent location name (denormalized); {@code null} for root locations
+ * @param caminho            full path in the hierarchy (e.g.: {@code "Building A > Room 101"})
+ * @param nivel              depth in the hierarchy: {@code 0} for root locations
+ * @param imagemUrl          relative URL for accessing the image; {@code null} when no image
+ * @param imagemContentType  image MIME type (e.g.: {@code "image/jpeg"}); may be {@code null}
+ * @param imagemTamanhoBytes image size in bytes; may be {@code null}
+ * @param ativa              indicates whether the location is active in the system
  */
 public record LocalArmazenamentoResponseDTO(
         UUID id,

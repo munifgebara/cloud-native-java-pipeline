@@ -1,7 +1,7 @@
 package br.com.munif.stella.api.service;
 
 import br.com.munif.stella.api.dto.ItemMestreCreateDTO;
-import br.com.munif.stella.api.exception.IntegracaoExternaException;
+import br.com.munif.stella.api.exception.ExternalIntegrationException;
 import br.com.munif.stella.api.dto.ImagemItemMestreDTO;
 import br.com.munif.stella.api.dto.ItemMestreUpdateDTO;
 import br.com.munif.stella.api.entity.Categoria;
@@ -65,7 +65,7 @@ class ItemMestreServiceTest {
         var resposta = service.criar(new ItemMestreCreateDTO(
                 "  Notebook Dell Latitude 5440  ",
                 "  Notebook corporativo  ",
-                "  Preparado para futuras instancias  ",
+                "  Prepared for future instances  ",
                 null,
                 categoriaId,
                 true
@@ -77,7 +77,7 @@ class ItemMestreServiceTest {
         ItemMestre itemSalvo = captor.getValue();
         assertThat(itemSalvo.getNome()).isEqualTo("Notebook Dell Latitude 5440");
         assertThat(itemSalvo.getDescricao()).isEqualTo("Notebook corporativo");
-        assertThat(itemSalvo.getObservacoes()).isEqualTo("Preparado para futuras instancias");
+        assertThat(itemSalvo.getObservacoes()).isEqualTo("Prepared for future instances");
         assertThat(itemSalvo.getCategoria()).isEqualTo(categoria);
         assertThat(resposta.categoriaId()).isEqualTo(categoriaId);
         assertThat(resposta.categoriaNome()).isEqualTo("Eletronicos");
@@ -99,7 +99,7 @@ class ItemMestreServiceTest {
     @Test
     void deveCriarItemMestreMesmoQuandoIndiceVetorialFalha() {
         when(repository.save(any(ItemMestre.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        doThrow(new IntegracaoExternaException("pgvector indisponivel"))
+        doThrow(new ExternalIntegrationException("pgvector unavailable"))
                 .when(vectorSearchService).sincronizar(any(ItemMestre.class));
 
         var resposta = service.criar(new ItemMestreCreateDTO("Cadeira ergonomica", null, null, null, null, true));
@@ -193,7 +193,7 @@ class ItemMestreServiceTest {
 
         assertThatThrownBy(() -> service.criar(new ItemMestreCreateDTO("Furadeira", null, null, null, categoriaId, true)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Categoria deve estar ativa");
+                .hasMessageContaining("Category must be active");
 
         verify(repository, never()).save(any(ItemMestre.class));
     }
@@ -206,7 +206,7 @@ class ItemMestreServiceTest {
 
         assertThatThrownBy(() -> service.criar(new ItemMestreCreateDTO("Furadeira", null, null, null, categoriaId, true)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Categoria não encontrada.");
+                .hasMessage("Category not found.");
 
         verify(repository, never()).save(any(ItemMestre.class));
     }
@@ -309,7 +309,7 @@ class ItemMestreServiceTest {
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
         when(repository.save(item)).thenReturn(item);
-        doThrow(new IntegracaoExternaException("pgvector indisponivel")).when(vectorSearchService).remover(id);
+        doThrow(new ExternalIntegrationException("pgvector unavailable")).when(vectorSearchService).remover(id);
 
         service.excluirLogicamente(id);
 
@@ -347,7 +347,7 @@ class ItemMestreServiceTest {
 
         assertThatThrownBy(() -> service.buscarMetadadosImagemPrincipal(id))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Item mestre não possui imagem principal.");
+                .hasMessage("Main item does not have a main image.");
     }
 
     private ItemMestre item(UUID id, String nome, Categoria categoria) {

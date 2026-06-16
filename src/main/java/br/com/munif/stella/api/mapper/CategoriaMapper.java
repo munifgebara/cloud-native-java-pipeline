@@ -7,11 +7,11 @@ import br.com.munif.stella.api.dto.CategoriaUpdateDTO;
 import br.com.munif.stella.api.entity.Categoria;
 
 /**
- * Converte entre a entidade {@link Categoria} e seus DTOs de entrada e saída.
+ * Converts between the {@link Categoria} entity and its input and output DTOs.
  *
- * <p>Classe utilitária estática — não deve ser instanciada.
- * Centraliza toda a lógica de mapeamento de {@code Categoria},
- * evitando duplicação nos serviços e controllers.</p>
+ * <p>Static utility class — must not be instantiated.
+ * Centralizes all mapping logic for {@code Categoria},
+ * avoiding duplication in services and controllers.</p>
  */
 public final class CategoriaMapper {
 
@@ -19,10 +19,10 @@ public final class CategoriaMapper {
     }
 
     /**
-     * Cria uma nova entidade {@link Categoria} a partir dos dados de criação.
+     * Creates a new {@link Categoria} entity from creation data.
      *
-     * @param dto dados de criação da categoria; pode ser {@code null}
-     * @return nova instância de {@link Categoria} populada, ou {@code null} se {@code dto} for {@code null}
+     * @param dto category creation data; may be {@code null}
+     * @return new populated {@link Categoria} instance, or {@code null} if {@code dto} is {@code null}
      */
     public static Categoria toEntity(CategoriaCreateDTO dto) {
         if (dto == null) {
@@ -40,13 +40,13 @@ public final class CategoriaMapper {
     }
 
     /**
-     * Aplica os dados de atualização sobre a entidade {@link Categoria} existente.
+     * Applies update data onto an existing {@link Categoria} entity.
      *
-     * <p>Os campos são substituídos diretamente — valores {@code null} no DTO limpam
-     * o campo correspondente na entidade.</p>
+     * <p>Fields are replaced directly — {@code null} values in the DTO clear
+     * the corresponding field in the entity.</p>
      *
-     * @param entity entidade a ser atualizada; ignorada se {@code null}
-     * @param dto    dados de atualização; ignorados se {@code null}
+     * @param entity entity to be updated; ignored if {@code null}
+     * @param dto    update data; ignored if {@code null}
      */
     public static void updateEntity(Categoria entity, CategoriaUpdateDTO dto) {
         if (entity == null || dto == null) {
@@ -62,10 +62,10 @@ public final class CategoriaMapper {
     }
 
     /**
-     * Converte a entidade {@link Categoria} para o DTO completo de resposta.
+     * Converts the {@link Categoria} entity to the full response DTO.
      *
-     * @param entity entidade a converter; pode ser {@code null}
-     * @return {@link CategoriaResponseDTO} populado, ou {@code null} se {@code entity} for {@code null}
+     * @param entity entity to convert; may be {@code null}
+     * @return populated {@link CategoriaResponseDTO}, or {@code null} if {@code entity} is {@code null}
      */
     public static CategoriaResponseDTO toResponseDTO(Categoria entity) {
         if (entity == null) {
@@ -82,10 +82,10 @@ public final class CategoriaMapper {
     }
 
     /**
-     * Converte a entidade {@link Categoria} para o DTO resumido usado em listagens.
+     * Converts the {@link Categoria} entity to the summary DTO used in listings.
      *
-     * @param entity entidade a converter; pode ser {@code null}
-     * @return {@link CategoriaResumoDTO} populado, ou {@code null} se {@code entity} for {@code null}
+     * @param entity entity to convert; may be {@code null}
+     * @return populated {@link CategoriaResumoDTO}, or {@code null} if {@code entity} is {@code null}
      */
     public static CategoriaResumoDTO toResumoDTO(Categoria entity) {
         if (entity == null) {

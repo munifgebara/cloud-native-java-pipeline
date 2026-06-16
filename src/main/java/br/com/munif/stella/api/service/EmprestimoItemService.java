@@ -22,14 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 
 /**
- * Serviço responsável pelas operações de empréstimo e devolução de instâncias de itens.
+ * Service responsible for item instance loan and return operations.
  *
- * <p>Um empréstimo marca uma instância como {@code EMPRESTADO}, desvincula-a do local atual
- * e associa-a a uma pessoa. A devolução restaura o status para {@code DISPONIVEL} e
- * define o local de retorno informado.</p>
+ * <p>A loan marks an instance as {@code EMPRESTADO}, unlinks it from the current location,
+ * and associates it with a person. The return restores the status to {@code DISPONIVEL} and
+ * sets the provided return location.</p>
  *
- * <p>Regras de estado da instância são validadas por {@link InstanciaItemRegras} antes
- * de qualquer alteração de dados.</p>
+ * <p>Instance state rules are validated by {@link InstanciaItemRegras} before
+ * any data change.</p>
  */
 @Service
 public class EmprestimoItemService extends SuperService<EmprestimoItem, EmprestimoItemRepository> {
@@ -52,32 +52,32 @@ public class EmprestimoItemService extends SuperService<EmprestimoItem, Empresti
     }
 
     /**
-     * Registra o empréstimo de uma instância a uma pessoa.
-     * A instância é desvinculada do local e tem status alterado para {@code EMPRESTADO}.
+     * Registers the loan of an instance to a person.
+     * The instance is unlinked from the location and its status is changed to {@code EMPRESTADO}.
      *
-     * @param dto dados do empréstimo validados pelo Bean Validation
-     * @return DTO do empréstimo registrado
-     * @throws IllegalArgumentException se a instância ou pessoa não existirem, se a instância
-     *                                  não estiver disponível, ou se já houver empréstimo aberto
+     * @param dto loan data validated by Bean Validation
+     * @return DTO of the registered loan
+     * @throws IllegalArgumentException if the instance or person do not exist, if the instance
+     *                                  is not available, or if there is already an open loan
      */
     @Transactional
     public EmprestimoItemResponseDTO registrarEmprestimo(EmprestimoItemCreateDTO dto) {
         InstanciaItem instancia = instanciaItemRepository.findById(dto.instanciaItemId())
-                .orElseThrow(() -> new IllegalArgumentException("Instância não encontrada."));
+                .orElseThrow(() -> new IllegalArgumentException("Instance not found."));
         Pessoa pessoa = pessoaRepository.findById(dto.pessoaId())
-                .orElseThrow(() -> new IllegalArgumentException("Pessoa não encontrada."));
+                .orElseThrow(() -> new IllegalArgumentException("Person not found."));
 
         InstanciaItemRegras.exigirDisponivelComLocal(
                 instancia,
-                "Instância deve estar ativa para registrar empréstimo.",
-                "Apenas instâncias disponíveis podem ser emprestadas.",
-                "Instância deve possuir local atual para registrar empréstimo."
+                "Instance must be active to register a loan.",
+                "Only available instances can be loaned.",
+                "Instance must have a current location to register a loan."
         );
         if (!pessoa.isAtivo()) {
-            throw new IllegalArgumentException("Pessoa deve estar ativa para registrar empréstimo.");
+            throw new IllegalArgumentException("Person must be active to register a loan.");
         }
         if (repository.existsByInstanciaItemIdAndDataDevolucaoIsNull(instancia.getId())) {
-            throw new IllegalArgumentException("Já existe empréstimo aberto para esta instância.");
+            throw new IllegalArgumentException("There is already an open loan for this instance.");
         }
 
         instancia.setLocalAtual(null);
@@ -94,23 +94,23 @@ public class EmprestimoItemService extends SuperService<EmprestimoItem, Empresti
     }
 
     /**
-     * Registra a devolução de uma instância emprestada.
-     * A instância é associada ao local de retorno informado e tem status restaurado para {@code DISPONIVEL}.
+     * Registers the return of a loaned instance.
+     * The instance is associated with the provided return location and its status is restored to {@code DISPONIVEL}.
      *
-     * @param dto dados da devolução validados pelo Bean Validation
-     * @return DTO do empréstimo com a data de devolução preenchida
-     * @throws IllegalArgumentException se não houver empréstimo aberto para a instância,
-     *                                  se a instância não estiver emprestada, ou se o local
-     *                                  de retorno não existir ou estiver inativo
+     * @param dto return data validated by Bean Validation
+     * @return DTO of the loan with the return date filled in
+     * @throws IllegalArgumentException if there is no open loan for the instance,
+     *                                  if the instance is not loaned, or if the return
+     *                                  location does not exist or is inactive
      */
     @Transactional
     public EmprestimoItemResponseDTO registrarDevolucao(EmprestimoItemDevolucaoDTO dto) {
         EmprestimoItem emprestimo = repository.findByInstanciaItemIdAndDataDevolucaoIsNull(dto.instanciaItemId())
-                .orElseThrow(() -> new IllegalArgumentException("Não existe empréstimo aberto para esta instância."));
+                .orElseThrow(() -> new IllegalArgumentException("There is no open loan for this instance."));
         InstanciaItem instancia = emprestimo.getInstanciaItem();
         LocalArmazenamento localRetorno = buscarLocalAtivo(dto.localRetornoId());
 
-        InstanciaItemRegras.exigirEmprestada(instancia, "Instância deve estar emprestada para registrar devolução.");
+        InstanciaItemRegras.exigirEmprestada(instancia, "Instance must be loaned to register a return.");
 
         emprestimo.setDataDevolucao(Instant.now());
         String observacao = ValidacoesBR.trimToNull(dto.observacao());
@@ -127,9 +127,9 @@ public class EmprestimoItemService extends SuperService<EmprestimoItem, Empresti
 
     private LocalArmazenamento buscarLocalAtivo(java.util.UUID localId) {
         LocalArmazenamento local = localArmazenamentoRepository.findById(localId)
-                .orElseThrow(() -> new IllegalArgumentException("Local de retorno não encontrado."));
+                .orElseThrow(() -> new IllegalArgumentException("Return location not found."));
         if (!local.isAtivo()) {
-            throw new IllegalArgumentException("Local de retorno deve estar ativo.");
+            throw new IllegalArgumentException("Return location must be active.");
         }
         return local;
     }

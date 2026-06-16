@@ -137,7 +137,7 @@ class LocalArmazenamentoServiceTest {
 
         assertThatThrownBy(() -> service.atualizar(id, new LocalArmazenamentoUpdateDTO("Casa", null, id, true)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("pai dele mesmo");
+                .hasMessageContaining("own parent");
     }
 
     @Test
@@ -155,7 +155,7 @@ class LocalArmazenamentoServiceTest {
 
         assertThatThrownBy(() -> service.atualizar(casaId, new LocalArmazenamentoUpdateDTO("Casa", null, gavetaId, true)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("descendente");
+                .hasMessageContaining("descendant");
     }
 
     @Test
@@ -168,7 +168,7 @@ class LocalArmazenamentoServiceTest {
 
         assertThatThrownBy(() -> service.criar(new LocalArmazenamentoCreateDTO("Caixa", null, paiId, true)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Local pai deve estar ativo.");
+                .hasMessage("Parent location must be active.");
 
         verify(repository, never()).save(any(LocalArmazenamento.class));
     }
@@ -282,7 +282,7 @@ class LocalArmazenamentoServiceTest {
 
         assertThatThrownBy(() -> service.buscarMetadadosImagem(id))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Local não possui imagem.");
+                .hasMessage("Location does not have an image.");
     }
 
     private LocalArmazenamento local(UUID id, String nome, LocalArmazenamento pai) {

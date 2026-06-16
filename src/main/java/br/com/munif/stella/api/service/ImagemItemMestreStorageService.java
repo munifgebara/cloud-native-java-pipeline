@@ -1,7 +1,7 @@
 package br.com.munif.stella.api.service;
 
 import br.com.munif.stella.api.config.MinioProperties;
-import br.com.munif.stella.api.exception.IntegracaoExternaException;
+import br.com.munif.stella.api.exception.ExternalIntegrationException;
 import br.com.munif.stella.api.dto.ImagemItemMestreDTO;
 import io.minio.BucketExistsArgs;
 import io.minio.GetObjectArgs;
@@ -67,13 +67,13 @@ public class ImagemItemMestreStorageService {
                     .build());
             return new ImagemItemMestreDTO(properties.bucket(), objectKey, contentType, arquivo.getSize());
         } catch (Exception ex) {
-            throw new IntegracaoExternaException("Não foi possível armazenar a imagem no MinIO.", ex);
+            throw new ExternalIntegrationException("Unable to store the image in MinIO.", ex);
         }
     }
 
     public InputStream abrir(String bucket, String objectKey) {
         if (bucket == null || objectKey == null) {
-            throw new IllegalArgumentException("Imagem não encontrada.");
+            throw new IllegalArgumentException("Image not found.");
         }
 
         try {
@@ -82,7 +82,7 @@ public class ImagemItemMestreStorageService {
                     .object(objectKey)
                     .build());
         } catch (Exception ex) {
-            throw new IntegracaoExternaException("Não foi possível carregar a imagem do MinIO.", ex);
+            throw new ExternalIntegrationException("Unable to load the image from MinIO.", ex);
         }
     }
 
@@ -102,16 +102,16 @@ public class ImagemItemMestreStorageService {
 
     private void validarArquivo(MultipartFile arquivo) {
         if (arquivo == null || arquivo.isEmpty()) {
-            throw new IllegalArgumentException("Informe uma imagem para upload.");
+            throw new IllegalArgumentException("Please provide an image for upload.");
         }
 
         if (arquivo.getSize() > properties.maxImageSizeBytes()) {
-            throw new IllegalArgumentException("Imagem deve ter no máximo %d bytes.".formatted(properties.maxImageSizeBytes()));
+            throw new IllegalArgumentException("Image must not exceed %d bytes.".formatted(properties.maxImageSizeBytes()));
         }
 
         String contentType = arquivo.getContentType();
         if (contentType == null || !CONTENT_TYPES_PERMITIDOS.contains(contentType.toLowerCase(Locale.ROOT))) {
-            throw new IllegalArgumentException("Formato de imagem não permitido. Use JPG, PNG, WebP ou GIF.");
+            throw new IllegalArgumentException("Image format not allowed. Use JPG, PNG, WebP or GIF.");
         }
     }
 

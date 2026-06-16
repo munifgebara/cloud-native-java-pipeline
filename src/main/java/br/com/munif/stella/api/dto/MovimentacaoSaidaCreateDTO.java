@@ -7,13 +7,13 @@ import jakarta.validation.constraints.Size;
 import java.util.UUID;
 
 public record MovimentacaoSaidaCreateDTO(
-        @NotNull(message = "Instância é obrigatória.")
+        @NotNull(message = "Instance is required.")
         UUID instanciaItemId,
 
-        @NotBlank(message = "Motivo é obrigatório.")
-        @Size(max = 200, message = "Motivo deve ter no máximo 200 caracteres.")
+        @NotBlank(message = "Reason is required.")
+        @Size(max = 200, message = "Reason must not exceed 200 characters.")
         String motivo,
 
-        @Size(max = 1000, message = "Observação deve ter no máximo 1000 caracteres.")
+        @Size(max = 1000, message = "Observation must not exceed 1000 characters.")
         String observacao
 ) {}

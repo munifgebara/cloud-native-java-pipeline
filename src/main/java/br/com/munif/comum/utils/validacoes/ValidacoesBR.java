@@ -3,63 +3,63 @@ package br.com.munif.comum.utils.validacoes;
 import java.util.regex.Pattern;
 
 /**
- * Utilitários de validação e formatação para dados típicos do contexto brasileiro.
+ * Validation and formatting utilities for data typical of the Brazilian context.
  *
- * <p>Todos os métodos são estáticos e sem estado — esta classe não deve ser instanciada.
- * Caso tente instanciá-la, será lançada uma {@link UnsupportedOperationException}.</p>
+ * <p>All methods are static and stateless — this class must not be instantiated.
+ * Attempting to instantiate it will throw an {@link UnsupportedOperationException}.</p>
  *
- * <h2>Uso</h2>
+ * <h2>Usage</h2>
  * <pre>{@code
- * // Validar CPF recebido do usuário
+ * // Validate a CPF received from the user
  * if (!ValidacoesBR.validarCPF(cpfDoFormulario)) {
- *     throw new IllegalArgumentException("CPF inválido.");
+ *     throw new IllegalArgumentException("Invalid CPF.");
  * }
  *
- * // Normalizar texto antes de persistir
+ * // Normalize text before persisting
  * String nomeLimpo = ValidacoesBR.trimToNull(nomeDoFormulario);
  * }</pre>
  *
- * <h2>Convenções de normalização</h2>
+ * <h2>Normalization conventions</h2>
  * <ul>
- *   <li>CPF e CNPJ são armazenados apenas com dígitos (sem pontos, traços ou barras).</li>
- *   <li>Telefones são armazenados apenas com dígitos (sem parênteses, espaços ou traços).</li>
- *   <li>CEP é armazenado apenas com dígitos (sem traço).</li>
- *   <li>E-mail é armazenado em letras minúsculas.</li>
+ *   <li>CPF and CNPJ are stored with digits only (no dots, dashes, or slashes).</li>
+ *   <li>Phone numbers are stored with digits only (no parentheses, spaces, or dashes).</li>
+ *   <li>CEP (postal code) is stored with digits only (no dash).</li>
+ *   <li>Email is stored in lowercase.</li>
  * </ul>
  */
 public final class ValidacoesBR {
 
-    /** Expressão regular para validação básica de e-mail. */
+    /** Regular expression for basic email validation. */
     private static final Pattern EMAIL_PATTERN =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$", Pattern.CASE_INSENSITIVE);
 
-    /** Padrão para telefone celular brasileiro: 11 dígitos (DDD + 9 + número). */
+    /** Pattern for Brazilian mobile phone: 11 digits (area code + 9 + number). */
     private static final Pattern TELEFONE_CELULAR_PATTERN =
             Pattern.compile("^\\d{11}$");
 
-    /** Padrão para telefone fixo brasileiro: 10 dígitos (DDD + número). */
+    /** Pattern for Brazilian landline: 10 digits (area code + number). */
     private static final Pattern TELEFONE_FIXO_PATTERN =
             Pattern.compile("^\\d{10}$");
 
-    /** Padrão para CEP brasileiro: exatamente 8 dígitos. */
+    /** Pattern for Brazilian CEP (postal code): exactly 8 digits. */
     private static final Pattern CEP_PATTERN =
             Pattern.compile("^\\d{8}$");
 
     private ValidacoesBR() {
-        throw new UnsupportedOperationException("Classe utilitária não pode ser instanciada.");
+        throw new UnsupportedOperationException("Utility class cannot be instantiated.");
     }
 
     // -------------------------------------------------------------------------
-    // Normalização de strings
+    // String normalization
     // -------------------------------------------------------------------------
 
     /**
-     * Remove todos os caracteres não numéricos de uma string.
+     * Removes all non-numeric characters from a string.
      *
-     * <p>Útil para normalizar CPF, CNPJ, telefone e CEP antes de validar ou persistir.</p>
+     * <p>Useful for normalizing CPF, CNPJ, phone number, and CEP before validating or persisting.</p>
      *
-     * @param valor string de entrada (pode conter formatação como pontos, traços etc.)
-     * @return string contendo apenas dígitos, ou {@code null} se a entrada for {@code null}
+     * @param valor input string (may contain formatting such as dots, dashes, etc.)
+     * @return string containing only digits, or {@code null} if the input is {@code null}
      */
     public static String somenteDigitos(String valor) {
         if (valor == null) {
@@ -69,14 +69,14 @@ public final class ValidacoesBR {
     }
 
     /**
-     * Remove espaços em branco das bordas de uma string e retorna {@code null} se o resultado
-     * ficar vazio.
+     * Trims whitespace from both ends of a string and returns {@code null} if the result
+     * is empty.
      *
-     * <p>Muito utilizado para normalizar campos de texto antes de persistir, evitando
-     * strings vazias no banco de dados.</p>
+     * <p>Commonly used to normalize text fields before persisting, avoiding
+     * empty strings in the database.</p>
      *
-     * @param valor string de entrada
-     * @return string sem espaços nas bordas, ou {@code null} se for {@code null} ou somente espaços
+     * @param valor input string
+     * @return string without leading/trailing spaces, or {@code null} if it is {@code null} or blank
      */
     public static String trimToNull(String valor) {
         if (valor == null) {
@@ -87,40 +87,40 @@ public final class ValidacoesBR {
     }
 
     /**
-     * Retorna {@code true} se a string for {@code null} ou contiver apenas espaços em branco.
+     * Returns {@code true} if the string is {@code null} or contains only whitespace.
      *
-     * @param valor string a verificar
-     * @return {@code true} se vazia ou nula; {@code false} caso contrário
+     * @param valor string to check
+     * @return {@code true} if empty or null; {@code false} otherwise
      */
     public static boolean isBlank(String valor) {
         return trimToNull(valor) == null;
     }
 
     /**
-     * Retorna {@code true} se a string contiver ao menos um caractere não espaço.
+     * Returns {@code true} if the string contains at least one non-whitespace character.
      *
-     * @param valor string a verificar
-     * @return {@code true} se tiver conteúdo; {@code false} se for nula ou em branco
+     * @param valor string to check
+     * @return {@code true} if it has content; {@code false} if null or blank
      */
     public static boolean isNotBlank(String valor) {
         return !isBlank(valor);
     }
 
     // -------------------------------------------------------------------------
-    // Validação de CPF e CNPJ
+    // CPF and CNPJ validation
     // -------------------------------------------------------------------------
 
     /**
-     * Valida um CPF usando o algoritmo oficial dos dígitos verificadores.
+     * Validates a CPF using the official check-digit algorithm.
      *
-     * <p>A entrada pode estar formatada (ex.: {@code "123.456.789-09"}) ou sem formatação
-     * (ex.: {@code "12345678909"}). A formatação é removida automaticamente antes da validação.</p>
+     * <p>The input may be formatted (e.g.: {@code "123.456.789-09"}) or unformatted
+     * (e.g.: {@code "12345678909"}). Formatting is automatically removed before validation.</p>
      *
-     * <p>CPFs com todos os dígitos iguais (ex.: {@code "111.111.111-11"}) são rejeitados,
-     * pois matematicamente passariam no cálculo de dígito verificador mas são inválidos.</p>
+     * <p>CPFs with all identical digits (e.g.: {@code "111.111.111-11"}) are rejected,
+     * as they would mathematically pass the check-digit calculation but are invalid.</p>
      *
-     * @param cpf CPF a validar, com ou sem formatação
-     * @return {@code true} se o CPF for matematicamente válido; {@code false} caso contrário
+     * @param cpf CPF to validate, with or without formatting
+     * @return {@code true} if the CPF is mathematically valid; {@code false} otherwise
      */
     public static boolean validarCPF(String cpf) {
         String valor = somenteDigitos(cpf);
@@ -139,13 +139,13 @@ public final class ValidacoesBR {
     }
 
     /**
-     * Valida um CNPJ usando o algoritmo oficial dos dígitos verificadores.
+     * Validates a CNPJ using the official check-digit algorithm.
      *
-     * <p>A entrada pode estar formatada (ex.: {@code "12.345.678/0001-95"}) ou sem formatação.
-     * CNPJs com todos os dígitos iguais são rejeitados.</p>
+     * <p>The input may be formatted (e.g.: {@code "12.345.678/0001-95"}) or unformatted.
+     * CNPJs with all identical digits are rejected.</p>
      *
-     * @param cnpj CNPJ a validar, com ou sem formatação
-     * @return {@code true} se o CNPJ for matematicamente válido; {@code false} caso contrário
+     * @param cnpj CNPJ to validate, with or without formatting
+     * @return {@code true} if the CNPJ is mathematically valid; {@code false} otherwise
      */
     public static boolean validarCNPJ(String cnpj) {
         String valor = somenteDigitos(cnpj);
@@ -164,21 +164,21 @@ public final class ValidacoesBR {
     }
 
     // -------------------------------------------------------------------------
-    // Validação de telefone
+    // Phone number validation
     // -------------------------------------------------------------------------
 
     /**
-     * Valida um número de telefone brasileiro (celular ou fixo).
+     * Validates a Brazilian phone number (mobile or landline).
      *
-     * <p>Requisitos:</p>
+     * <p>Requirements:</p>
      * <ul>
-     *   <li>10 dígitos para fixo (DDD + 8 dígitos) ou 11 dígitos para celular (DDD + 9 + 8 dígitos).</li>
-     *   <li>DDD deve ser um código de área válido definido pela Anatel.</li>
-     *   <li>Celular deve começar com o dígito 9 após o DDD.</li>
+     *   <li>10 digits for landline (area code + 8 digits) or 11 digits for mobile (area code + 9 + 8 digits).</li>
+     *   <li>Area code must be a valid code defined by Anatel.</li>
+     *   <li>Mobile must start with digit 9 after the area code.</li>
      * </ul>
      *
-     * @param telefone número a validar, com ou sem formatação
-     * @return {@code true} se for um telefone brasileiro válido; {@code false} caso contrário
+     * @param telefone number to validate, with or without formatting
+     * @return {@code true} if it is a valid Brazilian phone number; {@code false} otherwise
      */
     public static boolean validarTelefoneBR(String telefone) {
         String valor = somenteDigitos(telefone);
@@ -200,10 +200,10 @@ public final class ValidacoesBR {
     }
 
     /**
-     * Valida exclusivamente um número de celular brasileiro (11 dígitos, iniciando com 9 após o DDD).
+     * Validates exclusively a Brazilian mobile phone number (11 digits, starting with 9 after the area code).
      *
-     * @param telefone número a validar, com ou sem formatação
-     * @return {@code true} se for um celular válido; {@code false} caso contrário
+     * @param telefone number to validate, with or without formatting
+     * @return {@code true} if it is a valid mobile number; {@code false} otherwise
      */
     public static boolean validarCelularBR(String telefone) {
         String valor = somenteDigitos(telefone);
@@ -215,10 +215,10 @@ public final class ValidacoesBR {
     }
 
     /**
-     * Valida exclusivamente um número de telefone fixo brasileiro (10 dígitos).
+     * Validates exclusively a Brazilian landline phone number (10 digits).
      *
-     * @param telefone número a validar, com ou sem formatação
-     * @return {@code true} se for um fixo válido; {@code false} caso contrário
+     * @param telefone number to validate, with or without formatting
+     * @return {@code true} if it is a valid landline; {@code false} otherwise
      */
     public static boolean validarTelefoneFixoBR(String telefone) {
         String valor = somenteDigitos(telefone);
@@ -230,16 +230,16 @@ public final class ValidacoesBR {
     }
 
     // -------------------------------------------------------------------------
-    // Validação de CEP e e-mail
+    // CEP and email validation
     // -------------------------------------------------------------------------
 
     /**
-     * Valida um CEP brasileiro, que deve conter exatamente 8 dígitos.
+     * Validates a Brazilian postal code (CEP), which must contain exactly 8 digits.
      *
-     * <p>A entrada pode estar formatada com traço (ex.: {@code "01310-100"}) ou sem formatação.</p>
+     * <p>The input may be formatted with a dash (e.g.: {@code "01310-100"}) or unformatted.</p>
      *
-     * @param cep CEP a validar
-     * @return {@code true} se tiver exatamente 8 dígitos; {@code false} caso contrário
+     * @param cep CEP to validate
+     * @return {@code true} if it has exactly 8 digits; {@code false} otherwise
      */
     public static boolean validarCEP(String cep) {
         String valor = somenteDigitos(cep);
@@ -247,10 +247,10 @@ public final class ValidacoesBR {
     }
 
     /**
-     * Valida um endereço de e-mail usando expressão regular básica.
+     * Validates an email address using a basic regular expression.
      *
-     * @param email e-mail a validar
-     * @return {@code true} se o formato for válido; {@code false} caso contrário
+     * @param email email to validate
+     * @return {@code true} if the format is valid; {@code false} otherwise
      */
     public static boolean validarEmail(String email) {
         String valor = trimToNull(email);
@@ -258,14 +258,14 @@ public final class ValidacoesBR {
     }
 
     // -------------------------------------------------------------------------
-    // Validação de DDD
+    // Area code (DDD) validation
     // -------------------------------------------------------------------------
 
     /**
-     * Verifica se um DDD é um código de área válido conforme a tabela da Anatel.
+     * Checks whether an area code (DDD) is valid according to Anatel's table.
      *
-     * @param ddd dois dígitos do DDD, com ou sem formatação
-     * @return {@code true} se for um DDD válido; {@code false} caso contrário
+     * @param ddd two-digit area code, with or without formatting
+     * @return {@code true} if it is a valid area code; {@code false} otherwise
      */
     public static boolean validarDDD(String ddd) {
         String valor = somenteDigitos(ddd);
@@ -290,21 +290,21 @@ public final class ValidacoesBR {
     }
 
     // -------------------------------------------------------------------------
-    // Formatação
+    // Formatting
     // -------------------------------------------------------------------------
 
     /**
-     * Formata um CPF no padrão {@code NNN.NNN.NNN-DD}.
+     * Formats a CPF in the {@code NNN.NNN.NNN-DD} pattern.
      *
-     * @param cpf CPF com exatamente 11 dígitos (com ou sem formatação)
-     * @return CPF formatado
-     * @throws IllegalArgumentException se o CPF não tiver 11 dígitos após remover não-dígitos
+     * @param cpf CPF with exactly 11 digits (with or without formatting)
+     * @return formatted CPF
+     * @throws IllegalArgumentException if the CPF does not have 11 digits after removing non-digits
      */
     public static String formatarCPF(String cpf) {
         String valor = somenteDigitos(cpf);
 
         if (valor == null || valor.length() != 11) {
-            throw new IllegalArgumentException("CPF deve conter 11 dígitos.");
+            throw new IllegalArgumentException("CPF must contain 11 digits.");
         }
         return valor.substring(0, 3) + "."
                 + valor.substring(3, 6) + "."
@@ -313,17 +313,17 @@ public final class ValidacoesBR {
     }
 
     /**
-     * Formata um CNPJ no padrão {@code NN.NNN.NNN/NNNN-DD}.
+     * Formats a CNPJ in the {@code NN.NNN.NNN/NNNN-DD} pattern.
      *
-     * @param cnpj CNPJ com exatamente 14 dígitos (com ou sem formatação)
-     * @return CNPJ formatado
-     * @throws IllegalArgumentException se o CNPJ não tiver 14 dígitos após remover não-dígitos
+     * @param cnpj CNPJ with exactly 14 digits (with or without formatting)
+     * @return formatted CNPJ
+     * @throws IllegalArgumentException if the CNPJ does not have 14 digits after removing non-digits
      */
     public static String formatarCNPJ(String cnpj) {
         String valor = somenteDigitos(cnpj);
 
         if (valor == null || valor.length() != 14) {
-            throw new IllegalArgumentException("CNPJ deve conter 14 dígitos.");
+            throw new IllegalArgumentException("CNPJ must contain 14 digits.");
         }
         return valor.substring(0, 2) + "."
                 + valor.substring(2, 5) + "."
@@ -333,34 +333,34 @@ public final class ValidacoesBR {
     }
 
     /**
-     * Formata um CEP no padrão {@code NNNNN-NNN}.
+     * Formats a CEP in the {@code NNNNN-NNN} pattern.
      *
-     * @param cep CEP com exatamente 8 dígitos (com ou sem formatação)
-     * @return CEP formatado
-     * @throws IllegalArgumentException se o CEP não tiver 8 dígitos após remover não-dígitos
+     * @param cep CEP with exactly 8 digits (with or without formatting)
+     * @return formatted CEP
+     * @throws IllegalArgumentException if the CEP does not have 8 digits after removing non-digits
      */
     public static String formatarCEP(String cep) {
         String valor = somenteDigitos(cep);
 
         if (valor == null || valor.length() != 8) {
-            throw new IllegalArgumentException("CEP deve conter 8 dígitos.");
+            throw new IllegalArgumentException("ZIP code must contain 8 digits.");
         }
         return valor.substring(0, 5) + "-" + valor.substring(5, 8);
     }
 
     /**
-     * Formata um número de telefone brasileiro no padrão {@code (DD) NNNNN-NNNN} (celular)
-     * ou {@code (DD) NNNN-NNNN} (fixo).
+     * Formats a Brazilian phone number in the {@code (DD) NNNNN-NNNN} pattern (mobile)
+     * or {@code (DD) NNNN-NNNN} (landline).
      *
-     * @param telefone telefone com 10 ou 11 dígitos (com ou sem formatação)
-     * @return telefone formatado
-     * @throws IllegalArgumentException se o telefone não tiver 10 ou 11 dígitos
+     * @param telefone phone number with 10 or 11 digits (with or without formatting)
+     * @return formatted phone number
+     * @throws IllegalArgumentException if the phone number does not have 10 or 11 digits
      */
     public static String formatarTelefoneBR(String telefone) {
         String valor = somenteDigitos(telefone);
 
         if (valor == null) {
-            throw new IllegalArgumentException("Telefone inválido.");
+            throw new IllegalArgumentException("Invalid phone number.");
         }
         if (valor.length() == 11) {
             return "(" + valor.substring(0, 2) + ") "
@@ -372,89 +372,90 @@ public final class ValidacoesBR {
                     + valor.substring(2, 6) + "-"
                     + valor.substring(6, 10);
         }
-        throw new IllegalArgumentException("Telefone deve conter 10 ou 11 dígitos.");
+        throw new IllegalArgumentException("Phone number must contain 10 or 11 digits.");
     }
 
     // -------------------------------------------------------------------------
-    // Métodos de validação com exceção ("exigir")
+    // Validation methods with exception ("require")
     // -------------------------------------------------------------------------
 
     /**
-     * Lança {@link IllegalArgumentException} se o CPF fornecido for inválido.
+     * Throws {@link IllegalArgumentException} if the provided CPF is invalid.
      *
-     * @param cpf       CPF a validar
-     * @param nomeCampo nome do campo a ser incluído na mensagem de erro (ex.: {@code "CPF"})
-     * @throws IllegalArgumentException se o CPF não for válido
+     * @param cpf       CPF to validate
+     * @param nomeCampo field name to include in the error message (e.g.: {@code "CPF"})
+     * @throws IllegalArgumentException if the CPF is not valid
      */
     public static void exigirCPFValido(String cpf, String nomeCampo) {
         if (!validarCPF(cpf)) {
-            throw new IllegalArgumentException(nomeCampo + " inválido.");
+            throw new IllegalArgumentException(nomeCampo + " is invalid.");
         }
     }
 
     /**
-     * Lança {@link IllegalArgumentException} se o CNPJ fornecido for inválido.
+     * Throws {@link IllegalArgumentException} if the provided CNPJ is invalid.
      *
-     * @param cnpj      CNPJ a validar
-     * @param nomeCampo nome do campo a ser incluído na mensagem de erro (ex.: {@code "CNPJ"})
-     * @throws IllegalArgumentException se o CNPJ não for válido
+     * @param cnpj      CNPJ to validate
+     * @param nomeCampo field name to include in the error message (e.g.: {@code "CNPJ"})
+     * @throws IllegalArgumentException if the CNPJ is not valid
      */
     public static void exigirCNPJValido(String cnpj, String nomeCampo) {
         if (!validarCNPJ(cnpj)) {
-            throw new IllegalArgumentException(nomeCampo + " inválido.");
+            throw new IllegalArgumentException(nomeCampo + " is invalid.");
         }
     }
 
     /**
-     * Lança {@link IllegalArgumentException} se o telefone fornecido for inválido.
+     * Throws {@link IllegalArgumentException} if the provided phone number is invalid.
      *
-     * @param telefone  telefone a validar
-     * @param nomeCampo nome do campo a ser incluído na mensagem de erro
-     * @throws IllegalArgumentException se o telefone não for válido
+     * @param telefone  phone number to validate
+     * @param nomeCampo field name to include in the error message
+     * @throws IllegalArgumentException if the phone number is not valid
      */
     public static void exigirTelefoneValido(String telefone, String nomeCampo) {
         if (!validarTelefoneBR(telefone)) {
-            throw new IllegalArgumentException(nomeCampo + " inválido.");
+            throw new IllegalArgumentException(nomeCampo + " is invalid.");
         }
     }
 
     /**
-     * Lança {@link IllegalArgumentException} se o CEP fornecido for inválido.
+     * Throws {@link IllegalArgumentException} if the provided CEP is invalid.
      *
-     * @param cep       CEP a validar
-     * @param nomeCampo nome do campo a ser incluído na mensagem de erro
-     * @throws IllegalArgumentException se o CEP não for válido
+     * @param cep       CEP to validate
+     * @param nomeCampo field name to include in the error message
+     * @throws IllegalArgumentException if the CEP is not valid
      */
     public static void exigirCEPValido(String cep, String nomeCampo) {
         if (!validarCEP(cep)) {
-            throw new IllegalArgumentException(nomeCampo + " inválido.");
+            throw new IllegalArgumentException(nomeCampo + " is invalid.");
         }
     }
 
     /**
-     * Lança {@link IllegalArgumentException} se o e-mail fornecido for inválido.
+     * Throws {@link IllegalArgumentException} if the provided email is invalid.
      *
-     * @param email     e-mail a validar
-     * @param nomeCampo nome do campo a ser incluído na mensagem de erro
-     * @throws IllegalArgumentException se o e-mail não for válido
+     * @param email     email to validate
+     * @param nomeCampo field name to include in the error message
+     * @throws IllegalArgumentException if the email is not valid
      */
     public static void exigirEmailValido(String email, String nomeCampo) {
         if (!validarEmail(email)) {
-            throw new IllegalArgumentException(nomeCampo + " inválido.");
+            throw new IllegalArgumentException(nomeCampo + " is invalid.");
         }
     }
 
     // -------------------------------------------------------------------------
-    // Métodos privados auxiliares
+    // Private helper methods
     // -------------------------------------------------------------------------
 
     /**
-     * Verifica se todos os caracteres de uma string são idênticos.
-     * Usado para rejeitar CPFs/CNPJs como {@code "11111111111"} que passariam no cálculo
-     * de dígitos verificadores, mas são reconhecidamente inválidos pela Receita Federal.
+     * Checks whether all characters of a string are identical.
+     * Used to reject CPFs/CNPJs such as {@code "11111111111"} that would pass the
+     * check-digit calculation but are officially invalid according to the Brazilian
+     * Federal Revenue Service.
      *
-     * @param valor string a verificar
-     * @return {@code true} se todos os caracteres forem iguais
+     * @param valor string to check
+     * @return {@code true} if all characters are equal
      */
     private static boolean todosDigitosIguais(String valor) {
         char primeiro = valor.charAt(0);
@@ -467,15 +468,15 @@ public final class ValidacoesBR {
     }
 
     /**
-     * Calcula um dígito verificador do CPF usando o algoritmo módulo 11.
+     * Calculates a CPF check digit using the modulo-11 algorithm.
      *
-     * <p>Multiplica cada dígito da {@code base} pelo peso correspondente (decrementando a
-     * partir de {@code pesoInicial}), soma os produtos e aplica o módulo 11.
-     * Se o resto for menor que 2, o dígito é 0; caso contrário, é {@code 11 - resto}.</p>
+     * <p>Multiplies each digit of {@code base} by the corresponding weight (decrementing
+     * from {@code pesoInicial}), sums the products and applies modulo 11.
+     * If the remainder is less than 2 the digit is 0; otherwise it is {@code 11 - remainder}.</p>
      *
-     * @param base         string com os dígitos usados no cálculo (9 ou 10 caracteres)
-     * @param pesoInicial  peso do primeiro dígito (10 para o 1º dígito verificador, 11 para o 2º)
-     * @return dígito verificador calculado (0 a 9)
+     * @param base         string with the digits used in the calculation (9 or 10 characters)
+     * @param pesoInicial  weight of the first digit (10 for the 1st check digit, 11 for the 2nd)
+     * @return calculated check digit (0 to 9)
      */
     private static int calcularDigitoCPF(String base, int pesoInicial) {
         int soma = 0;
@@ -491,11 +492,11 @@ public final class ValidacoesBR {
     }
 
     /**
-     * Calcula um dígito verificador do CNPJ usando o algoritmo módulo 11 com pesos variáveis.
+     * Calculates a CNPJ check digit using the modulo-11 algorithm with variable weights.
      *
-     * @param base   string com os dígitos usados no cálculo (12 ou 13 caracteres)
-     * @param pesos  array de pesos a aplicar sequencialmente a cada dígito da {@code base}
-     * @return dígito verificador calculado (0 a 9)
+     * @param base   string with the digits used in the calculation (12 or 13 characters)
+     * @param pesos  array of weights to apply sequentially to each digit of {@code base}
+     * @return calculated check digit (0 to 9)
      */
     private static int calcularDigitoCNPJ(String base, int[] pesos) {
         int soma = 0;

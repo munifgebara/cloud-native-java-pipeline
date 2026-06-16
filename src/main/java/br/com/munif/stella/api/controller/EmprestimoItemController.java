@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Controller REST para registro de empréstimos e devoluções de instâncias de itens.
+ * REST controller for recording item instance loans and returns.
  *
- * <p>Expõe o recurso {@code /api/v0/emprestimos-item} com duas operações:</p>
+ * <p>Exposes the {@code /api/v0/emprestimos-item} resource with two operations:</p>
  * <ul>
- *   <li><strong>Empréstimo</strong> — associa uma instância disponível a uma pessoa.</li>
- *   <li><strong>Devolução</strong> — encerra o empréstimo e retorna a instância ao inventário.</li>
+ *   <li><strong>Loan</strong> — associates an available instance with a person.</li>
+ *   <li><strong>Return</strong> — closes the loan and returns the instance to the inventory.</li>
  * </ul>
  */
 @RestController
@@ -28,19 +28,19 @@ public class EmprestimoItemController {
     private final EmprestimoItemService service;
 
     /**
-     * Constrói o controller injetando o serviço de empréstimos.
+     * Constructs the controller injecting the loan service.
      *
-     * @param service serviço de negócio de empréstimos
+     * @param service loan business service
      */
     public EmprestimoItemController(EmprestimoItemService service) {
         this.service = service;
     }
 
     /**
-     * Registra o empréstimo de uma instância a uma pessoa.
+     * Records the loan of an instance to a person.
      *
-     * @param dto dados do empréstimo validados pelo Bean Validation
-     * @return {@code 201 Created} com os dados do empréstimo registrado
+     * @param dto loan data validated by Bean Validation
+     * @return {@code 201 Created} with the recorded loan data
      */
     @PostMapping
     public ResponseEntity<EmprestimoItemResponseDTO> registrarEmprestimo(@RequestBody @Valid EmprestimoItemCreateDTO dto) {
@@ -48,10 +48,10 @@ public class EmprestimoItemController {
     }
 
     /**
-     * Registra a devolução de uma instância emprestada.
+     * Records the return of a loaned instance.
      *
-     * @param dto dados da devolução validados pelo Bean Validation
-     * @return {@code 201 Created} com os dados do empréstimo encerrado
+     * @param dto return data validated by Bean Validation
+     * @return {@code 201 Created} with the closed loan data
      */
     @PostMapping("/devolucao")
     public ResponseEntity<EmprestimoItemResponseDTO> registrarDevolucao(@RequestBody @Valid EmprestimoItemDevolucaoDTO dto) {

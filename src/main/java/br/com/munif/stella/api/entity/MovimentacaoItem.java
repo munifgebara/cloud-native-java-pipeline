@@ -18,18 +18,18 @@ import org.hibernate.envers.Audited;
 import java.time.Instant;
 
 /**
- * Entidade que registra uma movimentação de uma instância de item entre locais de armazenamento.
+ * Entity that records a movement of an item instance between storage locations.
  *
- * <p>Cada movimentação descreve um evento do ciclo de vida físico de uma {@link InstanciaItem}:
- * pode ser uma entrada (item chega ao estoque), uma saída (item sai do estoque) ou
- * uma transferência entre dois locais internos. O histórico de movimentações permite
- * rastrear onde um item esteve ao longo do tempo.</p>
+ * <p>Each movement describes an event in the physical lifecycle of an {@link InstanciaItem}:
+ * it can be an inbound (item arrives in stock), an outbound (item leaves stock), or
+ * a transfer between two internal locations. The movement history allows
+ * tracking where an item has been over time.</p>
  *
- * <p>A data da movimentação é automaticamente preenchida com o instante da persistência
- * caso não seja informada explicitamente.</p>
+ * <p>The movement date is automatically populated with the persistence instant
+ * if not explicitly provided.</p>
  *
- * <p>A entidade é auditada pelo Hibernate Envers: todas as alterações são registradas
- * na tabela {@code movimentacao_item_aud}.</p>
+ * <p>This entity is audited by Hibernate Envers: all changes are recorded
+ * in the {@code movimentacao_item_aud} table.</p>
  */
 @Entity
 @Audited
@@ -40,69 +40,69 @@ import java.time.Instant;
 public class MovimentacaoItem extends Entidade {
 
     /**
-     * Tipo da movimentação realizada.
-     * Define a semântica do evento: {@link TipoMovimentacaoItem#ENTRADA}, {@link TipoMovimentacaoItem#SAIDA}
-     * ou {@link TipoMovimentacaoItem#TRANSFERENCIA}.
+     * Type of movement performed.
+     * Defines the semantics of the event: {@link TipoMovimentacaoItem#ENTRADA}, {@link TipoMovimentacaoItem#SAIDA}
+     * or {@link TipoMovimentacaoItem#TRANSFERENCIA}.
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo", nullable = false, length = 30)
     private TipoMovimentacaoItem tipo;
 
     /**
-     * Data e hora em que a movimentação ocorreu (com fuso UTC).
-     * Preenchido automaticamente pelo callback {@link #prePersist()} caso não informado.
+     * Date and time the movement occurred (UTC timezone).
+     * Automatically populated by the {@link #prePersist()} callback if not provided.
      */
     @Column(name = "data_movimentacao", nullable = false)
     private Instant dataMovimentacao;
 
     /**
-     * Instância do item que foi movimentada.
-     * Obrigatório — toda movimentação deve estar vinculada a uma instância.
-     * Carregado de forma lazy para evitar joins desnecessários.
+     * Item instance that was moved.
+     * Required — every movement must be linked to an instance.
+     * Loaded lazily to avoid unnecessary joins.
      */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "instancia_item_id", nullable = false)
     private InstanciaItem instanciaItem;
 
     /**
-     * Local de origem da movimentação.
-     * {@code null} em movimentações do tipo {@link TipoMovimentacaoItem#ENTRADA},
-     * quando o item ainda não possuía localização no sistema.
-     * Carregado de forma lazy para evitar joins desnecessários.
+     * Origin location of the movement.
+     * {@code null} for movements of type {@link TipoMovimentacaoItem#ENTRADA},
+     * when the item had no location in the system yet.
+     * Loaded lazily to avoid unnecessary joins.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "local_origem_id")
     private LocalArmazenamento localOrigem;
 
     /**
-     * Local de destino da movimentação.
-     * {@code null} em movimentações do tipo {@link TipoMovimentacaoItem#SAIDA},
-     * quando o item deixa o controle do estoque.
-     * Carregado de forma lazy para evitar joins desnecessários.
+     * Destination location of the movement.
+     * {@code null} for movements of type {@link TipoMovimentacaoItem#SAIDA},
+     * when the item leaves inventory control.
+     * Loaded lazily to avoid unnecessary joins.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "local_destino_id")
     private LocalArmazenamento localDestino;
 
     /**
-     * Motivo resumido da movimentação (ex.: "Manutenção", "Redistribuição de equipamentos").
-     * Até 200 caracteres.
+     * Brief reason for the movement (e.g.: "Maintenance", "Equipment redistribution").
+     * Up to 200 characters.
      */
     @Column(name = "motivo", length = 200)
     private String motivo;
 
     /**
-     * Observações complementares sobre a movimentação com mais detalhes ou contexto.
-     * Até 1000 caracteres.
+     * Additional notes about the movement with more details or context.
+     * Up to 1000 characters.
      */
     @Column(name = "observacao", length = 1000)
     private String observacao;
 
     /**
-     * Callback JPA executado automaticamente antes da primeira persistência.
+     * JPA callback executed automatically before the first persistence.
      *
-     * <p>Garante que {@link #dataMovimentacao} nunca seja persistido como {@code null},
-     * utilizando o instante atual (UTC) como valor padrão.</p>
+     * <p>Ensures that {@link #dataMovimentacao} is never persisted as {@code null},
+     * using the current instant (UTC) as the default value.</p>
      */
     @Override
     @PrePersist
