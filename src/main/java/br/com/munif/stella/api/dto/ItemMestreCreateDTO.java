@@ -20,17 +20,17 @@ import java.util.UUID;
  * @param ativa          indica se o item deve ser criado ativo; quando {@code null}, assume {@code true}
  */
 public record ItemMestreCreateDTO(
-        @NotBlank(message = "Nome é obrigatório.")
-        @Size(max = 150, message = "Nome deve ter no máximo 150 caracteres.")
+        @NotBlank(message = "Name is required.")
+        @Size(max = 150, message = "Name must not exceed 150 characters.")
         String nome,
 
-        @Size(max = 500, message = "Descrição deve ter no máximo 500 caracteres.")
+        @Size(max = 500, message = "Description must not exceed 500 characters.")
         String descricao,
 
-        @Size(max = 1000, message = "Observações devem ter no máximo 1000 caracteres.")
+        @Size(max = 1000, message = "Notes must not exceed 1000 characters.")
         String observacoes,
 
-        @Size(max = 50, message = "Origem do cadastro deve ter no máximo 50 caracteres.")
+        @Size(max = 50, message = "Registration origin must not exceed 50 characters.")
         String origemCadastro,
 
         UUID categoriaId,

@@ -7,22 +7,22 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 
 public record UsuarioCreateDTO(
-        @NotBlank(message = "Usuário é obrigatório.")
-        @Size(max = 100, message = "Usuário deve ter no máximo 100 caracteres.")
+        @NotBlank(message = "Username is required.")
+        @Size(max = 100, message = "Username must not exceed 100 characters.")
         String username,
 
-        @Size(max = 100, message = "Nome deve ter no máximo 100 caracteres.")
+        @Size(max = 100, message = "Name must not exceed 100 characters.")
         String firstName,
 
-        @Size(max = 100, message = "Sobrenome deve ter no máximo 100 caracteres.")
+        @Size(max = 100, message = "Last name must not exceed 100 characters.")
         String lastName,
 
-        @Email(message = "E-mail deve ser válido.")
-        @Size(max = 150, message = "E-mail deve ter no máximo 150 caracteres.")
+        @Email(message = "E-mail must be valid.")
+        @Size(max = 150, message = "E-mail must not exceed 150 characters.")
         String email,
 
-        @NotBlank(message = "Senha é obrigatória.")
-        @Size(min = 6, max = 100, message = "Senha deve ter entre 6 e 100 caracteres.")
+        @NotBlank(message = "Password is required.")
+        @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters.")
         String password,
 
         Boolean enabled,

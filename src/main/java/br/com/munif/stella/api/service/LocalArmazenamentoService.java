@@ -230,7 +230,7 @@ public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, 
     public ImagemItemMestreDTO buscarMetadadosImagem(UUID id) {
         LocalArmazenamento local = buscarPorId(id);
         if (local.getImagemObjectKey() == null) {
-            throw new IllegalArgumentException("Local não possui imagem.");
+            throw new IllegalArgumentException("Location does not have an image.");
         }
         return new ImagemItemMestreDTO(
                 local.getImagemBucket(),
@@ -325,7 +325,7 @@ public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, 
 
         LocalArmazenamento pai = buscarPorId(paiId);
         if (!pai.isAtivo()) {
-            throw new IllegalArgumentException("Local pai deve estar ativo.");
+            throw new IllegalArgumentException("Parent location must be active.");
         }
         return pai;
     }
@@ -336,13 +336,13 @@ public class LocalArmazenamentoService extends SuperService<LocalArmazenamento, 
         }
 
         if (local.getId().equals(pai.getId())) {
-            throw new IllegalArgumentException("Local não pode ser pai dele mesmo.");
+            throw new IllegalArgumentException("A location cannot be its own parent.");
         }
 
         LocalArmazenamento atual = pai.getPai();
         while (atual != null) {
             if (local.getId().equals(atual.getId())) {
-                throw new IllegalArgumentException("Local pai não pode ser descendente do próprio local.");
+                throw new IllegalArgumentException("Parent location cannot be a descendant of itself.");
             }
             atual = atual.getPai();
         }

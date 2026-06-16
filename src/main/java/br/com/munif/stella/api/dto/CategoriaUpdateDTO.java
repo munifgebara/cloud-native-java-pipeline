@@ -16,14 +16,14 @@ import jakarta.validation.constraints.Size;
  * @param ativa     indica se a categoria está ativa; opcional
  */
 public record CategoriaUpdateDTO(
-        @NotBlank(message = "Nome é obrigatório.")
-        @Size(max = 150, message = "Nome deve ter no máximo 150 caracteres.")
+        @NotBlank(message = "Name is required.")
+        @Size(max = 150, message = "Name must not exceed 150 characters.")
         String nome,
 
-        @Size(max = 500, message = "Descrição deve ter no máximo 500 caracteres.")
+        @Size(max = 500, message = "Description must not exceed 500 characters.")
         String descricao,
 
-        @Size(max = 50, message = "Ícone deve ter no máximo 50 caracteres.")
+        @Size(max = 50, message = "Icon must not exceed 50 characters.")
         String icone,
 
         Boolean ativa

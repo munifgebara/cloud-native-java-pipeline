@@ -82,7 +82,7 @@ class OpenAiCadastroFotoProviderTest {
 
         assertThatThrownBy(() -> providerSemChave.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "imagem".getBytes())))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessage("OPENAI_API_KEY não configurada no ambiente.");
+                .hasMessage("OPENAI_API_KEY not configured in the environment.");
 
         verify(chatModel, never()).call(any(Prompt.class));
     }
@@ -118,7 +118,7 @@ class OpenAiCadastroFotoProviderTest {
 
         assertThatThrownBy(() -> providerBloqueado.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "imagem".getBytes())))
                 .isInstanceOf(AiUsageLimitException.class)
-                .hasMessage("Recursos de IA estão desabilitados neste ambiente.");
+                .hasMessage("AI features are disabled in this environment.");
 
         verify(chatModel, never()).call(any(Prompt.class));
     }
@@ -133,7 +133,7 @@ class OpenAiCadastroFotoProviderTest {
 
         assertThatThrownBy(() -> providerBloqueado.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "imagem".getBytes())))
                 .isInstanceOf(AiUsageLimitException.class)
-                .hasMessage("Limite diário de análise de imagens da OpenAI atingido.");
+                .hasMessage("Daily limit for OpenAI image analysis reached.");
 
         verify(chatModel, never()).call(any(Prompt.class));
     }

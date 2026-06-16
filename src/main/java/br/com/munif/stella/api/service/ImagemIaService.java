@@ -17,7 +17,7 @@ public class ImagemIaService {
     public ImagemIaResponseDTO gerarImagem(ImagemIaRequestDTO request) {
         String nome = ValidacoesBR.trimToNull(request.nome());
         if (nome == null) {
-            throw new IllegalArgumentException("Informe o nome do item para gerar a imagem.");
+            throw new IllegalArgumentException("Provide the item name to generate the image.");
         }
 
         return provider.gerarImagem(new ImagemIaRequestDTO(

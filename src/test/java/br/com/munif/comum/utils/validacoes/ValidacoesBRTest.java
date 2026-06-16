@@ -19,7 +19,7 @@ class ValidacoesBRTest {
 
         assertInstanceOf(UnsupportedOperationException.class, exception.getCause());
         assertEquals(
-                "Classe utilitária não pode ser instanciada.",
+                "Utility class cannot be instantiated.",
                 exception.getCause().getMessage()
         );
     }
@@ -117,8 +117,8 @@ class ValidacoesBRTest {
     void deveInvalidarTelefoneBr() {
         assertFalse(ValidacoesBR.validarTelefoneBR(null));
         assertFalse(ValidacoesBR.validarTelefoneBR("123"));
-        assertFalse(ValidacoesBR.validarTelefoneBR("00999887766")); // DDD inválido
-        assertFalse(ValidacoesBR.validarTelefoneBR("44899887766")); // 11 dígitos sem 9 no início do número
+        assertFalse(ValidacoesBR.validarTelefoneBR("00999887766")); // invalid area code
+        assertFalse(ValidacoesBR.validarTelefoneBR("44899887766")); // 11 digits without 9 at the start of the number
     }
 
     @Test
@@ -205,7 +205,7 @@ class ValidacoesBRTest {
         IllegalArgumentException exception =
                 assertThrows(IllegalArgumentException.class, () -> ValidacoesBR.formatarCPF("123"));
 
-        assertEquals("CPF deve conter 11 dígitos.", exception.getMessage());
+        assertEquals("CPF must contain 11 digits.", exception.getMessage());
     }
 
     @Test
@@ -219,7 +219,7 @@ class ValidacoesBRTest {
         IllegalArgumentException exception =
                 assertThrows(IllegalArgumentException.class, () -> ValidacoesBR.formatarCNPJ("123"));
 
-        assertEquals("CNPJ deve conter 14 dígitos.", exception.getMessage());
+        assertEquals("CNPJ must contain 14 digits.", exception.getMessage());
     }
 
     @Test
@@ -233,7 +233,7 @@ class ValidacoesBRTest {
         IllegalArgumentException exception =
                 assertThrows(IllegalArgumentException.class, () -> ValidacoesBR.formatarCEP("123"));
 
-        assertEquals("CEP deve conter 8 dígitos.", exception.getMessage());
+        assertEquals("ZIP code must contain 8 digits.", exception.getMessage());
     }
 
     @Test
@@ -253,7 +253,7 @@ class ValidacoesBRTest {
         IllegalArgumentException exception =
                 assertThrows(IllegalArgumentException.class, () -> ValidacoesBR.formatarTelefoneBR(null));
 
-        assertEquals("Telefone inválido.", exception.getMessage());
+        assertEquals("Invalid phone number.", exception.getMessage());
     }
 
     @Test
@@ -261,7 +261,7 @@ class ValidacoesBRTest {
         IllegalArgumentException exception =
                 assertThrows(IllegalArgumentException.class, () -> ValidacoesBR.formatarTelefoneBR("123"));
 
-        assertEquals("Telefone deve conter 10 ou 11 dígitos.", exception.getMessage());
+        assertEquals("Phone number must contain 10 or 11 digits.", exception.getMessage());
     }
 
     @Test
@@ -272,7 +272,7 @@ class ValidacoesBRTest {
                 assertThrows(IllegalArgumentException.class,
                         () -> ValidacoesBR.exigirCPFValido("11111111111", "CPF"));
 
-        assertEquals("CPF inválido.", exception.getMessage());
+        assertEquals("CPF is invalid.", exception.getMessage());
     }
 
     @Test
@@ -283,7 +283,7 @@ class ValidacoesBRTest {
                 assertThrows(IllegalArgumentException.class,
                         () -> ValidacoesBR.exigirCNPJValido("11111111111111", "CNPJ"));
 
-        assertEquals("CNPJ inválido.", exception.getMessage());
+        assertEquals("CNPJ is invalid.", exception.getMessage());
     }
 
     @Test
@@ -294,7 +294,7 @@ class ValidacoesBRTest {
                 assertThrows(IllegalArgumentException.class,
                         () -> ValidacoesBR.exigirTelefoneValido("123", "Telefone"));
 
-        assertEquals("Telefone inválido.", exception.getMessage());
+        assertEquals("Telefone is invalid.", exception.getMessage());
     }
 
     @Test
@@ -305,7 +305,7 @@ class ValidacoesBRTest {
                 assertThrows(IllegalArgumentException.class,
                         () -> ValidacoesBR.exigirCEPValido("123", "CEP"));
 
-        assertEquals("CEP inválido.", exception.getMessage());
+        assertEquals("CEP is invalid.", exception.getMessage());
     }
 
     @Test
@@ -316,6 +316,6 @@ class ValidacoesBRTest {
                 assertThrows(IllegalArgumentException.class,
                         () -> ValidacoesBR.exigirEmailValido("teste", "E-mail"));
 
-        assertEquals("E-mail inválido.", exception.getMessage());
+        assertEquals("E-mail is invalid.", exception.getMessage());
     }
 }

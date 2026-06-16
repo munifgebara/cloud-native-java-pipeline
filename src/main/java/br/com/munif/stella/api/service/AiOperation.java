@@ -1,9 +1,9 @@
 package br.com.munif.stella.api.service;
 
 public enum AiOperation {
-    IMAGE_ANALYSIS("análise de imagens"),
-    IMAGE_GENERATION("geração de imagens"),
-    EMBEDDING("geração de embeddings");
+    IMAGE_ANALYSIS("image analysis"),
+    IMAGE_GENERATION("image generation"),
+    EMBEDDING("embedding generation");
 
     private final String descricao;
 

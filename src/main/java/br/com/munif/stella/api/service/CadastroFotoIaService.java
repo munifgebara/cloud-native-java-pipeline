@@ -30,15 +30,15 @@ public class CadastroFotoIaService {
 
     private void validarImagem(MultipartFile imagem) {
         if (imagem == null || imagem.isEmpty()) {
-            throw new IllegalArgumentException("Envie uma imagem para análise.");
+            throw new IllegalArgumentException("Please send an image for analysis.");
         }
 
         if (imagem.getSize() > MAX_IMAGE_SIZE_BYTES) {
-            throw new IllegalArgumentException("Imagem deve ter no máximo 10MB.");
+            throw new IllegalArgumentException("Image must not exceed 10MB.");
         }
 
         if (!CONTENT_TYPES_SUPORTADOS.contains(imagem.getContentType())) {
-            throw new IllegalArgumentException("Formato de imagem não suportado. Use PNG, JPEG, WEBP ou GIF.");
+            throw new IllegalArgumentException("Unsupported image format. Use PNG, JPEG, WEBP or GIF.");
         }
     }
 }

@@ -44,7 +44,7 @@ public class AiUsageGuard {
                     "ai_operation", operation.name(),
                     "block_reason", "disabled"
             ));
-            throw new AiUsageLimitException(HttpStatus.FORBIDDEN, "Recursos de IA estão desabilitados neste ambiente.");
+            throw new AiUsageLimitException(HttpStatus.FORBIDDEN, "AI features are disabled in this environment.");
         }
     }
 
@@ -63,7 +63,7 @@ public class AiUsageGuard {
             ));
             throw new AiUsageLimitException(
                     HttpStatus.TOO_MANY_REQUESTS,
-                    "Limite diário de %s da OpenAI atingido.".formatted(operation.descricao())
+                    "Daily limit for OpenAI %s reached.".formatted(operation.descricao())
             );
         }
 

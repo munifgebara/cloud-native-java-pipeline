@@ -9,7 +9,7 @@ import br.com.munif.stella.api.entity.InstanciaItem;
 import br.com.munif.stella.api.entity.ItemMestre;
 import br.com.munif.stella.api.entity.LocalArmazenamento;
 import br.com.munif.stella.api.exception.AiUsageLimitException;
-import br.com.munif.stella.api.exception.IntegracaoExternaException;
+import br.com.munif.stella.api.exception.ExternalIntegrationException;
 import br.com.munif.stella.api.repository.InstanciaItemRepository;
 import br.com.munif.stella.api.repository.ItemMestreRepository;
 import org.junit.jupiter.api.Test;
@@ -66,7 +66,7 @@ class ItemMestreVectorSearchServiceTest {
 
         ArgumentCaptor<String> documento = ArgumentCaptor.forClass(String.class);
         verify(embeddingProvider).gerarEmbedding(documento.capture());
-        assertThat(documento.getValue()).contains("Nome: Placa de video", "Descrição: Componente de computador", "Categoria: Eletronicos");
+        assertThat(documento.getValue()).contains("Nome: Video card", "Description: Computer component", "Categoria: Electronics");
         verify(jdbcTemplate).update(anyString(), eq(id), eq("local"), eq("modelo-teste"), eq(3), eq(documento.getValue()), eq("[0.10000000,0.20000000,0.30000001]"));
     }
 
@@ -97,7 +97,7 @@ class ItemMestreVectorSearchServiceTest {
     @Test
     void devePropagarFalhaAoRemoverIndice() {
         UUID id = UUID.randomUUID();
-        RuntimeException falha = new RuntimeException("falha no banco");
+        RuntimeException falha = new RuntimeException("database failure");
         doThrow(falha).when(jdbcTemplate).update(anyString(), eq(id));
 
         assertThatThrownBy(() -> service(true).remover(id))
@@ -110,8 +110,8 @@ class ItemMestreVectorSearchServiceTest {
         when(embeddingProvider.gerarEmbedding(anyString())).thenReturn(new float[]{0.1f});
 
         assertThatThrownBy(() -> service(true).sincronizar(item))
-                .isInstanceOf(IntegracaoExternaException.class)
-                .hasMessage("Provider de embeddings retornou vetor com dimensões incompatíveis.");
+                .isInstanceOf(ExternalIntegrationException.class)
+                .hasMessage("Embeddings provider returned a vector with incompatible dimensions.");
     }
 
     @Test
@@ -176,7 +176,7 @@ class ItemMestreVectorSearchServiceTest {
     @Test
     void devePropagarFalhaAoBuscarSemanticamente() {
         String consultaLonga = "placa ".repeat(60);
-        RuntimeException falha = new RuntimeException("falha na consulta");
+        RuntimeException falha = new RuntimeException("query failure");
         when(embeddingProvider.gerarEmbedding(consultaLonga.trim())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any())).thenThrow(falha);
 
@@ -209,8 +209,8 @@ class ItemMestreVectorSearchServiceTest {
         when(embeddingProvider.gerarEmbedding(anyString())).thenReturn(new float[]{0.1f});
 
         assertThatThrownBy(() -> service(true).reindexarItensAtivos())
-                .isInstanceOf(IntegracaoExternaException.class)
-                .hasMessage("Provider de embeddings retornou vetor com dimensões incompatíveis.");
+                .isInstanceOf(ExternalIntegrationException.class)
+                .hasMessage("Embeddings provider returned a vector with incompatible dimensions.");
     }
 
     @Test
@@ -219,7 +219,7 @@ class ItemMestreVectorSearchServiceTest {
 
         assertThatThrownBy(() -> service(true, new AiProperties(false), new OpenAiLimitsProperties(null, null, null)).sincronizar(item))
                 .isInstanceOf(AiUsageLimitException.class)
-                .hasMessage("Recursos de IA estão desabilitados neste ambiente.");
+                .hasMessage("AI features are disabled in this environment.");
 
         verify(embeddingProvider, never()).gerarEmbedding(anyString());
     }
@@ -230,7 +230,7 @@ class ItemMestreVectorSearchServiceTest {
 
         assertThatThrownBy(() -> service(true, new AiProperties(true), new OpenAiLimitsProperties(null, null, 0)).sincronizar(item))
                 .isInstanceOf(AiUsageLimitException.class)
-                .hasMessage("Limite diário de geração de embeddings da OpenAI atingido.");
+                .hasMessage("Daily limit for OpenAI embedding generation reached.");
 
         verify(embeddingProvider, never()).gerarEmbedding(anyString());
     }
@@ -256,14 +256,14 @@ class ItemMestreVectorSearchServiceTest {
     private ItemMestre item(UUID id, boolean ativo) {
         Categoria categoria = new Categoria();
         categoria.setId(UUID.randomUUID());
-        categoria.setNome("Eletronicos");
+        categoria.setNome("Electronics");
         categoria.setIcone("eletronicos");
 
         ItemMestre item = new ItemMestre();
         item.setId(id);
-        item.setNome("Placa de video");
-        item.setDescricao("Componente de computador");
-        item.setObservacoes("Peça de PC");
+        item.setNome("Video card");
+        item.setDescricao("Computer component");
+        item.setObservacoes("PC part");
         item.setCategoria(categoria);
         item.setAtivo(ativo);
         return item;

@@ -29,6 +29,6 @@ class ImagemIaServiceTest {
 
         assertThatThrownBy(() -> service.gerarImagem(new ImagemIaRequestDTO(" ", null, null)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Informe o nome do item para gerar a imagem.");
+                .hasMessage("Provide the item name to generate the image.");
     }
 }

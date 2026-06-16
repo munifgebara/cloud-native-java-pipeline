@@ -46,7 +46,7 @@ public final class ValidacoesBR {
             Pattern.compile("^\\d{8}$");
 
     private ValidacoesBR() {
-        throw new UnsupportedOperationException("Classe utilitária não pode ser instanciada.");
+        throw new UnsupportedOperationException("Utility class cannot be instantiated.");
     }
 
     // -------------------------------------------------------------------------
@@ -304,7 +304,7 @@ public final class ValidacoesBR {
         String valor = somenteDigitos(cpf);
 
         if (valor == null || valor.length() != 11) {
-            throw new IllegalArgumentException("CPF deve conter 11 dígitos.");
+            throw new IllegalArgumentException("CPF must contain 11 digits.");
         }
         return valor.substring(0, 3) + "."
                 + valor.substring(3, 6) + "."
@@ -323,7 +323,7 @@ public final class ValidacoesBR {
         String valor = somenteDigitos(cnpj);
 
         if (valor == null || valor.length() != 14) {
-            throw new IllegalArgumentException("CNPJ deve conter 14 dígitos.");
+            throw new IllegalArgumentException("CNPJ must contain 14 digits.");
         }
         return valor.substring(0, 2) + "."
                 + valor.substring(2, 5) + "."
@@ -343,7 +343,7 @@ public final class ValidacoesBR {
         String valor = somenteDigitos(cep);
 
         if (valor == null || valor.length() != 8) {
-            throw new IllegalArgumentException("CEP deve conter 8 dígitos.");
+            throw new IllegalArgumentException("ZIP code must contain 8 digits.");
         }
         return valor.substring(0, 5) + "-" + valor.substring(5, 8);
     }
@@ -360,7 +360,7 @@ public final class ValidacoesBR {
         String valor = somenteDigitos(telefone);
 
         if (valor == null) {
-            throw new IllegalArgumentException("Telefone inválido.");
+            throw new IllegalArgumentException("Invalid phone number.");
         }
         if (valor.length() == 11) {
             return "(" + valor.substring(0, 2) + ") "
@@ -372,7 +372,7 @@ public final class ValidacoesBR {
                     + valor.substring(2, 6) + "-"
                     + valor.substring(6, 10);
         }
-        throw new IllegalArgumentException("Telefone deve conter 10 ou 11 dígitos.");
+        throw new IllegalArgumentException("Phone number must contain 10 or 11 digits.");
     }
 
     // -------------------------------------------------------------------------
@@ -388,7 +388,7 @@ public final class ValidacoesBR {
      */
     public static void exigirCPFValido(String cpf, String nomeCampo) {
         if (!validarCPF(cpf)) {
-            throw new IllegalArgumentException(nomeCampo + " inválido.");
+            throw new IllegalArgumentException(nomeCampo + " is invalid.");
         }
     }
 
@@ -401,7 +401,7 @@ public final class ValidacoesBR {
      */
     public static void exigirCNPJValido(String cnpj, String nomeCampo) {
         if (!validarCNPJ(cnpj)) {
-            throw new IllegalArgumentException(nomeCampo + " inválido.");
+            throw new IllegalArgumentException(nomeCampo + " is invalid.");
         }
     }
 
@@ -414,7 +414,7 @@ public final class ValidacoesBR {
      */
     public static void exigirTelefoneValido(String telefone, String nomeCampo) {
         if (!validarTelefoneBR(telefone)) {
-            throw new IllegalArgumentException(nomeCampo + " inválido.");
+            throw new IllegalArgumentException(nomeCampo + " is invalid.");
         }
     }
 
@@ -427,7 +427,7 @@ public final class ValidacoesBR {
      */
     public static void exigirCEPValido(String cep, String nomeCampo) {
         if (!validarCEP(cep)) {
-            throw new IllegalArgumentException(nomeCampo + " inválido.");
+            throw new IllegalArgumentException(nomeCampo + " is invalid.");
         }
     }
 
@@ -440,7 +440,7 @@ public final class ValidacoesBR {
      */
     public static void exigirEmailValido(String email, String nomeCampo) {
         if (!validarEmail(email)) {
-            throw new IllegalArgumentException(nomeCampo + " inválido.");
+            throw new IllegalArgumentException(nomeCampo + " is invalid.");
         }
     }
 

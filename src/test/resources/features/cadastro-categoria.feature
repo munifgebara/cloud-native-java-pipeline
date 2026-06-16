@@ -1,12 +1,11 @@
-# language: pt
-Funcionalidade: Cadastro de categoria
-  Como usuario do Stella
-  Quero cadastrar categorias de inventario
-  Para organizar os itens mestre cadastrados
+Feature: Category registration
+  As a Stella user
+  I want to register inventory categories
+  In order to organise registered main items
 
-  Cenario: Cadastrar categoria com dados validos
-    Dado que existe um cadastro de categoria com nome " Livros " e icone " livros "
-    Quando a categoria for salva
-    Entao a categoria cadastrada deve se chamar "Livros"
-    E o icone da categoria cadastrada deve ser "livros"
-    E a categoria cadastrada deve estar ativa
+  Scenario: Register category with valid data
+    Given that a category registration exists with name " Books " and icon " books "
+    When the category is saved
+    Then the registered category must be named "Books"
+    And the icon of the registered category must be "books"
+    And the registered category must be active

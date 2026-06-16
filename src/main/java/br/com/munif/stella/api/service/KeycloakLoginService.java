@@ -1,8 +1,8 @@
 package br.com.munif.stella.api.service;
 
 import br.com.munif.stella.api.config.KeycloakProperties;
-import br.com.munif.stella.api.exception.IdentidadeException;
-import br.com.munif.stella.api.exception.IntegracaoExternaException;
+import br.com.munif.stella.api.exception.ExternalIntegrationException;
+import br.com.munif.stella.api.exception.IdentityException;
 import br.com.munif.stella.api.dto.LoginRequestDTO;
 import br.com.munif.stella.api.dto.LoginResponseDTO;
 import br.com.munif.stella.api.observability.StructuredBusinessLogger;
@@ -52,12 +52,12 @@ public class KeycloakLoginService {
         } catch (RestClientResponseException ex) {
             logFailure(request.username(), inicio, ex);
             if (ex.getStatusCode().is4xxClientError()) {
-                throw new IdentidadeException(HttpStatus.UNAUTHORIZED, "Usuário ou senha inválidos.", ex);
+                throw new IdentityException(HttpStatus.UNAUTHORIZED, "Invalid credentials.", ex);
             }
-            throw new IntegracaoExternaException("Serviço de identidade indisponível.", ex);
+            throw new ExternalIntegrationException("Identity service unavailable.", ex);
         } catch (ResourceAccessException ex) {
             logFailure(request.username(), inicio, ex);
-            throw new IntegracaoExternaException("Serviço de identidade indisponível.", ex);
+            throw new ExternalIntegrationException("Identity service unavailable.", ex);
         }
 
         if (response == null) {
@@ -67,7 +67,7 @@ public class KeycloakLoginService {
                     "duration_ms", elapsedMillis(inicio),
                     "success", false
             ));
-            throw new IntegracaoExternaException("Resposta vazia do Keycloak.");
+            throw new ExternalIntegrationException("Empty response from Keycloak.");
         }
 
         StructuredBusinessLogger.info(log, "security", "login-succeeded", StructuredBusinessLogger.fields(

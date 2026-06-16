@@ -120,7 +120,7 @@ class InstanciaItemServiceTest {
 
         assertThatThrownBy(() -> service.criar(new InstanciaItemCreateDTO(itemMestreId, null, "NB-001", null, null, null, null, null, true)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Item mestre deve estar ativo");
+                .hasMessageContaining("Main item must be active");
 
         verify(repository, never()).save(any(InstanciaItem.class));
     }
@@ -177,7 +177,7 @@ class InstanciaItemServiceTest {
                 true
         )))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("disponível deve possuir local atual");
+                .hasMessageContaining("Available instance must have a current location");
 
         verify(repository, never()).save(any(InstanciaItem.class));
     }
@@ -207,7 +207,7 @@ class InstanciaItemServiceTest {
                 true
         )))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("emprestada não deve possuir local atual");
+                .hasMessageContaining("Loaned instance must not have a current location");
 
         verify(repository, never()).save(any(InstanciaItem.class));
     }
@@ -220,7 +220,7 @@ class InstanciaItemServiceTest {
 
         assertThatThrownBy(() -> service.excluirLogicamente(id))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("histórico operacional");
+                .hasMessageContaining("operational history");
 
         verify(repository, never()).save(any(InstanciaItem.class));
     }
@@ -234,7 +234,7 @@ class InstanciaItemServiceTest {
 
         assertThatThrownBy(() -> service.excluirLogicamente(id))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("histórico operacional");
+                .hasMessageContaining("operational history");
 
         verify(repository, never()).save(any(InstanciaItem.class));
     }

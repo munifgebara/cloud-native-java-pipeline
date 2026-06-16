@@ -101,18 +101,18 @@ public class MovimentacaoItemService extends SuperService<MovimentacaoItem, Movi
     @Transactional
     public MovimentacaoItemResponseDTO registrarSaida(MovimentacaoSaidaCreateDTO dto) {
         InstanciaItem instancia = instanciaItemRepository.findById(dto.instanciaItemId())
-                .orElseThrow(() -> new IllegalArgumentException("Instância não encontrada."));
+                .orElseThrow(() -> new IllegalArgumentException("Instance not found."));
         InstanciaItemRegras.exigirDisponivelComLocal(
                 instancia,
-                "Instância deve estar ativa para registrar saída.",
-                "Apenas instâncias disponíveis podem registrar saída.",
-                "Instância deve possuir local atual para registrar saída."
+                "Instance must be active to register an outbound.",
+                "Only available instances can register an outbound.",
+                "Instance must have a current location to register an outbound."
         );
 
         LocalArmazenamento localOrigem = instancia.getLocalAtual();
         String motivo = ValidacoesBR.trimToNull(dto.motivo());
         if (motivo == null) {
-            throw new IllegalArgumentException("Motivo é obrigatório.");
+            throw new IllegalArgumentException("Reason is required.");
         }
 
         instancia.setLocalAtual(null);
@@ -142,18 +142,18 @@ public class MovimentacaoItemService extends SuperService<MovimentacaoItem, Movi
     @Transactional
     public MovimentacaoItemResponseDTO registrarTransferencia(MovimentacaoTransferenciaCreateDTO dto) {
         InstanciaItem instancia = instanciaItemRepository.findById(dto.instanciaItemId())
-                .orElseThrow(() -> new IllegalArgumentException("Instância não encontrada."));
+                .orElseThrow(() -> new IllegalArgumentException("Instance not found."));
         InstanciaItemRegras.exigirDisponivelComLocal(
                 instancia,
-                "Instância deve estar ativa para registrar transferência.",
-                "Apenas instâncias disponíveis podem ser transferidas.",
-                "Instância deve possuir local atual para registrar transferência."
+                "Instance must be active to register a transfer.",
+                "Only available instances can be transferred.",
+                "Instance must have a current location to register a transfer."
         );
 
         LocalArmazenamento localOrigem = instancia.getLocalAtual();
         LocalArmazenamento localDestino = buscarLocalAtivo(dto.localDestinoId());
         if (localOrigem.getId().equals(localDestino.getId())) {
-            throw new IllegalArgumentException("Local destino deve ser diferente do local atual.");
+            throw new IllegalArgumentException("Destination location must be different from the current location.");
         }
 
         instancia.setLocalAtual(localDestino);
@@ -172,25 +172,25 @@ public class MovimentacaoItemService extends SuperService<MovimentacaoItem, Movi
 
     private ItemMestre buscarItemMestreAtivo(UUID itemMestreId) {
         ItemMestre itemMestre = itemMestreRepository.findById(itemMestreId)
-                .orElseThrow(() -> new IllegalArgumentException("Item mestre não encontrado."));
+                .orElseThrow(() -> new IllegalArgumentException("Main item not found."));
         if (!itemMestre.isAtivo()) {
-            throw new IllegalArgumentException("Item mestre deve estar ativo.");
+            throw new IllegalArgumentException("Main item must be active.");
         }
         return itemMestre;
     }
 
     private LocalArmazenamento buscarLocalAtivo(UUID localId) {
         LocalArmazenamento local = localArmazenamentoRepository.findById(localId)
-                .orElseThrow(() -> new IllegalArgumentException("Local destino não encontrado."));
+                .orElseThrow(() -> new IllegalArgumentException("Destination location not found."));
         if (!local.isAtivo()) {
-            throw new IllegalArgumentException("Local destino deve estar ativo.");
+            throw new IllegalArgumentException("Destination location must be active.");
         }
         return local;
     }
 
     private void validarIdentificacao(InstanciaItem instancia) {
         if (instancia.getIdentificador() == null && instancia.getPatrimonio() == null && instancia.getNumeroSerie() == null) {
-            throw new IllegalArgumentException("Informe identificador, patrimônio ou número de série da instância.");
+            throw new IllegalArgumentException("Provide identifier, asset number or serial number for the instance.");
         }
     }
 }

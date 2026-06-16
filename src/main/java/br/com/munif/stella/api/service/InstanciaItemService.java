@@ -237,7 +237,7 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
     @Transactional
     public void excluirLogicamente(UUID id) {
         if (movimentacaoItemRepository.existsByInstanciaItemId(id) || emprestimoItemRepository.existsByInstanciaItemId(id)) {
-            throw new IllegalArgumentException("Instância com histórico operacional não pode ser excluída. Use a operação de saída para retirada de inventário.");
+            throw new IllegalArgumentException("Instance with operational history cannot be deleted. Use the outbound operation to remove it from inventory.");
         }
         InstanciaItem instancia = buscarPorId(id);
         excluir(id);
@@ -256,9 +256,9 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
 
     private ItemMestre buscarItemMestreAtivo(UUID itemMestreId) {
         ItemMestre itemMestre = itemMestreRepository.findById(itemMestreId)
-                .orElseThrow(() -> new IllegalArgumentException("Item mestre não encontrado."));
+                .orElseThrow(() -> new IllegalArgumentException("Main item not found."));
         if (!itemMestre.isAtivo()) {
-            throw new IllegalArgumentException("Item mestre deve estar ativo.");
+            throw new IllegalArgumentException("Main item must be active.");
         }
         return itemMestre;
     }
@@ -269,9 +269,9 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
         }
 
         LocalArmazenamento local = localArmazenamentoRepository.findById(localId)
-                .orElseThrow(() -> new IllegalArgumentException("Local atual não encontrado."));
+                .orElseThrow(() -> new IllegalArgumentException("Current location not found."));
         if (!local.isAtivo()) {
-            throw new IllegalArgumentException("Local atual deve estar ativo.");
+            throw new IllegalArgumentException("Current location must be active.");
         }
         return local;
     }
@@ -285,7 +285,7 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
 
     private void validarIdentificacao(InstanciaItem instancia) {
         if (instancia.getIdentificador() == null && instancia.getPatrimonio() == null && instancia.getNumeroSerie() == null) {
-            throw new IllegalArgumentException("Informe identificador, patrimônio ou número de série da instância.");
+            throw new IllegalArgumentException("Provide identifier, asset number or serial number for the instance.");
         }
     }
 }

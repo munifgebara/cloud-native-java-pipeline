@@ -112,6 +112,6 @@ class ImagemItemMestreStorageServiceTest {
 
         assertThatThrownBy(() -> service.armazenar(UUID.randomUUID(), arquivo))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("no máximo 10 bytes");
+                .hasMessageContaining("10 bytes");
     }
 }

@@ -1,34 +1,34 @@
 package br.com.munif.stella.api.exception;
 
 /**
- * Exceção lançada quando ocorre uma falha na comunicação com um serviço externo.
+ * Exception thrown when a communication failure occurs with an external service.
  *
- * <p>Utilizada para encapsular erros de integração com APIs e serviços de terceiros,
- * como provedores de armazenamento de objetos (S3), serviços de IA, gateways de CEP, etc.
- * Permite que a camada de negócio trate falhas externas de forma uniforme,
- * sem expor detalhes específicos de cada integração.</p>
+ * <p>Used to encapsulate integration errors with third-party APIs and services,
+ * such as object storage providers (S3), AI services, postal code gateways, etc.
+ * Allows the business layer to handle external failures uniformly,
+ * without exposing integration-specific details.</p>
  *
- * <p>Deve ser tratada pelo {@code GlobalExceptionHandler} e mapeada para
- * uma resposta HTTP 502 (Bad Gateway) ou 503 (Service Unavailable).</p>
+ * <p>Should be handled by {@code GlobalExceptionHandler} and mapped to
+ * HTTP 502 (Bad Gateway) or 503 (Service Unavailable).</p>
  */
-public class IntegracaoExternaException extends RuntimeException {
+public class ExternalIntegrationException extends RuntimeException {
 
     /**
-     * Cria uma nova exceção de integração externa com mensagem descritiva.
+     * Creates a new external integration exception with a descriptive message.
      *
-     * @param mensagem descrição da falha (ex.: "Falha ao enviar imagem para o S3.")
+     * @param message description of the failure (e.g., "Failed to upload image to S3.")
      */
-    public IntegracaoExternaException(String mensagem) {
-        super(mensagem);
+    public ExternalIntegrationException(String message) {
+        super(message);
     }
 
     /**
-     * Cria uma nova exceção de integração externa com mensagem e causa raiz.
+     * Creates a new external integration exception with a message and root cause.
      *
-     * @param mensagem descrição da falha
-     * @param causa    exceção original lançada pelo serviço externo ou biblioteca cliente
+     * @param message description of the failure
+     * @param cause   original exception thrown by the external service or client library
      */
-    public IntegracaoExternaException(String mensagem, Throwable causa) {
-        super(mensagem, causa);
+    public ExternalIntegrationException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

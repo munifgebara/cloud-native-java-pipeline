@@ -1,25 +1,25 @@
 package br.com.munif.stella.api.exception;
 
 /**
- * Exceção lançada quando se tenta cadastrar um registro com uma chave única já existente no sistema.
+ * Exception thrown when attempting to register a record with a unique key that already exists.
  *
- * <p>Exemplos de uso:</p>
+ * <p>Examples:</p>
  * <ul>
- *   <li>Tentativa de cadastrar uma pessoa com CPF/CNPJ já existente.</li>
- *   <li>Tentativa de criar um usuário com e-mail ou login duplicado.</li>
+ *   <li>Attempting to register a person with a CPF/CNPJ that already exists.</li>
+ *   <li>Attempting to create a user with a duplicate email or login.</li>
  * </ul>
  *
- * <p>Deve ser tratada pelo {@code GlobalExceptionHandler} e mapeada para
- * uma resposta HTTP 409 (Conflict).</p>
+ * <p>Should be handled by {@code GlobalExceptionHandler} and mapped to
+ * HTTP 409 (Conflict).</p>
  */
-public class CadastroDuplicadoException extends RuntimeException {
+public class DuplicateRegistrationException extends RuntimeException {
 
     /**
-     * Cria uma nova exceção com a mensagem descrevendo qual campo está duplicado.
+     * Creates a new exception with a message describing which field is duplicated.
      *
-     * @param message descrição do conflito (ex.: "CPF 123.456.789-00 já cadastrado.")
+     * @param message description of the conflict (e.g., "CPF 123.456.789-00 already registered.")
      */
-    public CadastroDuplicadoException(String message) {
+    public DuplicateRegistrationException(String message) {
         super(message);
     }
 }

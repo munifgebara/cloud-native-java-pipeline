@@ -74,7 +74,7 @@ class EmprestimoItemServiceTest {
                 instanciaId,
                 pessoaId,
                 previsao,
-                "  Retirado para uso em aula  "
+                "  Checked out for class use  "
         ));
 
         ArgumentCaptor<InstanciaItem> instanciaCaptor = ArgumentCaptor.forClass(InstanciaItem.class);
@@ -90,7 +90,7 @@ class EmprestimoItemServiceTest {
         assertThat(emprestimo.getInstanciaItem()).isEqualTo(instancia);
         assertThat(emprestimo.getPessoa()).isEqualTo(pessoa);
         assertThat(emprestimo.getPrevisaoDevolucao()).isEqualTo(previsao);
-        assertThat(emprestimo.getObservacao()).isEqualTo("Retirado para uso em aula");
+        assertThat(emprestimo.getObservacao()).isEqualTo("Checked out for class use");
         assertThat(resposta.pessoaId()).isEqualTo(pessoaId);
         assertThat(resposta.instanciaItemId()).isEqualTo(instanciaId);
     }
@@ -106,7 +106,7 @@ class EmprestimoItemServiceTest {
 
         assertThatThrownBy(() -> service.registrarEmprestimo(new EmprestimoItemCreateDTO(instanciaId, pessoaId, null, null)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("disponíveis");
+                .hasMessageContaining("available instances can be loaned");
 
         verify(instanciaItemRepository, never()).save(any(InstanciaItem.class));
         verify(repository, never()).save(any(EmprestimoItem.class));
@@ -124,7 +124,7 @@ class EmprestimoItemServiceTest {
 
         assertThatThrownBy(() -> service.registrarEmprestimo(new EmprestimoItemCreateDTO(instanciaId, pessoaId, null, null)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("empréstimo aberto");
+                .hasMessageContaining("open loan for this instance");
 
         verify(instanciaItemRepository, never()).save(any(InstanciaItem.class));
         verify(repository, never()).save(any(EmprestimoItem.class));
@@ -175,7 +175,7 @@ class EmprestimoItemServiceTest {
 
         assertThatThrownBy(() -> service.registrarDevolucao(new EmprestimoItemDevolucaoDTO(instanciaId, localId, null)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("empréstimo aberto");
+                .hasMessageContaining("open loan for this instance");
 
         verify(instanciaItemRepository, never()).save(any(InstanciaItem.class));
         verify(repository, never()).save(any(EmprestimoItem.class));
@@ -193,7 +193,7 @@ class EmprestimoItemServiceTest {
 
         assertThatThrownBy(() -> service.registrarDevolucao(new EmprestimoItemDevolucaoDTO(instanciaId, localId, null)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("deve estar emprestada");
+                .hasMessageContaining("must be loaned");
 
         verify(instanciaItemRepository, never()).save(any(InstanciaItem.class));
         verify(repository, never()).save(any(EmprestimoItem.class));

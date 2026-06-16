@@ -16,12 +16,12 @@ class GlobalExceptionHandlerTest {
     void deveRetornarMensagemDeRegraDeNegocioComContexto() {
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v0/pessoas");
 
-        var response = handler.tratarRegraNegocio(new IllegalArgumentException("CPF/CNPJ é obrigatório."), request);
+        var response = handler.handleBusinessRule(new IllegalArgumentException("CPF/CNPJ is required."), request);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody())
                 .containsEntry("status", 400)
-                .containsEntry("erro", "CPF/CNPJ é obrigatório.")
+                .containsEntry("erro", "CPF/CNPJ is required.")
                 .containsEntry("path", "/api/v0/pessoas");
     }
 
@@ -29,42 +29,42 @@ class GlobalExceptionHandlerTest {
     void deveOcultarDetalheTecnicoEmErroInesperado() {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v0/dashboard");
 
-        var response = handler.tratarErroInesperado(new RuntimeException("detalhe interno"), request);
+        var response = handler.handleUnexpectedError(new RuntimeException("internal detail"), request);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(response.getBody())
                 .containsEntry("status", 500)
-                .containsEntry("erro", "Erro inesperado ao processar a solicitação.")
+                .containsEntry("erro", "Unexpected error while processing the request.")
                 .containsEntry("path", "/api/v0/dashboard");
     }
 
     @Test
     void deveRetornarCamposEmErroDeValidacao() {
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v0/pessoas");
-        Map<String, Object> body = handler.tratarValidacao(
-                TestValidationSupport.methodArgumentNotValid("nome", "Nome é obrigatório."),
+        Map<String, Object> body = handler.handleValidation(
+                TestValidationSupport.methodArgumentNotValid("nome", "Name is required."),
                 request
         ).getBody();
 
         assertThat(body)
                 .containsEntry("status", 400)
-                .containsEntry("erro", "Dados inválidos.")
+                .containsEntry("erro", "Invalid data.")
                 .containsEntry("path", "/api/v0/pessoas");
         assertThat(body).extracting("campos")
                 .asInstanceOf(org.assertj.core.api.InstanceOfAssertFactories.map(String.class, String.class))
-                .containsEntry("nome", "Nome é obrigatório.");
+                .containsEntry("nome", "Name is required.");
     }
 
     @Test
     void deveRetornarStatusDeBloqueioDeUsoIa() {
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v0/itens-mestre/imagem-ia");
 
-        var response = handler.tratarUsoIa(new AiUsageLimitException(HttpStatus.TOO_MANY_REQUESTS, "Limite diário de geração de imagens da OpenAI atingido."), request);
+        var response = handler.handleAiUsageLimit(new AiUsageLimitException(HttpStatus.TOO_MANY_REQUESTS, "Daily limit for OpenAI image generation reached."), request);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
         assertThat(response.getBody())
                 .containsEntry("status", 429)
-                .containsEntry("erro", "Limite diário de geração de imagens da OpenAI atingido.")
+                .containsEntry("erro", "Daily limit for OpenAI image generation reached.")
                 .containsEntry("path", "/api/v0/itens-mestre/imagem-ia");
     }
 
@@ -72,13 +72,13 @@ class GlobalExceptionHandlerTest {
     void deveRetornar502ComMensagemDaExcecaoParaFalhaDeIntegracao() {
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v0/itens-mestre/imagem-ia");
 
-        var response = handler.tratarFalhaIntegracao(
-                new IntegracaoExternaException("OpenAI retornou resposta vazia para a imagem."), request);
+        var response = handler.handleExternalIntegration(
+                new ExternalIntegrationException("OpenAI returned an empty response for the image."), request);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY);
         assertThat(response.getBody())
                 .containsEntry("status", 502)
-                .containsEntry("erro", "OpenAI retornou resposta vazia para a imagem.")
+                .containsEntry("erro", "OpenAI returned an empty response for the image.")
                 .containsEntry("path", "/api/v0/itens-mestre/imagem-ia");
     }
 
@@ -86,13 +86,13 @@ class GlobalExceptionHandlerTest {
     void deveRetornar500ComMensagemGenericaParaEstadoIlegal() {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v0/itens-mestre");
 
-        var response = handler.tratarEstadoIlegal(
-                new IllegalStateException("OPENAI_API_KEY não configurada no ambiente."), request);
+        var response = handler.handleUnexpectedState(
+                new IllegalStateException("OPENAI_API_KEY not configured in the environment."), request);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(response.getBody())
                 .containsEntry("status", 500)
-                .containsEntry("erro", "Erro inesperado ao processar a solicitação.")
+                .containsEntry("erro", "Unexpected error while processing the request.")
                 .containsEntry("path", "/api/v0/itens-mestre");
     }
 }

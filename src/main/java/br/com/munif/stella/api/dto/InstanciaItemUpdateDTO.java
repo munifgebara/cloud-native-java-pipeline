@@ -24,26 +24,26 @@ import java.util.UUID;
  * @param ativa             indica se a instância está ativa; opcional
  */
 public record InstanciaItemUpdateDTO(
-        @NotNull(message = "Item mestre é obrigatório.")
+        @NotNull(message = "Main item is required.")
         UUID itemMestreId,
 
         UUID localAtualId,
 
-        @Size(max = 100, message = "Identificador deve ter no máximo 100 caracteres.")
+        @Size(max = 100, message = "Identifier must not exceed 100 characters.")
         String identificador,
 
-        @Size(max = 100, message = "Patrimônio deve ter no máximo 100 caracteres.")
+        @Size(max = 100, message = "Asset number must not exceed 100 characters.")
         String patrimonio,
 
-        @Size(max = 150, message = "Número de série deve ter no máximo 150 caracteres.")
+        @Size(max = 150, message = "Serial number must not exceed 150 characters.")
         String numeroSerie,
 
         StatusOperacionalInstancia statusOperacional,
 
-        @Size(max = 1000, message = "Observações devem ter no máximo 1000 caracteres.")
+        @Size(max = 1000, message = "Notes must not exceed 1000 characters.")
         String observacoes,
 
-        @Size(max = 50, message = "Origem do cadastro deve ter no máximo 50 caracteres.")
+        @Size(max = 50, message = "Registration origin must not exceed 50 characters.")
         String origemCadastro,
 
         Boolean ativa

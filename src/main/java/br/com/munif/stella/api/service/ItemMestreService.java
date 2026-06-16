@@ -256,7 +256,7 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     public ImagemItemMestreDTO buscarMetadadosImagemPrincipal(UUID id) {
         ItemMestre item = buscarPorId(id);
         if (item.getImagemObjectKey() == null) {
-            throw new IllegalArgumentException("Item mestre não possui imagem principal.");
+            throw new IllegalArgumentException("Main item does not have a main image.");
         }
         return new ImagemItemMestreDTO(
                 item.getImagemBucket(),
@@ -337,9 +337,9 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
         }
 
         Categoria categoria = categoriaRepository.findById(categoriaId)
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada."));
+                .orElseThrow(() -> new IllegalArgumentException("Category not found."));
         if (!categoria.isAtivo()) {
-            throw new IllegalArgumentException("Categoria deve estar ativa.");
+            throw new IllegalArgumentException("Category must be active.");
         }
         return categoria;
     }

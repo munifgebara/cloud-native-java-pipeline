@@ -9,7 +9,7 @@ import br.com.munif.stella.api.dto.PessoaRevisaoDTO;
 import br.com.munif.stella.api.dto.PessoaResumoDTO;
 import br.com.munif.stella.api.dto.PessoaUpdateDTO;
 import br.com.munif.stella.api.entity.Pessoa;
-import br.com.munif.stella.api.exception.CadastroDuplicadoException;
+import br.com.munif.stella.api.exception.DuplicateRegistrationException;
 import br.com.munif.stella.api.mapper.PessoaMapper;
 import br.com.munif.stella.api.repository.PessoaRepository;
 import jakarta.persistence.EntityManager;
@@ -53,7 +53,7 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
      * @return DTO completo da pessoa criada
      * @throws IllegalArgumentException       se o CPF/CNPJ for inválido ou outros campos opcionais
      *                                        forem informados com formato incorreto
-     * @throws CadastroDuplicadoException     se já existir pessoa com o mesmo CPF/CNPJ
+     * @throws DuplicateRegistrationException     se já existir pessoa com o mesmo CPF/CNPJ
      */
     @Transactional
     public PessoaResponseDTO criar(PessoaCreateDTO dto) {
@@ -62,7 +62,7 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
         String cpfCnpjNormalizado = normalizarCpfCnpj(dto.cpfCnpj());
 
         if (repository.existsByCpfCnpj(cpfCnpjNormalizado)) {
-            throw new CadastroDuplicadoException("Já existe pessoa cadastrada com este CPF/CNPJ.");
+            throw new DuplicateRegistrationException("A person with this CPF/CNPJ is already registered.");
         }
 
         Pessoa pessoa = PessoaMapper.toEntity(dto);
@@ -210,7 +210,7 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
         } else if (cpfCnpj.length() == 14) {
             ValidacoesBR.exigirCNPJValido(cpfCnpj, "CNPJ");
         } else {
-            throw new IllegalArgumentException("CPF/CNPJ deve conter 11 ou 14 dígitos.");
+            throw new IllegalArgumentException("CPF/CNPJ must contain 11 or 14 digits.");
         }
 
         validarCamposComuns(
@@ -244,7 +244,7 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
         }
 
         if (ValidacoesBR.isNotBlank(telefoneSecundario)) {
-            ValidacoesBR.exigirTelefoneValido(telefoneSecundario, "Telefone secundário");
+            ValidacoesBR.exigirTelefoneValido(telefoneSecundario, "Secondary phone");
         }
 
         if (ValidacoesBR.isNotBlank(email)) {
@@ -258,7 +258,7 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
         if (ValidacoesBR.isNotBlank(uf)) {
             String ufNormalizada = uf.trim().toUpperCase(Locale.ROOT);
             if (!ufNormalizada.matches("^[A-Z]{2}$")) {
-                throw new IllegalArgumentException("UF inválida.");
+                throw new IllegalArgumentException("Invalid state abbreviation.");
             }
         }
     }
@@ -266,7 +266,7 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
     private String normalizarCpfCnpj(String cpfCnpj) {
         String valor = ValidacoesBR.somenteDigitos(cpfCnpj);
         if (valor == null) {
-            throw new IllegalArgumentException("CPF/CNPJ é obrigatório.");
+            throw new IllegalArgumentException("CPF/CNPJ is required.");
         }
         return valor;
     }

@@ -25,14 +25,14 @@ public final class StructuredBusinessLogger {
 
     public static Map<String, Object> fields(Object... entries) {
         if (entries.length % 2 != 0) {
-            throw new IllegalArgumentException("Campos estruturados devem ser informados em pares chave/valor.");
+            throw new IllegalArgumentException("Structured fields must be provided in key/value pairs.");
         }
 
         Map<String, Object> result = new LinkedHashMap<>();
         for (int i = 0; i < entries.length; i += 2) {
             Object key = entries[i];
             if (!(key instanceof String stringKey)) {
-                throw new IllegalArgumentException("Chave de campo estruturado deve ser String.");
+                throw new IllegalArgumentException("Structured field key must be a String.");
             }
             Object value = entries[i + 1];
             if (value != null) {

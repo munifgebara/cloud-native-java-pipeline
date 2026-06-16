@@ -29,7 +29,7 @@ class AiUsageGuardTest {
         assertThat(guard.usage(AiOperation.IMAGE_ANALYSIS)).isEqualTo(1);
         assertThatThrownBy(() -> guard.consume(AiOperation.IMAGE_ANALYSIS))
                 .isInstanceOf(AiUsageLimitException.class)
-                .hasMessage("Limite diário de análise de imagens da OpenAI atingido.")
+                .hasMessage("Daily limit for OpenAI image analysis reached.")
                 .extracting("status")
                 .isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
     }
@@ -44,7 +44,7 @@ class AiUsageGuardTest {
 
         assertThatThrownBy(() -> guard.consume(AiOperation.IMAGE_GENERATION))
                 .isInstanceOf(AiUsageLimitException.class)
-                .hasMessage("Recursos de IA estão desabilitados neste ambiente.")
+                .hasMessage("AI features are disabled in this environment.")
                 .extracting("status")
                 .isEqualTo(HttpStatus.FORBIDDEN);
     }

@@ -1,8 +1,8 @@
 package br.com.munif.stella.api.service;
 
 import br.com.munif.stella.api.config.KeycloakProperties;
-import br.com.munif.stella.api.exception.IdentidadeException;
-import br.com.munif.stella.api.exception.IntegracaoExternaException;
+import br.com.munif.stella.api.exception.ExternalIntegrationException;
+import br.com.munif.stella.api.exception.IdentityException;
 import br.com.munif.stella.api.dto.LoginRequestDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -67,8 +67,8 @@ class KeycloakLoginServiceTest {
                 .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
 
         assertThatThrownBy(() -> service.login(new LoginRequestDTO("usuario", "senha123")))
-                .isInstanceOf(IntegracaoExternaException.class)
-                .hasMessage("Resposta vazia do Keycloak.");
+                .isInstanceOf(ExternalIntegrationException.class)
+                .hasMessage("Empty response from Keycloak.");
 
         server.verify();
     }
@@ -80,9 +80,9 @@ class KeycloakLoginServiceTest {
                 .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
 
         assertThatThrownBy(() -> service.login(new LoginRequestDTO("usuario", "senha-invalida")))
-                .isInstanceOf(IdentidadeException.class)
-                .hasMessage("Usuário ou senha inválidos.")
-                .extracting(ex -> ((IdentidadeException) ex).getStatus())
+                .isInstanceOf(IdentityException.class)
+                .hasMessage("Invalid credentials.")
+                .extracting(ex -> ((IdentityException) ex).getStatus())
                 .isEqualTo(HttpStatus.UNAUTHORIZED);
 
         server.verify();
@@ -96,7 +96,7 @@ class KeycloakLoginServiceTest {
         );
 
         assertThatThrownBy(() -> servicoIndisponivel.login(new LoginRequestDTO("usuario", "senha123")))
-                .isInstanceOf(IntegracaoExternaException.class)
-                .hasMessage("Serviço de identidade indisponível.");
+                .isInstanceOf(ExternalIntegrationException.class)
+                .hasMessage("Identity service unavailable.");
     }
 }

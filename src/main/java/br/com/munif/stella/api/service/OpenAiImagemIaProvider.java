@@ -5,7 +5,7 @@ import br.com.munif.stella.api.dto.ImagemIaResponseDTO;
 import br.com.munif.stella.api.observability.StructuredBusinessLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import br.com.munif.stella.api.exception.IntegracaoExternaException;
+import br.com.munif.stella.api.exception.ExternalIntegrationException;
 import org.springframework.ai.image.ImageModel;
 import org.springframework.ai.image.ImagePrompt;
 import org.springframework.ai.image.ImageResponse;
@@ -35,7 +35,7 @@ public class OpenAiImagemIaProvider implements ImagemIaProvider {
         aiUsageGuard.assertEnabled(AiOperation.IMAGE_GENERATION);
         String apiKey = environment.getProperty("OPENAI_API_KEY");
         if (apiKey == null || apiKey.isBlank()) {
-            throw new IllegalStateException("OPENAI_API_KEY não configurada no ambiente.");
+            throw new IllegalStateException("OPENAI_API_KEY not configured in the environment.");
         }
 
         String modelo = modelo();
@@ -70,12 +70,12 @@ public class OpenAiImagemIaProvider implements ImagemIaProvider {
 
     private ImagemIaResponseDTO parseResponse(ImageResponse response) {
         if (response == null || response.getResults().isEmpty()) {
-            throw new IntegracaoExternaException("OpenAI retornou resposta vazia para a imagem.");
+            throw new ExternalIntegrationException("OpenAI returned an empty response for the image.");
         }
 
         String base64 = response.getResult().getOutput().getB64Json();
         if (base64 == null || base64.isBlank()) {
-            throw new IntegracaoExternaException("OpenAI não retornou a imagem em base64.");
+            throw new ExternalIntegrationException("OpenAI did not return the image in base64.");
         }
 
         return new ImagemIaResponseDTO("data:%s;base64,%s".formatted(CONTENT_TYPE, base64), CONTENT_TYPE, PROVIDER);
@@ -87,17 +87,17 @@ public class OpenAiImagemIaProvider implements ImagemIaProvider {
 
     private String prompt(ImagemIaRequestDTO request) {
         return """
-                Gere uma imagem limpa de catálogo para representar um item de inventário.
-                Mostre apenas o produto, centralizado, bem iluminado, sem texto, sem logotipos inventados e sem pessoas.
-                Use estilo realista neutro, fundo simples e enquadramento adequado para miniatura.
+                Generate a clean catalog image to represent an inventory item.
+                Show only the product, centered, well lit, without text, without invented logos and without people.
+                Use neutral realistic style, simple background and appropriate framing for a thumbnail.
 
-                Nome do item: %s
-                Categoria: %s
-                Descrição: %s
+                Item name: %s
+                Category: %s
+                Description: %s
                 """.formatted(
                 request.nome(),
-                request.categoria() == null ? "não informada" : request.categoria(),
-                request.descricao() == null ? "não informada" : request.descricao()
+                request.categoria() == null ? "not provided" : request.categoria(),
+                request.descricao() == null ? "not provided" : request.descricao()
         );
     }
 

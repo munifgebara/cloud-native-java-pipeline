@@ -63,21 +63,21 @@ public class EmprestimoItemService extends SuperService<EmprestimoItem, Empresti
     @Transactional
     public EmprestimoItemResponseDTO registrarEmprestimo(EmprestimoItemCreateDTO dto) {
         InstanciaItem instancia = instanciaItemRepository.findById(dto.instanciaItemId())
-                .orElseThrow(() -> new IllegalArgumentException("Instância não encontrada."));
+                .orElseThrow(() -> new IllegalArgumentException("Instance not found."));
         Pessoa pessoa = pessoaRepository.findById(dto.pessoaId())
-                .orElseThrow(() -> new IllegalArgumentException("Pessoa não encontrada."));
+                .orElseThrow(() -> new IllegalArgumentException("Person not found."));
 
         InstanciaItemRegras.exigirDisponivelComLocal(
                 instancia,
-                "Instância deve estar ativa para registrar empréstimo.",
-                "Apenas instâncias disponíveis podem ser emprestadas.",
-                "Instância deve possuir local atual para registrar empréstimo."
+                "Instance must be active to register a loan.",
+                "Only available instances can be loaned.",
+                "Instance must have a current location to register a loan."
         );
         if (!pessoa.isAtivo()) {
-            throw new IllegalArgumentException("Pessoa deve estar ativa para registrar empréstimo.");
+            throw new IllegalArgumentException("Person must be active to register a loan.");
         }
         if (repository.existsByInstanciaItemIdAndDataDevolucaoIsNull(instancia.getId())) {
-            throw new IllegalArgumentException("Já existe empréstimo aberto para esta instância.");
+            throw new IllegalArgumentException("There is already an open loan for this instance.");
         }
 
         instancia.setLocalAtual(null);
@@ -106,11 +106,11 @@ public class EmprestimoItemService extends SuperService<EmprestimoItem, Empresti
     @Transactional
     public EmprestimoItemResponseDTO registrarDevolucao(EmprestimoItemDevolucaoDTO dto) {
         EmprestimoItem emprestimo = repository.findByInstanciaItemIdAndDataDevolucaoIsNull(dto.instanciaItemId())
-                .orElseThrow(() -> new IllegalArgumentException("Não existe empréstimo aberto para esta instância."));
+                .orElseThrow(() -> new IllegalArgumentException("There is no open loan for this instance."));
         InstanciaItem instancia = emprestimo.getInstanciaItem();
         LocalArmazenamento localRetorno = buscarLocalAtivo(dto.localRetornoId());
 
-        InstanciaItemRegras.exigirEmprestada(instancia, "Instância deve estar emprestada para registrar devolução.");
+        InstanciaItemRegras.exigirEmprestada(instancia, "Instance must be loaned to register a return.");
 
         emprestimo.setDataDevolucao(Instant.now());
         String observacao = ValidacoesBR.trimToNull(dto.observacao());
@@ -127,9 +127,9 @@ public class EmprestimoItemService extends SuperService<EmprestimoItem, Empresti
 
     private LocalArmazenamento buscarLocalAtivo(java.util.UUID localId) {
         LocalArmazenamento local = localArmazenamentoRepository.findById(localId)
-                .orElseThrow(() -> new IllegalArgumentException("Local de retorno não encontrado."));
+                .orElseThrow(() -> new IllegalArgumentException("Return location not found."));
         if (!local.isAtivo()) {
-            throw new IllegalArgumentException("Local de retorno deve estar ativo.");
+            throw new IllegalArgumentException("Return location must be active.");
         }
         return local;
     }

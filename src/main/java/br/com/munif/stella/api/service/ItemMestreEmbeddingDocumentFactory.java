@@ -19,9 +19,9 @@ public class ItemMestreEmbeddingDocumentFactory {
         Categoria categoria = item.getCategoria();
         return Stream.of(
                         linha("Nome", item.getNome()),
-                        linha("Descrição", item.getDescricao()),
+                        linha("Description", item.getDescricao()),
                         linha("Categoria", categoria == null ? null : categoria.getNome()),
-                        linha("Observações", item.getObservacoes())
+                        linha("Notes", item.getObservacoes())
                 )
                 .filter(texto -> !texto.isBlank())
                 .collect(Collectors.joining("\n"));

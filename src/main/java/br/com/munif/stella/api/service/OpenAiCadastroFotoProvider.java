@@ -21,18 +21,18 @@ public class OpenAiCadastroFotoProvider implements CadastroFotoIaProvider {
     private static final String PROVIDER = "openai";
     private static final Logger log = LoggerFactory.getLogger(OpenAiCadastroFotoProvider.class);
     private static final String ORIENTACAO = """
-            Analise a foto e identifique objetos que possam virar cadastros de inventário.
-            Responda somente com JSON aderente ao schema.
-            Separe item conceitual de instâncias físicas.
-            Para múltiplos objetos iguais, retorne um item com quantidade e instâncias equivalentes.
-            Para livros, tente identificar título, autor, editora, ano e ISBN pela capa, lombada ou texto visível.
-            Use seu conhecimento para validar livros identificáveis pela capa/lombada quando houver texto suficiente.
-            Não retorne nomes genéricos como "Livro" quando for possível identificar o título.
-            Para livros distintos, retorne um item separado para cada título.
-            Não invente números de patrimônio ou série ilegíveis; use null nesses casos.
-            Não invente metadados bibliográficos: use null quando não houver evidência visual ou validação suficiente.
-            Use nomes curtos e úteis em português do Brasil.
-            Se não houver confiança suficiente, retorne lista vazia e uma mensagem clara.
+            Analyze the photo and identify objects that could become inventory registrations.
+            Respond only with JSON conforming to the schema.
+            Separate conceptual items from physical instances.
+            For multiple identical objects, return one item with quantity and equivalent instances.
+            For books, try to identify title, author, publisher, year and ISBN from the cover, spine or visible text.
+            Use your knowledge to validate books identifiable by cover/spine when there is sufficient text.
+            Do not return generic names like "Book" when it is possible to identify the title.
+            For distinct books, return a separate item for each title.
+            Do not invent unreadable asset or serial numbers; use null in those cases.
+            Do not invent bibliographic metadata: use null when there is insufficient visual evidence or validation.
+            Use short, useful names in English.
+            If there is insufficient confidence, return an empty list and a clear message.
             """;
 
     private final ChatClient chatClient;
@@ -55,7 +55,7 @@ public class OpenAiCadastroFotoProvider implements CadastroFotoIaProvider {
         aiUsageGuard.assertEnabled(AiOperation.IMAGE_ANALYSIS);
         String apiKey = environment.getProperty("OPENAI_API_KEY");
         if (apiKey == null || apiKey.isBlank()) {
-            throw new IllegalStateException("OPENAI_API_KEY não configurada no ambiente.");
+            throw new IllegalStateException("OPENAI_API_KEY not configured in the environment.");
         }
 
         String modelo = modelo();
@@ -80,7 +80,7 @@ public class OpenAiCadastroFotoProvider implements CadastroFotoIaProvider {
             return resultado;
         } catch (IOException ex) {
             logFailure(modelo, inicio, ex);
-            throw new IllegalArgumentException("Não foi possível ler a imagem enviada.", ex);
+            throw new IllegalArgumentException("Unable to read the submitted image.", ex);
         } catch (RuntimeException ex) {
             logFailure(modelo, inicio, ex);
             throw ex;

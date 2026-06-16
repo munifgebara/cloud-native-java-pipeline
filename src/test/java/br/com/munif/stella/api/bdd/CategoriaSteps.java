@@ -6,9 +6,9 @@ import br.com.munif.stella.api.entity.Categoria;
 import br.com.munif.stella.api.repository.CategoriaRepository;
 import br.com.munif.stella.api.service.CategoriaService;
 import io.cucumber.java.Before;
-import io.cucumber.java.pt.Dado;
-import io.cucumber.java.pt.Entao;
-import io.cucumber.java.pt.Quando;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import jakarta.persistence.EntityManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,27 +32,27 @@ public class CategoriaSteps {
         when(repository.save(any(Categoria.class))).thenAnswer(invocation -> invocation.getArgument(0));
     }
 
-    @Dado("que existe um cadastro de categoria com nome {string} e icone {string}")
+    @Given("that a category registration exists with name {string} and icon {string}")
     public void queExisteUmCadastroDeCategoriaComNomeEIcone(String nome, String icone) {
         request = new CategoriaCreateDTO(nome, null, icone, true);
     }
 
-    @Quando("a categoria for salva")
+    @When("the category is saved")
     public void aCategoriaForSalva() {
         response = service.criar(request);
     }
 
-    @Entao("a categoria cadastrada deve se chamar {string}")
+    @Then("the registered category must be named {string}")
     public void aCategoriaCadastradaDeveSeChamar(String nome) {
         assertThat(response.nome()).isEqualTo(nome);
     }
 
-    @Entao("o icone da categoria cadastrada deve ser {string}")
+    @Then("the icon of the registered category must be {string}")
     public void oIconeDaCategoriaCadastradaDeveSer(String icone) {
         assertThat(response.icone()).isEqualTo(icone);
     }
 
-    @Entao("a categoria cadastrada deve estar ativa")
+    @Then("the registered category must be active")
     public void aCategoriaCadastradaDeveEstarAtiva() {
         assertThat(response.ativa()).isTrue();
     }

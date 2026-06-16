@@ -37,16 +37,16 @@ final class InstanciaItemRegras {
         StatusOperacionalInstancia status = instancia.getStatusOperacional();
 
         if (status == StatusOperacionalInstancia.DISPONIVEL && instancia.getLocalAtual() == null) {
-            throw new IllegalArgumentException("Instância disponível deve possuir local atual.");
+            throw new IllegalArgumentException("Available instance must have a current location.");
         }
         if (status == StatusOperacionalInstancia.EMPRESTADO && instancia.getLocalAtual() != null) {
-            throw new IllegalArgumentException("Instância emprestada não deve possuir local atual.");
+            throw new IllegalArgumentException("Loaned instance must not have a current location.");
         }
         if (status == StatusOperacionalInstancia.EM_MOVIMENTACAO && instancia.getLocalAtual() != null) {
-            throw new IllegalArgumentException("Instância em movimentação não deve possuir local atual.");
+            throw new IllegalArgumentException("Instance in transit must not have a current location.");
         }
         if (status == StatusOperacionalInstancia.INATIVO && instancia.getLocalAtual() != null) {
-            throw new IllegalArgumentException("Instância inativa não deve possuir local atual.");
+            throw new IllegalArgumentException("Inactive instance must not have a current location.");
         }
     }
 
