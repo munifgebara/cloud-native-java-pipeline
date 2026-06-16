@@ -105,7 +105,7 @@ class InstanciaItemServiceTest {
 
         assertThatThrownBy(() -> service.criar(new InstanciaItemCreateDTO(itemMestreId, null, " ", null, null, null, null, null, true)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("identificador");
+                .hasMessageContaining("identifier");
 
         verify(repository, never()).save(any(InstanciaItem.class));
         verify(itemMestreRepository, never()).findById(any(UUID.class));

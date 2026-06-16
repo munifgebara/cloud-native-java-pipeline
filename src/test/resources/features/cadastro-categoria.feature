@@ -4,8 +4,8 @@ Feature: Category registration
   In order to organise registered main items
 
   Scenario: Register category with valid data
-    Given that a category registration exists with name " Books " and icon " books "
+    Given that a category registration exists with name " Books " and icon " livros "
     When the category is saved
     Then the registered category must be named "Books"
-    And the icon of the registered category must be "books"
+    And the icon of the registered category must be "livros"
     And the registered category must be active

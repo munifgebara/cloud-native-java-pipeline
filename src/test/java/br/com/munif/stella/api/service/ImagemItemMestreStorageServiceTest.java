@@ -94,7 +94,7 @@ class ImagemItemMestreStorageServiceTest {
 
         assertThatThrownBy(() -> service.armazenar(UUID.randomUUID(), arquivo))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Informe uma imagem");
+                .hasMessageContaining("provide an image");
     }
 
     @Test
@@ -103,7 +103,7 @@ class ImagemItemMestreStorageServiceTest {
 
         assertThatThrownBy(() -> service.armazenar(UUID.randomUUID(), arquivo))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Formato de imagem");
+                .hasMessageContaining("Image format not allowed");
     }
 
     @Test

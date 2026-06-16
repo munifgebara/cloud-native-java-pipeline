@@ -113,7 +113,7 @@ class MovimentacaoItemServiceTest {
 
         assertThatThrownBy(() -> service.registrarEntrada(new MovimentacaoEntradaCreateDTO(itemMestreId, localId, " ", null, null, null)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("identificador");
+                .hasMessageContaining("identifier");
 
         verify(instanciaItemRepository, never()).save(any(InstanciaItem.class));
         verify(repository, never()).save(any(MovimentacaoItem.class));
@@ -232,7 +232,7 @@ class MovimentacaoItemServiceTest {
 
         assertThatThrownBy(() -> service.registrarTransferencia(new MovimentacaoTransferenciaCreateDTO(instanciaId, localId, null)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("diferente");
+                .hasMessageContaining("different");
 
         verify(instanciaItemRepository, never()).save(any(InstanciaItem.class));
         verify(repository, never()).save(any(MovimentacaoItem.class));

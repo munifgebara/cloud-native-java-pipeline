@@ -137,7 +137,7 @@ class LocalArmazenamentoServiceTest {
 
         assertThatThrownBy(() -> service.atualizar(id, new LocalArmazenamentoUpdateDTO("Casa", null, id, true)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("pai dele mesmo");
+                .hasMessageContaining("own parent");
     }
 
     @Test
@@ -155,7 +155,7 @@ class LocalArmazenamentoServiceTest {
 
         assertThatThrownBy(() -> service.atualizar(casaId, new LocalArmazenamentoUpdateDTO("Casa", null, gavetaId, true)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("descendente");
+                .hasMessageContaining("descendant");
     }
 
     @Test

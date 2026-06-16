@@ -281,7 +281,7 @@ class ControllerUnitTest {
         assertThat(me).containsEntry("subject", "user-1");
         assertThat(me).containsEntry("username", "usuario");
         assertThat(new DashboardController(dashboardService).resumo()).isEqualTo(resumo);
-        assertThat(new HomeController().test()).contains("API Stella");
+        assertThat(new HomeController().test()).contains("Stella API");
         assertThat(new PublicAuthController(loginService).login(null)).isEqualTo(login);
     }
 

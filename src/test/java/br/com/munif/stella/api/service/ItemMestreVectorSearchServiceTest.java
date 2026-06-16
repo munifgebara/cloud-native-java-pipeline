@@ -144,7 +144,7 @@ class ItemMestreVectorSearchServiceTest {
         var resultado = service(true).buscar(" onde encontro placa de computador ");
 
         assertThat(resultado).hasSize(1);
-        assertThat(resultado.getFirst().nome()).isEqualTo("Placa de video");
+        assertThat(resultado.getFirst().nome()).isEqualTo("Video card");
         assertThat(resultado.getFirst().similaridade()).isEqualTo(0.8765);
         assertThat(resultado.getFirst().imagemUrl()).isEqualTo("/api/public/itens-mestre/%s/imagem-principal".formatted(itemId));
         assertThat(resultado.getFirst().instancias()).extracting("identificador").containsExactly("GPU 1");
