@@ -8,11 +8,11 @@ import br.com.munif.stella.api.entity.Pessoa;
 
 
 /**
- * Converte entre a entidade {@link Pessoa} e seus DTOs de entrada e saída.
+ * Converts between the {@link Pessoa} entity and its input and output DTOs.
  *
- * <p>Classe utilitária estática — não deve ser instanciada.
- * Centraliza toda a lógica de mapeamento de {@code Pessoa},
- * evitando duplicação nos serviços e controllers.</p>
+ * <p>Static utility class — must not be instantiated.
+ * Centralizes all mapping logic for {@code Pessoa},
+ * avoiding duplication in services and controllers.</p>
  */
 public final class PessoaMapper {
 
@@ -20,10 +20,10 @@ public final class PessoaMapper {
     }
 
     /**
-     * Cria uma nova entidade {@link Pessoa} a partir dos dados de criação.
+     * Creates a new {@link Pessoa} entity from creation data.
      *
-     * @param dto dados de criação da pessoa; pode ser {@code null}
-     * @return nova instância de {@link Pessoa} populada, ou {@code null} se {@code dto} for {@code null}
+     * @param dto person creation data; may be {@code null}
+     * @return new populated {@link Pessoa} instance, or {@code null} if {@code dto} is {@code null}
      */
     public static Pessoa toEntity(PessoaCreateDTO dto) {
         if (dto == null) {
@@ -46,12 +46,12 @@ public final class PessoaMapper {
     }
 
     /**
-     * Aplica os dados de atualização sobre a entidade {@link Pessoa} existente.
+     * Applies update data onto an existing {@link Pessoa} entity.
      *
-     * <p>O CPF/CNPJ não é atualizado por este método — é imutável após o cadastro.</p>
+     * <p>The CPF/CNPJ is not updated by this method — it is immutable after registration.</p>
      *
-     * @param entity entidade a ser atualizada; ignorada se {@code null}
-     * @param dto    dados de atualização; ignorados se {@code null}
+     * @param entity entity to be updated; ignored if {@code null}
+     * @param dto    update data; ignored if {@code null}
      */
     public static void updateEntity(Pessoa entity, PessoaUpdateDTO dto) {
         if (entity == null || dto == null) {
@@ -71,10 +71,10 @@ public final class PessoaMapper {
     }
 
     /**
-     * Converte a entidade {@link Pessoa} para o DTO completo de resposta.
+     * Converts the {@link Pessoa} entity to the full response DTO.
      *
-     * @param entity entidade a converter; pode ser {@code null}
-     * @return {@link PessoaResponseDTO} populado, ou {@code null} se {@code entity} for {@code null}
+     * @param entity entity to convert; may be {@code null}
+     * @return populated {@link PessoaResponseDTO}, or {@code null} if {@code entity} is {@code null}
      */
     public static PessoaResponseDTO toResponseDTO(Pessoa entity) {
         if (entity == null) {
@@ -100,10 +100,10 @@ public final class PessoaMapper {
     }
 
     /**
-     * Converte a entidade {@link Pessoa} para o DTO resumido usado em listagens e seletores.
+     * Converts the {@link Pessoa} entity to the summary DTO used in listings and selectors.
      *
-     * @param entity entidade a converter; pode ser {@code null}
-     * @return {@link PessoaResumoDTO} populado, ou {@code null} se {@code entity} for {@code null}
+     * @param entity entity to convert; may be {@code null}
+     * @return populated {@link PessoaResumoDTO}, or {@code null} if {@code entity} is {@code null}
      */
     public static PessoaResumoDTO toResumoDTO(Pessoa entity) {
         if (entity == null) {

@@ -3,19 +3,19 @@ package br.com.munif.stella.api.dto;
 import java.util.UUID;
 
 /**
- * DTO resumido de um item mestre, utilizado em listagens e seletores.
+ * Summary DTO of a main item, used in listings and selectors.
  *
- * <p>Contém apenas os campos mais relevantes para exibição em grades e listas,
- * incluindo a URL da imagem para visualização em miniatura.</p>
+ * <p>Contains only the most relevant fields for display in grids and lists,
+ * including the image URL for thumbnail viewing.</p>
  *
- * @param id             identificador único do item mestre
- * @param nome           nome do item mestre
- * @param descricao      descrição breve do item; pode ser {@code null}
- * @param categoriaId    identificador da categoria associada; pode ser {@code null}
- * @param categoriaNome  nome da categoria (desnormalizado); pode ser {@code null}
- * @param categoriaIcone chave do ícone da categoria; pode ser {@code null}
- * @param imagemUrl      URL relativa para acesso à imagem do item; {@code null} quando sem imagem
- * @param ativa          indica se o item está ativo no sistema
+ * @param id             unique identifier of the main item
+ * @param nome           main item name
+ * @param descricao      brief description of the item; may be {@code null}
+ * @param categoriaId    identifier of the associated category; may be {@code null}
+ * @param categoriaNome  category name (denormalized); may be {@code null}
+ * @param categoriaIcone category icon key; may be {@code null}
+ * @param imagemUrl      relative URL for accessing the item image; {@code null} when no image
+ * @param ativa          indicates whether the item is active in the system
  */
 public record ItemMestreResumoDTO(
         UUID id,

@@ -1,35 +1,35 @@
 package br.com.munif.stella.api.entity;
 
 /**
- * Enumeração que representa os possíveis estados operacionais de uma {@link InstanciaItem}.
+ * Enumeration representing the possible operational states of an {@link InstanciaItem}.
  *
- * <p>O status controla o que pode ser feito com cada instância: apenas instâncias
- * {@link #DISPONIVEL} podem ser emprestadas ou movimentadas. As transições de status
- * são gerenciadas pelos serviços de movimentação e empréstimo.</p>
+ * <p>The status controls what can be done with each instance: only
+ * {@link #DISPONIVEL} instances can be loaned or moved. Status transitions
+ * are managed by the movement and loan services.</p>
  */
 public enum StatusOperacionalInstancia {
 
     /**
-     * A instância está disponível para uso, empréstimo ou movimentação.
-     * Este é o estado padrão após o cadastro.
+     * The instance is available for use, loan, or movement.
+     * This is the default state after registration.
      */
     DISPONIVEL,
 
     /**
-     * A instância está em processo de movimentação entre locais de armazenamento.
-     * Neste estado, o item não pode ser emprestado até a movimentação ser concluída.
+     * The instance is in the process of being moved between storage locations.
+     * In this state, the item cannot be loaned until the movement is complete.
      */
     EM_MOVIMENTACAO,
 
     /**
-     * A instância foi emprestada a uma {@link Pessoa} e está sob posse dela.
-     * Permanece neste estado até a devolução ser registrada.
+     * The instance has been loaned to a {@link Pessoa} and is in their possession.
+     * Remains in this state until the return is registered.
      */
     EMPRESTADO,
 
     /**
-     * A instância foi desativada e não está mais em uso operacional.
-     * Pode indicar itens descartados, aguardando manutenção ou fora de serviço permanentemente.
+     * The instance has been deactivated and is no longer in operational use.
+     * May indicate items that have been discarded, awaiting maintenance, or permanently out of service.
      */
     INATIVO
 }

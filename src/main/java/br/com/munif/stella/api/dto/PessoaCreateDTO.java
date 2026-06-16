@@ -6,22 +6,22 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
- * DTO de criação de uma pessoa física ou jurídica.
+ * Creation DTO for an individual or legal entity.
  *
- * <p>Todos os campos de endereço são opcionais para suportar cadastros rápidos.
- * O {@code cpfCnpj} deve ser único no sistema e ser informado somente com dígitos.</p>
+ * <p>All address fields are optional to support quick registrations.
+ * The {@code cpfCnpj} must be unique in the system and provided with digits only.</p>
  *
- * @param nome               nome completo ou razão social; obrigatório, até 150 caracteres
- * @param cpfCnpj            CPF (11 dígitos) ou CNPJ (14 dígitos) sem formatação; obrigatório
- * @param telefonePrincipal  telefone principal de contato; até 20 caracteres; opcional
- * @param telefoneSecundario telefone alternativo; até 20 caracteres; opcional
- * @param email              endereço de e-mail; até 150 caracteres; opcional
- * @param cep                CEP no formato {@code 99999-999} ou {@code 99999999}; opcional
- * @param endereco           logradouro e número; até 200 caracteres; opcional
- * @param complemento        complemento do endereço (apto, sala, etc.); até 100 caracteres; opcional
- * @param bairro             bairro; até 100 caracteres; opcional
- * @param cidade             cidade; até 100 caracteres; opcional
- * @param uf                 sigla do estado com 2 letras (ex.: {@code "SP"}); opcional
+ * @param nome               full name or company name; required, up to 150 characters
+ * @param cpfCnpj            CPF (11 digits) or CNPJ (14 digits) without formatting; required
+ * @param telefonePrincipal  primary contact phone; up to 20 characters; optional
+ * @param telefoneSecundario alternative phone; up to 20 characters; optional
+ * @param email              email address; up to 150 characters; optional
+ * @param cep                ZIP code in format {@code 99999-999} or {@code 99999999}; optional
+ * @param endereco           street and number; up to 200 characters; optional
+ * @param complemento        address complement (apt, suite, etc.); up to 100 characters; optional
+ * @param bairro             neighbourhood; up to 100 characters; optional
+ * @param cidade             city; up to 100 characters; optional
+ * @param uf                 state abbreviation with 2 letters (e.g.: {@code "SP"}); optional
  */
 public record PessoaCreateDTO(
         @NotBlank(message = "Name is required.")

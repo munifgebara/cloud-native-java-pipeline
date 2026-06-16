@@ -3,13 +3,13 @@ package br.com.munif.stella.api.dto;
 import java.util.UUID;
 
 /**
- * DTO resumido de uma pessoa, utilizado em seletores e referências cruzadas.
+ * Summary DTO of a person, used in selectors and cross-references.
  *
- * <p>Contém apenas o identificador e o nome, suficientes para exibir
- * a pessoa em listas de seleção (ex.: ao registrar um empréstimo).</p>
+ * <p>Contains only the identifier and name, sufficient to display
+ * the person in selection lists (e.g.: when registering a loan).</p>
  *
- * @param id   identificador único da pessoa
- * @param nome nome completo ou razão social da pessoa
+ * @param id   unique identifier of the person
+ * @param nome full name or company name of the person
  */
 public record PessoaResumoDTO(
         UUID id,

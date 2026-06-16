@@ -25,13 +25,13 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Controller REST para gerenciamento de categorias de itens.
+ * REST controller for managing item categories.
  *
- * <p>Expõe o recurso {@code /api/v0/categorias} com CRUD completo,
- * busca por nome e consulta de histórico de auditoria.</p>
+ * <p>Exposes the {@code /api/v0/categorias} resource with full CRUD,
+ * name search, and audit history queries.</p>
  *
- * <p>Categorias agrupam itens mestres por tipo (ex.: "Eletrônicos", "Mobiliário")
- * e são usadas na filtragem e no dashboard.</p>
+ * <p>Categories group main items by type (e.g.: "Electronics", "Furniture")
+ * and are used in filtering and the dashboard.</p>
  */
 @RestController
 @RequestMapping("/api/v0/categorias")
@@ -40,9 +40,9 @@ public class CategoriaController extends SuperController<CategoriaResumoDTO, Cat
     private final CategoriaService service;
 
     /**
-     * Constrói o controller injetando o serviço de categorias.
+     * Constructs the controller injecting the category service.
      *
-     * @param service serviço de negócio de categorias
+     * @param service category business service
      */
     public CategoriaController(CategoriaService service) {
         this.service = service;
@@ -67,10 +67,10 @@ public class CategoriaController extends SuperController<CategoriaResumoDTO, Cat
     }
 
     /**
-     * Busca categorias ativas cujo nome contenha o texto informado (case-insensitive).
+     * Finds active categories whose name contains the given text (case-insensitive).
      *
-     * @param nome substring a buscar no nome da categoria
-     * @return {@code 200 OK} com a lista de categorias encontradas
+     * @param nome substring to search in the category name
+     * @return {@code 200 OK} with the list of found categories
      */
     @GetMapping("/buscar")
     public ResponseEntity<List<CategoriaResumoDTO>> buscarPorNome(@RequestParam String nome) {

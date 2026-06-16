@@ -7,11 +7,11 @@ import br.com.munif.stella.api.dto.LocalArmazenamentoUpdateDTO;
 import br.com.munif.stella.api.entity.LocalArmazenamento;
 
 /**
- * Converte entre a entidade {@link LocalArmazenamento} e seus DTOs de entrada e saída.
+ * Converts between the {@link LocalArmazenamento} entity and its input and output DTOs.
  *
- * <p>Classe utilitária estática — não deve ser instanciada.
- * Centraliza toda a lógica de mapeamento de {@code LocalArmazenamento},
- * incluindo o cálculo do caminho hierárquico e do nível de profundidade.</p>
+ * <p>Static utility class — must not be instantiated.
+ * Centralizes all mapping logic for {@code LocalArmazenamento},
+ * including the calculation of the hierarchical path and depth level.</p>
  */
 public final class LocalArmazenamentoMapper {
 
@@ -19,13 +19,13 @@ public final class LocalArmazenamentoMapper {
     }
 
     /**
-     * Cria uma nova entidade {@link LocalArmazenamento} a partir dos dados de criação.
+     * Creates a new {@link LocalArmazenamento} entity from creation data.
      *
-     * <p>O local pai ({@code paiId}) não é resolvido aqui — deve ser associado pelo serviço
-     * antes de persistir, pois exige consulta ao repositório.</p>
+     * <p>The parent location ({@code paiId}) is not resolved here — it must be associated by the service
+     * before persisting, as it requires a repository query.</p>
      *
-     * @param dto dados de criação do local; pode ser {@code null}
-     * @return nova instância de {@link LocalArmazenamento} populada, ou {@code null} se {@code dto} for {@code null}
+     * @param dto location creation data; may be {@code null}
+     * @return new populated {@link LocalArmazenamento} instance, or {@code null} if {@code dto} is {@code null}
      */
     public static LocalArmazenamento toEntity(LocalArmazenamentoCreateDTO dto) {
         if (dto == null) {
@@ -42,12 +42,12 @@ public final class LocalArmazenamentoMapper {
     }
 
     /**
-     * Aplica os dados de atualização sobre a entidade {@link LocalArmazenamento} existente.
+     * Applies update data onto an existing {@link LocalArmazenamento} entity.
      *
-     * <p>O local pai não é atualizado aqui — deve ser resolvido e associado pelo serviço.</p>
+     * <p>The parent location is not updated here — it must be resolved and associated by the service.</p>
      *
-     * @param entity entidade a ser atualizada; ignorada se {@code null}
-     * @param dto    dados de atualização; ignorados se {@code null}
+     * @param entity entity to be updated; ignored if {@code null}
+     * @param dto    update data; ignored if {@code null}
      */
     public static void updateEntity(LocalArmazenamento entity, LocalArmazenamentoUpdateDTO dto) {
         if (entity == null || dto == null) {
@@ -62,13 +62,13 @@ public final class LocalArmazenamentoMapper {
     }
 
     /**
-     * Converte a entidade {@link LocalArmazenamento} para o DTO completo de resposta.
+     * Converts the {@link LocalArmazenamento} entity to the full response DTO.
      *
-     * <p>Calcula automaticamente o caminho hierárquico e o nível de profundidade
-     * percorrendo a cadeia de locais pai.</p>
+     * <p>Automatically calculates the hierarchical path and depth level
+     * by traversing the parent location chain.</p>
      *
-     * @param entity entidade a converter; pode ser {@code null}
-     * @return {@link LocalArmazenamentoResponseDTO} populado, ou {@code null} se {@code entity} for {@code null}
+     * @param entity entity to convert; may be {@code null}
+     * @return populated {@link LocalArmazenamentoResponseDTO}, or {@code null} if {@code entity} is {@code null}
      */
     public static LocalArmazenamentoResponseDTO toResponseDTO(LocalArmazenamento entity) {
         if (entity == null) {
@@ -91,15 +91,15 @@ public final class LocalArmazenamentoMapper {
     }
 
     /**
-     * Converte a entidade {@link LocalArmazenamento} para o DTO resumido usado em listagens.
+     * Converts the {@link LocalArmazenamento} entity to the summary DTO used in listings.
      *
-     * <p>Recebe o caminho e o nível pré-calculados como parâmetros para evitar recalcular
-     * a hierarquia em operações que já os conhecem (ex.: listagens em lote).</p>
+     * <p>Receives the pre-calculated path and level as parameters to avoid recalculating
+     * the hierarchy in operations that already know them (e.g.: batch listings).</p>
      *
-     * @param entity  entidade a converter; pode ser {@code null}
-     * @param caminho caminho hierárquico pré-calculado (ex.: {@code "Prédio A > Sala 101"})
-     * @param nivel   nível de profundidade pré-calculado ({@code 0} para raiz)
-     * @return {@link LocalArmazenamentoResumoDTO} populado, ou {@code null} se {@code entity} for {@code null}
+     * @param entity  entity to convert; may be {@code null}
+     * @param caminho pre-calculated hierarchical path (e.g.: {@code "Building A > Room 101"})
+     * @param nivel   pre-calculated depth level ({@code 0} for root)
+     * @return populated {@link LocalArmazenamentoResumoDTO}, or {@code null} if {@code entity} is {@code null}
      */
     public static LocalArmazenamentoResumoDTO toResumoDTO(LocalArmazenamento entity, String caminho, int nivel) {
         if (entity == null) {
@@ -120,10 +120,10 @@ public final class LocalArmazenamentoMapper {
     }
 
     /**
-     * Constrói a URL relativa para acesso à imagem do local.
+     * Builds the relative URL for accessing the location image.
      *
-     * @param entity local cujo caminho de imagem será verificado
-     * @return URL relativa da imagem, ou {@code null} se o local não possuir imagem
+     * @param entity location whose image path will be checked
+     * @return relative URL of the image, or {@code null} if the location has no image
      */
     private static String imagemUrl(LocalArmazenamento entity) {
         if (entity.getImagemObjectKey() == null) {
@@ -133,10 +133,10 @@ public final class LocalArmazenamentoMapper {
     }
 
     /**
-     * Calcula o caminho completo do local percorrendo recursivamente a cadeia de pais.
+     * Calculates the full path of the location by recursively traversing the parent chain.
      *
-     * @param entity local cujo caminho será calculado
-     * @return caminho no formato {@code "Pai > Filho > Neto"}, ou apenas o nome se for raiz
+     * @param entity location whose path will be calculated
+     * @return path in the format {@code "Parent > Child > Grandchild"}, or just the name if it is a root
      */
     private static String caminho(LocalArmazenamento entity) {
         if (entity.getPai() == null) {
@@ -147,10 +147,10 @@ public final class LocalArmazenamentoMapper {
     }
 
     /**
-     * Calcula o nível de profundidade do local na hierarquia.
+     * Calculates the depth level of the location in the hierarchy.
      *
-     * @param entity local cujo nível será calculado
-     * @return {@code 0} para locais raiz, {@code 1} para filhos diretos, e assim por diante
+     * @param entity location whose level will be calculated
+     * @return {@code 0} for root locations, {@code 1} for direct children, and so on
      */
     private static int nivel(LocalArmazenamento entity) {
         int nivel = 0;

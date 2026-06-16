@@ -1,13 +1,13 @@
 package br.com.munif.stella.api.dto;
 
 /**
- * DTO de requisição de autenticação.
+ * Authentication request DTO.
  *
- * <p>Contém as credenciais fornecidas pelo usuário para obter um token de acesso.
- * As credenciais são validadas pelo provedor de identidade configurado.</p>
+ * <p>Contains the credentials provided by the user to obtain an access token.
+ * The credentials are validated by the configured identity provider.</p>
  *
- * @param username nome de usuário ou e-mail do usuário
- * @param password senha do usuário em texto plano (transmitida via HTTPS)
+ * @param username username or email of the user
+ * @param password user's plaintext password (transmitted via HTTPS)
  */
 public record LoginRequestDTO(
         String username,

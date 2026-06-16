@@ -6,11 +6,11 @@ import br.com.munif.stella.api.entity.LocalArmazenamento;
 import br.com.munif.stella.api.entity.MovimentacaoItem;
 
 /**
- * Converte entre a entidade {@link MovimentacaoItem} e seus DTOs de saída.
+ * Converts between the {@link MovimentacaoItem} entity and its output DTOs.
  *
- * <p>Classe utilitária estática — não deve ser instanciada.
- * Como movimentações não possuem DTO de criação próprio (são criadas pelos serviços
- * de forma interna), este mapper expõe apenas a conversão para resposta.</p>
+ * <p>Static utility class — must not be instantiated.
+ * As movements do not have their own creation DTO (they are created internally by services),
+ * this mapper exposes only the conversion to response.</p>
  */
 public final class MovimentacaoItemMapper {
 
@@ -18,13 +18,13 @@ public final class MovimentacaoItemMapper {
     }
 
     /**
-     * Converte a entidade {@link MovimentacaoItem} para o DTO completo de resposta.
+     * Converts the {@link MovimentacaoItem} entity to the full response DTO.
      *
-     * <p>Inclui os dados desnormalizados de instância, local de origem e local de destino
-     * para evitar requisições adicionais no cliente.</p>
+     * <p>Includes denormalized data from the instance, origin location, and destination location
+     * to avoid additional requests on the client.</p>
      *
-     * @param entity entidade a converter; pode ser {@code null}
-     * @return {@link MovimentacaoItemResponseDTO} populado, ou {@code null} se {@code entity} for {@code null}
+     * @param entity entity to convert; may be {@code null}
+     * @return populated {@link MovimentacaoItemResponseDTO}, or {@code null} if {@code entity} is {@code null}
      */
     public static MovimentacaoItemResponseDTO toResponseDTO(MovimentacaoItem entity) {
         if (entity == null) {
@@ -50,11 +50,11 @@ public final class MovimentacaoItemMapper {
     }
 
     /**
-     * Retorna a identificação legível da instância, priorizando:
-     * identificador interno, patrimônio e, por último, número de série.
+     * Returns the readable identification of the instance, prioritizing:
+     * internal identifier, asset number, and lastly serial number.
      *
-     * @param instancia instância cujo identificador será resolvido; pode ser {@code null}
-     * @return primeiro campo de identificação não nulo, ou {@code null} se a instância for {@code null}
+     * @param instancia instance whose identifier will be resolved; may be {@code null}
+     * @return first non-null identification field, or {@code null} if the instance is {@code null}
      */
     private static String identificacao(InstanciaItem instancia) {
         if (instancia == null) {

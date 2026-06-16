@@ -5,26 +5,26 @@ import br.com.munif.stella.api.entity.StatusOperacionalInstancia;
 import java.util.UUID;
 
 /**
- * DTO completo de resposta de uma instância de item.
+ * Full response DTO of an item instance.
  *
- * <p>Retornado nas operações de criação, atualização e consulta individual.
- * Inclui todos os campos da instância, inclusive os relacionados à categoria e à origem do cadastro.</p>
+ * <p>Returned in create, update, and individual query operations.
+ * Includes all fields of the instance, including those related to the category and registration origin.</p>
  *
- * @param id                identificador único da instância
- * @param itemMestreId      identificador do item mestre ao qual esta instância pertence
- * @param itemMestreNome    nome do item mestre (desnormalizado)
- * @param categoriaId       identificador da categoria do item; pode ser {@code null}
- * @param categoriaNome     nome da categoria; pode ser {@code null}
- * @param categoriaIcone    chave do ícone da categoria; pode ser {@code null}
- * @param localAtualId      identificador do local de armazenamento atual; pode ser {@code null}
- * @param localAtualNome    nome do local atual (desnormalizado); pode ser {@code null}
- * @param identificador     código interno de identificação da instância; pode ser {@code null}
- * @param patrimonio        número de patrimônio; pode ser {@code null}
- * @param numeroSerie       número de série do fabricante; pode ser {@code null}
- * @param statusOperacional status operacional atual da instância
- * @param observacoes       observações internas sobre esta instância; pode ser {@code null}
- * @param origemCadastro    origem do cadastro (ex.: {@code "MANUAL"}, {@code "FOTO"}); pode ser {@code null}
- * @param ativa             indica se a instância está ativa no sistema
+ * @param id                unique identifier of the instance
+ * @param itemMestreId      identifier of the main item to which this instance belongs
+ * @param itemMestreNome    main item name (denormalized)
+ * @param categoriaId       category identifier of the item; may be {@code null}
+ * @param categoriaNome     category name; may be {@code null}
+ * @param categoriaIcone    category icon key; may be {@code null}
+ * @param localAtualId      identifier of the current storage location; may be {@code null}
+ * @param localAtualNome    current location name (denormalized); may be {@code null}
+ * @param identificador     internal identification code of the instance; may be {@code null}
+ * @param patrimonio        asset number; may be {@code null}
+ * @param numeroSerie       manufacturer's serial number; may be {@code null}
+ * @param statusOperacional current operational status of the instance
+ * @param observacoes       internal notes about this instance; may be {@code null}
+ * @param origemCadastro    registration origin (e.g.: {@code "MANUAL"}, {@code "FOTO"}); may be {@code null}
+ * @param ativa             indicates whether the instance is active in the system
  */
 public record InstanciaItemResponseDTO(
         UUID id,

@@ -32,13 +32,13 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Controller REST para gerenciamento de itens mestres do inventário.
+ * REST controller for managing inventory main items.
  *
- * <p>Expõe o recurso {@code /api/v0/itens-mestre} com CRUD, filtros, busca semântica via IA,
- * upload de imagem principal e consulta de revisões de auditoria.</p>
+ * <p>Exposes the {@code /api/v0/itens-mestre} resource with CRUD, filters, AI-powered semantic
+ * search, main image upload and audit revision queries.</p>
  *
- * <p>Um <em>item mestre</em> representa um modelo ou tipo de bem (ex.: "Notebook Dell Inspiron 15").
- * As unidades físicas individuais são representadas por {@link br.com.munif.stella.api.entity.InstanciaItem}.</p>
+ * <p>A <em>main item</em> represents a model or type of asset (e.g.: "Notebook Dell Inspiron 15").
+ * Individual physical units are represented by {@link br.com.munif.stella.api.entity.InstanciaItem}.</p>
  */
 @RestController
 @RequestMapping("/api/v0/itens-mestre")
@@ -48,10 +48,10 @@ public class ItemMestreController extends SuperController<ItemMestreResumoDTO, I
     private final ImagemIaService imagemIaService;
 
     /**
-     * Constrói o controller injetando os serviços necessários.
+     * Constructs the controller injecting the required services.
      *
-     * @param service       serviço de negócio de itens mestres
-     * @param imagemIaService serviço de geração de imagens via IA
+     * @param service         main item business service
+     * @param imagemIaService AI image generation service
      */
     public ItemMestreController(ItemMestreService service, ImagemIaService imagemIaService) {
         this.service = service;
@@ -77,10 +77,10 @@ public class ItemMestreController extends SuperController<ItemMestreResumoDTO, I
     }
 
     /**
-     * Busca itens mestres ativos cujo nome contenha o texto informado (case-insensitive).
+     * Finds active main items whose name contains the given text (case-insensitive).
      *
-     * @param nome substring a buscar no nome do item mestre
-     * @return {@code 200 OK} com a lista de itens encontrados
+     * @param nome substring to search in the main item name
+     * @return {@code 200 OK} with the list of found items
      */
     @GetMapping("/buscar")
     public ResponseEntity<List<ItemMestreResumoDTO>> buscarPorNome(@RequestParam String nome) {
@@ -88,11 +88,11 @@ public class ItemMestreController extends SuperController<ItemMestreResumoDTO, I
     }
 
     /**
-     * Filtra itens mestres ativos com múltiplos critérios opcionais.
+     * Filters active main items with multiple optional criteria.
      *
-     * @param nome        substring do nome do item mestre; ignorado se não informado
-     * @param categoriaId UUID da categoria; ignorado se não informado
-     * @return {@code 200 OK} com a lista de itens que satisfazem os critérios
+     * @param nome        substring of the main item name; ignored if not provided
+     * @param categoriaId UUID of the category; ignored if not provided
+     * @return {@code 200 OK} with the list of items satisfying the criteria
      */
     @GetMapping("/filtrar")
     public ResponseEntity<List<ItemMestreResumoDTO>> filtrar(
@@ -102,10 +102,10 @@ public class ItemMestreController extends SuperController<ItemMestreResumoDTO, I
     }
 
     /**
-     * Realiza busca semântica (similaridade de vetor) nos itens mestres ativos.
+     * Performs semantic search (vector similarity) on active main items.
      *
-     * @param consulta texto livre a buscar semanticamente
-     * @return {@code 200 OK} com os itens mais similares à consulta, ordenados por relevância
+     * @param consulta free text to search semantically
+     * @return {@code 200 OK} with the items most similar to the query, ordered by relevance
      */
     @GetMapping("/busca-semantica")
     public ResponseEntity<List<ConsultaSemanticaItemDTO>> buscarSemanticamente(@RequestParam("consulta") String consulta) {
@@ -113,10 +113,10 @@ public class ItemMestreController extends SuperController<ItemMestreResumoDTO, I
     }
 
     /**
-     * Força a reindexação vetorial de todos os itens mestres ativos.
-     * Útil após alterações em massa ou falhas no índice.
+     * Forces the vector re-indexing of all active main items.
+     * Useful after bulk changes or index failures.
      *
-     * @return {@code 200 OK} com o número de itens reindexados
+     * @return {@code 200 OK} with the number of re-indexed items
      */
     @PostMapping("/busca-semantica/reindexar")
     public ResponseEntity<Map<String, Integer>> reindexarBuscaSemantica() {
@@ -124,13 +124,13 @@ public class ItemMestreController extends SuperController<ItemMestreResumoDTO, I
     }
 
     /**
-     * Atualiza a imagem principal de um item mestre via upload de arquivo.
+     * Updates the main image of a main item via file upload.
      *
-     * @param id             UUID do item mestre
-     * @param arquivo        arquivo de imagem enviado pelo cliente
-     * @param generatedByAi  indica se a imagem foi gerada por IA
-     * @param provider       nome do provedor de IA (opcional, informado quando {@code generatedByAi} for {@code true})
-     * @return {@code 200 OK} com o DTO completo do item atualizado
+     * @param id             UUID of the main item
+     * @param arquivo        image file uploaded by the client
+     * @param generatedByAi  indicates whether the image was generated by AI
+     * @param provider       name of the AI provider (optional, provided when {@code generatedByAi} is {@code true})
+     * @return {@code 200 OK} with the full DTO of the updated item
      */
     @PostMapping(value = "/{id}/imagem-principal", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ItemMestreResponseDTO> atualizarImagemPrincipal(
@@ -143,10 +143,10 @@ public class ItemMestreController extends SuperController<ItemMestreResumoDTO, I
     }
 
     /**
-     * Gera uma imagem para um item mestre usando inteligência artificial.
+     * Generates an image for a main item using artificial intelligence.
      *
-     * @param dto dados de entrada com a descrição do item e demais parâmetros
-     * @return {@code 200 OK} com a URL ou dados da imagem gerada
+     * @param dto input data with the item description and other parameters
+     * @return {@code 200 OK} with the URL or data of the generated image
      */
     @PostMapping("/imagem-ia")
     public ResponseEntity<ImagemIaResponseDTO> gerarImagemIa(@RequestBody @Valid ImagemIaRequestDTO dto) {

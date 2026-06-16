@@ -3,16 +3,16 @@ package br.com.munif.stella.api.dto;
 import java.util.UUID;
 
 /**
- * DTO resumido de uma categoria, utilizado em listagens e seletores.
+ * Summary DTO of a category, used in listings and selectors.
  *
- * <p>Contém os campos suficientes para exibir a categoria em grades e
- * listas de seleção, incluindo o ícone para identificação visual.</p>
+ * <p>Contains the fields sufficient to display the category in grids and
+ * selection lists, including the icon for visual identification.</p>
  *
- * @param id      identificador único da categoria
- * @param nome    nome da categoria
- * @param descricao texto descritivo da categoria; pode ser {@code null}
- * @param icone   chave do ícone visual; pode ser {@code null}
- * @param ativa   indica se a categoria está ativa no sistema
+ * @param id        unique identifier of the category
+ * @param nome      category name
+ * @param descricao descriptive text of the category; may be {@code null}
+ * @param icone     visual icon key; may be {@code null}
+ * @param ativa     indicates whether the category is active in the system
  */
 public record CategoriaResumoDTO(
         UUID id,

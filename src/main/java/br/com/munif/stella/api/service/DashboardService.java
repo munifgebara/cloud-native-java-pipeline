@@ -10,12 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Serviço responsável por consolidar os indicadores operacionais do inventário
- * para exibição no dashboard da aplicação.
+ * Service responsible for consolidating the inventory operational indicators
+ * for display on the application dashboard.
  *
- * <p>Agrega contagens de pessoas, itens mestres, instâncias por status,
- * locais, itens sem imagem, itens cadastrados por IA e consultas vetoriais,
- * além dos rankings de locais e categorias com mais itens.</p>
+ * <p>Aggregates counts of persons, main items, instances by status,
+ * locations, items without images, AI-registered items, and vector queries,
+ * as well as rankings of locations and categories with the most items.</p>
  */
 @Service
 public class DashboardService {
@@ -44,9 +44,9 @@ public class DashboardService {
     }
 
     /**
-     * Carrega e retorna o resumo consolidado do inventário.
+     * Loads and returns the consolidated inventory summary.
      *
-     * @return DTO com todos os indicadores e rankings do dashboard
+     * @return DTO with all dashboard indicators and rankings
      */
     @Transactional(readOnly = true)
     public DashboardResumoDTO carregarResumo() {

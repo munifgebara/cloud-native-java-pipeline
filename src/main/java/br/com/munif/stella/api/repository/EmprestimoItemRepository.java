@@ -7,39 +7,39 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Repositório JPA para operações de persistência de {@link EmprestimoItem}.
+ * JPA repository for persistence operations of {@link EmprestimoItem}.
  *
- * <p>Estende {@code SuperRepository} que já provê os métodos padrão de CRUD
- * e paginação. Os métodos declarados aqui são gerados automaticamente pelo
- * Spring Data JPA a partir da convenção de nomenclatura.</p>
+ * <p>Extends {@code SuperRepository} which already provides the standard CRUD
+ * and pagination methods. The methods declared here are generated automatically by
+ * Spring Data JPA from the naming convention.</p>
  */
 public interface EmprestimoItemRepository extends SuperRepository<EmprestimoItem> {
 
     /**
-     * Verifica se existe algum empréstimo (ativo ou devolvido) para a instância informada.
-     * Utilizado para impedir a exclusão de instâncias que já possuem histórico de empréstimo.
+     * Checks whether any loan (active or returned) exists for the given instance.
+     * Used to prevent deletion of instances that already have a loan history.
      *
-     * @param instanciaItemId identificador da instância de item
-     * @return {@code true} se existir ao menos um empréstimo para esta instância
+     * @param instanciaItemId identifier of the item instance
+     * @return {@code true} if at least one loan exists for this instance
      */
     boolean existsByInstanciaItemId(UUID instanciaItemId);
 
     /**
-     * Verifica se existe um empréstimo ativo (ainda não devolvido) para a instância informada.
-     * Um empréstimo ativo possui {@code dataDevolucao} nula.
-     * Utilizado para validar se a instância pode ser emprestada novamente.
+     * Checks whether an active loan (not yet returned) exists for the given instance.
+     * An active loan has a {@code null} {@code dataDevolucao}.
+     * Used to validate whether the instance can be loaned again.
      *
-     * @param instanciaItemId identificador da instância de item
-     * @return {@code true} se existir um empréstimo em aberto para esta instância
+     * @param instanciaItemId identifier of the item instance
+     * @return {@code true} if an open loan exists for this instance
      */
     boolean existsByInstanciaItemIdAndDataDevolucaoIsNull(UUID instanciaItemId);
 
     /**
-     * Busca o empréstimo ativo (ainda não devolvido) de uma instância de item.
-     * Retorna no máximo um resultado, pois uma instância só pode ter um empréstimo ativo por vez.
+     * Finds the active loan (not yet returned) of an item instance.
+     * Returns at most one result, as an instance can only have one active loan at a time.
      *
-     * @param instanciaItemId identificador da instância de item
-     * @return {@link Optional} com o empréstimo ativo encontrado, ou vazio se não houver empréstimo em aberto
+     * @param instanciaItemId identifier of the item instance
+     * @return {@link Optional} with the found active loan, or empty if there is no open loan
      */
     Optional<EmprestimoItem> findByInstanciaItemIdAndDataDevolucaoIsNull(UUID instanciaItemId);
 }

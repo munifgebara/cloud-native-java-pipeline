@@ -27,33 +27,33 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Serviço responsável pelas operações de negócio sobre {@link Pessoa}.
+ * Service responsible for business operations on {@link Pessoa}.
  *
- * <p>Cobre validação de CPF/CNPJ, normalização de dados (somente dígitos em campos numéricos,
- * letras maiúsculas na UF etc.) e consulta ao histórico de revisões com identificação dos
- * campos alterados entre versões.</p>
+ * <p>Covers CPF/CNPJ validation, data normalization (digits only in numeric fields,
+ * uppercase letters in UF, etc.) and revision history queries with identification of
+ * fields changed between versions.</p>
  */
 @Service
 public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
 
     /**
-     * Constrói o serviço injetando repositório e {@code EntityManager}.
+     * Constructs the service injecting the repository and the {@code EntityManager}.
      *
-     * @param repository    repositório JPA de pessoas
-     * @param entityManager gerenciador de entidades usado pelo {@code SuperService} para Envers
+     * @param repository    JPA repository for persons
+     * @param entityManager entity manager used by {@code SuperService} for Envers
      */
     public PessoaService(PessoaRepository repository, EntityManager entityManager) {
         super(repository, entityManager, Pessoa.class);
     }
 
     /**
-     * Cadastra uma nova pessoa após validação do CPF/CNPJ e verificação de duplicidade.
+     * Registers a new person after CPF/CNPJ validation and duplicate check.
      *
-     * @param dto dados de criação validados pelo Bean Validation
-     * @return DTO completo da pessoa criada
-     * @throws IllegalArgumentException       se o CPF/CNPJ for inválido ou outros campos opcionais
-     *                                        forem informados com formato incorreto
-     * @throws DuplicateRegistrationException     se já existir pessoa com o mesmo CPF/CNPJ
+     * @param dto creation data validated by Bean Validation
+     * @return full DTO of the created person
+     * @throws IllegalArgumentException       if the CPF/CNPJ is invalid or other optional fields
+     *                                        are provided with incorrect format
+     * @throws DuplicateRegistrationException if a person with the same CPF/CNPJ already exists
      */
     @Transactional
     public PessoaResponseDTO criar(PessoaCreateDTO dto) {
@@ -74,11 +74,11 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
     }
 
     /**
-     * Retorna o DTO completo de uma pessoa pelo seu identificador.
+     * Returns the full DTO of a person by their identifier.
      *
-     * @param id UUID da pessoa
-     * @return DTO completo da pessoa
-     * @throws jakarta.persistence.EntityNotFoundException se a pessoa não existir
+     * @param id UUID of the person
+     * @return full DTO of the person
+     * @throws jakarta.persistence.EntityNotFoundException if the person does not exist
      */
     @Transactional(readOnly = true)
     public PessoaResponseDTO buscarResponsePorId(UUID id) {
@@ -86,9 +86,9 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
     }
 
     /**
-     * Lista todas as pessoas ativas em ordem alfabética pelo nome.
+     * Lists all active persons in alphabetical order by name.
      *
-     * @return lista de DTOs de resumo das pessoas ativas
+     * @return list of summary DTOs of active persons
      */
     @Transactional(readOnly = true)
     public List<PessoaResumoDTO> listarResumo() {
@@ -98,9 +98,9 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
     }
 
     /**
-     * Lista todas as pessoas, incluindo as inativas.
+     * Lists all persons, including inactive ones.
      *
-     * @return lista de DTOs de resumo de todas as pessoas
+     * @return list of summary DTOs of all persons
      */
     @Transactional(readOnly = true)
     public List<PessoaResumoDTO> listarResumoIncluindoInativos() {
@@ -110,15 +110,15 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
     }
 
     /**
-     * Atualiza os dados de uma pessoa existente.
+     * Updates the data of an existing person.
      *
-     * <p>O CPF/CNPJ não é alterável após o cadastro inicial.</p>
+     * <p>The CPF/CNPJ is not editable after the initial registration.</p>
      *
-     * @param id  UUID da pessoa a atualizar
-     * @param dto dados de atualização validados pelo Bean Validation
-     * @return DTO completo da pessoa atualizada
-     * @throws jakarta.persistence.EntityNotFoundException se a pessoa não existir
-     * @throws IllegalArgumentException se telefone, e-mail, CEP ou UF forem inválidos
+     * @param id  UUID of the person to update
+     * @param dto update data validated by Bean Validation
+     * @return full DTO of the updated person
+     * @throws jakarta.persistence.EntityNotFoundException if the person does not exist
+     * @throws IllegalArgumentException if phone, email, ZIP code or state abbreviation are invalid
      */
     @Transactional
     public PessoaResponseDTO atualizar(UUID id, PessoaUpdateDTO dto) {
@@ -133,10 +133,10 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
     }
 
     /**
-     * Inativa logicamente uma pessoa (define {@code ativo = false}).
+     * Logically deactivates a person (sets {@code ativo = false}).
      *
-     * @param id UUID da pessoa a inativar
-     * @throws jakarta.persistence.EntityNotFoundException se a pessoa não existir
+     * @param id UUID of the person to deactivate
+     * @throws jakarta.persistence.EntityNotFoundException if the person does not exist
      */
     @Transactional
     public void excluirLogicamente(UUID id) {
@@ -144,10 +144,10 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
     }
 
     /**
-     * Busca pessoas ativas cujo nome contenha o texto informado (busca parcial, sem distinção de maiúsculas).
+     * Finds active persons whose name contains the given text (partial, case-insensitive search).
      *
-     * @param nome texto a buscar; retorna lista vazia se em branco
-     * @return lista de DTOs de resumo das pessoas encontradas
+     * @param nome text to search; returns empty list if blank
+     * @return list of summary DTOs of the found persons
      */
     @Transactional(readOnly = true)
     public List<PessoaResumoDTO> buscarPorNome(String nome) {
@@ -162,15 +162,15 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
     }
 
     /**
-     * Retorna o histórico de revisões de uma pessoa com identificação dos campos alterados.
+     * Returns the revision history of a person with identification of changed fields.
      *
-     * <p>Utiliza o Hibernate Envers para consultar as revisões em ordem decrescente.
-     * Para cada par de revisões consecutivas, compara os campos e lista os que foram modificados.</p>
+     * <p>Uses Hibernate Envers to query revisions in descending order.
+     * For each pair of consecutive revisions, compares the fields and lists those that were modified.</p>
      *
-     * @param id UUID da pessoa
-     * @return lista de {@link PessoaRevisaoDTO} em ordem decrescente de revisão,
-     *         cada um contendo os campos que mudaram em relação à versão anterior
-     * @throws jakarta.persistence.EntityNotFoundException se a pessoa não existir
+     * @param id UUID of the person
+     * @return list of {@link PessoaRevisaoDTO} in descending revision order,
+     *         each containing the fields that changed relative to the previous version
+     * @throws jakarta.persistence.EntityNotFoundException if the person does not exist
      */
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
@@ -192,10 +192,10 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
     }
 
     /**
-     * Conta o total de pessoas ativas no cadastro.
-     * Utilizado pelo dashboard para exibir o indicador de pessoas cadastradas.
+     * Counts the total active persons in the registry.
+     * Used by the dashboard to display the registered persons indicator.
      *
-     * @return número de pessoas com {@code ativo = true}
+     * @return number of persons with {@code ativo = true}
      */
     @Transactional(readOnly = true)
     public long contarPessoasAtivas() {
@@ -240,7 +240,7 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
             String uf
     ) {
         if (ValidacoesBR.isNotBlank(telefonePrincipal)) {
-            ValidacoesBR.exigirTelefoneValido(telefonePrincipal, "Telefone principal");
+            ValidacoesBR.exigirTelefoneValido(telefonePrincipal, "Primary phone");
         }
 
         if (ValidacoesBR.isNotBlank(telefoneSecundario)) {
@@ -305,13 +305,13 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
     }
 
     /**
-     * Converte o array de três elementos retornado pelo Envers em um {@link PessoaRevisaoDTO}.
+     * Converts the three-element array returned by Envers into a {@link PessoaRevisaoDTO}.
      *
-     * <p>O Envers retorna cada revisão como {@code Object[] { entidade, revisão, tipoRevisão }}.
-     * Usamos destructuring via cast explícito, pois a API do Envers não oferece tipagem genérica.</p>
+     * <p>Envers returns each revision as {@code Object[] { entity, revision, revisionType }}.
+     * We use destructuring via explicit cast, as the Envers API does not offer generic typing.</p>
      *
-     * @param item array {@code [Pessoa, MRevisionEntity, RevisionType]} retornado pelo Envers
-     * @return DTO de revisão com campos alterados ainda vazios (preenchidos por {@link #adicionarCamposAlterados})
+     * @param item array {@code [Pessoa, MRevisionEntity, RevisionType]} returned by Envers
+     * @return revision DTO with changed fields still empty (populated by {@link #adicionarCamposAlterados})
      */
     private PessoaRevisaoDTO toPessoaRevisaoDTO(Object item) {
         if (item instanceof Object[] dadosRevisao
@@ -326,7 +326,7 @@ public class PessoaService extends SuperService<Pessoa, PessoaRepository> {
                     List.of()
             );
         }
-        throw new IllegalStateException("Formato inesperado de dados de revisão do Envers.");
+        throw new IllegalStateException("Unexpected Envers revision data format.");
     }
 
     private List<PessoaRevisaoDTO> adicionarCamposAlterados(List<PessoaRevisaoDTO> revisoes) {

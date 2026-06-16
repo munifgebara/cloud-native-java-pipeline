@@ -1,17 +1,17 @@
 package br.com.munif.stella.api.dto;
 
 /**
- * DTO de resposta de autenticação bem-sucedida.
+ * Successful authentication response DTO.
  *
- * <p>Retornado após uma autenticação bem-sucedida com as credenciais do usuário.
- * O {@code accessToken} deve ser enviado no cabeçalho {@code Authorization: Bearer <token>}
- * em todas as requisições autenticadas. O {@code refreshToken} permite renovar
- * o acesso sem novas credenciais, até que expire.</p>
+ * <p>Returned after a successful authentication with the user's credentials.
+ * The {@code accessToken} must be sent in the {@code Authorization: Bearer <token>} header
+ * in all authenticated requests. The {@code refreshToken} allows renewing
+ * access without new credentials, until it expires.</p>
  *
- * @param accessToken  token JWT de acesso para autenticar requisições à API
- * @param refreshToken token para renovar o {@code accessToken} sem reautenticação
- * @param tokenType    tipo do token; normalmente {@code "Bearer"}
- * @param expiresIn    tempo de expiração do {@code accessToken} em segundos
+ * @param accessToken  JWT access token for authenticating API requests
+ * @param refreshToken token for renewing the {@code accessToken} without re-authentication
+ * @param tokenType    token type; typically {@code "Bearer"}
+ * @param expiresIn    expiration time of the {@code accessToken} in seconds
  */
 public record LoginResponseDTO(
         String accessToken,

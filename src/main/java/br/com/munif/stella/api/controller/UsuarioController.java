@@ -26,13 +26,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Controller REST para gerenciamento de usuários via Keycloak.
+ * REST controller for managing users via Keycloak.
  *
- * <p>Expõe o recurso {@code /api/v0/usuarios} com operações administrativas
- * (restritas ao role {@code admin}) e operações do próprio usuário ({@code /me}).</p>
+ * <p>Exposes the {@code /api/v0/usuarios} resource with administrative operations
+ * (restricted to the {@code admin} role) and operations by the current user ({@code /me}).</p>
  *
- * <p>Todas as alterações são propagadas diretamente ao Keycloak via Admin API,
- * sem persistência local.</p>
+ * <p>All changes are propagated directly to Keycloak via the Admin API,
+ * without local persistence.</p>
  */
 @RestController
 @RequestMapping("/api/v0/usuarios")
@@ -41,18 +41,18 @@ public class UsuarioController {
     private final KeycloakUsuarioService service;
 
     /**
-     * Constrói o controller injetando o serviço de usuários do Keycloak.
+     * Constructs the controller injecting the Keycloak user service.
      *
-     * @param service serviço responsável pelas operações na Admin API do Keycloak
+     * @param service service responsible for operations on the Keycloak Admin API
      */
     public UsuarioController(KeycloakUsuarioService service) {
         this.service = service;
     }
 
     /**
-     * Lista todos os usuários cadastrados no Keycloak. Requer role {@code admin}.
+     * Lists all users registered in Keycloak. Requires the {@code admin} role.
      *
-     * @return {@code 200 OK} com a lista de usuários
+     * @return {@code 200 OK} with the list of users
      */
     @GetMapping
     @PreAuthorize("hasRole('admin')")
@@ -61,10 +61,10 @@ public class UsuarioController {
     }
 
     /**
-     * Busca um usuário pelo seu ID no Keycloak. Requer role {@code admin}.
+     * Finds a user by their ID in Keycloak. Requires the {@code admin} role.
      *
-     * @param id ID do usuário no Keycloak (UUID como string)
-     * @return {@code 200 OK} com os dados do usuário
+     * @param id user ID in Keycloak (UUID as string)
+     * @return {@code 200 OK} with the user data
      */
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('admin')")
@@ -73,10 +73,10 @@ public class UsuarioController {
     }
 
     /**
-     * Cria um novo usuário no Keycloak. Requer role {@code admin}.
+     * Creates a new user in Keycloak. Requires the {@code admin} role.
      *
-     * @param dto dados do novo usuário validados pelo Bean Validation
-     * @return {@code 201 Created} com os dados do usuário criado
+     * @param dto new user data validated by Bean Validation
+     * @return {@code 201 Created} with the created user data
      */
     @PostMapping
     @PreAuthorize("hasRole('admin')")
@@ -85,11 +85,11 @@ public class UsuarioController {
     }
 
     /**
-     * Atualiza os dados de um usuário no Keycloak. Requer role {@code admin}.
+     * Updates a user's data in Keycloak. Requires the {@code admin} role.
      *
-     * @param id  ID do usuário no Keycloak
-     * @param dto dados de atualização validados pelo Bean Validation
-     * @return {@code 200 OK} com os dados atualizados do usuário
+     * @param id  user ID in Keycloak
+     * @param dto update data validated by Bean Validation
+     * @return {@code 200 OK} with the updated user data
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('admin')")
@@ -98,11 +98,11 @@ public class UsuarioController {
     }
 
     /**
-     * Ativa ou desativa um usuário no Keycloak. Requer role {@code admin}.
+     * Activates or deactivates a user in Keycloak. Requires the {@code admin} role.
      *
-     * @param id   ID do usuário no Keycloak
-     * @param body mapa com a chave {@code "enabled"} e valor booleano
-     * @return {@code 204 No Content} em caso de sucesso
+     * @param id   user ID in Keycloak
+     * @param body map with the key {@code "enabled"} and a boolean value
+     * @return {@code 204 No Content} on success
      */
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('admin')")
@@ -112,10 +112,10 @@ public class UsuarioController {
     }
 
     /**
-     * Retorna o perfil do usuário autenticado, incluindo nome, e-mail e roles.
+     * Returns the authenticated user's profile, including name, e-mail and roles.
      *
-     * @param jwt token JWT do usuário autenticado
-     * @return {@code 200 OK} com os dados do perfil
+     * @param jwt JWT token of the authenticated user
+     * @return {@code 200 OK} with the profile data
      */
     @GetMapping("/me")
     public ResponseEntity<MeuPerfilResponseDTO> meuPerfil(@AuthenticationPrincipal Jwt jwt) {
@@ -123,11 +123,11 @@ public class UsuarioController {
     }
 
     /**
-     * Atualiza o nome e o e-mail do usuário autenticado no Keycloak.
+     * Updates the name and e-mail of the authenticated user in Keycloak.
      *
-     * @param jwt token JWT do usuário autenticado
-     * @param dto dados de atualização do perfil validados pelo Bean Validation
-     * @return {@code 200 OK} com o perfil atualizado
+     * @param jwt JWT token of the authenticated user
+     * @param dto profile update data validated by Bean Validation
+     * @return {@code 200 OK} with the updated profile
      */
     @PutMapping("/me")
     public ResponseEntity<MeuPerfilResponseDTO> atualizarMeuPerfil(
@@ -138,11 +138,11 @@ public class UsuarioController {
     }
 
     /**
-     * Altera a senha do usuário autenticado no Keycloak.
+     * Changes the password of the authenticated user in Keycloak.
      *
-     * @param jwt token JWT do usuário autenticado
-     * @param dto DTO com a senha atual e a nova senha validados pelo Bean Validation
-     * @return {@code 204 No Content} em caso de sucesso
+     * @param jwt JWT token of the authenticated user
+     * @param dto DTO with the current and new passwords validated by Bean Validation
+     * @return {@code 204 No Content} on success
      */
     @PutMapping("/me/senha")
     public ResponseEntity<Void> alterarMinhaSenha(

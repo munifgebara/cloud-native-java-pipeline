@@ -3,28 +3,28 @@ package br.com.munif.stella.api.exception;
 import org.springframework.http.HttpStatus;
 
 /**
- * Exceção lançada quando o limite de uso de inteligência artificial é atingido.
+ * Exception thrown when the artificial intelligence usage limit is reached.
  *
- * <p>Pode representar diferentes cenários de limitação:</p>
+ * <p>May represent different limitation scenarios:</p>
  * <ul>
- *   <li>Cota diária ou mensal de chamadas à API de IA esgotada.</li>
- *   <li>Limite de tokens ou créditos do provedor atingido.</li>
- *   <li>Resposta de limite de taxa (rate limit) recebida do provedor externo.</li>
+ *   <li>Daily or monthly quota of AI API calls exhausted.</li>
+ *   <li>Provider's token or credit limit reached.</li>
+ *   <li>Rate limit response received from the external provider.</li>
  * </ul>
  *
- * <p>O status HTTP retornado é configurável por quem lança a exceção,
- * geralmente {@code 429 Too Many Requests} ou {@code 402 Payment Required}.</p>
+ * <p>The HTTP status returned is configurable by the caller throwing the exception,
+ * generally {@code 429 Too Many Requests} or {@code 402 Payment Required}.</p>
  */
 public class AiUsageLimitException extends RuntimeException {
 
-    /** Status HTTP que deve ser retornado ao cliente ao tratar esta exceção. */
+    /** HTTP status that must be returned to the client when handling this exception. */
     private final HttpStatus status;
 
     /**
-     * Cria uma nova exceção de limite de uso de IA.
+     * Creates a new AI usage limit exception.
      *
-     * @param status  status HTTP a ser retornado ao cliente (ex.: {@code HttpStatus.TOO_MANY_REQUESTS})
-     * @param message descrição do limite atingido
+     * @param status  HTTP status to be returned to the client (e.g.: {@code HttpStatus.TOO_MANY_REQUESTS})
+     * @param message description of the limit reached
      */
     public AiUsageLimitException(HttpStatus status, String message) {
         super(message);
@@ -32,9 +32,9 @@ public class AiUsageLimitException extends RuntimeException {
     }
 
     /**
-     * Retorna o status HTTP associado a esta exceção.
+     * Returns the HTTP status associated with this exception.
      *
-     * @return status HTTP que deve ser usado na resposta ao cliente
+     * @return HTTP status to be used in the response to the client
      */
     public HttpStatus getStatus() {
         return status;

@@ -16,14 +16,14 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Controller REST público para servir a imagem principal de itens mestres.
+ * Public REST controller for serving the main image of main items.
  *
- * <p>Expõe o endpoint {@code GET /api/public/itens-mestre/{id}/imagem-principal}
- * sem exigir autenticação JWT, permitindo que a interface web exiba imagens
- * diretamente nas tags {@code <img>}.</p>
+ * <p>Exposes the endpoint {@code GET /api/public/itens-mestre/{id}/imagem-principal}
+ * without requiring JWT authentication, allowing the web interface to display images
+ * directly in {@code <img>} tags.</p>
  *
- * <p>As respostas incluem cabeçalho {@code Cache-Control: public, max-age=3600}
- * para permitir cache pelo navegador por 1 hora.</p>
+ * <p>Responses include the {@code Cache-Control: public, max-age=3600} header
+ * to allow browser caching for 1 hour.</p>
  */
 @RestController
 @RequestMapping("/api/public/itens-mestre")
@@ -32,20 +32,20 @@ public class PublicItemMestreImagemController {
     private final ItemMestreService itemMestreService;
 
     /**
-     * Constrói o controller injetando o serviço de itens mestres.
+     * Constructs the controller injecting the main item service.
      *
-     * @param itemMestreService serviço responsável por recuperar metadados e streams de imagem
+     * @param itemMestreService service responsible for retrieving image metadata and streams
      */
     public PublicItemMestreImagemController(ItemMestreService itemMestreService) {
         this.itemMestreService = itemMestreService;
     }
 
     /**
-     * Retorna a imagem principal de um item mestre como stream binário.
+     * Returns the main image of a main item as a binary stream.
      *
-     * @param id UUID do item mestre
-     * @return {@code 200 OK} com o conteúdo da imagem e cabeçalhos de tipo e cache
-     * @throws IllegalArgumentException se o item não possuir imagem cadastrada
+     * @param id UUID of the main item
+     * @return {@code 200 OK} with the image content and content-type and cache headers
+     * @throws IllegalArgumentException if the item does not have a registered image
      */
     @GetMapping("/{id}/imagem-principal")
     public ResponseEntity<InputStreamResource> buscarImagemPrincipal(@PathVariable UUID id) {

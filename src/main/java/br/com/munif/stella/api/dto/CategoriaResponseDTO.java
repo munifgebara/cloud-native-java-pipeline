@@ -3,16 +3,16 @@ package br.com.munif.stella.api.dto;
 import java.util.UUID;
 
 /**
- * DTO completo de resposta de uma categoria.
+ * Full response DTO of a category.
  *
- * <p>Retornado nas operações de criação, atualização e consulta individual.
- * Inclui todos os campos da categoria.</p>
+ * <p>Returned in create, update, and individual query operations.
+ * Includes all fields of the category.</p>
  *
- * @param id      identificador único da categoria
- * @param nome    nome da categoria
- * @param descricao texto descritivo sobre o escopo da categoria; pode ser {@code null}
- * @param icone   chave do ícone visual associado (ex.: {@code "livros"}); pode ser {@code null}
- * @param ativa   indica se a categoria está ativa no sistema
+ * @param id        unique identifier of the category
+ * @param nome      category name
+ * @param descricao descriptive text about the category scope; may be {@code null}
+ * @param icone     associated visual icon key (e.g.: {@code "livros"}); may be {@code null}
+ * @param ativa     indicates whether the category is active in the system
  */
 public record CategoriaResponseDTO(
         UUID id,

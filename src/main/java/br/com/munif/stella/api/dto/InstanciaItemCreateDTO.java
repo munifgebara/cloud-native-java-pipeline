@@ -7,21 +7,21 @@ import jakarta.validation.constraints.Size;
 import java.util.UUID;
 
 /**
- * DTO de criação de uma instância de item.
+ * Creation DTO for an item instance.
  *
- * <p>Contém os dados necessários para registrar uma nova instância física de um
- * {@code ItemMestre} no sistema, incluindo identificação, localização inicial
- * e status operacional de partida.</p>
+ * <p>Contains the data required to register a new physical instance of an
+ * {@code ItemMestre} in the system, including identification, initial location
+ * and starting operational status.</p>
  *
- * @param itemMestreId      identificador do item mestre ao qual esta instância pertence; obrigatório
- * @param localAtualId      identificador do local de armazenamento inicial da instância; opcional
- * @param identificador     código interno de identificação da instância (até 100 caracteres); opcional
- * @param patrimonio        número de patrimônio atribuído ao bem (até 100 caracteres); opcional
- * @param numeroSerie       número de série do fabricante gravado no equipamento (até 150 caracteres); opcional
- * @param statusOperacional status operacional inicial; quando {@code null}, assume {@code DISPONIVEL}
- * @param observacoes       observações internas sobre esta instância (até 1000 caracteres); opcional
- * @param origemCadastro    origem do cadastro (ex.: {@code "MANUAL"}, {@code "FOTO"}); até 50 caracteres; opcional
- * @param ativa             indica se a instância deve ser criada ativa; quando {@code null}, assume {@code true}
+ * @param itemMestreId      identifier of the main item to which this instance belongs; required
+ * @param localAtualId      identifier of the initial storage location of the instance; optional
+ * @param identificador     internal identification code of the instance (up to 100 characters); optional
+ * @param patrimonio        asset number assigned to the item (up to 100 characters); optional
+ * @param numeroSerie       manufacturer's serial number stamped on the equipment (up to 150 characters); optional
+ * @param statusOperacional initial operational status; when {@code null}, defaults to {@code DISPONIVEL}
+ * @param observacoes       internal notes about this instance (up to 1000 characters); optional
+ * @param origemCadastro    registration origin (e.g.: {@code "MANUAL"}, {@code "FOTO"}); up to 50 characters; optional
+ * @param ativa             indicates whether the instance should be created as active; when {@code null}, defaults to {@code true}
  */
 public record InstanciaItemCreateDTO(
         @NotNull(message = "Main item is required.")

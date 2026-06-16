@@ -27,13 +27,13 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Controller REST para gerenciamento de locais de armazenamento.
+ * REST controller for managing storage locations.
  *
- * <p>Expõe o recurso {@code /api/v0/locais} com CRUD completo, busca por nome,
- * upload e remoção de imagem de representação, e consulta de revisões de auditoria.</p>
+ * <p>Exposes the {@code /api/v0/locais} resource with full CRUD, name search,
+ * representation image upload and removal, and audit revision queries.</p>
  *
- * <p>Locais podem ser organizados em hierarquia pai-filho. A listagem retorna os
- * nós em profundidade primeiro, com caminho completo e nível de cada nó.</p>
+ * <p>Locations can be organized in a parent-child hierarchy. The listing returns
+ * nodes depth-first, with the full path and level of each node.</p>
  */
 @RestController
 @RequestMapping("/api/v0/locais")
@@ -42,9 +42,9 @@ public class LocalArmazenamentoController extends SuperController<LocalArmazenam
     private final LocalArmazenamentoService service;
 
     /**
-     * Constrói o controller injetando o serviço de locais de armazenamento.
+     * Constructs the controller injecting the storage location service.
      *
-     * @param service serviço de negócio de locais
+     * @param service location business service
      */
     public LocalArmazenamentoController(LocalArmazenamentoService service) {
         this.service = service;
@@ -69,11 +69,11 @@ public class LocalArmazenamentoController extends SuperController<LocalArmazenam
     }
 
     /**
-     * Busca locais ativos cujo nome contenha o texto informado (case-insensitive).
-     * Retorna os resultados em ordem hierárquica.
+     * Finds active locations whose name contains the given text (case-insensitive).
+     * Returns results in hierarchical order.
      *
-     * @param nome substring a buscar no nome do local
-     * @return {@code 200 OK} com a lista de locais encontrados
+     * @param nome substring to search in the location name
+     * @return {@code 200 OK} with the list of found locations
      */
     @GetMapping("/buscar")
     public ResponseEntity<List<LocalArmazenamentoResumoDTO>> buscarPorNome(@RequestParam String nome) {
@@ -81,11 +81,11 @@ public class LocalArmazenamentoController extends SuperController<LocalArmazenam
     }
 
     /**
-     * Atualiza a imagem de representação de um local via upload de arquivo.
+     * Updates the representation image of a location via file upload.
      *
-     * @param id      UUID do local
-     * @param arquivo arquivo de imagem enviado pelo cliente
-     * @return {@code 200 OK} com o DTO completo do local atualizado
+     * @param id      UUID of the location
+     * @param arquivo image file uploaded by the client
+     * @return {@code 200 OK} with the full DTO of the updated location
      */
     @PostMapping(value = "/{id}/imagem", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<LocalArmazenamentoResponseDTO> atualizarImagem(@PathVariable UUID id, @RequestParam("arquivo") MultipartFile arquivo) {
@@ -93,10 +93,10 @@ public class LocalArmazenamentoController extends SuperController<LocalArmazenam
     }
 
     /**
-     * Remove a imagem de representação de um local e exclui o arquivo do MinIO.
+     * Removes the representation image of a location and deletes the file from MinIO.
      *
-     * @param id UUID do local
-     * @return {@code 200 OK} com o DTO completo do local sem imagem
+     * @param id UUID of the location
+     * @return {@code 200 OK} with the full DTO of the location without an image
      */
     @DeleteMapping("/{id}/imagem")
     public ResponseEntity<LocalArmazenamentoResponseDTO> removerImagem(@PathVariable UUID id) {

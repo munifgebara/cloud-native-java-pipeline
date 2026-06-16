@@ -30,14 +30,14 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Serviço responsável pelas operações de negócio sobre {@link ItemMestre}.
+ * Service responsible for business operations on {@link ItemMestre}.
  *
- * <p>Gerencia o ciclo de vida dos itens mestres do inventário, incluindo persistência,
- * upload de imagem principal no MinIO e sincronização do índice de busca semântica
- * (pgvector) após cada alteração.</p>
+ * <p>Manages the lifecycle of inventory main items, including persistence,
+ * main image upload to MinIO, and synchronization of the semantic search index
+ * (pgvector) after each change.</p>
  *
- * <p>A sincronização vetorial é executada <em>após o commit da transação</em> para garantir
- * que o índice somente reflita dados já confirmados no banco de dados relacional.</p>
+ * <p>Vector synchronization is executed <em>after the transaction commit</em> to ensure
+ * that the index only reflects data already confirmed in the relational database.</p>
  */
 @Service
 public class ItemMestreService extends SuperService<ItemMestre, ItemMestreRepository> {
@@ -62,11 +62,11 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     }
 
     /**
-     * Cria um novo item mestre e agenda a sincronização do índice vetorial.
+     * Creates a new main item and schedules the vector index synchronization.
      *
-     * @param dto dados de criação validados pelo Bean Validation
-     * @return DTO completo do item criado
-     * @throws IllegalArgumentException se a categoria informada não existir ou estiver inativa
+     * @param dto creation data validated by Bean Validation
+     * @return full DTO of the created item
+     * @throws IllegalArgumentException if the provided category does not exist or is inactive
      */
     @Transactional
     public ItemMestreResponseDTO criar(ItemMestreCreateDTO dto) {
@@ -91,11 +91,11 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     }
 
     /**
-     * Retorna o DTO completo de um item mestre pelo seu identificador.
+     * Returns the full DTO of a main item by its identifier.
      *
-     * @param id UUID do item mestre
-     * @return DTO completo do item
-     * @throws jakarta.persistence.EntityNotFoundException se o item não existir
+     * @param id UUID of the main item
+     * @return full DTO of the item
+     * @throws jakarta.persistence.EntityNotFoundException if the item does not exist
      */
     @Transactional(readOnly = true)
     public ItemMestreResponseDTO buscarResponsePorId(UUID id) {
@@ -103,9 +103,9 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     }
 
     /**
-     * Lista todos os itens mestres ativos em ordem alfabética pelo nome.
+     * Lists all active main items in alphabetical order by name.
      *
-     * @return lista de DTOs de resumo dos itens ativos
+     * @return list of summary DTOs of active items
      */
     @Transactional(readOnly = true)
     public List<ItemMestreResumoDTO> listarResumo() {
@@ -115,9 +115,9 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     }
 
     /**
-     * Lista todos os itens mestres, incluindo os inativados.
+     * Lists all main items, including deactivated ones.
      *
-     * @return lista de DTOs de resumo de todos os itens
+     * @return list of summary DTOs of all items
      */
     @Transactional(readOnly = true)
     public List<ItemMestreResumoDTO> listarResumoIncluindoInativos() {
@@ -127,10 +127,10 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     }
 
     /**
-     * Busca itens mestres ativos cujo nome contenha o texto informado (case-insensitive).
+     * Finds active main items whose name contains the given text (case-insensitive).
      *
-     * @param nome substring a buscar; retorna lista vazia se em branco
-     * @return lista de DTOs de resumo dos itens encontrados
+     * @param nome substring to search; returns empty list if blank
+     * @return list of summary DTOs of the found items
      */
     @Transactional(readOnly = true)
     public List<ItemMestreResumoDTO> buscarPorNome(String nome) {
@@ -145,12 +145,12 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     }
 
     /**
-     * Filtra itens mestres ativos combinando nome e categoria com {@code AND}.
-     * Parâmetros nulos são ignorados.
+     * Filters active main items combining name and category with {@code AND}.
+     * Null parameters are ignored.
      *
-     * @param nome        substring do nome; ignorado se {@code null} ou em branco
-     * @param categoriaId UUID da categoria; ignorado se {@code null}
-     * @return lista de DTOs de resumo dos itens que atendem aos filtros
+     * @param nome        name substring; ignored if {@code null} or blank
+     * @param categoriaId UUID of the category; ignored if {@code null}
+     * @return list of summary DTOs of items matching the filters
      */
     @Transactional(readOnly = true)
     public List<ItemMestreResumoDTO> filtrar(String nome, UUID categoriaId) {
@@ -163,13 +163,13 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     }
 
     /**
-     * Atualiza os dados de um item mestre existente e reindexar o vetor de busca semântica.
+     * Updates the data of an existing main item and re-indexes the semantic search vector.
      *
-     * @param id  UUID do item a atualizar
-     * @param dto dados de atualização validados pelo Bean Validation
-     * @return DTO completo do item atualizado
-     * @throws jakarta.persistence.EntityNotFoundException se o item não existir
-     * @throws IllegalArgumentException se a categoria informada não existir ou estiver inativa
+     * @param id  UUID of the item to update
+     * @param dto update data validated by Bean Validation
+     * @return full DTO of the updated item
+     * @throws jakarta.persistence.EntityNotFoundException if the item does not exist
+     * @throws IllegalArgumentException if the provided category does not exist or is inactive
      */
     @Transactional
     public ItemMestreResponseDTO atualizar(UUID id, ItemMestreUpdateDTO dto) {
@@ -192,13 +192,13 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     }
 
     /**
-     * Atualiza a imagem principal de um item mestre com um arquivo enviado pelo usuário.
-     * Equivalente a chamar {@link #atualizarImagemPrincipal(UUID, MultipartFile, boolean, String)}
-     * com {@code generatedByAi = false}.
+     * Updates the main image of a main item with a file uploaded by the user.
+     * Equivalent to calling {@link #atualizarImagemPrincipal(UUID, MultipartFile, boolean, String)}
+     * with {@code generatedByAi = false}.
      *
-     * @param id      UUID do item mestre
-     * @param arquivo arquivo de imagem enviado pelo cliente
-     * @return DTO completo do item com os novos metadados de imagem
+     * @param id      UUID of the main item
+     * @param arquivo image file uploaded by the client
+     * @return full DTO of the item with the new image metadata
      */
     @Transactional
     public ItemMestreResponseDTO atualizarImagemPrincipal(UUID id, MultipartFile arquivo) {
@@ -206,15 +206,15 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     }
 
     /**
-     * Atualiza a imagem principal de um item mestre, armazenando no MinIO e atualizando os metadados.
-     * A imagem anterior é removida do bucket após o salvamento bem-sucedido da nova.
-     * Ao final, o índice vetorial é ressincronizado.
+     * Updates the main image of a main item, storing it in MinIO and updating the metadata.
+     * The previous image is removed from the bucket after successful saving of the new one.
+     * At the end, the vector index is re-synchronized.
      *
-     * @param id             UUID do item mestre
-     * @param arquivo        arquivo de imagem enviado
-     * @param generatedByAi  {@code true} se a imagem foi gerada por IA
-     * @param provider       nome do provedor de IA (ex.: "openai"); ignorado se {@code generatedByAi} for {@code false}
-     * @return DTO completo do item com os novos metadados de imagem
+     * @param id            UUID of the main item
+     * @param arquivo       uploaded image file
+     * @param generatedByAi {@code true} if the image was generated by AI
+     * @param provider      name of the AI provider (e.g.: "openai"); ignored if {@code generatedByAi} is {@code false}
+     * @return full DTO of the item with the new image metadata
      */
     @Transactional
     public ItemMestreResponseDTO atualizarImagemPrincipal(UUID id, MultipartFile arquivo, boolean generatedByAi, String provider) {
@@ -246,11 +246,11 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     }
 
     /**
-     * Retorna os metadados (bucket, objectKey, contentType e tamanho) da imagem principal de um item.
+     * Returns the metadata (bucket, objectKey, contentType and size) of the main image of an item.
      *
-     * @param id UUID do item mestre
-     * @return DTO com os metadados necessários para recuperar o arquivo no MinIO
-     * @throws IllegalArgumentException se o item não possuir imagem cadastrada
+     * @param id UUID of the main item
+     * @return DTO with the metadata required to retrieve the file from MinIO
+     * @throws IllegalArgumentException if the item does not have a registered image
      */
     @Transactional(readOnly = true)
     public ImagemItemMestreDTO buscarMetadadosImagemPrincipal(UUID id) {
@@ -267,12 +267,12 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     }
 
     /**
-     * Abre um stream de leitura da imagem principal do item no MinIO.
-     * O chamador é responsável por fechar o stream após o uso.
+     * Opens a read stream for the main image of the item in MinIO.
+     * The caller is responsible for closing the stream after use.
      *
-     * @param id UUID do item mestre
-     * @return stream de leitura da imagem
-     * @throws IllegalArgumentException se o item não possuir imagem cadastrada
+     * @param id UUID of the main item
+     * @return image read stream
+     * @throws IllegalArgumentException if the item does not have a registered image
      */
     @Transactional(readOnly = true)
     public InputStream abrirImagemPrincipal(UUID id) {
@@ -281,10 +281,10 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     }
 
     /**
-     * Inativa logicamente um item mestre e remove sua entrada do índice vetorial.
+     * Logically deactivates a main item and removes its entry from the vector index.
      *
-     * @param id UUID do item a inativar
-     * @throws jakarta.persistence.EntityNotFoundException se o item não existir
+     * @param id UUID of the item to deactivate
+     * @throws jakarta.persistence.EntityNotFoundException if the item does not exist
      */
     @Transactional
     public void excluirLogicamente(UUID id) {
@@ -299,10 +299,10 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     }
 
     /**
-     * Realiza busca semântica no índice vetorial de itens mestres.
+     * Performs semantic search in the main item vector index.
      *
-     * @param consulta texto livre descrevendo o que se procura
-     * @return lista de resultados ordenados por similaridade semântica
+     * @param consulta free-text describing what is being searched
+     * @return list of results ordered by semantic similarity
      */
     @Transactional(readOnly = true)
     public List<ConsultaSemanticaItemDTO> buscarSemanticamente(String consulta) {
@@ -310,10 +310,10 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     }
 
     /**
-     * Força a reindexação vetorial de todos os itens mestres ativos.
-     * Gera embeddings para cada item e atualiza o índice pgvector.
+     * Forces the vector re-indexing of all active main items.
+     * Generates embeddings for each item and updates the pgvector index.
      *
-     * @return número de itens reindexados
+     * @return number of re-indexed items
      */
     @Transactional
     public int reindexarBuscaSemantica() {
@@ -321,10 +321,10 @@ public class ItemMestreService extends SuperService<ItemMestre, ItemMestreReposi
     }
 
     /**
-     * Retorna o histórico de revisões anteriores de um item mestre (Hibernate Envers).
+     * Returns the previous revision history of a main item (Hibernate Envers).
      *
-     * @param id UUID do item mestre
-     * @return lista de revisões em ordem cronológica; lista vazia se não houver histórico
+     * @param id UUID of the main item
+     * @return list of revisions in chronological order; empty list if there is no history
      */
     @Transactional(readOnly = true)
     public List<RevisaoDTO<ItemMestre>> listarRevisoes(UUID id) {

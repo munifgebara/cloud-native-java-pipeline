@@ -6,84 +6,84 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Contrato base para os controllers REST do sistema.
+ * Base contract for the system's REST controllers.
  *
- * <p>Define os endpoints padrão de CRUD que devem ser implementados por cada
- * controller concreto. O uso de parâmetros de tipo genéricos permite que cada
- * recurso exponha seus próprios DTOs (resumo, resposta, criação e atualização)
- * sem duplicar a estrutura de métodos.</p>
+ * <p>Defines the standard CRUD endpoints that must be implemented by each
+ * concrete controller. The use of generic type parameters allows each
+ * resource to expose its own DTOs (summary, response, create, and update)
+ * without duplicating the method structure.</p>
  *
- * <p><strong>Convenção de nomes dos parâmetros de tipo:</strong></p>
+ * <p><strong>Type parameter naming convention:</strong></p>
  * <ul>
- *   <li>{@code RESUMO}   — DTO leve retornado em listagens (ex.: {@code ItemMestreResumoDTO})</li>
- *   <li>{@code RESPONSE} — DTO completo retornado em buscas individuais e operações de escrita</li>
- *   <li>{@code CREATE}   — DTO de entrada para criação de um novo registro</li>
- *   <li>{@code UPDATE}   — DTO de entrada para atualização de um registro existente</li>
- *   <li>{@code ENTITY}   — tipo da entidade JPA (necessário para tipagem do histórico Envers)</li>
+ *   <li>{@code RESUMO}   — lightweight DTO returned in listings (e.g.: {@code ItemMestreResumoDTO})</li>
+ *   <li>{@code RESPONSE} — full DTO returned in individual lookups and write operations</li>
+ *   <li>{@code CREATE}   — input DTO for creating a new record</li>
+ *   <li>{@code UPDATE}   — input DTO for updating an existing record</li>
+ *   <li>{@code ENTITY}   — JPA entity type (required for Envers history typing)</li>
  * </ul>
  *
- * @param <RESUMO>   DTO de resumo usado em listagens
- * @param <RESPONSE> DTO completo retornado em operações de leitura/escrita individuais
- * @param <CREATE>   DTO de criação
- * @param <UPDATE>   DTO de atualização
- * @param <ENTITY>   tipo da entidade JPA
+ * @param <RESUMO>   summary DTO used in listings
+ * @param <RESPONSE> full DTO returned in individual read/write operations
+ * @param <CREATE>   creation DTO
+ * @param <UPDATE>   update DTO
+ * @param <ENTITY>   JPA entity type
  */
 public abstract class SuperController<RESUMO, RESPONSE, CREATE, UPDATE, ENTITY> {
 
     /**
-     * Cria um novo registro.
+     * Creates a new record.
      *
-     * @param dto dados de criação validados pelo Bean Validation
-     * @return {@code 201 Created} com o DTO completo do registro criado
+     * @param dto creation data validated by Bean Validation
+     * @return {@code 201 Created} with the full DTO of the created record
      */
     public abstract ResponseEntity<RESPONSE> criar(CREATE dto);
 
     /**
-     * Retorna os dados completos de um registro pelo seu identificador.
+     * Returns the full data of a record by its identifier.
      *
-     * @param id identificador UUID do registro
-     * @return {@code 200 OK} com o DTO completo; {@code 404 Not Found} se não existir
+     * @param id UUID identifier of the record
+     * @return {@code 200 OK} with the full DTO; {@code 404 Not Found} if it does not exist
      */
     public abstract ResponseEntity<RESPONSE> buscarPorId(UUID id);
 
     /**
-     * Retorna a listagem resumida de todos os registros ativos.
+     * Returns the summary listing of all active records.
      *
-     * @return {@code 200 OK} com a lista de DTOs de resumo
+     * @return {@code 200 OK} with the list of summary DTOs
      */
     public abstract ResponseEntity<List<RESUMO>> listar();
 
     /**
-     * Atualiza um registro existente.
+     * Updates an existing record.
      *
-     * @param id  identificador UUID do registro a atualizar
-     * @param dto dados de atualização validados pelo Bean Validation
-     * @return {@code 200 OK} com o DTO completo atualizado; {@code 404} se não existir
+     * @param id  UUID identifier of the record to update
+     * @param dto update data validated by Bean Validation
+     * @return {@code 200 OK} with the updated full DTO; {@code 404} if it does not exist
      */
     public abstract ResponseEntity<RESPONSE> atualizar(UUID id, UPDATE dto);
 
     /**
-     * Realiza a exclusão lógica de um registro (define {@code ativo = false}).
+     * Performs the soft deletion of a record (sets {@code ativo = false}).
      *
-     * @param id identificador UUID do registro a inativar
-     * @return {@code 204 No Content} após a inativação; {@code 404} se não existir
+     * @param id UUID identifier of the record to deactivate
+     * @return {@code 204 No Content} after deactivation; {@code 404} if it does not exist
      */
     public abstract ResponseEntity<Void> excluir(UUID id);
 
     /**
-     * Retorna todos os registros, incluindo os inativados logicamente.
-     * Útil para telas administrativas que precisam visualizar o histórico completo.
+     * Returns all records, including logically deactivated ones.
+     * Useful for administrative screens that need to view the full history.
      *
-     * @return {@code 200 OK} com a lista completa de DTOs de resumo
+     * @return {@code 200 OK} with the complete list of summary DTOs
      */
     public abstract ResponseEntity<List<RESUMO>> listarTodosIncluindoInativos();
 
     /**
-     * Retorna o histórico de revisões anteriores de um registro (Hibernate Envers).
+     * Returns the previous revision history of a record (Hibernate Envers).
      *
-     * @param id identificador UUID do registro
-     * @return {@code 200 OK} com a lista de revisões em ordem cronológica;
-     *         lista vazia se não houver histórico
+     * @param id UUID identifier of the record
+     * @return {@code 200 OK} with the list of revisions in chronological order;
+     *         empty list if there is no history
      */
     public abstract ResponseEntity<? extends List<?>> listarVersoesAnteriores(UUID id);
 }

@@ -6,27 +6,27 @@ import br.com.munif.stella.api.entity.Categoria;
 import java.util.List;
 
 /**
- * Repositório JPA para operações de persistência de {@link Categoria}.
+ * JPA repository for persistence operations of {@link Categoria}.
  *
- * <p>Estende {@code SuperRepository} que já provê os métodos padrão de CRUD
- * e paginação. Os métodos declarados aqui são gerados automaticamente pelo
- * Spring Data JPA a partir da convenção de nomenclatura.</p>
+ * <p>Extends {@code SuperRepository} which already provides the standard CRUD
+ * and pagination methods. The methods declared here are generated automatically by
+ * Spring Data JPA from the naming convention.</p>
  */
 public interface CategoriaRepository extends SuperRepository<Categoria> {
 
     /**
-     * Retorna todas as categorias ativas, ordenadas pelo nome em ordem crescente.
+     * Returns all active categories, ordered by name in ascending order.
      *
-     * @return lista de categorias ativas; nunca {@code null}, pode ser vazia
+     * @return list of active categories; never {@code null}, may be empty
      */
     List<Categoria> findByAtivoTrueOrderByNomeAsc();
 
     /**
-     * Retorna as categorias ativas cujo nome contenha o trecho informado,
-     * sem distinção de maiúsculas/minúsculas, ordenadas pelo nome em ordem crescente.
+     * Returns active categories whose name contains the given substring,
+     * case-insensitively, ordered by name in ascending order.
      *
-     * @param nome trecho do nome a pesquisar (busca parcial, case-insensitive)
-     * @return lista de categorias correspondentes; nunca {@code null}, pode ser vazia
+     * @param nome name substring to search (partial, case-insensitive)
+     * @return list of matching categories; never {@code null}, may be empty
      */
     List<Categoria> findByAtivoTrueAndNomeContainingIgnoreCaseOrderByNomeAsc(String nome);
 }

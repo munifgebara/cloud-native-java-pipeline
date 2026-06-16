@@ -6,23 +6,23 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * DTO completo de resposta de uma movimentação de item.
+ * Full response DTO of an item movement.
  *
- * <p>Retornado nas operações de registro de movimentação e na consulta do histórico
- * de uma instância. Inclui os dados desnormalizados de origem e destino para
- * evitar requisições adicionais no cliente.</p>
+ * <p>Returned in movement registration operations and in the history query
+ * of an instance. Includes denormalized origin and destination data to
+ * avoid additional requests on the client.</p>
  *
- * @param id                   identificador único da movimentação
- * @param tipo                 tipo da movimentação ({@code ENTRADA}, {@code SAIDA} ou {@code TRANSFERENCIA})
- * @param dataMovimentacao     data e hora em que a movimentação ocorreu (UTC)
- * @param instanciaItemId      identificador da instância de item movimentada
- * @param instanciaIdentificacao identificação legível da instância (identificador, patrimônio ou número de série)
- * @param localOrigemId        identificador do local de origem; {@code null} em movimentações de entrada
- * @param localOrigemNome      nome do local de origem (desnormalizado); {@code null} em movimentações de entrada
- * @param localDestinoId       identificador do local de destino; {@code null} em movimentações de saída
- * @param localDestinoNome     nome do local de destino (desnormalizado); {@code null} em movimentações de saída
- * @param motivo               motivo resumido da movimentação; pode ser {@code null}
- * @param observacao           observações complementares sobre a movimentação; pode ser {@code null}
+ * @param id                     unique identifier of the movement
+ * @param tipo                   movement type ({@code ENTRADA}, {@code SAIDA} or {@code TRANSFERENCIA})
+ * @param dataMovimentacao       date and time when the movement occurred (UTC)
+ * @param instanciaItemId        identifier of the moved item instance
+ * @param instanciaIdentificacao readable identification of the instance (identifier, asset number or serial number)
+ * @param localOrigemId          identifier of the origin location; {@code null} in inbound movements
+ * @param localOrigemNome        origin location name (denormalized); {@code null} in inbound movements
+ * @param localDestinoId         identifier of the destination location; {@code null} in outbound movements
+ * @param localDestinoNome       destination location name (denormalized); {@code null} in outbound movements
+ * @param motivo                 summarized reason for the movement; may be {@code null}
+ * @param observacao             complementary notes about the movement; may be {@code null}
  */
 public record MovimentacaoItemResponseDTO(
         UUID id,

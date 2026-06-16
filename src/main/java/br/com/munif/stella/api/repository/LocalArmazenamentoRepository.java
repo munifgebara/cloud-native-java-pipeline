@@ -6,35 +6,35 @@ import br.com.munif.stella.api.entity.LocalArmazenamento;
 import java.util.List;
 
 /**
- * Repositório JPA para operações de persistência de {@link LocalArmazenamento}.
+ * JPA repository for persistence operations of {@link LocalArmazenamento}.
  *
- * <p>Estende {@code SuperRepository} que já provê os métodos padrão de CRUD
- * e paginação. Os métodos declarados aqui são gerados automaticamente pelo
- * Spring Data JPA a partir da convenção de nomenclatura.</p>
+ * <p>Extends {@code SuperRepository} which already provides the standard CRUD
+ * and pagination methods. The methods declared here are generated automatically by
+ * Spring Data JPA from the naming convention.</p>
  */
 public interface LocalArmazenamentoRepository extends SuperRepository<LocalArmazenamento> {
 
     /**
-     * Retorna todos os locais de armazenamento ativos, ordenados pelo nome em ordem crescente.
+     * Returns all active storage locations, ordered by name in ascending order.
      *
-     * @return lista de locais ativos; nunca {@code null}, pode ser vazia
+     * @return list of active locations; never {@code null}, may be empty
      */
     List<LocalArmazenamento> findByAtivoTrueOrderByNomeAsc();
 
     /**
-     * Retorna os locais de armazenamento ativos cujo nome contenha o trecho informado,
-     * sem distinção de maiúsculas/minúsculas, ordenados pelo nome em ordem crescente.
+     * Returns active storage locations whose name contains the given substring,
+     * case-insensitively, ordered by name in ascending order.
      *
-     * @param nome trecho do nome a pesquisar (busca parcial, case-insensitive)
-     * @return lista de locais correspondentes; nunca {@code null}, pode ser vazia
+     * @param nome name substring to search (partial, case-insensitive)
+     * @return list of matching locations; never {@code null}, may be empty
      */
     List<LocalArmazenamento> findByAtivoTrueAndNomeContainingIgnoreCaseOrderByNomeAsc(String nome);
 
     /**
-     * Conta o total de locais de armazenamento ativos no sistema.
-     * Utilizado para estatísticas exibidas no painel de controle.
+     * Counts the total active storage locations in the system.
+     * Used for statistics displayed on the control panel.
      *
-     * @return quantidade de locais com {@code ativo = true}
+     * @return number of locations with {@code ativo = true}
      */
     long countByAtivoTrue();
 }

@@ -6,18 +6,18 @@ import jakarta.validation.constraints.Size;
 import java.util.UUID;
 
 /**
- * DTO de criação de um item mestre.
+ * Creation DTO for a main item.
  *
- * <p>Contém os dados fornecidos pelo usuário para registrar um novo modelo de item
- * no inventário. Campos de imagem não são incluídos aqui — a imagem é enviada
- * em endpoint dedicado após a criação.</p>
+ * <p>Contains the data provided by the user to register a new item model
+ * in the inventory. Image fields are not included here — the image is sent
+ * via a dedicated endpoint after creation.</p>
  *
- * @param nome           nome do item mestre; obrigatório, até 150 caracteres
- * @param descricao      descrição detalhada do item (características, uso, etc.); até 500 caracteres; opcional
- * @param observacoes    observações internas (histórico de manutenção, restrições, etc.); até 1000 caracteres; opcional
- * @param origemCadastro origem do cadastro (ex.: {@code "MANUAL"}, {@code "IA"}); até 50 caracteres; opcional
- * @param categoriaId    identificador da categoria do item; opcional
- * @param ativa          indica se o item deve ser criado ativo; quando {@code null}, assume {@code true}
+ * @param nome           main item name; required, up to 150 characters
+ * @param descricao      detailed description of the item (characteristics, usage, etc.); up to 500 characters; optional
+ * @param observacoes    internal notes (maintenance history, restrictions, etc.); up to 1000 characters; optional
+ * @param origemCadastro registration origin (e.g.: {@code "MANUAL"}, {@code "IA"}); up to 50 characters; optional
+ * @param categoriaId    identifier of the item category; optional
+ * @param ativa          indicates whether the item should be created as active; when {@code null}, defaults to {@code true}
  */
 public record ItemMestreCreateDTO(
         @NotBlank(message = "Name is required.")

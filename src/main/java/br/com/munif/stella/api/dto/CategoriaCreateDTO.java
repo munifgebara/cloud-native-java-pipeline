@@ -4,15 +4,15 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 /**
- * DTO de criação de uma categoria de itens.
+ * Creation DTO for an item category.
  *
- * <p>Contém os dados necessários para registrar uma nova categoria no sistema.
- * O ícone deve ser uma chave válida conforme definido por {@code CategoriaIcone}.</p>
+ * <p>Contains the data required to register a new category in the system.
+ * The icon must be a valid key as defined by {@code CategoriaIcone}.</p>
  *
- * @param nome     nome da categoria; obrigatório, até 150 caracteres
- * @param descricao texto explicativo sobre o escopo da categoria; até 500 caracteres; opcional
- * @param icone    chave do ícone visual da categoria (ex.: {@code "eletronicos"}); até 50 caracteres; opcional
- * @param ativa    indica se a categoria deve ser criada ativa; quando {@code null}, assume {@code true}
+ * @param nome      category name; required, up to 150 characters
+ * @param descricao explanatory text about the category scope; up to 500 characters; optional
+ * @param icone     visual icon key for the category (e.g.: {@code "eletronicos"}); up to 50 characters; optional
+ * @param ativa     indicates whether the category should be created as active; when {@code null}, defaults to {@code true}
  */
 public record CategoriaCreateDTO(
         @NotBlank(message = "Name is required.")

@@ -1,31 +1,31 @@
 package br.com.munif.stella.api.entity;
 
 /**
- * Enumeração que classifica o tipo de uma {@link MovimentacaoItem}.
+ * Enumeration that classifies the type of a {@link MovimentacaoItem}.
  *
- * <p>O tipo determina a semântica da movimentação e influencia como os locais de origem
- * e destino são interpretados: em uma entrada não há origem; em uma saída não há destino;
- * em uma transferência ambos estão presentes.</p>
+ * <p>The type determines the semantics of the movement and influences how the origin
+ * and destination locations are interpreted: an inbound has no origin; an outbound has no destination;
+ * a transfer has both.</p>
  */
 public enum TipoMovimentacaoItem {
 
     /**
-     * O item entra no sistema de controle de estoque.
-     * Normalmente ocorre no cadastro inicial da instância ou no recebimento de um bem.
-     * Não possui local de origem — apenas destino.
+     * The item enters the inventory control system.
+     * Typically occurs at the initial registration of the instance or upon receipt of an asset.
+     * Has no origin location — only a destination.
      */
     ENTRADA,
 
     /**
-     * O item sai do sistema de controle de estoque.
-     * Ocorre quando o item é descartado, devolvido ao fornecedor ou retirado permanentemente.
-     * Não possui local de destino — apenas origem.
+     * The item leaves the inventory control system.
+     * Occurs when the item is discarded, returned to the supplier, or permanently removed.
+     * Has no destination location — only an origin.
      */
     SAIDA,
 
     /**
-     * O item é transferido de um local de armazenamento para outro dentro do sistema.
-     * Possui tanto local de origem quanto local de destino.
+     * The item is transferred from one storage location to another within the system.
+     * Has both an origin location and a destination location.
      */
     TRANSFERENCIA
 }

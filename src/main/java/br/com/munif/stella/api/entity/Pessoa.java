@@ -10,17 +10,17 @@ import lombok.Setter;
 import org.hibernate.envers.Audited;
 
 /**
- * Entidade que representa uma pessoa física ou jurídica no sistema.
+ * Entity representing an individual or legal entity in the system.
  *
- * <p>Pessoas são utilizadas principalmente como tomadores em empréstimos de itens do inventário.
- * O documento {@link #cpfCnpj} é único no sistema e identifica se trata de pessoa física (CPF,
- * 11 dígitos) ou jurídica (CNPJ, 14 dígitos).</p>
+ * <p>People are primarily used as borrowers in item loans from the inventory.
+ * The {@link #cpfCnpj} document is unique in the system and identifies whether the entry
+ * is an individual (CPF, 11 digits) or a legal entity (CNPJ, 14 digits).</p>
  *
- * <p>O endereço completo é armazenado em campos separados para facilitar integrações
- * com serviços de busca por CEP e geolocalização.</p>
+ * <p>The full address is stored in separate fields to facilitate integrations
+ * with postal code lookup and geolocation services.</p>
  *
- * <p>A entidade é auditada pelo Hibernate Envers: todas as alterações são registradas
- * na tabela {@code pessoa_aud}.</p>
+ * <p>This entity is audited by Hibernate Envers: all changes are recorded
+ * in the {@code pessoa_aud} table.</p>
  */
 @Entity
 @Audited
@@ -32,78 +32,78 @@ import org.hibernate.envers.Audited;
 public class Pessoa extends Entidade {
 
     /**
-     * Nome completo da pessoa física ou razão social da pessoa jurídica.
-     * Obrigatório, com até 150 caracteres.
+     * Full name of the individual or business name of the legal entity.
+     * Required, up to 150 characters.
      */
     @Column(name = "nome", nullable = false, length = 150)
     private String nome;
 
     /**
-     * CPF (11 dígitos) ou CNPJ (14 dígitos) da pessoa, sem formatação (apenas dígitos).
-     * Deve ser único no sistema — utilizado como chave natural de identificação.
+     * CPF (11 digits) or CNPJ (14 digits) of the person, without formatting (digits only).
+     * Must be unique in the system — used as the natural identification key.
      */
     @Column(name = "cpf_cnpj", nullable = false, length = 14, unique = true)
     private String cpfCnpj;
 
     /**
-     * Número do telefone principal de contato (celular ou fixo).
-     * Formato livre, com até 20 caracteres (ex.: {@code "(11) 98765-4321"}).
+     * Primary contact phone number (mobile or landline).
+     * Free format, up to 20 characters (e.g.: {@code "(11) 98765-4321"}).
      */
     @Column(name = "telefone_principal", length = 20)
     private String telefonePrincipal;
 
     /**
-     * Número de telefone alternativo de contato.
-     * Formato livre, com até 20 caracteres.
+     * Alternative contact phone number.
+     * Free format, up to 20 characters.
      */
     @Column(name = "telefone_secundario", length = 20)
     private String telefoneSecundario;
 
     /**
-     * Endereço de e-mail da pessoa para comunicações e notificações.
-     * Até 150 caracteres.
+     * Email address of the person for communications and notifications.
+     * Up to 150 characters.
      */
     @Column(name = "email", length = 150)
     private String email;
 
     /**
-     * Código de Endereçamento Postal (CEP) do endereço, somente dígitos (8 caracteres).
-     * Exemplo: {@code "01310100"} para a Av. Paulista em São Paulo.
+     * Brazilian postal code (CEP) of the address, digits only (8 characters).
+     * Example: {@code "01310100"} for Av. Paulista in São Paulo.
      */
     @Column(name = "cep", length = 8)
     private String cep;
 
     /**
-     * Logradouro do endereço (rua, avenida, etc.) incluindo o número.
-     * Até 200 caracteres.
+     * Street address (road, avenue, etc.) including the number.
+     * Up to 200 characters.
      */
     @Column(name = "endereco", length = 200)
     private String endereco;
 
     /**
-     * Complemento do endereço (ex.: apartamento, bloco, sala).
-     * Até 100 caracteres.
+     * Address complement (e.g.: apartment, block, unit).
+     * Up to 100 characters.
      */
     @Column(name = "complemento", length = 100)
     private String complemento;
 
     /**
-     * Bairro do endereço.
-     * Até 100 caracteres.
+     * Neighborhood of the address.
+     * Up to 100 characters.
      */
     @Column(name = "bairro", length = 100)
     private String bairro;
 
     /**
-     * Cidade do endereço.
-     * Até 100 caracteres.
+     * City of the address.
+     * Up to 100 characters.
      */
     @Column(name = "cidade", length = 100)
     private String cidade;
 
     /**
-     * Sigla do estado (Unidade da Federação) do endereço, com 2 letras maiúsculas.
-     * Exemplo: {@code "SP"}, {@code "RJ"}, {@code "MG"}.
+     * State abbreviation (Brazilian Federative Unit) of the address, 2 uppercase letters.
+     * Example: {@code "SP"}, {@code "RJ"}, {@code "MG"}.
      */
     @Column(name = "uf", length = 2)
     private String uf;

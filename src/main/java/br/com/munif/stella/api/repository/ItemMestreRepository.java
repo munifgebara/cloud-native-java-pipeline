@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Repositório de persistência para {@link ItemMestre}.
+ * Persistence repository for {@link ItemMestre}.
  *
- * <p>Além dos métodos herdados de {@link SuperRepository}, expõe consultas
- * por nome, filtros com {@link Specification} e projeções para o dashboard.</p>
+ * <p>In addition to the methods inherited from {@link SuperRepository}, it exposes queries
+ * by name, filters with {@link Specification}, and projections for the dashboard.</p>
  */
 public interface ItemMestreRepository extends SuperRepository<ItemMestre>, JpaSpecificationExecutor<ItemMestre> {
 
@@ -54,15 +54,15 @@ public interface ItemMestreRepository extends SuperRepository<ItemMestre>, JpaSp
     List<DashboardCategoriaQuantidadeDTO> buscarCategoriasComMaisItens(Pageable pageable);
 
     /**
-     * Constrói uma {@link Specification} para filtrar itens mestres ativos com critérios opcionais.
+     * Builds a {@link Specification} to filter active main items with optional criteria.
      *
-     * <p>Parâmetros {@code null} são simplesmente ignorados — nenhum predicado é gerado para eles.
-     * Isso evita o problema de inferência de tipo de parâmetros nulos no PostgreSQL que ocorre
-     * com consultas JPQL usando a construção {@code (:param is null or ...)}.</p>
+     * <p>{@code null} parameters are simply ignored — no predicate is generated for them.
+     * This avoids the null parameter type inference issue in PostgreSQL that occurs
+     * with JPQL queries using the {@code (:param is null or ...)} construct.</p>
      *
-     * @param nome        substring a buscar no nome do item (busca case-insensitive); {@code null} ignora o filtro
-     * @param categoriaId UUID da categoria; {@code null} ignora o filtro
-     * @return especificação combinando os filtros informados com {@code AND}
+     * @param nome        substring to search in the item name (case-insensitive); {@code null} ignores the filter
+     * @param categoriaId UUID of the category; {@code null} ignores the filter
+     * @return specification combining the given filters with {@code AND}
      */
     static Specification<ItemMestre> filtrarAtivos(String nome, UUID categoriaId) {
         return (root, query, cb) -> {

@@ -3,14 +3,14 @@ package br.com.munif.stella.api.dto;
 import java.util.List;
 
 /**
- * DTO que agrega os dados completos de uma instância de item e seu histórico de movimentações.
+ * DTO that aggregates the full data of an item instance and its movement history.
  *
- * <p>Utilizado no endpoint de histórico para retornar em uma única resposta tanto os dados
- * atuais da instância quanto a lista cronológica de todas as movimentações já realizadas.</p>
+ * <p>Used in the history endpoint to return in a single response both the current
+ * data of the instance and the chronological list of all movements already performed.</p>
  *
- * @param instancia     dados completos da instância de item
- * @param movimentacoes lista de movimentações da instância em ordem cronológica crescente;
- *                      pode ser vazia quando nenhuma movimentação foi registrada
+ * @param instancia     full data of the item instance
+ * @param movimentacoes list of movements of the instance in ascending chronological order;
+ *                      may be empty when no movement has been recorded
  */
 public record InstanciaItemHistoricoDTO(
         InstanciaItemResponseDTO instancia,

@@ -32,14 +32,14 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Serviço responsável pelas operações de negócio sobre {@link InstanciaItem}.
+ * Service responsible for business operations on {@link InstanciaItem}.
  *
- * <p>Gerencia o ciclo de vida das instâncias físicas de itens de inventário:
- * criação via entrada, atualização de local e status, exclusão lógica e consulta
- * de histórico de movimentações.</p>
+ * <p>Manages the lifecycle of physical inventory item instances:
+ * creation via inbound, location and status update, logical deletion, and
+ * movement history queries.</p>
  *
- * <p>Regras de negócio sobre a consistência entre status e localização são
- * delegadas à classe {@link InstanciaItemRegras}.</p>
+ * <p>Business rules on consistency between status and location are
+ * delegated to the {@link InstanciaItemRegras} class.</p>
  */
 @Service
 public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaItemRepository> {
@@ -67,13 +67,13 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
     }
 
     /**
-     * Cria uma nova instância de item no inventário.
+     * Creates a new item instance in the inventory.
      *
-     * @param dto dados de criação validados pelo Bean Validation
-     * @return DTO completo da instância criada
-     * @throws IllegalArgumentException se o item mestre ou local não existirem, estiverem inativos,
-     *                                  se nenhum identificador for informado, ou se o status e
-     *                                  o local forem incompatíveis
+     * @param dto creation data validated by Bean Validation
+     * @return full DTO of the created instance
+     * @throws IllegalArgumentException if the main item or location do not exist, are inactive,
+     *                                  no identifier is provided, or the status and
+     *                                  the location are incompatible
      */
     @Transactional
     public InstanciaItemResponseDTO criar(InstanciaItemCreateDTO dto) {
@@ -100,11 +100,11 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
     }
 
     /**
-     * Retorna o DTO completo de uma instância pelo seu identificador.
+     * Returns the full DTO of an instance by its identifier.
      *
-     * @param id UUID da instância
-     * @return DTO completo da instância
-     * @throws jakarta.persistence.EntityNotFoundException se a instância não existir
+     * @param id UUID of the instance
+     * @return full DTO of the instance
+     * @throws jakarta.persistence.EntityNotFoundException if the instance does not exist
      */
     @Transactional(readOnly = true)
     public InstanciaItemResponseDTO buscarResponsePorId(UUID id) {
@@ -112,10 +112,10 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
     }
 
     /**
-     * Retorna o histórico completo de movimentações de uma instância.
+     * Returns the full movement history of an instance.
      *
-     * @param id UUID da instância
-     * @return DTO com a instância e sua lista de movimentações em ordem cronológica
+     * @param id UUID of the instance
+     * @return DTO with the instance and its list of movements in chronological order
      */
     @Transactional(readOnly = true)
     public InstanciaItemHistoricoDTO buscarHistorico(UUID id) {
@@ -131,9 +131,9 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
     }
 
     /**
-     * Lista todas as instâncias ativas ordenadas por identificador, patrimônio e número de série.
+     * Lists all active instances ordered by identifier, asset number, and serial number.
      *
-     * @return lista de DTOs de resumo das instâncias ativas
+     * @return list of summary DTOs of active instances
      */
     @Transactional(readOnly = true)
     public List<InstanciaItemResumoDTO> listarResumo() {
@@ -143,9 +143,9 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
     }
 
     /**
-     * Lista todas as instâncias, incluindo as inativadas logicamente.
+     * Lists all instances, including logically deactivated ones.
      *
-     * @return lista de DTOs de resumo de todas as instâncias
+     * @return list of summary DTOs of all instances
      */
     @Transactional(readOnly = true)
     public List<InstanciaItemResumoDTO> listarResumoIncluindoInativos() {
@@ -155,10 +155,10 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
     }
 
     /**
-     * Busca instâncias ativas cujo campo {@code identificador} contenha o texto informado.
+     * Finds active instances whose {@code identificador} field contains the given text.
      *
-     * @param identificador texto a buscar; retorna lista vazia se em branco
-     * @return lista de DTOs de resumo ordenada por identificador
+     * @param identificador text to search; returns empty list if blank
+     * @return list of summary DTOs ordered by identifier
      */
     @Transactional(readOnly = true)
     public List<InstanciaItemResumoDTO> buscarPorIdentificador(String identificador) {
@@ -173,14 +173,14 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
     }
 
     /**
-     * Filtra instâncias ativas combinando múltiplos critérios opcionais.
-     * Parâmetros nulos ou em branco são ignorados.
+     * Filters active instances combining multiple optional criteria.
+     * Null or blank parameters are ignored.
      *
-     * @param identificacao  texto a buscar em identificador, patrimônio ou número de série
-     * @param itemMestre     substring do nome do item mestre
-     * @param categoriaId    UUID da categoria do item mestre
-     * @param statusOperacional status operacional desejado
-     * @return lista de DTOs ordenada por identificador, patrimônio e número de série
+     * @param identificacao     text to search in identifier, asset number or serial number
+     * @param itemMestre        substring of the main item name
+     * @param categoriaId       UUID of the main item category
+     * @param statusOperacional desired operational status
+     * @return list of DTOs ordered by identifier, asset number and serial number
      */
     @Transactional(readOnly = true)
     public List<InstanciaItemResumoDTO> filtrar(String identificacao, String itemMestre, UUID categoriaId, StatusOperacionalInstancia statusOperacional) {
@@ -198,15 +198,15 @@ public class InstanciaItemService extends SuperService<InstanciaItem, InstanciaI
     }
 
     /**
-     * Atualiza os dados de uma instância existente.
+     * Updates the data of an existing instance.
      *
-     * @param id  UUID da instância a atualizar
-     * @param dto dados de atualização validados pelo Bean Validation
-     * @return DTO completo da instância atualizada
-     * @throws jakarta.persistence.EntityNotFoundException se a instância não existir
-     * @throws IllegalArgumentException se o item mestre ou local forem inválidos,
-     *                                  se nenhum identificador for informado, ou se
-     *                                  o status e o local forem incompatíveis
+     * @param id  UUID of the instance to update
+     * @param dto update data validated by Bean Validation
+     * @return full DTO of the updated instance
+     * @throws jakarta.persistence.EntityNotFoundException if the instance does not exist
+     * @throws IllegalArgumentException if the main item or location are invalid,
+     *                                  no identifier is provided, or the status and
+     *                                  the location are incompatible
      */
     @Transactional
     public InstanciaItemResponseDTO atualizar(UUID id, InstanciaItemUpdateDTO dto) {
