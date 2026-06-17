@@ -16,7 +16,6 @@ public final class StructuredBusinessLogger {
             "base64",
             "password",
             "secret",
-            "senha",
             "token"
     );
 

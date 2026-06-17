@@ -55,13 +55,13 @@ class EmprestimoItemServiceTest {
     @Test
     void shouldRegisterLoanUpdatingStatusOfInstance() {
         UUID instanciaId = UUID.randomUUID();
-        UUID pessoaId = UUID.randomUUID();
+        UUID personId = UUID.randomUUID();
         ItemInstance instance = instance(instanciaId, ItemInstanceStatus.DISPONIVEL, true, location(UUID.randomUUID(), "Biblioteca"));
-        Person person = person(pessoaId, "Maria Silva", true);
+        Person person = person(personId, "Maria Silva", true);
         LocalDate previsao = LocalDate.now().plusDays(7);
 
         when(itemInstanceRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
-        when(personRepository.findById(pessoaId)).thenReturn(Optional.of(person));
+        when(personRepository.findById(personId)).thenReturn(Optional.of(person));
         when(repository.existsByItemInstanceIdAndReturnDateIsNull(instanciaId)).thenReturn(false);
         when(itemInstanceRepository.save(any(ItemInstance.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(repository.save(any(ItemLoan.class))).thenAnswer(invocation -> {
@@ -72,7 +72,7 @@ class EmprestimoItemServiceTest {
 
         var response = service.registerLoan(new ItemLoanCreateDTO(
                 instanciaId,
-                pessoaId,
+                personId,
                 previsao,
                 "  Checked out for class use  "
         ));
@@ -91,20 +91,20 @@ class EmprestimoItemServiceTest {
         assertThat(loan.getPerson()).isEqualTo(person);
         assertThat(loan.getExpectedReturnDate()).isEqualTo(previsao);
         assertThat(loan.getNotes()).isEqualTo("Checked out for class use");
-        assertThat(response.pessoaId()).isEqualTo(pessoaId);
+        assertThat(response.personId()).isEqualTo(personId);
         assertThat(response.itemInstanceId()).isEqualTo(instanciaId);
     }
 
     @Test
     void shouldPreventLoanOfInstanceUnavailable() {
         UUID instanciaId = UUID.randomUUID();
-        UUID pessoaId = UUID.randomUUID();
+        UUID personId = UUID.randomUUID();
         ItemInstance instance = instance(instanciaId, ItemInstanceStatus.EM_MOVIMENTACAO, true, location(UUID.randomUUID(), "Biblioteca"));
 
         when(itemInstanceRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
-        when(personRepository.findById(pessoaId)).thenReturn(Optional.of(person(pessoaId, "Maria Silva", true)));
+        when(personRepository.findById(personId)).thenReturn(Optional.of(person(personId, "Maria Silva", true)));
 
-        assertThatThrownBy(() -> service.registerLoan(new ItemLoanCreateDTO(instanciaId, pessoaId, null, null)))
+        assertThatThrownBy(() -> service.registerLoan(new ItemLoanCreateDTO(instanciaId, personId, null, null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("available instances can be loaned");
 
@@ -115,14 +115,14 @@ class EmprestimoItemServiceTest {
     @Test
     void shouldPreventLoanOpenDuplicate() {
         UUID instanciaId = UUID.randomUUID();
-        UUID pessoaId = UUID.randomUUID();
+        UUID personId = UUID.randomUUID();
         ItemInstance instance = instance(instanciaId, ItemInstanceStatus.DISPONIVEL, true, location(UUID.randomUUID(), "Biblioteca"));
 
         when(itemInstanceRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
-        when(personRepository.findById(pessoaId)).thenReturn(Optional.of(person(pessoaId, "Maria Silva", true)));
+        when(personRepository.findById(personId)).thenReturn(Optional.of(person(personId, "Maria Silva", true)));
         when(repository.existsByItemInstanceIdAndReturnDateIsNull(instanciaId)).thenReturn(true);
 
-        assertThatThrownBy(() -> service.registerLoan(new ItemLoanCreateDTO(instanciaId, pessoaId, null, null)))
+        assertThatThrownBy(() -> service.registerLoan(new ItemLoanCreateDTO(instanciaId, personId, null, null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("open loan for this instance");
 

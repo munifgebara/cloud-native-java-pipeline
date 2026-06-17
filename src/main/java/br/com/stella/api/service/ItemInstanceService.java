@@ -120,13 +120,13 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
     @Transactional(readOnly = true)
     public ItemInstanceHistoryDTO findHistory(UUID id) {
         ItemInstance instance = findById(id);
-        var movimentacoes = itemMovementRepository.findByItemInstanceIdOrderByMovementDateAscCreatedAtAsc(id).stream()
+        var movements = itemMovementRepository.findByItemInstanceIdOrderByMovementDateAscCreatedAtAsc(id).stream()
                 .map(ItemMovementMapper::toResponseDTO)
                 .toList();
 
         return new ItemInstanceHistoryDTO(
                 ItemInstanceMapper.toResponseDTO(instance),
-                movimentacoes
+                movements
         );
     }
 

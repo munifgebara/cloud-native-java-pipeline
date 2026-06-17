@@ -1,9 +1,9 @@
 package br.com.stella.api.service;
 
 import br.com.stella.api.config.KeycloakProperties;
-import br.com.stella.api.dto.AlterarSenhaDTO;
-import br.com.stella.api.dto.MeuPerfilResponseDTO;
-import br.com.stella.api.dto.MeuPerfilUpdateDTO;
+import br.com.stella.api.dto.ChangePasswordDTO;
+import br.com.stella.api.dto.MyProfileResponseDTO;
+import br.com.stella.api.dto.MyProfileUpdateDTO;
 import br.com.stella.api.dto.UserCreateDTO;
 import br.com.stella.api.dto.UserResponseDTO;
 import br.com.stella.api.dto.UserUpdateDTO;
@@ -98,14 +98,14 @@ public class KeycloakUserService {
         return findById(id);
     }
 
-    public void alterarStatus(String id, boolean enabled) {
+    public void changeStatus(String id, boolean enabled) {
         Map<String, Object> user = fetchUserMap(id);
         user.put("enabled", enabled);
         put("/users/" + id, user);
     }
 
-    public MeuPerfilResponseDTO meuPerfil(Jwt jwt) {
-        return new MeuPerfilResponseDTO(
+    public MyProfileResponseDTO myProfile(Jwt jwt) {
+        return new MyProfileResponseDTO(
                 jwt.getSubject(),
                 firstNonBlank(
                         jwt.getClaimAsString("preferred_username"),
@@ -120,7 +120,7 @@ public class KeycloakUserService {
         );
     }
 
-    public MeuPerfilResponseDTO atualizarMeuPerfil(Jwt jwt, MeuPerfilUpdateDTO dto) {
+    public MyProfileResponseDTO updateMyProfile(Jwt jwt, MyProfileUpdateDTO dto) {
         Map<String, Object> user = fetchUserMap(jwt.getSubject());
         user.put("firstName", trimToNull(dto.firstName()));
         user.put("lastName", trimToNull(dto.lastName()));
@@ -129,17 +129,17 @@ public class KeycloakUserService {
         return toMeuPerfil(findById(jwt.getSubject()));
     }
 
-    public void alterarMinhaSenha(Jwt jwt, AlterarSenhaDTO dto) {
-        validarSenhaAtual(jwt.getClaimAsString("preferred_username"), dto.senhaAtual());
-        redefinirSenha(jwt.getSubject(), dto.novaSenha());
+    public void changeMyPassword(Jwt jwt, ChangePasswordDTO dto) {
+        validarSenhaAtual(jwt.getClaimAsString("preferred_username"), dto.currentPassword());
+        redefinirSenha(jwt.getSubject(), dto.newPassword());
     }
 
-    private void validarSenhaAtual(String username, String senhaAtual) {
+    private void validarSenhaAtual(String username, String currentPassword) {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("client_id", keycloakProperties.publicClientId());
         form.add("grant_type", "password");
         form.add("username", username);
-        form.add("password", senhaAtual);
+        form.add("password", currentPassword);
 
         try {
             restClient.post()
@@ -156,10 +156,10 @@ public class KeycloakUserService {
         }
     }
 
-    private void redefinirSenha(String id, String novaSenha) {
+    private void redefinirSenha(String id, String newPassword) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("type", "password");
-        payload.put("value", novaSenha);
+        payload.put("value", newPassword);
         payload.put("temporary", false);
         put("/users/" + id + "/reset-password", payload);
     }
@@ -324,8 +324,8 @@ public class KeycloakUserService {
         );
     }
 
-    private MeuPerfilResponseDTO toMeuPerfil(UserResponseDTO user) {
-        return new MeuPerfilResponseDTO(
+    private MyProfileResponseDTO toMeuPerfil(UserResponseDTO user) {
+        return new MyProfileResponseDTO(
                 user.id(),
                 user.username(),
                 user.firstName(),

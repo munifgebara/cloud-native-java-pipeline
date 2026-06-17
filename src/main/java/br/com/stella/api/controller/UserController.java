@@ -1,8 +1,8 @@
 package br.com.stella.api.controller;
 
-import br.com.stella.api.dto.AlterarSenhaDTO;
-import br.com.stella.api.dto.MeuPerfilResponseDTO;
-import br.com.stella.api.dto.MeuPerfilUpdateDTO;
+import br.com.stella.api.dto.ChangePasswordDTO;
+import br.com.stella.api.dto.MyProfileResponseDTO;
+import br.com.stella.api.dto.MyProfileUpdateDTO;
 import br.com.stella.api.dto.UserCreateDTO;
 import br.com.stella.api.dto.UserResponseDTO;
 import br.com.stella.api.dto.UserUpdateDTO;
@@ -106,8 +106,8 @@ public class UserController {
      */
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<Void> alterarStatus(@PathVariable String id, @RequestBody Map<String, Boolean> body) {
-        service.alterarStatus(id, Boolean.TRUE.equals(body.get("enabled")));
+    public ResponseEntity<Void> changeStatus(@PathVariable String id, @RequestBody Map<String, Boolean> body) {
+        service.changeStatus(id, Boolean.TRUE.equals(body.get("enabled")));
         return ResponseEntity.noContent().build();
     }
 
@@ -118,8 +118,8 @@ public class UserController {
      * @return {@code 200 OK} with the profile data
      */
     @GetMapping("/me")
-    public ResponseEntity<MeuPerfilResponseDTO> meuPerfil(@AuthenticationPrincipal Jwt jwt) {
-        return ResponseEntity.ok(service.meuPerfil(jwt));
+    public ResponseEntity<MyProfileResponseDTO> myProfile(@AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(service.myProfile(jwt));
     }
 
     /**
@@ -130,11 +130,11 @@ public class UserController {
      * @return {@code 200 OK} with the updated profile
      */
     @PutMapping("/me")
-    public ResponseEntity<MeuPerfilResponseDTO> atualizarMeuPerfil(
+    public ResponseEntity<MyProfileResponseDTO> updateMyProfile(
             @AuthenticationPrincipal Jwt jwt,
-            @RequestBody @Valid MeuPerfilUpdateDTO dto
+            @RequestBody @Valid MyProfileUpdateDTO dto
     ) {
-        return ResponseEntity.ok(service.atualizarMeuPerfil(jwt, dto));
+        return ResponseEntity.ok(service.updateMyProfile(jwt, dto));
     }
 
     /**
@@ -145,11 +145,11 @@ public class UserController {
      * @return {@code 204 In Content} on success
      */
     @PutMapping("/me/password")
-    public ResponseEntity<Void> alterarMinhaSenha(
+    public ResponseEntity<Void> changeMyPassword(
             @AuthenticationPrincipal Jwt jwt,
-            @RequestBody @Valid AlterarSenhaDTO dto
+            @RequestBody @Valid ChangePasswordDTO dto
     ) {
-        service.alterarMinhaSenha(jwt, dto);
+        service.changeMyPassword(jwt, dto);
         return ResponseEntity.noContent().build();
     }
 }

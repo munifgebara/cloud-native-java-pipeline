@@ -249,8 +249,8 @@ class InventoryMapperTest {
 
         var response = ItemLoanMapper.toResponseDTO(loan);
 
-        assertThat(response.instanciaIdentificacao()).isEqualTo("PAT-10");
-        assertThat(response.pessoaNome()).isEqualTo("Joao");
+        assertThat(response.instanceIdentification()).isEqualTo("PAT-10");
+        assertThat(response.personName()).isEqualTo("Joao");
         assertThat(response.notes()).isEqualTo("ok");
     }
 
@@ -275,7 +275,7 @@ class InventoryMapperTest {
 
         var response = ItemMovementMapper.toResponseDTO(movement);
 
-        assertThat(response.instanciaIdentificacao()).isEqualTo("SER-10");
+        assertThat(response.instanceIdentification()).isEqualTo("SER-10");
         assertThat(response.originLocationName()).isEqualTo("Origem");
         assertThat(response.destinationLocationName()).isEqualTo("Destino");
         assertThat(response.motivo()).isEqualTo("Organizacao");

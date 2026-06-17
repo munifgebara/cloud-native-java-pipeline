@@ -9,10 +9,10 @@ import java.util.List;
  * data of the instance and the chronological list of all movements already performed.</p>
  *
  * @param instance     full data of the item instance
- * @param movimentacoes list of movements of the instance in ascending chronological order;
+ * @param movements list of movements of the instance in ascending chronological order;
  *                      may be empty when no movement has been recorded
  */
 public record ItemInstanceHistoryDTO(
         ItemInstanceResponseDTO instance,
-        List<ItemMovementResponseDTO> movimentacoes
+        List<ItemMovementResponseDTO> movements
 ) {}

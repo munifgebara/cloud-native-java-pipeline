@@ -1,6 +1,6 @@
 package br.com.stella.api.controller;
 
-import br.com.stella.api.dto.MeuPerfilResponseDTO;
+import br.com.stella.api.dto.MyProfileResponseDTO;
 import br.com.stella.api.dto.UserCreateDTO;
 import br.com.stella.api.exception.IdentityException;
 import br.com.stella.api.service.KeycloakUserService;
@@ -43,7 +43,7 @@ class UsuarioControllerIntegrationTest {
 
     @Test
     void shouldReturnMeuProfileWithoutErrorInternal() throws Exception {
-        when(usuarioService.meuPerfil(any(Jwt.class))).thenReturn(new MeuPerfilResponseDTO(
+        when(usuarioService.myProfile(any(Jwt.class))).thenReturn(new MyProfileResponseDTO(
                 "user-1",
                 "user",
                 "User",
@@ -66,7 +66,7 @@ class UsuarioControllerIntegrationTest {
 
     @Test
     void shouldTranslateFailureOfKeycloakInMeuProfileWithoutErrorInternal() throws Exception {
-        when(usuarioService.meuPerfil(any(Jwt.class))).thenThrow(new IdentityException(
+        when(usuarioService.myProfile(any(Jwt.class))).thenThrow(new IdentityException(
                 HttpStatus.BAD_GATEWAY,
                 "Identity service unavailable. Please try again in a moment.",
                 null

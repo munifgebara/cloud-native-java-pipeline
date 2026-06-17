@@ -79,7 +79,7 @@ class KeycloakLoginServiceTest {
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
 
-        assertThatThrownBy(() -> service.login(new LoginRequestDTO("user", "senha-invalida")))
+        assertThatThrownBy(() -> service.login(new LoginRequestDTO("user", "password-invalida")))
                 .isInstanceOf(IdentityException.class)
                 .hasMessage("Invalid credentials.")
                 .extracting(ex -> ((IdentityException) ex).getStatus())
