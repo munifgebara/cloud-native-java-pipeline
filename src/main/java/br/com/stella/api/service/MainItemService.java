@@ -71,7 +71,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
     @Transactional
     public MainItemResponseDTO create(MainItemCreateDTO dto) {
         MainItem item = MainItemMapper.toEntity(dto);
-        normalizarCampos(item);
+        normalizeFields(item);
         item.setCategory(findActiveCategory(dto.categoryId()));
 
         MainItem salvo = save(item);
@@ -177,7 +177,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
         Category category = findActiveCategory(dto.categoryId());
 
         MainItemMapper.updateEntity(item, dto);
-        normalizarCampos(item);
+        normalizeFields(item);
         item.setCategory(category);
 
         MainItem salvo = save(item);
@@ -344,22 +344,22 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
         return category;
     }
 
-    private void normalizarCampos(MainItem item) {
+    private void normalizeFields(MainItem item) {
         item.setName(BrValidations.trimToNull(item.getName()));
         item.setDescription(BrValidations.trimToNull(item.getDescription()));
         item.setNotes(BrValidations.trimToNull(item.getNotes()));
     }
 
     private void syncVectorIndexSilently(MainItem item, String action) {
-        executarAposCommit(action, item == null ? null : item.getId(), item == null ? null : item.getName(),
-                () -> vectorSearchService.sincronizar(item));
+        runAfterCommit(action, item == null ? null : item.getId(), item == null ? null : item.getName(),
+                () -> vectorSearchService.synchronize(item));
     }
 
     private void removeVectorIndexSilently(UUID id, String name) {
-        executarAposCommit("item-index-remove-after-delete", id, name, () -> vectorSearchService.remover(id));
+        runAfterCommit("item-index-remove-after-delete", id, name, () -> vectorSearchService.remove(id));
     }
 
-    private void executarAposCommit(String action, UUID itemId, String itemName, Runnable operation) {
+    private void runAfterCommit(String action, UUID itemId, String itemName, Runnable operation) {
         Runnable guardedOperation = () -> {
             try {
                 operation.run();

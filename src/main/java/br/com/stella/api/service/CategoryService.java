@@ -51,7 +51,7 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
     @Transactional
     public CategoryResponseDTO create(CategoryCreateDTO dto) {
         Category category = CategoryMapper.toEntity(dto);
-        normalizarCampos(category);
+        normalizeFields(category);
 
         Category salva = save(category);
         if (Boolean.FALSE.equals(dto.ativa())) {
@@ -129,7 +129,7 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
     public CategoryResponseDTO update(UUID id, CategoryUpdateDTO dto) {
         Category category = findById(id);
         CategoryMapper.updateEntity(category, dto);
-        normalizarCampos(category);
+        normalizeFields(category);
 
         Category salva = save(category);
         return CategoryMapper.toResponseDTO(salva);
@@ -157,13 +157,13 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
         return listPreviousVersions(id);
     }
 
-    private void normalizarCampos(Category category) {
+    private void normalizeFields(Category category) {
         category.setName(BrValidations.trimToNull(category.getName()));
         category.setDescription(BrValidations.trimToNull(category.getDescription()));
-        category.setIcon(normalizarIcone(category.getIcon()));
+        category.setIcon(normalizeIcon(category.getIcon()));
     }
 
-    private String normalizarIcone(String icon) {
+    private String normalizeIcon(String icon) {
         String valor = BrValidations.trimToNull(icon);
         if (!CategoryIcon.isChaveValida(valor)) {
             throw new IllegalArgumentException("Invalid category icon.");

@@ -78,7 +78,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
     @Transactional
     public ItemInstanceResponseDTO create(ItemInstanceCreateDTO dto) {
         ItemInstance instance = ItemInstanceMapper.toEntity(dto);
-        normalizarCampos(instance);
+        normalizeFields(instance);
         validateIdentification(instance);
         instance.setMainItem(findActiveMainItem(dto.mainItemId()));
         instance.setCurrentLocation(findActiveLocation(dto.currentLocationId()));
@@ -215,7 +215,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
         MainItem mainItem = findActiveMainItem(dto.mainItemId());
 
         ItemInstanceMapper.updateEntity(instance, dto);
-        normalizarCampos(instance);
+        normalizeFields(instance);
         validateIdentification(instance);
         instance.setMainItem(mainItem);
         instance.setCurrentLocation(findActiveLocation(dto.currentLocationId()));
@@ -276,7 +276,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
         return location;
     }
 
-    private void normalizarCampos(ItemInstance instance) {
+    private void normalizeFields(ItemInstance instance) {
         instance.setIdentifier(BrValidations.trimToNull(instance.getIdentifier()));
         instance.setAssetTag(BrValidations.trimToNull(instance.getAssetTag()));
         instance.setSerialNumber(BrValidations.trimToNull(instance.getSerialNumber()));

@@ -65,7 +65,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
     @Transactional
     public StorageLocationResponseDTO create(StorageLocationCreateDTO dto) {
         StorageLocation location = StorageLocationMapper.toEntity(dto);
-        normalizarCampos(location);
+        normalizeFields(location);
         location.setParent(findActiveParent(dto.parentId()));
 
         StorageLocation salvo = save(location);
@@ -148,7 +148,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
         validarHierarquia(location, parent);
 
         StorageLocationMapper.updateEntity(location, dto);
-        normalizarCampos(location);
+        normalizeFields(location);
         location.setParent(parent);
 
         StorageLocation salvo = save(location);
@@ -294,8 +294,8 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
 
         List<StorageLocationSummaryDTO> result = new ArrayList<>();
         Set<UUID> visited = new HashSet<>();
-        for (StorageLocation raiz : raizes) {
-            addToHierarchy(raiz, raiz.getName(), 0, childrenByParent, result, visited);
+        for (StorageLocation root : raizes) {
+            addToHierarchy(root, root.getName(), 0, childrenByParent, result, visited);
         }
         return result;
     }
@@ -348,7 +348,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
         }
     }
 
-    private void normalizarCampos(StorageLocation location) {
+    private void normalizeFields(StorageLocation location) {
         location.setName(BrValidations.trimToNull(location.getName()));
         location.setDescription(BrValidations.trimToNull(location.getDescription()));
     }

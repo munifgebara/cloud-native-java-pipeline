@@ -61,11 +61,11 @@ public abstract class SuperService<T extends BaseEntity, R extends SuperReposito
     /**
      * Persists or updates an entity.
      *
-     * @param entidade entity to save
+     * @param entity entity to save
      * @return saved entity, with database-generated fields (e.g.: {@code id}, {@code version})
      */
-    public T save(T entidade) {
-        return repository.save(entidade);
+    public T save(T entity) {
+        return repository.save(entity);
     }
 
     /**
@@ -108,9 +108,9 @@ public abstract class SuperService<T extends BaseEntity, R extends SuperReposito
      * @throws EntityNotFoundException if the record does not exist
      */
     public void delete(UUID id) {
-        T entidade = findById(id);
-        entidade.deleteLogically();
-        repository.save(entidade);
+        T entity = findById(id);
+        entity.deleteLogically();
+        repository.save(entity);
     }
 
     /**

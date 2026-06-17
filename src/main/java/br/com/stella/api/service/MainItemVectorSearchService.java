@@ -97,26 +97,26 @@ public class MainItemVectorSearchService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void sincronizar(MainItem item) {
+    public void synchronize(MainItem item) {
         if (!vectorSearchProperties.enabled() || item == null || item.getId() == null) {
             return;
         }
         long inicio = System.nanoTime();
 
         if (!item.isActive()) {
-            remover(item.getId());
+            remove(item.getId());
             return;
         }
 
-        String documento = documentFactory.createDocument(item);
-        if (documento.isBlank()) {
-            remover(item.getId());
+        String document = documentFactory.createDocument(item);
+        if (document.isBlank()) {
+            remove(item.getId());
             return;
         }
 
         try {
             aiUsageGuard.consume(AiOperation.EMBEDDING);
-            float[] embedding = embeddingProvider.generateEmbedding(documento);
+            float[] embedding = embeddingProvider.generateEmbedding(document);
             validarDimensoes(embedding);
 
             jdbcTemplate.update(
@@ -125,7 +125,7 @@ public class MainItemVectorSearchService {
                     embeddingsProperties.provider(),
                     embeddingsProperties.model(),
                     embeddingsProperties.dimensions(),
-                    documento,
+                    document,
                     vectorLiteral(embedding)
             );
             StructuredBusinessLogger.info(log, "vector-search", "item-indexed", StructuredBusinessLogger.fields(
@@ -150,7 +150,7 @@ public class MainItemVectorSearchService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void remover(UUID mainItemId) {
+    public void remove(UUID mainItemId) {
         if (!vectorSearchProperties.enabled() || mainItemId == null) {
             return;
         }
@@ -185,7 +185,7 @@ public class MainItemVectorSearchService {
         long inicio = System.nanoTime();
         List<MainItem> itens = mainItemRepository.findByActiveTrueOrderByNameAsc();
         try {
-            itens.forEach(this::sincronizar);
+            itens.forEach(this::synchronize);
             StructuredBusinessLogger.info(log, "vector-search", "items-reindexed", StructuredBusinessLogger.fields(
                     "items_count", itens.size(),
                     "embeddings_provider", embeddingsProperties.provider(),

@@ -132,8 +132,8 @@ public final class BrValidations {
             return false;
         }
 
-        int dv1 = calcularDigitoCPF(valor.substring(0, 9), 10);
-        int dv2 = calcularDigitoCPF(valor.substring(0, 9) + dv1, 11);
+        int dv1 = computeCpfCheckDigit(valor.substring(0, 9), 10);
+        int dv2 = computeCpfCheckDigit(valor.substring(0, 9) + dv1, 11);
 
         return valor.equals(valor.substring(0, 9) + dv1 + dv2);
     }
@@ -157,8 +157,8 @@ public final class BrValidations {
             return false;
         }
 
-        int dv1 = calcularDigitoCNPJ(valor.substring(0, 12), new int[]{5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2});
-        int dv2 = calcularDigitoCNPJ(valor.substring(0, 12) + dv1, new int[]{6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2});
+        int dv1 = computeCnpjCheckDigit(valor.substring(0, 12), new int[]{5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2});
+        int dv2 = computeCnpjCheckDigit(valor.substring(0, 12) + dv1, new int[]{6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2});
 
         return valor.equals(valor.substring(0, 12) + dv1 + dv2);
     }
@@ -478,7 +478,7 @@ public final class BrValidations {
      * @param pesoInicial  weight of the first digit (10 for the 1st check digit, 11 for the 2nd)
      * @return calculated check digit (0 to 9)
      */
-    private static int calcularDigitoCPF(String base, int pesoInicial) {
+    private static int computeCpfCheckDigit(String base, int pesoInicial) {
         int soma = 0;
         int peso = pesoInicial;
 
@@ -498,7 +498,7 @@ public final class BrValidations {
      * @param pesos  array of weights to apply sequentially to each digit of {@code base}
      * @return calculated check digit (0 to 9)
      */
-    private static int calcularDigitoCNPJ(String base, int[] pesos) {
+    private static int computeCnpjCheckDigit(String base, int[] pesos) {
         int soma = 0;
         for (int i = 0; i < base.length(); i++) {
             soma += Character.getNumericValue(base.charAt(i)) * pesos[i];

@@ -70,7 +70,7 @@ public class KeycloakUserService {
                 "temporary", false
         )));
 
-        ResponseEntity<Void> response = executarKeycloak(() -> restClient.post()
+        ResponseEntity<Void> response = executeKeycloak(() -> restClient.post()
                 .uri(keycloakProperties.adminRealmUrl() + "/users")
                 .header(HttpHeaders.AUTHORIZATION, bearer())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -78,7 +78,7 @@ public class KeycloakUserService {
                 .retrieve()
                 .toBodilessEntity());
 
-        String id = extrairIdCriado(response.getHeaders().getLocation());
+        String id = extractCreatedId(response.getHeaders().getLocation());
         updateRoles(id, dto.roles());
         return findById(id);
     }
@@ -175,7 +175,7 @@ public class KeycloakUserService {
                 .toList();
 
         if (!atuaisGerenciadas.isEmpty()) {
-            executarKeycloak(() -> restClient.method(HttpMethod.DELETE)
+            executeKeycloak(() -> restClient.method(HttpMethod.DELETE)
                     .uri(keycloakProperties.adminRealmUrl() + "/users/" + id + "/role-mappings/realm")
                     .header(HttpHeaders.AUTHORIZATION, bearer())
                     .contentType(MediaType.APPLICATION_JSON)
@@ -191,7 +191,7 @@ public class KeycloakUserService {
                 .toList();
 
         if (!novas.isEmpty()) {
-            executarKeycloak(() -> restClient.post()
+            executeKeycloak(() -> restClient.post()
                     .uri(keycloakProperties.adminRealmUrl() + "/users/" + id + "/role-mappings/realm")
                     .header(HttpHeaders.AUTHORIZATION, bearer())
                     .contentType(MediaType.APPLICATION_JSON)
@@ -226,7 +226,7 @@ public class KeycloakUserService {
     }
 
     private void put(String path, Map<String, Object> payload) {
-        executarKeycloak(() -> restClient.put()
+        executeKeycloak(() -> restClient.put()
                 .uri(keycloakProperties.adminRealmUrl() + path)
                 .header(HttpHeaders.AUTHORIZATION, bearer())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -237,7 +237,7 @@ public class KeycloakUserService {
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> getMap(String path) {
-        Map<String, Object> response = executarKeycloak(() -> restClient.get()
+        Map<String, Object> response = executeKeycloak(() -> restClient.get()
                 .uri(keycloakProperties.adminRealmUrl() + path)
                 .header(HttpHeaders.AUTHORIZATION, bearer())
                 .retrieve()
@@ -248,7 +248,7 @@ public class KeycloakUserService {
 
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> getList(String path) {
-        List<Map<String, Object>> response = executarKeycloak(() -> restClient.get()
+        List<Map<String, Object>> response = executeKeycloak(() -> restClient.get()
                 .uri(keycloakProperties.adminRealmUrl() + path)
                 .header(HttpHeaders.AUTHORIZATION, bearer())
                 .retrieve()
@@ -277,7 +277,7 @@ public class KeycloakUserService {
         form.add("username", keycloakProperties.adminUsername());
         form.add("password", keycloakProperties.adminPassword());
 
-        Map<String, Object> response = executarKeycloak(() -> restClient.post()
+        Map<String, Object> response = executeKeycloak(() -> restClient.post()
                 .uri(keycloakProperties.adminTokenUrl())
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(form)
@@ -298,7 +298,7 @@ public class KeycloakUserService {
         form.add("grant_type", "client_credentials");
         form.add("client_secret", keycloakProperties.adminClientSecret());
 
-        Map<String, Object> response = executarKeycloak(() -> restClient.post()
+        Map<String, Object> response = executeKeycloak(() -> restClient.post()
                 .uri(keycloakProperties.tokenUrl())
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(form)
@@ -336,7 +336,7 @@ public class KeycloakUserService {
         );
     }
 
-    private String extrairIdCriado(URI location) {
+    private String extractCreatedId(URI location) {
         if (location == null) {
             throw new ExternalIntegrationException("Keycloak did not return the identifier of the created user.");
         }
@@ -385,7 +385,7 @@ public class KeycloakUserService {
                 .toList();
     }
 
-    private <T> T executarKeycloak(Supplier<T> chamada) {
+    private <T> T executeKeycloak(Supplier<T> chamada) {
         try {
             return chamada.get();
         } catch (RestClientResponseException ex) {

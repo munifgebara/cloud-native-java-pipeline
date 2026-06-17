@@ -49,7 +49,7 @@ class ItemMestreVectorSearchServiceTest {
     void notShouldIndexWhenSearchVectorIsDisabled() {
         var service = service(false);
 
-        service.sincronizar(item(UUID.randomUUID(), true));
+        service.synchronize(item(UUID.randomUUID(), true));
 
         verify(embeddingProvider, never()).generateEmbedding(anyString());
         verifyNoInteractions(jdbcTemplate);
@@ -62,12 +62,12 @@ class ItemMestreVectorSearchServiceTest {
         MainItem item = item(id, true);
         when(embeddingProvider.generateEmbedding(anyString())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
 
-        service(true).sincronizar(item);
+        service(true).synchronize(item);
 
-        ArgumentCaptor<String> documento = ArgumentCaptor.forClass(String.class);
-        verify(embeddingProvider).generateEmbedding(documento.capture());
-        assertThat(documento.getValue()).contains("Name: Video card", "Description: Computer component", "Category: Electronics");
-        verify(jdbcTemplate).update(anyString(), eq(id), eq("location"), eq("modelo-teste"), eq(3), eq(documento.getValue()), eq("[0.10000000,0.20000000,0.30000001]"));
+        ArgumentCaptor<String> document = ArgumentCaptor.forClass(String.class);
+        verify(embeddingProvider).generateEmbedding(document.capture());
+        assertThat(document.getValue()).contains("Name: Video card", "Description: Computer component", "Category: Electronics");
+        verify(jdbcTemplate).update(anyString(), eq(id), eq("location"), eq("modelo-teste"), eq(3), eq(document.getValue()), eq("[0.10000000,0.20000000,0.30000001]"));
     }
 
     @Test
@@ -75,7 +75,7 @@ class ItemMestreVectorSearchServiceTest {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, false);
 
-        service(true).sincronizar(item);
+        service(true).synchronize(item);
 
         verify(jdbcTemplate).update(anyString(), eq(id));
         verify(embeddingProvider, never()).generateEmbedding(anyString());
@@ -88,7 +88,7 @@ class ItemMestreVectorSearchServiceTest {
         item.setId(id);
         item.setActive(true);
 
-        service(true).sincronizar(item);
+        service(true).synchronize(item);
 
         verify(jdbcTemplate).update(anyString(), eq(id));
         verify(embeddingProvider, never()).generateEmbedding(anyString());
@@ -100,7 +100,7 @@ class ItemMestreVectorSearchServiceTest {
         RuntimeException falha = new RuntimeException("database failure");
         doThrow(falha).when(jdbcTemplate).update(anyString(), eq(id));
 
-        assertThatThrownBy(() -> service(true).remover(id))
+        assertThatThrownBy(() -> service(true).remove(id))
                 .isSameAs(falha);
     }
 
@@ -109,7 +109,7 @@ class ItemMestreVectorSearchServiceTest {
         MainItem item = item(UUID.randomUUID(), true);
         when(embeddingProvider.generateEmbedding(anyString())).thenReturn(new float[]{0.1f});
 
-        assertThatThrownBy(() -> service(true).sincronizar(item))
+        assertThatThrownBy(() -> service(true).synchronize(item))
                 .isInstanceOf(ExternalIntegrationException.class)
                 .hasMessage("Embeddings provider returned a vector with incompatible dimensions.");
     }
@@ -217,7 +217,7 @@ class ItemMestreVectorSearchServiceTest {
     void shouldBlockEmbeddingWhenIaIsDisabled() {
         MainItem item = item(UUID.randomUUID(), true);
 
-        assertThatThrownBy(() -> service(true, new AiProperties(false), new OpenAiLimitsProperties(null, null, null)).sincronizar(item))
+        assertThatThrownBy(() -> service(true, new AiProperties(false), new OpenAiLimitsProperties(null, null, null)).synchronize(item))
                 .isInstanceOf(AiUsageLimitException.class)
                 .hasMessage("AI features are disabled in this environment.");
 
@@ -228,7 +228,7 @@ class ItemMestreVectorSearchServiceTest {
     void shouldBlockEmbeddingWhenLimitDailyWasReached() {
         MainItem item = item(UUID.randomUUID(), true);
 
-        assertThatThrownBy(() -> service(true, new AiProperties(true), new OpenAiLimitsProperties(null, null, 0)).sincronizar(item))
+        assertThatThrownBy(() -> service(true, new AiProperties(true), new OpenAiLimitsProperties(null, null, 0)).synchronize(item))
                 .isInstanceOf(AiUsageLimitException.class)
                 .hasMessage("Daily limit for OpenAI embedding generation reached.");
 

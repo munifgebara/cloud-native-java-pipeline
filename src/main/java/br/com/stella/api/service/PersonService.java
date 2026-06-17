@@ -59,14 +59,14 @@ public class PersonService extends SuperService<Person, PersonRepository> {
     public PersonResponseDTO create(PersonCreateDTO dto) {
         validarCreate(dto);
 
-        String cpfCnpjNormalizado = normalizarCpfCnpj(dto.cpfCnpj());
+        String cpfCnpjNormalizado = normalizeTaxId(dto.cpfCnpj());
 
         if (repository.existsByTaxId(cpfCnpjNormalizado)) {
             throw new DuplicateRegistrationException("A person with this CPF/CNPJ is already registered.");
         }
 
         Person person = PersonMapper.toEntity(dto);
-        normalizarCampos(person);
+        normalizeFields(person);
         person.setTaxId(cpfCnpjNormalizado);
 
         Person salva = save(person);
@@ -126,7 +126,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
 
         Person person = findById(id);
         PersonMapper.updateEntity(person, dto);
-        normalizarCampos(person);
+        normalizeFields(person);
 
         Person salva = save(person);
         return PersonMapper.toResponseDTO(salva);
@@ -203,7 +203,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
     }
 
     private void validarCreate(PersonCreateDTO dto) {
-        String cpfCnpj = normalizarCpfCnpj(dto.cpfCnpj());
+        String cpfCnpj = normalizeTaxId(dto.cpfCnpj());
 
         if (cpfCnpj.length() == 11) {
             BrValidations.exigirCPFValido(cpfCnpj, "CPF");
@@ -263,7 +263,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
         }
     }
 
-    private String normalizarCpfCnpj(String cpfCnpj) {
+    private String normalizeTaxId(String cpfCnpj) {
         String valor = BrValidations.somenteDigitos(cpfCnpj);
         if (valor == null) {
             throw new IllegalArgumentException("CPF/CNPJ is required.");
@@ -271,17 +271,17 @@ public class PersonService extends SuperService<Person, PersonRepository> {
         return valor;
     }
 
-    private void normalizarCampos(Person person) {
+    private void normalizeFields(Person person) {
         person.setName(BrValidations.trimToNull(person.getName()));
         person.setPrimaryPhone(normalizePhone(person.getPrimaryPhone()));
         person.setSecondaryPhone(normalizePhone(person.getSecondaryPhone()));
-        person.setEmail(normalizarEmail(person.getEmail()));
-        person.setZipCode(normalizarCep(person.getZipCode()));
+        person.setEmail(normalizeEmail(person.getEmail()));
+        person.setZipCode(normalizeZipCode(person.getZipCode()));
         person.setAddress(BrValidations.trimToNull(person.getAddress()));
         person.setComplement(BrValidations.trimToNull(person.getComplement()));
         person.setNeighborhood(BrValidations.trimToNull(person.getNeighborhood()));
         person.setCity(BrValidations.trimToNull(person.getCity()));
-        person.setState(normalizarUf(person.getState()));
+        person.setState(normalizeState(person.getState()));
     }
 
     private String normalizePhone(String phone) {
@@ -289,17 +289,17 @@ public class PersonService extends SuperService<Person, PersonRepository> {
         return valor == null ? null : BrValidations.somenteDigitos(valor);
     }
 
-    private String normalizarEmail(String email) {
+    private String normalizeEmail(String email) {
         String valor = BrValidations.trimToNull(email);
         return valor == null ? null : valor.toLowerCase(Locale.ROOT);
     }
 
-    private String normalizarCep(String cep) {
+    private String normalizeZipCode(String cep) {
         String valor = BrValidations.trimToNull(cep);
         return valor == null ? null : BrValidations.somenteDigitos(valor);
     }
 
-    private String normalizarUf(String uf) {
+    private String normalizeState(String uf) {
         String valor = BrValidations.trimToNull(uf);
         return valor == null ? null : valor.toUpperCase(Locale.ROOT);
     }

@@ -191,11 +191,11 @@ class ControllerUnitTest {
         UUID categoryId = UUID.randomUUID();
         var response = mock(ItemInstanceResponseDTO.class);
         var resumo = mock(ItemInstanceSummaryDTO.class);
-        var historico = mock(ItemInstanceHistoryDTO.class);
+        var history = mock(ItemInstanceHistoryDTO.class);
 
         when(service.create(null)).thenReturn(response);
         when(service.findResponseById(id)).thenReturn(response);
-        when(service.findHistory(id)).thenReturn(historico);
+        when(service.findHistory(id)).thenReturn(history);
         when(service.listSummary()).thenReturn(List.of(resumo));
         when(service.findByIdentifier("pat")).thenReturn(List.of(resumo));
         when(service.filtrar("pat", "livro", categoryId, ItemInstanceStatus.DISPONIVEL)).thenReturn(List.of(resumo));
@@ -205,7 +205,7 @@ class ControllerUnitTest {
 
         assertThat(controller.create(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(controller.findById(id).getBody()).isEqualTo(response);
-        assertThat(controller.findHistory(id).getBody()).isEqualTo(historico);
+        assertThat(controller.findHistory(id).getBody()).isEqualTo(history);
         assertThat(controller.list().getBody()).containsExactly(resumo);
         assertThat(controller.findByIdentifier("pat").getBody()).containsExactly(resumo);
         assertThat(controller.filtrar("pat", "livro", categoryId, ItemInstanceStatus.DISPONIVEL).getBody()).containsExactly(resumo);

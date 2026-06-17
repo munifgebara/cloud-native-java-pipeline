@@ -93,14 +93,14 @@ class InventoryRepositoryIntegrationTest {
         Category category = category("ITG Organizacao");
         MainItem caixa = mainItem("ITG Caixa organizadora", category);
         StorageLocation deposito = location("ITG Deposito");
-        StorageLocation sala = location("ITG Sala");
-        persistir(category, caixa, deposito, sala);
+        StorageLocation room = location("ITG Sala");
+        persistir(category, caixa, deposito, room);
 
         persistir(
                 instance(caixa, deposito, "ITG-DEP-001", null, ItemInstanceStatus.DISPONIVEL),
                 instance(caixa, deposito, "ITG-DEP-002", null, ItemInstanceStatus.DISPONIVEL),
                 instance(caixa, deposito, "ITG-DEP-003", null, ItemInstanceStatus.DISPONIVEL),
-                instance(caixa, sala, "ITG-SALA-001", null, ItemInstanceStatus.DISPONIVEL)
+                instance(caixa, room, "ITG-SALA-001", null, ItemInstanceStatus.DISPONIVEL)
         );
         flushAndClear();
 
@@ -117,7 +117,7 @@ class InventoryRepositoryIntegrationTest {
     @Test
     void shouldSortHistoryOfMovementsByData() {
         Category category = category("ITG History");
-        MainItem item = mainItem("ITG Patrimonio historico", category);
+        MainItem item = mainItem("ITG Patrimonio history", category);
         StorageLocation origem = location("ITG Origem");
         StorageLocation destino = location("ITG Destino");
         persistir(category, item, origem, destino);
@@ -130,9 +130,9 @@ class InventoryRepositoryIntegrationTest {
         persistir(maisRecente, maisAntiga);
         flushAndClear();
 
-        var historico = itemMovementRepository.findByItemInstanceIdOrderByMovementDateAscCreatedAtAsc(instance.getId());
+        var history = itemMovementRepository.findByItemInstanceIdOrderByMovementDateAscCreatedAtAsc(instance.getId());
 
-        assertThat(historico).extracting(ItemMovement::getMovementDate)
+        assertThat(history).extracting(ItemMovement::getMovementDate)
                 .containsExactly(
                         Instant.parse("2026-01-01T10:00:00Z"),
                         Instant.parse("2026-01-02T10:00:00Z")
@@ -258,8 +258,8 @@ class InventoryRepositoryIntegrationTest {
     }
 
     private void persistir(Object... entidades) {
-        for (Object entidade : entidades) {
-            entityManager.persist(entidade);
+        for (Object entity : entidades) {
+            entityManager.persist(entity);
         }
     }
 

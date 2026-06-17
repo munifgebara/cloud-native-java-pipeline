@@ -82,7 +82,7 @@ class ItemMestreServiceTest {
         assertThat(response.categoryId()).isEqualTo(categoryId);
         assertThat(response.categoryName()).isEqualTo("Eletronicos");
         assertThat(response.categoryIcon()).isEqualTo("eletronicos");
-        verify(vectorSearchService).sincronizar(itemSalvo);
+        verify(vectorSearchService).synchronize(itemSalvo);
     }
 
     @Test
@@ -100,13 +100,13 @@ class ItemMestreServiceTest {
     void shouldCreateItemMainSameWhenIndexVectorFailure() {
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
         doThrow(new ExternalIntegrationException("pgvector unavailable"))
-                .when(vectorSearchService).sincronizar(any(MainItem.class));
+                .when(vectorSearchService).synchronize(any(MainItem.class));
 
         var response = service.create(new MainItemCreateDTO("Cadeira ergonomica", null, null, null, null, true));
 
         assertThat(response.name()).isEqualTo("Cadeira ergonomica");
         verify(repository).save(any(MainItem.class));
-        verify(vectorSearchService).sincronizar(any(MainItem.class));
+        verify(vectorSearchService).synchronize(any(MainItem.class));
     }
 
     @Test
@@ -117,14 +117,14 @@ class ItemMestreServiceTest {
         try {
             service.create(new MainItemCreateDTO("Cadeira ergonomica", null, null, null, null, true));
 
-            verify(vectorSearchService, never()).sincronizar(any(MainItem.class));
+            verify(vectorSearchService, never()).synchronize(any(MainItem.class));
 
             var synchronizations = TransactionSynchronizationManager.getSynchronizations();
             assertThat(synchronizations).hasSize(1);
 
             synchronizations.getFirst().afterCommit();
 
-            verify(vectorSearchService).sincronizar(any(MainItem.class));
+            verify(vectorSearchService).synchronize(any(MainItem.class));
         } finally {
             TransactionSynchronizationManager.clearSynchronization();
         }
@@ -164,7 +164,7 @@ class ItemMestreServiceTest {
         assertThat(response.description()).isEqualTo("Cadeira de escritorio");
         assertThat(response.categoryName()).isEqualTo("Moveis");
         assertThat(response.ativa()).isFalse();
-        verify(vectorSearchService).sincronizar(item);
+        verify(vectorSearchService).synchronize(item);
     }
 
     @Test
@@ -299,7 +299,7 @@ class ItemMestreServiceTest {
         service.deleteLogically(id);
 
         assertThat(item.isActive()).isFalse();
-        verify(vectorSearchService).remover(id);
+        verify(vectorSearchService).remove(id);
     }
 
     @Test
@@ -309,12 +309,12 @@ class ItemMestreServiceTest {
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
         when(repository.save(item)).thenReturn(item);
-        doThrow(new ExternalIntegrationException("pgvector unavailable")).when(vectorSearchService).remover(id);
+        doThrow(new ExternalIntegrationException("pgvector unavailable")).when(vectorSearchService).remove(id);
 
         service.deleteLogically(id);
 
         assertThat(item.isActive()).isFalse();
-        verify(vectorSearchService).remover(id);
+        verify(vectorSearchService).remove(id);
     }
 
     @Test

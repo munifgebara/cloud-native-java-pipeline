@@ -112,20 +112,20 @@ class InventoryMapperTest {
         assertThat(StorageLocationMapper.toResponseDTO(null)).isNull();
         assertThat(StorageLocationMapper.toResumoDTO(null, "x", 0)).isNull();
 
-        StorageLocation raiz = location("Casa", null);
-        StorageLocation sala = location("Sala", raiz);
-        sala.setImageObjectKey("locais/%s/photo.png".formatted(sala.getId()));
-        sala.setImageContentType("image/png");
-        sala.setImageSizeBytes(20L);
+        StorageLocation root = location("Casa", null);
+        StorageLocation room = location("Sala", root);
+        room.setImageObjectKey("locais/%s/photo.png".formatted(room.getId()));
+        room.setImageContentType("image/png");
+        room.setImageSizeBytes(20L);
 
-        var response = StorageLocationMapper.toResponseDTO(sala);
-        var resumo = StorageLocationMapper.toResumoDTO(sala, "Casa > Sala", 1);
+        var response = StorageLocationMapper.toResponseDTO(room);
+        var resumo = StorageLocationMapper.toResumoDTO(room, "Casa > Sala", 1);
 
-        assertThat(response.parentId()).isEqualTo(raiz.getId());
+        assertThat(response.parentId()).isEqualTo(root.getId());
         assertThat(response.parentName()).isEqualTo("Casa");
         assertThat(response.path()).isEqualTo("Casa > Sala");
         assertThat(response.level()).isEqualTo(1);
-        assertThat(response.imageUrl()).isEqualTo("/api/public/locations/%s/image".formatted(sala.getId()));
+        assertThat(response.imageUrl()).isEqualTo("/api/public/locations/%s/image".formatted(room.getId()));
         assertThat(response.imageContentType()).isEqualTo("image/png");
         assertThat(response.imageSizeBytes()).isEqualTo(20L);
         assertThat(resumo.path()).isEqualTo("Casa > Sala");
