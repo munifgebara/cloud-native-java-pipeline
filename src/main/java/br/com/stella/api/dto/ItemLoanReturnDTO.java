@@ -7,11 +7,11 @@ import java.util.UUID;
 
 public record ItemLoanReturnDTO(
         @NotNull(message = "Instance is required.")
-        UUID instanciaItemId,
+        UUID itemInstanceId,
 
         @NotNull(message = "Return location is required.")
         UUID localRetornoId,
 
         @Size(max = 1000, message = "Observation must not exceed 1000 characters.")
-        String observacao
+        String notes
 ) {}

@@ -35,19 +35,19 @@ class InventoryRepositoryIntegrationTest {
     private EntityManager entityManager;
 
     @Autowired
-    private MainItemRepository itemMestreRepository;
+    private MainItemRepository mainItemRepository;
 
     @Autowired
-    private ItemInstanceRepository instanciaItemRepository;
+    private ItemInstanceRepository itemInstanceRepository;
 
     @Autowired
-    private ItemMovementRepository movimentacaoItemRepository;
+    private ItemMovementRepository itemMovementRepository;
 
     @Autowired
-    private ItemLoanRepository emprestimoItemRepository;
+    private ItemLoanRepository itemLoanRepository;
 
     @Autowired
-    private PersonRepository pessoaRepository;
+    private PersonRepository personRepository;
 
     @Test
     void deveFiltrarItensMestreAtivosPorNomeECategoria() {
@@ -60,7 +60,7 @@ class InventoryRepositoryIntegrationTest {
         persistir(furadeira, livro);
         flushAndClear();
 
-        var itens = itemMestreRepository.findAll(MainItemRepository.filterActive("furadeira", ferramentas.getId()), Sort.by("name"));
+        var itens = mainItemRepository.findAll(MainItemRepository.filterActive("furadeira", ferramentas.getId()), Sort.by("name"));
 
         assertThat(itens).extracting(MainItem::getName)
                 .containsExactly("ITG Furadeira de impacto");
@@ -79,12 +79,12 @@ class InventoryRepositoryIntegrationTest {
         persistir(instanciaDisponivel, instanciaEmprestada);
         flushAndClear();
 
-        var instancias = instanciaItemRepository.findAll(
+        var instances = itemInstanceRepository.findAll(
                 ItemInstanceRepository.filterActive("pat-001", "notebook", category.getId(), ItemInstanceStatus.DISPONIVEL),
                 Sort.by("identifier")
         );
 
-        assertThat(instancias).extracting(ItemInstance::getIdentifier)
+        assertThat(instances).extracting(ItemInstance::getIdentifier)
                 .containsExactly("ITG-NB-001");
     }
 
@@ -104,11 +104,11 @@ class InventoryRepositoryIntegrationTest {
         );
         flushAndClear();
 
-        var locais = instanciaItemRepository.findLocationsWithMostItems(PageRequest.of(0, 20)).stream()
-                .filter(location -> location.nome().startsWith("ITG "))
+        var locais = itemInstanceRepository.findLocationsWithMostItems(PageRequest.of(0, 20)).stream()
+                .filter(location -> location.name().startsWith("ITG "))
                 .toList();
 
-        assertThat(locais).extracting("nome")
+        assertThat(locais).extracting("name")
                 .containsExactly("ITG Deposito", "ITG Sala");
         assertThat(locais).extracting("quantidadeInstancias")
                 .containsExactly(3L, 1L);
@@ -125,12 +125,12 @@ class InventoryRepositoryIntegrationTest {
         ItemInstance instance = instance(item, destino, "ITG-HIST-001", null, ItemInstanceStatus.DISPONIVEL);
         persistir(instance);
 
-        ItemMovement maisRecente = movimentacao(instance, origem, destino, Instant.parse("2026-01-02T10:00:00Z"));
-        ItemMovement maisAntiga = movimentacao(instance, null, origem, Instant.parse("2026-01-01T10:00:00Z"));
+        ItemMovement maisRecente = movement(instance, origem, destino, Instant.parse("2026-01-02T10:00:00Z"));
+        ItemMovement maisAntiga = movement(instance, null, origem, Instant.parse("2026-01-01T10:00:00Z"));
         persistir(maisRecente, maisAntiga);
         flushAndClear();
 
-        var historico = movimentacaoItemRepository.findByItemInstanceIdOrderByMovementDateAscCreatedAtAsc(instance.getId());
+        var historico = itemMovementRepository.findByItemInstanceIdOrderByMovementDateAscCreatedAtAsc(instance.getId());
 
         assertThat(historico).extracting(ItemMovement::getMovementDate)
                 .containsExactly(
@@ -143,19 +143,19 @@ class InventoryRepositoryIntegrationTest {
     void deveLocalizarEmprestimoAbertoDaInstancia() {
         Category category = category("ITG Emprestimos");
         MainItem item = mainItem("ITG Livro emprestavel", category);
-        Person pessoa = pessoa("ITG Maria Silva");
-        persistir(category, item, pessoa);
+        Person person = person("ITG Maria Silva");
+        persistir(category, item, person);
 
         ItemInstance instance = instance(item, null, "ITG-EMP-001", null, ItemInstanceStatus.EMPRESTADO);
         persistir(instance);
 
-        ItemLoan emprestimoAberto = emprestimo(instance, pessoa, null);
-        ItemLoan emprestimoFechado = emprestimo(instance, pessoa, Instant.parse("2026-01-03T10:00:00Z"));
+        ItemLoan emprestimoAberto = loan(instance, person, null);
+        ItemLoan emprestimoFechado = loan(instance, person, Instant.parse("2026-01-03T10:00:00Z"));
         persistir(emprestimoAberto, emprestimoFechado);
         flushAndClear();
 
-        assertThat(emprestimoItemRepository.existsByItemInstanceIdAndReturnDateIsNull(instance.getId())).isTrue();
-        assertThat(emprestimoItemRepository.findByItemInstanceIdAndReturnDateIsNull(instance.getId()))
+        assertThat(itemLoanRepository.existsByItemInstanceIdAndReturnDateIsNull(instance.getId())).isTrue();
+        assertThat(itemLoanRepository.findByItemInstanceIdAndReturnDateIsNull(instance.getId()))
                 .get()
                 .extracting(ItemLoan::getReturnDate)
                 .isNull();
@@ -163,45 +163,45 @@ class InventoryRepositoryIntegrationTest {
 
     @Test
     void deveListarRevisoesDePessoaViaEnvers() {
-        Person pessoa = pessoa("ITG Ana History");
-        persistir(pessoa);
+        Person person = person("ITG Ana History");
+        persistir(person);
         commitAndStart();
 
-        Person pessoaSalva = entityManager.find(Person.class, pessoa.getId());
+        Person pessoaSalva = entityManager.find(Person.class, person.getId());
         pessoaSalva.setEmail("ana@example.com");
         commitAndStart();
 
-        PersonService service = new PersonService(pessoaRepository, entityManager);
+        PersonService service = new PersonService(personRepository, entityManager);
 
-        var revisoes = service.listRevisions(pessoa.getId());
+        var revisoes = service.listRevisions(person.getId());
 
         assertThat(revisoes).hasSize(2);
         assertThat(revisoes).extracting("tipo")
                 .containsExactly("MOD", "ADD");
-        assertThat(revisoes.getFirst().pessoa().email()).isEqualTo("ana@example.com");
+        assertThat(revisoes.getFirst().person().email()).isEqualTo("ana@example.com");
         assertThat(revisoes.getFirst().camposAlterados()).containsExactly("email");
         assertThat(revisoes.getFirst().dataHora()).isNotNull();
         assertThat(revisoes.get(1).camposAlterados()).isEmpty();
     }
 
-    private Category category(String nome) {
+    private Category category(String name) {
         Category category = new Category();
-        category.setName(nome);
+        category.setName(name);
         category.setActive(true);
         return category;
     }
 
-    private MainItem mainItem(String nome, Category category) {
+    private MainItem mainItem(String name, Category category) {
         MainItem item = new MainItem();
-        item.setName(nome);
+        item.setName(name);
         item.setCategory(category);
         item.setActive(true);
         return item;
     }
 
-    private StorageLocation location(String nome) {
+    private StorageLocation location(String name) {
         StorageLocation location = new StorageLocation();
-        location.setName(nome);
+        location.setName(name);
         location.setActive(true);
         return location;
     }
@@ -209,52 +209,52 @@ class InventoryRepositoryIntegrationTest {
     private ItemInstance instance(
             MainItem item,
             StorageLocation location,
-            String identificador,
-            String patrimonio,
+            String identifier,
+            String assetTag,
             ItemInstanceStatus status
     ) {
         ItemInstance instance = new ItemInstance();
         instance.setMainItem(item);
         instance.setCurrentLocation(location);
-        instance.setIdentifier(identificador);
-        instance.setAssetTag(patrimonio);
+        instance.setIdentifier(identifier);
+        instance.setAssetTag(assetTag);
         instance.setOperationalStatus(status);
         instance.setActive(true);
         return instance;
     }
 
-    private ItemMovement movimentacao(
+    private ItemMovement movement(
             ItemInstance instance,
             StorageLocation origem,
             StorageLocation destino,
             Instant movementDate
     ) {
-        ItemMovement movimentacao = new ItemMovement();
-        movimentacao.setType(origem == null ? ItemMovementType.ENTRADA : ItemMovementType.TRANSFERENCIA);
-        movimentacao.setItemInstance(instance);
-        movimentacao.setOriginLocation(origem);
-        movimentacao.setDestinationLocation(destino);
-        movimentacao.setMovementDate(movementDate);
-        movimentacao.setActive(true);
-        return movimentacao;
+        ItemMovement movement = new ItemMovement();
+        movement.setType(origem == null ? ItemMovementType.ENTRADA : ItemMovementType.TRANSFERENCIA);
+        movement.setItemInstance(instance);
+        movement.setOriginLocation(origem);
+        movement.setDestinationLocation(destino);
+        movement.setMovementDate(movementDate);
+        movement.setActive(true);
+        return movement;
     }
 
-    private Person pessoa(String nome) {
-        Person pessoa = new Person();
-        pessoa.setName(nome);
-        pessoa.setTaxId(gerarCpfCnpj());
-        pessoa.setActive(true);
-        return pessoa;
+    private Person person(String name) {
+        Person person = new Person();
+        person.setName(name);
+        person.setTaxId(gerarCpfCnpj());
+        person.setActive(true);
+        return person;
     }
 
-    private ItemLoan emprestimo(ItemInstance instance, Person pessoa, Instant dataDevolucao) {
-        ItemLoan emprestimo = new ItemLoan();
-        emprestimo.setItemInstance(instance);
-        emprestimo.setPerson(pessoa);
-        emprestimo.setExpectedReturnDate(LocalDate.of(2026, 1, 10));
-        emprestimo.setReturnDate(dataDevolucao);
-        emprestimo.setActive(true);
-        return emprestimo;
+    private ItemLoan loan(ItemInstance instance, Person person, Instant returnDate) {
+        ItemLoan loan = new ItemLoan();
+        loan.setItemInstance(instance);
+        loan.setPerson(person);
+        loan.setExpectedReturnDate(LocalDate.of(2026, 1, 10));
+        loan.setReturnDate(returnDate);
+        loan.setActive(true);
+        return loan;
     }
 
     private void persistir(Object... entidades) {

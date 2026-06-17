@@ -45,17 +45,17 @@ import java.util.UUID;
 public class MainItemController extends SuperController<MainItemSummaryDTO, MainItemResponseDTO, MainItemCreateDTO, MainItemUpdateDTO, MainItem> {
 
     private final MainItemService service;
-    private final ImageAiService imagemIaService;
+    private final ImageAiService imageAiService;
 
     /**
      * Constructs the controller injecting the required services.
      *
      * @param service         main item business service
-     * @param imagemIaService AI image generation service
+     * @param imageAiService AI image generation service
      */
-    public MainItemController(MainItemService service, ImageAiService imagemIaService) {
+    public MainItemController(MainItemService service, ImageAiService imageAiService) {
         this.service = service;
-        this.imagemIaService = imagemIaService;
+        this.imageAiService = imageAiService;
     }
 
     @Override
@@ -79,37 +79,37 @@ public class MainItemController extends SuperController<MainItemSummaryDTO, Main
     /**
      * Finds active main items whose name contains the given text (case-insensitive).
      *
-     * @param nome substring to search in the main item name
+     * @param name substring to search in the main item name
      * @return {@code 200 OK} with the list of found items
      */
     @GetMapping("/search")
-    public ResponseEntity<List<MainItemSummaryDTO>> findByName(@RequestParam String nome) {
-        return ResponseEntity.ok(service.findByName(nome));
+    public ResponseEntity<List<MainItemSummaryDTO>> findByName(@RequestParam String name) {
+        return ResponseEntity.ok(service.findByName(name));
     }
 
     /**
      * Filters active main items with multiple optional criteria.
      *
-     * @param nome        substring of the main item name; ignored if not provided
-     * @param categoriaId UUID of the category; ignored if not provided
+     * @param name        substring of the main item name; ignored if not provided
+     * @param categoryId UUID of the category; ignored if not provided
      * @return {@code 200 OK} with the list of items satisfying the criteria
      */
     @GetMapping("/filtrar")
     public ResponseEntity<List<MainItemSummaryDTO>> filtrar(
-            @RequestParam(required = false) String nome,
-            @RequestParam(required = false) UUID categoriaId) {
-        return ResponseEntity.ok(service.filtrar(nome, categoriaId));
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) UUID categoryId) {
+        return ResponseEntity.ok(service.filtrar(name, categoryId));
     }
 
     /**
      * Performs semantic search (vector similarity) on active main items.
      *
-     * @param consulta free text to search semantically
+     * @param query free text to search semantically
      * @return {@code 200 OK} with the items most similar to the query, ordered by relevance
      */
     @GetMapping("/busca-semantica")
-    public ResponseEntity<List<SemanticSearchItemDTO>> buscarSemanticamente(@RequestParam("consulta") String consulta) {
-        return ResponseEntity.ok(service.buscarSemanticamente(consulta));
+    public ResponseEntity<List<SemanticSearchItemDTO>> buscarSemanticamente(@RequestParam("query") String query) {
+        return ResponseEntity.ok(service.buscarSemanticamente(query));
     }
 
     /**
@@ -132,14 +132,14 @@ public class MainItemController extends SuperController<MainItemSummaryDTO, Main
      * @param provider       name of the AI provider (optional, provided when {@code generatedByAi} is {@code true})
      * @return {@code 200 OK} with the full DTO of the updated item
      */
-    @PostMapping(value = "/{id}/imagem-principal", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MainItemResponseDTO> atualizarImagemPrincipal(
+    @PostMapping(value = "/{id}/image-principal", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MainItemResponseDTO> updateMainImage(
             @PathVariable UUID id,
             @RequestParam("arquivo") MultipartFile arquivo,
             @RequestParam(value = "generatedByAi", defaultValue = "false") boolean generatedByAi,
             @RequestParam(value = "provider", required = false) String provider
     ) {
-        return ResponseEntity.ok(service.atualizarImagemPrincipal(id, arquivo, generatedByAi, provider));
+        return ResponseEntity.ok(service.updateMainImage(id, arquivo, generatedByAi, provider));
     }
 
     /**
@@ -148,9 +148,9 @@ public class MainItemController extends SuperController<MainItemSummaryDTO, Main
      * @param dto input data with the item description and other parameters
      * @return {@code 200 OK} with the URL or data of the generated image
      */
-    @PostMapping("/imagem-ia")
+    @PostMapping("/image-ia")
     public ResponseEntity<ImageAiResponseDTO> gerarImagemIa(@RequestBody @Valid ImageAiRequestDTO dto) {
-        return ResponseEntity.ok(imagemIaService.generateImage(dto));
+        return ResponseEntity.ok(imageAiService.generateImage(dto));
     }
 
     @Override

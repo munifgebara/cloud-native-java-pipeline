@@ -30,19 +30,19 @@ public final class PersonMapper {
             return null;
         }
 
-        Person pessoa = new Person();
-        pessoa.setName(dto.nome());
-        pessoa.setTaxId(dto.cpfCnpj());
-        pessoa.setPrimaryPhone(dto.telefonePrincipal());
-        pessoa.setSecondaryPhone(dto.telefoneSecundario());
-        pessoa.setEmail(dto.email());
-        pessoa.setZipCode(dto.cep());
-        pessoa.setAddress(dto.endereco());
-        pessoa.setComplement(dto.complemento());
-        pessoa.setNeighborhood(dto.bairro());
-        pessoa.setCity(dto.cidade());
-        pessoa.setState(dto.uf());
-        return pessoa;
+        Person person = new Person();
+        person.setName(dto.name());
+        person.setTaxId(dto.cpfCnpj());
+        person.setPrimaryPhone(dto.telefonePrincipal());
+        person.setSecondaryPhone(dto.telefoneSecundario());
+        person.setEmail(dto.email());
+        person.setZipCode(dto.cep());
+        person.setAddress(dto.endereco());
+        person.setComplement(dto.complemento());
+        person.setNeighborhood(dto.bairro());
+        person.setCity(dto.cidade());
+        person.setState(dto.uf());
+        return person;
     }
 
     /**
@@ -58,7 +58,7 @@ public final class PersonMapper {
             return;
         }
 
-        entity.setName(dto.nome());
+        entity.setName(dto.name());
         entity.setPrimaryPhone(dto.telefonePrincipal());
         entity.setSecondaryPhone(dto.telefoneSecundario());
         entity.setEmail(dto.email());

@@ -47,8 +47,8 @@ public class MainItemImageStorageService {
         return armazenar("itens-mestre", itemId, arquivo);
     }
 
-    public MainItemImageDTO armazenarLocal(UUID localId, MultipartFile arquivo) {
-        return armazenar("locais", localId, arquivo);
+    public MainItemImageDTO armazenarLocal(UUID locationId, MultipartFile arquivo) {
+        return armazenar("locais", locationId, arquivo);
     }
 
     private MainItemImageDTO armazenar(String prefixo, UUID entidadeId, MultipartFile arquivo) {

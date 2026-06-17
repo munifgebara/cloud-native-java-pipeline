@@ -46,24 +46,24 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
 
     private static final Logger log = LoggerFactory.getLogger(ItemInstanceService.class);
 
-    private final MainItemRepository itemMestreRepository;
-    private final StorageLocationRepository localArmazenamentoRepository;
-    private final ItemMovementRepository movimentacaoItemRepository;
-    private final ItemLoanRepository emprestimoItemRepository;
+    private final MainItemRepository mainItemRepository;
+    private final StorageLocationRepository storageLocationRepository;
+    private final ItemMovementRepository itemMovementRepository;
+    private final ItemLoanRepository itemLoanRepository;
 
     public ItemInstanceService(
             ItemInstanceRepository repository,
             EntityManager entityManager,
-            MainItemRepository itemMestreRepository,
-            StorageLocationRepository localArmazenamentoRepository,
-            ItemMovementRepository movimentacaoItemRepository,
-            ItemLoanRepository emprestimoItemRepository
+            MainItemRepository mainItemRepository,
+            StorageLocationRepository storageLocationRepository,
+            ItemMovementRepository itemMovementRepository,
+            ItemLoanRepository itemLoanRepository
     ) {
         super(repository, entityManager, ItemInstance.class);
-        this.itemMestreRepository = itemMestreRepository;
-        this.localArmazenamentoRepository = localArmazenamentoRepository;
-        this.movimentacaoItemRepository = movimentacaoItemRepository;
-        this.emprestimoItemRepository = emprestimoItemRepository;
+        this.mainItemRepository = mainItemRepository;
+        this.storageLocationRepository = storageLocationRepository;
+        this.itemMovementRepository = itemMovementRepository;
+        this.itemLoanRepository = itemLoanRepository;
     }
 
     /**
@@ -80,8 +80,8 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
         ItemInstance instance = ItemInstanceMapper.toEntity(dto);
         normalizarCampos(instance);
         validateIdentification(instance);
-        instance.setMainItem(findActiveMainItem(dto.itemMestreId()));
-        instance.setCurrentLocation(findActiveLocation(dto.localAtualId()));
+        instance.setMainItem(findActiveMainItem(dto.mainItemId()));
+        instance.setCurrentLocation(findActiveLocation(dto.currentLocationId()));
         ItemInstanceRules.validateStatusLocationConsistency(instance);
 
         ItemInstance salva = save(instance);
@@ -120,7 +120,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
     @Transactional(readOnly = true)
     public ItemInstanceHistoryDTO buscarHistorico(UUID id) {
         ItemInstance instance = findById(id);
-        var movimentacoes = movimentacaoItemRepository.findByItemInstanceIdOrderByMovementDateAscCreatedAtAsc(id).stream()
+        var movimentacoes = itemMovementRepository.findByItemInstanceIdOrderByMovementDateAscCreatedAtAsc(id).stream()
                 .map(ItemMovementMapper::toResponseDTO)
                 .toList();
 
@@ -155,14 +155,14 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
     }
 
     /**
-     * Finds active instances whose {@code identificador} field contains the given text.
+     * Finds active instances whose {@code identifier} field contains the given text.
      *
-     * @param identificador text to search; returns empty list if blank
+     * @param identifier text to search; returns empty list if blank
      * @return list of summary DTOs ordered by identifier
      */
     @Transactional(readOnly = true)
-    public List<ItemInstanceSummaryDTO> findByIdentifier(String identificador) {
-        String valor = BrValidations.trimToNull(identificador);
+    public List<ItemInstanceSummaryDTO> findByIdentifier(String identifier) {
+        String valor = BrValidations.trimToNull(identifier);
         if (valor == null) {
             return List.of();
         }
@@ -176,22 +176,22 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
      * Filters active instances combining multiple optional criteria.
      * Null or blank parameters are ignored.
      *
-     * @param identificacao     text to search in identifier, asset number or serial number
+     * @param identification     text to search in identifier, asset number or serial number
      * @param mainItem        substring of the main item name
-     * @param categoriaId       UUID of the main item category
-     * @param statusOperacional desired operational status
+     * @param categoryId       UUID of the main item category
+     * @param operationalStatus desired operational status
      * @return list of DTOs ordered by identifier, asset number and serial number
      */
     @Transactional(readOnly = true)
-    public List<ItemInstanceSummaryDTO> filtrar(String identificacao, String mainItem, UUID categoriaId, ItemInstanceStatus statusOperacional) {
+    public List<ItemInstanceSummaryDTO> filtrar(String identification, String mainItem, UUID categoryId, ItemInstanceStatus operationalStatus) {
         return repository.findAll(
                         ItemInstanceRepository.filterActive(
-                                BrValidations.trimToNull(identificacao),
+                                BrValidations.trimToNull(identification),
                                 BrValidations.trimToNull(mainItem),
-                                categoriaId,
-                                statusOperacional
+                                categoryId,
+                                operationalStatus
                         ),
-                        Sort.by(Sort.Order.asc("identificador").nullsLast(), Sort.Order.asc("patrimonio").nullsLast(), Sort.Order.asc("numeroSerie").nullsLast())
+                        Sort.by(Sort.Order.asc("identifier").nullsLast(), Sort.Order.asc("assetTag").nullsLast(), Sort.Order.asc("serialNumber").nullsLast())
                 ).stream()
                 .map(ItemInstanceMapper::toResumoDTO)
                 .toList();
@@ -212,23 +212,23 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
     public ItemInstanceResponseDTO update(UUID id, ItemInstanceUpdateDTO dto) {
         ItemInstance instance = findById(id);
         UUID localAnteriorId = instance.getCurrentLocation() == null ? null : instance.getCurrentLocation().getId();
-        MainItem mainItem = findActiveMainItem(dto.itemMestreId());
+        MainItem mainItem = findActiveMainItem(dto.mainItemId());
 
         ItemInstanceMapper.updateEntity(instance, dto);
         normalizarCampos(instance);
         validateIdentification(instance);
         instance.setMainItem(mainItem);
-        instance.setCurrentLocation(findActiveLocation(dto.localAtualId()));
+        instance.setCurrentLocation(findActiveLocation(dto.currentLocationId()));
         ItemInstanceRules.validateStatusLocationConsistency(instance);
 
         ItemInstance salva = save(instance);
-        UUID localAtualId = salva.getCurrentLocation() == null ? null : salva.getCurrentLocation().getId();
-        String action = Objects.equals(localAnteriorId, localAtualId) ? "instance-updated" : "instance-location-updated";
+        UUID currentLocationId = salva.getCurrentLocation() == null ? null : salva.getCurrentLocation().getId();
+        String action = Objects.equals(localAnteriorId, currentLocationId) ? "instance-updated" : "instance-location-updated";
         StructuredBusinessLogger.info(log, "inventory", action, StructuredBusinessLogger.fields(
                 "instance_id", salva.getId(),
                 "item_id", salva.getMainItem() == null ? null : salva.getMainItem().getId(),
                 "previous_location_id", localAnteriorId,
-                "location_id", localAtualId,
+                "location_id", currentLocationId,
                 "success", true
         ));
         return ItemInstanceMapper.toResponseDTO(salva);
@@ -236,7 +236,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
 
     @Transactional
     public void deleteLogically(UUID id) {
-        if (movimentacaoItemRepository.existsByItemInstanceId(id) || emprestimoItemRepository.existsByItemInstanceId(id)) {
+        if (itemMovementRepository.existsByItemInstanceId(id) || itemLoanRepository.existsByItemInstanceId(id)) {
             throw new IllegalArgumentException("Instance with operational history cannot be deleted. Use the outbound operation to remove it from inventory.");
         }
         ItemInstance instance = findById(id);
@@ -254,8 +254,8 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
         return listPreviousVersions(id);
     }
 
-    private MainItem findActiveMainItem(UUID itemMestreId) {
-        MainItem mainItem = itemMestreRepository.findById(itemMestreId)
+    private MainItem findActiveMainItem(UUID mainItemId) {
+        MainItem mainItem = mainItemRepository.findById(mainItemId)
                 .orElseThrow(() -> new IllegalArgumentException("Main item not found."));
         if (!mainItem.isActive()) {
             throw new IllegalArgumentException("Main item must be active.");
@@ -263,12 +263,12 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
         return mainItem;
     }
 
-    private StorageLocation findActiveLocation(UUID localId) {
-        if (localId == null) {
+    private StorageLocation findActiveLocation(UUID locationId) {
+        if (locationId == null) {
             return null;
         }
 
-        StorageLocation location = localArmazenamentoRepository.findById(localId)
+        StorageLocation location = storageLocationRepository.findById(locationId)
                 .orElseThrow(() -> new IllegalArgumentException("Current location not found."));
         if (!location.isActive()) {
             throw new IllegalArgumentException("Current location must be active.");

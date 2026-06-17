@@ -11,7 +11,7 @@ import java.util.UUID;
  * and audit timestamps.</p>
  *
  * @param id                 unique identifier of the person
- * @param nome               full name or company name
+ * @param name               full name or company name
  * @param cpfCnpj            CPF or CNPJ (digits only)
  * @param telefonePrincipal  primary contact phone; may be {@code null}
  * @param telefoneSecundario alternative phone; may be {@code null}
@@ -27,7 +27,7 @@ import java.util.UUID;
  */
 public record PersonResponseDTO(
         UUID id,
-        String nome,
+        String name,
         String cpfCnpj,
         String telefonePrincipal,
         String telefoneSecundario,

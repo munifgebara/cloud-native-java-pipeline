@@ -42,13 +42,13 @@ class PessoaServiceTest {
 
         when(repository.existsByTaxId("52998224725")).thenReturn(false);
         when(repository.save(any(Person.class))).thenAnswer(invocation -> {
-            Person pessoa = invocation.getArgument(0);
-            pessoa.setCreatedAt(createdAt);
-            pessoa.setUpdatedAt(updatedAt);
-            return pessoa;
+            Person person = invocation.getArgument(0);
+            person.setCreatedAt(createdAt);
+            person.setUpdatedAt(updatedAt);
+            return person;
         });
 
-        var resposta = service.create(new PersonCreateDTO(
+        var response = service.create(new PersonCreateDTO(
                 "  Maria Silva  ",
                 "529.982.247-25",
                 " (11) 99999-9999 ",
@@ -76,9 +76,9 @@ class PessoaServiceTest {
         assertThat(pessoaSalva.getNeighborhood()).isEqualTo("Bela Vista");
         assertThat(pessoaSalva.getCity()).isEqualTo("Sao Paulo");
         assertThat(pessoaSalva.getState()).isEqualTo("SP");
-        assertThat(resposta.cpfCnpj()).isEqualTo("52998224725");
-        assertThat(resposta.createdAt()).isEqualTo(createdAt);
-        assertThat(resposta.updatedAt()).isEqualTo(updatedAt);
+        assertThat(response.cpfCnpj()).isEqualTo("52998224725");
+        assertThat(response.createdAt()).isEqualTo(createdAt);
+        assertThat(response.updatedAt()).isEqualTo(updatedAt);
     }
 
     @Test
@@ -106,11 +106,11 @@ class PessoaServiceTest {
 
     @Test
     void deveBuscarPorNomeSomenteQuandoFiltroInformado() {
-        Person pessoa = new Person();
-        pessoa.setId(UUID.randomUUID());
-        pessoa.setName("Maria Silva");
+        Person person = new Person();
+        person.setId(UUID.randomUUID());
+        person.setName("Maria Silva");
 
-        when(repository.findByActiveTrueAndNameContainingIgnoreCase("Maria")).thenReturn(List.of(pessoa));
+        when(repository.findByActiveTrueAndNameContainingIgnoreCase("Maria")).thenReturn(List.of(person));
 
         assertThat(service.findByName("  ")).isEmpty();
         assertThat(service.findByName(" Maria ")).hasSize(1);

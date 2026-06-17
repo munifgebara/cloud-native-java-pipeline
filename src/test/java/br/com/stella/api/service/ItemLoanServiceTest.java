@@ -38,13 +38,13 @@ class EmprestimoItemServiceTest {
     private ItemLoanRepository repository;
 
     @Mock
-    private ItemInstanceRepository instanciaItemRepository;
+    private ItemInstanceRepository itemInstanceRepository;
 
     @Mock
-    private PersonRepository pessoaRepository;
+    private PersonRepository personRepository;
 
     @Mock
-    private StorageLocationRepository localArmazenamentoRepository;
+    private StorageLocationRepository storageLocationRepository;
 
     @Mock
     private EntityManager entityManager;
@@ -57,20 +57,20 @@ class EmprestimoItemServiceTest {
         UUID instanciaId = UUID.randomUUID();
         UUID pessoaId = UUID.randomUUID();
         ItemInstance instance = instance(instanciaId, ItemInstanceStatus.DISPONIVEL, true, location(UUID.randomUUID(), "Biblioteca"));
-        Person pessoa = pessoa(pessoaId, "Maria Silva", true);
+        Person person = person(pessoaId, "Maria Silva", true);
         LocalDate previsao = LocalDate.now().plusDays(7);
 
-        when(instanciaItemRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
-        when(pessoaRepository.findById(pessoaId)).thenReturn(Optional.of(pessoa));
+        when(itemInstanceRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
+        when(personRepository.findById(pessoaId)).thenReturn(Optional.of(person));
         when(repository.existsByItemInstanceIdAndReturnDateIsNull(instanciaId)).thenReturn(false);
-        when(instanciaItemRepository.save(any(ItemInstance.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(itemInstanceRepository.save(any(ItemInstance.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(repository.save(any(ItemLoan.class))).thenAnswer(invocation -> {
-            ItemLoan emprestimo = invocation.getArgument(0);
-            emprestimo.setId(UUID.randomUUID());
-            return emprestimo;
+            ItemLoan loan = invocation.getArgument(0);
+            loan.setId(UUID.randomUUID());
+            return loan;
         });
 
-        var resposta = service.registerLoan(new ItemLoanCreateDTO(
+        var response = service.registerLoan(new ItemLoanCreateDTO(
                 instanciaId,
                 pessoaId,
                 previsao,
@@ -79,20 +79,20 @@ class EmprestimoItemServiceTest {
 
         ArgumentCaptor<ItemInstance> instanciaCaptor = ArgumentCaptor.forClass(ItemInstance.class);
         ArgumentCaptor<ItemLoan> emprestimoCaptor = ArgumentCaptor.forClass(ItemLoan.class);
-        verify(instanciaItemRepository).save(instanciaCaptor.capture());
+        verify(itemInstanceRepository).save(instanciaCaptor.capture());
         verify(repository).save(emprestimoCaptor.capture());
 
         ItemInstance instanciaAtualizada = instanciaCaptor.getValue();
         assertThat(instanciaAtualizada.getOperationalStatus()).isEqualTo(ItemInstanceStatus.EMPRESTADO);
         assertThat(instanciaAtualizada.getCurrentLocation()).isNull();
 
-        ItemLoan emprestimo = emprestimoCaptor.getValue();
-        assertThat(emprestimo.getItemInstance()).isEqualTo(instance);
-        assertThat(emprestimo.getPerson()).isEqualTo(pessoa);
-        assertThat(emprestimo.getExpectedReturnDate()).isEqualTo(previsao);
-        assertThat(emprestimo.getNotes()).isEqualTo("Checked out for class use");
-        assertThat(resposta.pessoaId()).isEqualTo(pessoaId);
-        assertThat(resposta.instanciaItemId()).isEqualTo(instanciaId);
+        ItemLoan loan = emprestimoCaptor.getValue();
+        assertThat(loan.getItemInstance()).isEqualTo(instance);
+        assertThat(loan.getPerson()).isEqualTo(person);
+        assertThat(loan.getExpectedReturnDate()).isEqualTo(previsao);
+        assertThat(loan.getNotes()).isEqualTo("Checked out for class use");
+        assertThat(response.pessoaId()).isEqualTo(pessoaId);
+        assertThat(response.itemInstanceId()).isEqualTo(instanciaId);
     }
 
     @Test
@@ -101,14 +101,14 @@ class EmprestimoItemServiceTest {
         UUID pessoaId = UUID.randomUUID();
         ItemInstance instance = instance(instanciaId, ItemInstanceStatus.EM_MOVIMENTACAO, true, location(UUID.randomUUID(), "Biblioteca"));
 
-        when(instanciaItemRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
-        when(pessoaRepository.findById(pessoaId)).thenReturn(Optional.of(pessoa(pessoaId, "Maria Silva", true)));
+        when(itemInstanceRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
+        when(personRepository.findById(pessoaId)).thenReturn(Optional.of(person(pessoaId, "Maria Silva", true)));
 
         assertThatThrownBy(() -> service.registerLoan(new ItemLoanCreateDTO(instanciaId, pessoaId, null, null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("available instances can be loaned");
 
-        verify(instanciaItemRepository, never()).save(any(ItemInstance.class));
+        verify(itemInstanceRepository, never()).save(any(ItemInstance.class));
         verify(repository, never()).save(any(ItemLoan.class));
     }
 
@@ -118,41 +118,41 @@ class EmprestimoItemServiceTest {
         UUID pessoaId = UUID.randomUUID();
         ItemInstance instance = instance(instanciaId, ItemInstanceStatus.DISPONIVEL, true, location(UUID.randomUUID(), "Biblioteca"));
 
-        when(instanciaItemRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
-        when(pessoaRepository.findById(pessoaId)).thenReturn(Optional.of(pessoa(pessoaId, "Maria Silva", true)));
+        when(itemInstanceRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
+        when(personRepository.findById(pessoaId)).thenReturn(Optional.of(person(pessoaId, "Maria Silva", true)));
         when(repository.existsByItemInstanceIdAndReturnDateIsNull(instanciaId)).thenReturn(true);
 
         assertThatThrownBy(() -> service.registerLoan(new ItemLoanCreateDTO(instanciaId, pessoaId, null, null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("open loan for this instance");
 
-        verify(instanciaItemRepository, never()).save(any(ItemInstance.class));
+        verify(itemInstanceRepository, never()).save(any(ItemInstance.class));
         verify(repository, never()).save(any(ItemLoan.class));
     }
 
     @Test
     void deveRegistrarDevolucaoEncerrandoEmprestimoEAtualizandoInstancia() {
         UUID instanciaId = UUID.randomUUID();
-        UUID localId = UUID.randomUUID();
+        UUID locationId = UUID.randomUUID();
         ItemInstance instance = instance(instanciaId, ItemInstanceStatus.EMPRESTADO, true, null);
-        Person pessoa = pessoa(UUID.randomUUID(), "Maria Silva", true);
-        StorageLocation localRetorno = location(localId, "Biblioteca");
-        ItemLoan emprestimo = emprestimo(instance, pessoa);
+        Person person = person(UUID.randomUUID(), "Maria Silva", true);
+        StorageLocation localRetorno = location(locationId, "Biblioteca");
+        ItemLoan loan = loan(instance, person);
 
-        when(repository.findByItemInstanceIdAndReturnDateIsNull(instanciaId)).thenReturn(Optional.of(emprestimo));
-        when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(localRetorno));
-        when(instanciaItemRepository.save(any(ItemInstance.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.findByItemInstanceIdAndReturnDateIsNull(instanciaId)).thenReturn(Optional.of(loan));
+        when(storageLocationRepository.findById(locationId)).thenReturn(Optional.of(localRetorno));
+        when(itemInstanceRepository.save(any(ItemInstance.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(repository.save(any(ItemLoan.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.registerReturn(new ItemLoanReturnDTO(
+        var response = service.registerReturn(new ItemLoanReturnDTO(
                 instanciaId,
-                localId,
+                locationId,
                 "  Devolvido sem avarias  "
         ));
 
         ArgumentCaptor<ItemInstance> instanciaCaptor = ArgumentCaptor.forClass(ItemInstance.class);
         ArgumentCaptor<ItemLoan> emprestimoCaptor = ArgumentCaptor.forClass(ItemLoan.class);
-        verify(instanciaItemRepository).save(instanciaCaptor.capture());
+        verify(itemInstanceRepository).save(instanciaCaptor.capture());
         verify(repository).save(emprestimoCaptor.capture());
 
         ItemInstance instanciaAtualizada = instanciaCaptor.getValue();
@@ -162,40 +162,40 @@ class EmprestimoItemServiceTest {
         ItemLoan emprestimoAtualizado = emprestimoCaptor.getValue();
         assertThat(emprestimoAtualizado.getReturnDate()).isNotNull();
         assertThat(emprestimoAtualizado.getNotes()).isEqualTo("Devolvido sem avarias");
-        assertThat(resposta.dataDevolucao()).isNotNull();
-        assertThat(resposta.instanciaItemId()).isEqualTo(instanciaId);
+        assertThat(response.returnDate()).isNotNull();
+        assertThat(response.itemInstanceId()).isEqualTo(instanciaId);
     }
 
     @Test
     void deveImpedirDevolucaoSemEmprestimoAberto() {
         UUID instanciaId = UUID.randomUUID();
-        UUID localId = UUID.randomUUID();
+        UUID locationId = UUID.randomUUID();
 
         when(repository.findByItemInstanceIdAndReturnDateIsNull(instanciaId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.registerReturn(new ItemLoanReturnDTO(instanciaId, localId, null)))
+        assertThatThrownBy(() -> service.registerReturn(new ItemLoanReturnDTO(instanciaId, locationId, null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("open loan for this instance");
 
-        verify(instanciaItemRepository, never()).save(any(ItemInstance.class));
+        verify(itemInstanceRepository, never()).save(any(ItemInstance.class));
         verify(repository, never()).save(any(ItemLoan.class));
     }
 
     @Test
     void deveImpedirDevolucaoQuandoInstanciaNaoEstaEmprestada() {
         UUID instanciaId = UUID.randomUUID();
-        UUID localId = UUID.randomUUID();
+        UUID locationId = UUID.randomUUID();
         ItemInstance instance = instance(instanciaId, ItemInstanceStatus.DISPONIVEL, true, null);
-        ItemLoan emprestimo = emprestimo(instance, pessoa(UUID.randomUUID(), "Maria Silva", true));
+        ItemLoan loan = loan(instance, person(UUID.randomUUID(), "Maria Silva", true));
 
-        when(repository.findByItemInstanceIdAndReturnDateIsNull(instanciaId)).thenReturn(Optional.of(emprestimo));
-        when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(location(localId, "Biblioteca")));
+        when(repository.findByItemInstanceIdAndReturnDateIsNull(instanciaId)).thenReturn(Optional.of(loan));
+        when(storageLocationRepository.findById(locationId)).thenReturn(Optional.of(location(locationId, "Biblioteca")));
 
-        assertThatThrownBy(() -> service.registerReturn(new ItemLoanReturnDTO(instanciaId, localId, null)))
+        assertThatThrownBy(() -> service.registerReturn(new ItemLoanReturnDTO(instanciaId, locationId, null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("must be loaned");
 
-        verify(instanciaItemRepository, never()).save(any(ItemInstance.class));
+        verify(itemInstanceRepository, never()).save(any(ItemInstance.class));
         verify(repository, never()).save(any(ItemLoan.class));
     }
 
@@ -210,28 +210,28 @@ class EmprestimoItemServiceTest {
         return instance;
     }
 
-    private Person pessoa(UUID id, String nome, boolean ativa) {
-        Person pessoa = new Person();
-        pessoa.setId(id);
-        pessoa.setName(nome);
-        pessoa.setActive(ativa);
-        return pessoa;
+    private Person person(UUID id, String name, boolean ativa) {
+        Person person = new Person();
+        person.setId(id);
+        person.setName(name);
+        person.setActive(ativa);
+        return person;
     }
 
-    private StorageLocation location(UUID id, String nome) {
+    private StorageLocation location(UUID id, String name) {
         StorageLocation location = new StorageLocation();
         location.setId(id);
-        location.setName(nome);
+        location.setName(name);
         location.setActive(true);
         return location;
     }
 
-    private ItemLoan emprestimo(ItemInstance instance, Person pessoa) {
-        ItemLoan emprestimo = new ItemLoan();
-        emprestimo.setId(UUID.randomUUID());
-        emprestimo.setItemInstance(instance);
-        emprestimo.setPerson(pessoa);
-        emprestimo.setNotes("Loan inicial");
-        return emprestimo;
+    private ItemLoan loan(ItemInstance instance, Person person) {
+        ItemLoan loan = new ItemLoan();
+        loan.setId(UUID.randomUUID());
+        loan.setItemInstance(instance);
+        loan.setPerson(person);
+        loan.setNotes("Loan inicial");
+        return loan;
     }
 }

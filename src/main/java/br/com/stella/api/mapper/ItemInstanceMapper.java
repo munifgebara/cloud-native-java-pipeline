@@ -21,11 +21,11 @@ public final class ItemInstanceMapper {
         }
 
         ItemInstance instance = new ItemInstance();
-        instance.setIdentifier(dto.identificador());
-        instance.setAssetTag(dto.patrimonio());
-        instance.setSerialNumber(dto.numeroSerie());
-        instance.setOperationalStatus(statusOrDefault(dto.statusOperacional()));
-        instance.setNotes(dto.observacoes());
+        instance.setIdentifier(dto.identifier());
+        instance.setAssetTag(dto.assetTag());
+        instance.setSerialNumber(dto.serialNumber());
+        instance.setOperationalStatus(statusOrDefault(dto.operationalStatus()));
+        instance.setNotes(dto.notes());
         instance.setRegistrationOrigin(dto.registrationOrigin());
         if (dto.ativa() != null) {
             instance.setActive(dto.ativa());
@@ -38,11 +38,11 @@ public final class ItemInstanceMapper {
             return;
         }
 
-        entity.setIdentifier(dto.identificador());
-        entity.setAssetTag(dto.patrimonio());
-        entity.setSerialNumber(dto.numeroSerie());
-        entity.setOperationalStatus(statusOrDefault(dto.statusOperacional()));
-        entity.setNotes(dto.observacoes());
+        entity.setIdentifier(dto.identifier());
+        entity.setAssetTag(dto.assetTag());
+        entity.setSerialNumber(dto.serialNumber());
+        entity.setOperationalStatus(statusOrDefault(dto.operationalStatus()));
+        entity.setNotes(dto.notes());
         entity.setRegistrationOrigin(dto.registrationOrigin());
         if (dto.ativa() != null) {
             entity.setActive(dto.ativa());
@@ -56,7 +56,7 @@ public final class ItemInstanceMapper {
 
         MainItem mainItem = entity.getMainItem();
         Category category = mainItem == null ? null : mainItem.getCategory();
-        StorageLocation localAtual = entity.getCurrentLocation();
+        StorageLocation currentLocation = entity.getCurrentLocation();
         return new ItemInstanceResponseDTO(
                 entity.getId(),
                 mainItem == null ? null : mainItem.getId(),
@@ -64,8 +64,8 @@ public final class ItemInstanceMapper {
                 category == null ? null : category.getId(),
                 category == null ? null : category.getName(),
                 category == null ? null : category.getIcon(),
-                localAtual == null ? null : localAtual.getId(),
-                localAtual == null ? null : localAtual.getName(),
+                currentLocation == null ? null : currentLocation.getId(),
+                currentLocation == null ? null : currentLocation.getName(),
                 entity.getIdentifier(),
                 entity.getAssetTag(),
                 entity.getSerialNumber(),
@@ -83,15 +83,15 @@ public final class ItemInstanceMapper {
 
         MainItem mainItem = entity.getMainItem();
         Category category = mainItem == null ? null : mainItem.getCategory();
-        StorageLocation localAtual = entity.getCurrentLocation();
+        StorageLocation currentLocation = entity.getCurrentLocation();
         return new ItemInstanceSummaryDTO(
                 entity.getId(),
                 mainItem == null ? null : mainItem.getId(),
                 mainItem == null ? null : mainItem.getName(),
                 category == null ? null : category.getName(),
                 category == null ? null : category.getIcon(),
-                localAtual == null ? null : localAtual.getId(),
-                localAtual == null ? null : localAtual.getName(),
+                currentLocation == null ? null : currentLocation.getId(),
+                currentLocation == null ? null : currentLocation.getName(),
                 entity.getIdentifier(),
                 entity.getAssetTag(),
                 entity.getSerialNumber(),

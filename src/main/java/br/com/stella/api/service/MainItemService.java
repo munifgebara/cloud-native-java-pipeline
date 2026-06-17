@@ -44,20 +44,20 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
 
     private static final Logger log = LoggerFactory.getLogger(MainItemService.class);
 
-    private final CategoryRepository categoriaRepository;
-    private final MainItemImageStorageService imagemStorageService;
+    private final CategoryRepository categoryRepository;
+    private final MainItemImageStorageService imageStorageService;
     private final MainItemVectorSearchService vectorSearchService;
 
     public MainItemService(
             MainItemRepository repository,
             EntityManager entityManager,
-            CategoryRepository categoriaRepository,
-            MainItemImageStorageService imagemStorageService,
+            CategoryRepository categoryRepository,
+            MainItemImageStorageService imageStorageService,
             MainItemVectorSearchService vectorSearchService
     ) {
         super(repository, entityManager, MainItem.class);
-        this.categoriaRepository = categoriaRepository;
-        this.imagemStorageService = imagemStorageService;
+        this.categoryRepository = categoryRepository;
+        this.imageStorageService = imageStorageService;
         this.vectorSearchService = vectorSearchService;
     }
 
@@ -72,7 +72,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
     public MainItemResponseDTO create(MainItemCreateDTO dto) {
         MainItem item = MainItemMapper.toEntity(dto);
         normalizarCampos(item);
-        item.setCategory(buscarCategoriaAtiva(dto.categoriaId()));
+        item.setCategory(buscarCategoriaAtiva(dto.categoryId()));
 
         MainItem salvo = save(item);
         if (Boolean.FALSE.equals(dto.ativa())) {
@@ -129,17 +129,17 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
     /**
      * Finds active main items whose name contains the given text (case-insensitive).
      *
-     * @param nome substring to search; returns empty list if blank
+     * @param name substring to search; returns empty list if blank
      * @return list of summary DTOs of the found items
      */
     @Transactional(readOnly = true)
-    public List<MainItemSummaryDTO> findByName(String nome) {
-        String nomeTratado = BrValidations.trimToNull(nome);
-        if (nomeTratado == null) {
+    public List<MainItemSummaryDTO> findByName(String name) {
+        String normalizedName = BrValidations.trimToNull(name);
+        if (normalizedName == null) {
             return List.of();
         }
 
-        return repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(nomeTratado).stream()
+        return repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(normalizedName).stream()
                 .map(MainItemMapper::toResumoDTO)
                 .toList();
     }
@@ -148,15 +148,15 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      * Filters active main items combining name and category with {@code AND}.
      * Null parameters are ignored.
      *
-     * @param nome        name substring; ignored if {@code null} or blank
-     * @param categoriaId UUID of the category; ignored if {@code null}
+     * @param name        name substring; ignored if {@code null} or blank
+     * @param categoryId UUID of the category; ignored if {@code null}
      * @return list of summary DTOs of items matching the filters
      */
     @Transactional(readOnly = true)
-    public List<MainItemSummaryDTO> filtrar(String nome, UUID categoriaId) {
+    public List<MainItemSummaryDTO> filtrar(String name, UUID categoryId) {
         return repository.findAll(
-                        MainItemRepository.filterActive(BrValidations.trimToNull(nome), categoriaId),
-                        Sort.by("nome").ascending()
+                        MainItemRepository.filterActive(BrValidations.trimToNull(name), categoryId),
+                        Sort.by("name").ascending()
                 ).stream()
                 .map(MainItemMapper::toResumoDTO)
                 .toList();
@@ -174,7 +174,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
     @Transactional
     public MainItemResponseDTO update(UUID id, MainItemUpdateDTO dto) {
         MainItem item = findById(id);
-        Category category = buscarCategoriaAtiva(dto.categoriaId());
+        Category category = buscarCategoriaAtiva(dto.categoryId());
 
         MainItemMapper.updateEntity(item, dto);
         normalizarCampos(item);
@@ -193,7 +193,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
 
     /**
      * Updates the main image of a main item with a file uploaded by the user.
-     * Equivalent to calling {@link #atualizarImagemPrincipal(UUID, MultipartFile, boolean, String)}
+     * Equivalent to calling {@link #updateMainImage(UUID, MultipartFile, boolean, String)}
      * with {@code generatedByAi = false}.
      *
      * @param id      UUID of the main item
@@ -201,8 +201,8 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      * @return full DTO of the item with the new image metadata
      */
     @Transactional
-    public MainItemResponseDTO atualizarImagemPrincipal(UUID id, MultipartFile arquivo) {
-        return atualizarImagemPrincipal(id, arquivo, false, null);
+    public MainItemResponseDTO updateMainImage(UUID id, MultipartFile arquivo) {
+        return updateMainImage(id, arquivo, false, null);
     }
 
     /**
@@ -217,27 +217,27 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      * @return full DTO of the item with the new image metadata
      */
     @Transactional
-    public MainItemResponseDTO atualizarImagemPrincipal(UUID id, MultipartFile arquivo, boolean generatedByAi, String provider) {
+    public MainItemResponseDTO updateMainImage(UUID id, MultipartFile arquivo, boolean generatedByAi, String provider) {
         MainItem item = findById(id);
         String bucketAnterior = item.getImageBucket();
         String objectKeyAnterior = item.getImageObjectKey();
 
-        MainItemImageDTO imagem = imagemStorageService.armazenar(id, arquivo);
-        item.setImageBucket(imagem.bucket());
-        item.setImageObjectKey(imagem.objectKey());
-        item.setImageContentType(imagem.contentType());
-        item.setImageSizeBytes(imagem.tamanhoBytes());
+        MainItemImageDTO image = imageStorageService.armazenar(id, arquivo);
+        item.setImageBucket(image.bucket());
+        item.setImageObjectKey(image.objectKey());
+        item.setImageContentType(image.contentType());
+        item.setImageSizeBytes(image.tamanhoBytes());
         item.setImageGeneratedByAi(generatedByAi);
         item.setImageProvider(generatedByAi ? BrValidations.trimToNull(provider) : null);
 
         MainItem salvo = save(item);
         sincronizarIndiceVetorialSilenciosamente(salvo, "item-index-sync-after-image-update");
-        imagemStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
+        imageStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
         StructuredBusinessLogger.info(log, "inventory", "item-image-updated", StructuredBusinessLogger.fields(
                 "item_id", salvo.getId(),
                 "item_name", salvo.getName(),
-                "image_content_type", imagem.contentType(),
-                "image_size_bytes", imagem.tamanhoBytes(),
+                "image_content_type", image.contentType(),
+                "image_size_bytes", image.tamanhoBytes(),
                 "image_generated_by_ai", generatedByAi,
                 "ai_provider", generatedByAi ? BrValidations.trimToNull(provider) : null,
                 "success", true
@@ -276,8 +276,8 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      */
     @Transactional(readOnly = true)
     public InputStream abrirImagemPrincipal(UUID id) {
-        MainItemImageDTO imagem = buscarMetadadosImagemPrincipal(id);
-        return imagemStorageService.abrir(imagem.bucket(), imagem.objectKey());
+        MainItemImageDTO image = buscarMetadadosImagemPrincipal(id);
+        return imageStorageService.abrir(image.bucket(), image.objectKey());
     }
 
     /**
@@ -301,12 +301,12 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
     /**
      * Performs semantic search in the main item vector index.
      *
-     * @param consulta free-text describing what is being searched
+     * @param query free-text describing what is being searched
      * @return list of results ordered by semantic similarity
      */
     @Transactional(readOnly = true)
-    public List<SemanticSearchItemDTO> buscarSemanticamente(String consulta) {
-        return vectorSearchService.search(consulta);
+    public List<SemanticSearchItemDTO> buscarSemanticamente(String query) {
+        return vectorSearchService.search(query);
     }
 
     /**
@@ -331,12 +331,12 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
         return listPreviousVersions(id);
     }
 
-    private Category buscarCategoriaAtiva(UUID categoriaId) {
-        if (categoriaId == null) {
+    private Category buscarCategoriaAtiva(UUID categoryId) {
+        if (categoryId == null) {
             return null;
         }
 
-        Category category = categoriaRepository.findById(categoriaId)
+        Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("Category not found."));
         if (!category.isActive()) {
             throw new IllegalArgumentException("Category must be active.");
@@ -355,8 +355,8 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
                 () -> vectorSearchService.sincronizar(item));
     }
 
-    private void removerIndiceVetorialSilenciosamente(UUID id, String nome) {
-        executarAposCommit("item-index-remove-after-delete", id, nome, () -> vectorSearchService.remover(id));
+    private void removerIndiceVetorialSilenciosamente(UUID id, String name) {
+        executarAposCommit("item-index-remove-after-delete", id, name, () -> vectorSearchService.remover(id));
     }
 
     private void executarAposCommit(String action, UUID itemId, String itemName, Runnable operation) {

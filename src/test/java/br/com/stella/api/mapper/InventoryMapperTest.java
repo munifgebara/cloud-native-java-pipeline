@@ -35,42 +35,42 @@ class InventoryMapperTest {
         assertThat(PersonMapper.toResponseDTO(null)).isNull();
         assertThat(PersonMapper.toResumoDTO(null)).isNull();
 
-        Person pessoa = PersonMapper.toEntity(new PersonCreateDTO(
+        Person person = PersonMapper.toEntity(new PersonCreateDTO(
                 "Maria", "12345678901", "1111", "2222", "maria@example.location",
                 "01001000", "Rua A", "Ap 1", "Centro", "Sao Paulo", "SP"
         ));
 
-        assertThat(pessoa.getName()).isEqualTo("Maria");
-        assertThat(pessoa.getTaxId()).isEqualTo("12345678901");
-        assertThat(pessoa.getPrimaryPhone()).isEqualTo("1111");
-        assertThat(pessoa.getState()).isEqualTo("SP");
+        assertThat(person.getName()).isEqualTo("Maria");
+        assertThat(person.getTaxId()).isEqualTo("12345678901");
+        assertThat(person.getPrimaryPhone()).isEqualTo("1111");
+        assertThat(person.getState()).isEqualTo("SP");
 
-        PersonMapper.updateEntity(pessoa, new PersonUpdateDTO(
+        PersonMapper.updateEntity(person, new PersonUpdateDTO(
                 "Maria Silva", "3333", "4444", "maria.silva@example.location",
                 "02002000", "Rua B", "Casa", "Jardins", "Campinas", "SP"
         ));
 
-        pessoa.setId(UUID.randomUUID());
+        person.setId(UUID.randomUUID());
 
-        var response = PersonMapper.toResponseDTO(pessoa);
-        var resumo = PersonMapper.toResumoDTO(pessoa);
+        var response = PersonMapper.toResponseDTO(person);
+        var resumo = PersonMapper.toResumoDTO(person);
 
-        assertThat(response.nome()).isEqualTo("Maria Silva");
+        assertThat(response.name()).isEqualTo("Maria Silva");
         assertThat(response.email()).isEqualTo("maria.silva@example.location");
         assertThat(response.endereco()).isEqualTo("Rua B");
-        assertThat(resumo.id()).isEqualTo(pessoa.getId());
-        assertThat(resumo.nome()).isEqualTo("Maria Silva");
+        assertThat(resumo.id()).isEqualTo(person.getId());
+        assertThat(resumo.name()).isEqualTo("Maria Silva");
     }
 
     @Test
     void deveIgnorarUpdateDePessoaQuandoEntradaForNula() {
-        Person pessoa = new Person();
-        pessoa.setName("Original");
+        Person person = new Person();
+        person.setName("Original");
 
         PersonMapper.updateEntity(null, new PersonUpdateDTO("Novo", null, null, null, null, null, null, null, null, null));
-        PersonMapper.updateEntity(pessoa, null);
+        PersonMapper.updateEntity(person, null);
 
-        assertThat(pessoa.getName()).isEqualTo("Original");
+        assertThat(person.getName()).isEqualTo("Original");
     }
 
     @Test
@@ -89,10 +89,10 @@ class InventoryMapperTest {
         var response = CategoryMapper.toResponseDTO(category);
         var resumo = CategoryMapper.toResumoDTO(category);
 
-        assertThat(response.nome()).isEqualTo("Biblioteca");
-        assertThat(response.icone()).isEqualTo("book");
+        assertThat(response.name()).isEqualTo("Biblioteca");
+        assertThat(response.icon()).isEqualTo("book");
         assertThat(response.ativa()).isTrue();
-        assertThat(resumo.descricao()).isEqualTo("Livros fisicos");
+        assertThat(resumo.description()).isEqualTo("Livros fisicos");
     }
 
     @Test
@@ -122,14 +122,14 @@ class InventoryMapperTest {
         var resumo = StorageLocationMapper.toResumoDTO(sala, "Casa > Sala", 1);
 
         assertThat(response.paiId()).isEqualTo(raiz.getId());
-        assertThat(response.paiNome()).isEqualTo("Casa");
+        assertThat(response.parentName()).isEqualTo("Casa");
         assertThat(response.caminho()).isEqualTo("Casa > Sala");
         assertThat(response.nivel()).isEqualTo(1);
-        assertThat(response.imagemUrl()).isEqualTo("/api/public/locais/%s/imagem".formatted(sala.getId()));
+        assertThat(response.imageUrl()).isEqualTo("/api/public/locais/%s/image".formatted(sala.getId()));
         assertThat(response.imageContentType()).isEqualTo("image/png");
         assertThat(response.imageSizeBytes()).isEqualTo(20L);
         assertThat(resumo.caminho()).isEqualTo("Casa > Sala");
-        assertThat(resumo.imagemUrl()).isEqualTo(response.imagemUrl());
+        assertThat(resumo.imageUrl()).isEqualTo(response.imageUrl());
     }
 
     @Test
@@ -164,13 +164,13 @@ class InventoryMapperTest {
         var response = MainItemMapper.toResponseDTO(item);
         var resumo = MainItemMapper.toResumoDTO(item);
 
-        assertThat(response.categoriaId()).isEqualTo(category.getId());
-        assertThat(response.categoriaNome()).isEqualTo("Ferramentas");
-        assertThat(response.categoriaIcone()).isEqualTo("tools");
-        assertThat(response.imagemUrl()).isEqualTo("/api/public/itens-mestre/%s/imagem-principal".formatted(item.getId()));
+        assertThat(response.categoryId()).isEqualTo(category.getId());
+        assertThat(response.categoryName()).isEqualTo("Ferramentas");
+        assertThat(response.categoryIcon()).isEqualTo("tools");
+        assertThat(response.imageUrl()).isEqualTo("/api/public/itens-mestre/%s/image-principal".formatted(item.getId()));
         assertThat(response.imageContentType()).isEqualTo("image/png");
         assertThat(response.imageSizeBytes()).isEqualTo(30L);
-        assertThat(resumo.imagemUrl()).isEqualTo(response.imagemUrl());
+        assertThat(resumo.imageUrl()).isEqualTo(response.imageUrl());
     }
 
     @Test
@@ -208,10 +208,10 @@ class InventoryMapperTest {
 
         assertThat(instance.getOperationalStatus()).isEqualTo(ItemInstanceStatus.DISPONIVEL);
         assertThat(instance.isActive()).isFalse();
-        assertThat(response.itemMestreNome()).isEqualTo("Clean Code");
-        assertThat(response.categoriaNome()).isEqualTo("Livros");
-        assertThat(response.localAtualNome()).isEqualTo("Estante");
-        assertThat(resumo.categoriaIcone()).isEqualTo("book");
+        assertThat(response.mainItemName()).isEqualTo("Clean Code");
+        assertThat(response.categoryName()).isEqualTo("Livros");
+        assertThat(response.currentLocationName()).isEqualTo("Estante");
+        assertThat(resumo.categoryIcon()).isEqualTo("book");
     }
 
     @Test
@@ -235,23 +235,23 @@ class InventoryMapperTest {
         ItemInstance instance = new ItemInstance();
         instance.setId(UUID.randomUUID());
         instance.setAssetTag("PAT-10");
-        Person pessoa = new Person();
-        pessoa.setId(UUID.randomUUID());
-        pessoa.setName("Joao");
-        ItemLoan emprestimo = new ItemLoan();
-        emprestimo.setId(UUID.randomUUID());
-        emprestimo.setItemInstance(instance);
-        emprestimo.setPerson(pessoa);
-        emprestimo.setLoanDate(Instant.parse("2026-01-01T10:00:00Z"));
-        emprestimo.setExpectedReturnDate(LocalDate.parse("2026-01-10"));
-        emprestimo.setReturnDate(Instant.parse("2026-01-05T10:00:00Z"));
-        emprestimo.setNotes("ok");
+        Person person = new Person();
+        person.setId(UUID.randomUUID());
+        person.setName("Joao");
+        ItemLoan loan = new ItemLoan();
+        loan.setId(UUID.randomUUID());
+        loan.setItemInstance(instance);
+        loan.setPerson(person);
+        loan.setLoanDate(Instant.parse("2026-01-01T10:00:00Z"));
+        loan.setExpectedReturnDate(LocalDate.parse("2026-01-10"));
+        loan.setReturnDate(Instant.parse("2026-01-05T10:00:00Z"));
+        loan.setNotes("ok");
 
-        var response = ItemLoanMapper.toResponseDTO(emprestimo);
+        var response = ItemLoanMapper.toResponseDTO(loan);
 
         assertThat(response.instanciaIdentificacao()).isEqualTo("PAT-10");
         assertThat(response.pessoaNome()).isEqualTo("Joao");
-        assertThat(response.observacao()).isEqualTo("ok");
+        assertThat(response.notes()).isEqualTo("ok");
     }
 
     @Test
@@ -263,17 +263,17 @@ class InventoryMapperTest {
         instance.setSerialNumber("SER-10");
         StorageLocation origem = location("Origem", null);
         StorageLocation destino = location("Destino", null);
-        ItemMovement movimentacao = new ItemMovement();
-        movimentacao.setId(UUID.randomUUID());
-        movimentacao.setType(ItemMovementType.TRANSFERENCIA);
-        movimentacao.setMovementDate(Instant.parse("2026-01-01T10:00:00Z"));
-        movimentacao.setItemInstance(instance);
-        movimentacao.setOriginLocation(origem);
-        movimentacao.setDestinationLocation(destino);
-        movimentacao.setReason("Organizacao");
-        movimentacao.setNotes("ok");
+        ItemMovement movement = new ItemMovement();
+        movement.setId(UUID.randomUUID());
+        movement.setType(ItemMovementType.TRANSFERENCIA);
+        movement.setMovementDate(Instant.parse("2026-01-01T10:00:00Z"));
+        movement.setItemInstance(instance);
+        movement.setOriginLocation(origem);
+        movement.setDestinationLocation(destino);
+        movement.setReason("Organizacao");
+        movement.setNotes("ok");
 
-        var response = ItemMovementMapper.toResponseDTO(movimentacao);
+        var response = ItemMovementMapper.toResponseDTO(movement);
 
         assertThat(response.instanciaIdentificacao()).isEqualTo("SER-10");
         assertThat(response.localOrigemNome()).isEqualTo("Origem");
@@ -281,28 +281,28 @@ class InventoryMapperTest {
         assertThat(response.motivo()).isEqualTo("Organizacao");
     }
 
-    private Category category(String nome, String icone) {
+    private Category category(String name, String icon) {
         Category category = new Category();
         category.setId(UUID.randomUUID());
-        category.setName(nome);
-        category.setIcon(icone);
+        category.setName(name);
+        category.setIcon(icon);
         category.setActive(true);
         return category;
     }
 
-    private MainItem item(String nome, Category category) {
+    private MainItem item(String name, Category category) {
         MainItem item = new MainItem();
         item.setId(UUID.randomUUID());
-        item.setName(nome);
+        item.setName(name);
         item.setCategory(category);
         item.setActive(true);
         return item;
     }
 
-    private StorageLocation location(String nome, StorageLocation pai) {
+    private StorageLocation location(String name, StorageLocation pai) {
         StorageLocation location = new StorageLocation();
         location.setId(UUID.randomUUID());
-        location.setName(nome);
+        location.setName(name);
         location.setParent(pai);
         location.setActive(true);
         return location;

@@ -12,18 +12,18 @@ import java.util.UUID;
  * or a sub-location (providing the {@code paiId} of the parent location). The image is sent
  * via a separate endpoint after creation.</p>
  *
- * @param nome      location name; required, up to 150 characters
- * @param descricao optional description of the location (capacity, item type, etc.); up to 500 characters
+ * @param name      location name; required, up to 150 characters
+ * @param description optional description of the location (capacity, item type, etc.); up to 500 characters
  * @param paiId     identifier of the parent location in the hierarchy; {@code null} indicates a root location
  * @param ativa     indicates whether the location should be created as active; when {@code null}, defaults to {@code true}
  */
 public record StorageLocationCreateDTO(
         @NotBlank(message = "Name is required.")
         @Size(max = 150, message = "Name must not exceed 150 characters.")
-        String nome,
+        String name,
 
         @Size(max = 500, message = "Description must not exceed 500 characters.")
-        String descricao,
+        String description,
 
         UUID paiId,
 

@@ -10,38 +10,38 @@ import java.util.UUID;
  * Update DTO for an item instance.
  *
  * <p>Contains the fields that can be changed in an already registered instance.
- * All fields (except {@code itemMestreId}) are optional: {@code null} values
+ * All fields (except {@code mainItemId}) are optional: {@code null} values
  * clear the corresponding field in the entity.</p>
  *
- * @param itemMestreId      identifier of the main item to which this instance belongs; required
- * @param localAtualId      identifier of the new storage location; {@code null} removes the location
- * @param identificador     internal identification code (up to 100 characters); optional
- * @param patrimonio        asset number (up to 100 characters); optional
- * @param numeroSerie       manufacturer's serial number (up to 150 characters); optional
- * @param statusOperacional new operational status of the instance; optional
- * @param observacoes       internal notes (up to 1000 characters); optional
+ * @param mainItemId      identifier of the main item to which this instance belongs; required
+ * @param currentLocationId      identifier of the new storage location; {@code null} removes the location
+ * @param identifier     internal identification code (up to 100 characters); optional
+ * @param assetTag        asset number (up to 100 characters); optional
+ * @param serialNumber       manufacturer's serial number (up to 150 characters); optional
+ * @param operationalStatus new operational status of the instance; optional
+ * @param notes       internal notes (up to 1000 characters); optional
  * @param registrationOrigin    registration origin (up to 50 characters); optional
  * @param ativa             indicates whether the instance is active; optional
  */
 public record ItemInstanceUpdateDTO(
         @NotNull(message = "Main item is required.")
-        UUID itemMestreId,
+        UUID mainItemId,
 
-        UUID localAtualId,
+        UUID currentLocationId,
 
         @Size(max = 100, message = "Identifier must not exceed 100 characters.")
-        String identificador,
+        String identifier,
 
         @Size(max = 100, message = "Asset number must not exceed 100 characters.")
-        String patrimonio,
+        String assetTag,
 
         @Size(max = 150, message = "Serial number must not exceed 150 characters.")
-        String numeroSerie,
+        String serialNumber,
 
-        ItemInstanceStatus statusOperacional,
+        ItemInstanceStatus operationalStatus,
 
         @Size(max = 1000, message = "Notes must not exceed 1000 characters.")
-        String observacoes,
+        String notes,
 
         @Size(max = 50, message = "Registration origin must not exceed 50 characters.")
         String registrationOrigin,

@@ -25,7 +25,7 @@ public interface CategoryRepository extends SuperRepository<Category> {
      * Returns active categories whose name contains the given substring,
      * case-insensitively, ordered by name in ascending order.
      *
-     * @param nome name substring to search (partial, case-insensitive)
+     * @param name name substring to search (partial, case-insensitive)
      * @return list of matching categories; never {@code null}, may be empty
      */
     List<Category> findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(String name);

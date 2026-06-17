@@ -38,7 +38,7 @@ class CategoriaServiceTest {
     void deveCriarCategoriaNormalizandoCampos() {
         when(repository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.create(new CategoryCreateDTO("  Eletronicos  ", "  Items eletronicos  ", " eletronicos ", true));
+        var response = service.create(new CategoryCreateDTO("  Eletronicos  ", "  Items eletronicos  ", " eletronicos ", true));
 
         ArgumentCaptor<Category> captor = ArgumentCaptor.forClass(Category.class);
         verify(repository).save(captor.capture());
@@ -48,17 +48,17 @@ class CategoriaServiceTest {
         assertThat(categoriaSalva.getDescription()).isEqualTo("Items eletronicos");
         assertThat(categoriaSalva.getIcon()).isEqualTo("eletronicos");
         assertThat(categoriaSalva.isActive()).isTrue();
-        assertThat(resposta.nome()).isEqualTo("Eletronicos");
-        assertThat(resposta.icone()).isEqualTo("eletronicos");
+        assertThat(response.name()).isEqualTo("Eletronicos");
+        assertThat(response.icon()).isEqualTo("eletronicos");
     }
 
     @Test
     void devePermitirCriarCategoriaInativa() {
         when(repository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.create(new CategoryCreateDTO("Livros", null, null, false));
+        var response = service.create(new CategoryCreateDTO("Livros", null, null, false));
 
-        assertThat(resposta.ativa()).isFalse();
+        assertThat(response.ativa()).isFalse();
     }
 
     @Test
@@ -74,12 +74,12 @@ class CategoriaServiceTest {
         when(repository.findById(id)).thenReturn(Optional.of(category));
         when(repository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.update(id, new CategoryUpdateDTO("  Nova  ", "  Nova descricao  ", " moveis ", false));
+        var response = service.update(id, new CategoryUpdateDTO("  Nova  ", "  Nova description  ", " moveis ", false));
 
-        assertThat(resposta.nome()).isEqualTo("Nova");
-        assertThat(resposta.descricao()).isEqualTo("Nova descricao");
-        assertThat(resposta.icone()).isEqualTo("moveis");
-        assertThat(resposta.ativa()).isFalse();
+        assertThat(response.name()).isEqualTo("Nova");
+        assertThat(response.description()).isEqualTo("Nova description");
+        assertThat(response.icon()).isEqualTo("moveis");
+        assertThat(response.ativa()).isFalse();
     }
 
     @Test

@@ -51,7 +51,7 @@ public class OpenAiPhotoUploadProvider implements PhotoUploadAiProvider {
     }
 
     @Override
-    public PhotoUploadSuggestionResponseDTO sugerirCadastro(MultipartFile imagem) {
+    public PhotoUploadSuggestionResponseDTO sugerirCadastro(MultipartFile image) {
         aiUsageGuard.assertEnabled(AiOperation.IMAGE_ANALYSIS);
         String apiKey = environment.getProperty("OPENAI_API_KEY");
         if (apiKey == null || apiKey.isBlank()) {
@@ -62,11 +62,11 @@ public class OpenAiPhotoUploadProvider implements PhotoUploadAiProvider {
         long inicio = System.nanoTime();
 
         try {
-            byte[] bytes = imagem.getBytes();
+            byte[] bytes = image.getBytes();
             aiUsageGuard.consume(AiOperation.IMAGE_ANALYSIS);
-            var resultado = chatClient.prompt()
+            var result = chatClient.prompt()
                     .options(OpenAiChatOptions.builder().apiKey(apiKey).model(modelo))
-                    .user(u -> u.text(ORIENTACAO).media(MimeType.valueOf(imagem.getContentType()), new ByteArrayResource(bytes)))
+                    .user(u -> u.text(ORIENTACAO).media(MimeType.valueOf(image.getContentType()), new ByteArrayResource(bytes)))
                     .call()
                     .entity(PhotoUploadSuggestionResponseDTO.class);
 
@@ -75,9 +75,9 @@ public class OpenAiPhotoUploadProvider implements PhotoUploadAiProvider {
                     "ai_model", modelo,
                     "duration_ms", elapsedMillis(inicio),
                     "success", true,
-                    "ai_detected_items", resultado == null || resultado.itens() == null ? 0 : resultado.itens().size()
+                    "ai_detected_items", result == null || result.itens() == null ? 0 : result.itens().size()
             ));
-            return resultado;
+            return result;
         } catch (IOException ex) {
             logFailure(modelo, inicio, ex);
             throw new IllegalArgumentException("Unable to read the submitted image.", ex);

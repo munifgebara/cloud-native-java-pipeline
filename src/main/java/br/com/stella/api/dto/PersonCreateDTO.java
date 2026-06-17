@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Size;
  * <p>All address fields are optional to support quick registrations.
  * The {@code cpfCnpj} must be unique in the system and provided with digits only.</p>
  *
- * @param nome               full name or company name; required, up to 150 characters
+ * @param name               full name or company name; required, up to 150 characters
  * @param cpfCnpj            CPF (11 digits) or CNPJ (14 digits) without formatting; required
  * @param telefonePrincipal  primary contact phone; up to 20 characters; optional
  * @param telefoneSecundario alternative phone; up to 20 characters; optional
@@ -26,7 +26,7 @@ import jakarta.validation.constraints.Size;
 public record PersonCreateDTO(
         @NotBlank(message = "Name is required.")
         @Size(max = 150, message = "Name must not exceed 150 characters.")
-        String nome,
+        String name,
 
         @NotBlank(message = "CPF/CNPJ is required.")
         @Size(min = 11, max = 18, message = "CPF/CNPJ must be between 11 and 18 characters.")

@@ -9,10 +9,10 @@ import java.util.UUID;
  * the person in selection lists (e.g.: when registering a loan).</p>
  *
  * @param id   unique identifier of the person
- * @param nome full name or company name of the person
+ * @param name full name or company name of the person
  */
 public record PersonSummaryDTO(
         UUID id,
-        String nome
+        String name
 ) {
 }

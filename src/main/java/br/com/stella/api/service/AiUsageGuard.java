@@ -63,7 +63,7 @@ public class AiUsageGuard {
             ));
             throw new AiUsageLimitException(
                     HttpStatus.TOO_MANY_REQUESTS,
-                    "Daily limit for OpenAI %s reached.".formatted(operation.descricao())
+                    "Daily limit for OpenAI %s reached.".formatted(operation.description())
             );
         }
 

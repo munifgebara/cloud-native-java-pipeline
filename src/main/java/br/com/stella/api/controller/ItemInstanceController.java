@@ -29,7 +29,7 @@ import java.util.UUID;
 /**
  * REST controller for managing physical instances of inventory items.
  *
- * <p>Exposes the endpoints for the {@code /api/v0/instancias-item} resource, covering CRUD,
+ * <p>Exposes the endpoints for the {@code /api/v0/instances-item} resource, covering CRUD,
  * filters, movement history and audit revision queries.</p>
  *
  * <p>An instance is the physical occurrence of an {@link br.com.stella.api.entity.MainItem}.
@@ -37,7 +37,7 @@ import java.util.UUID;
  * each with its own asset tag, location and operational status.</p>
  */
 @RestController
-@RequestMapping("/api/v0/instancias-item")
+@RequestMapping("/api/v0/instances-item")
 public class ItemInstanceController extends SuperController<ItemInstanceSummaryDTO, ItemInstanceResponseDTO, ItemInstanceCreateDTO, ItemInstanceUpdateDTO, ItemInstance> {
 
     private final ItemInstanceService service;
@@ -83,32 +83,32 @@ public class ItemInstanceController extends SuperController<ItemInstanceSummaryD
     /**
      * Finds active instances whose identifier contains the given text.
      *
-     * @param identificador text to search in the {@code identificador} field
+     * @param identifier text to search in the {@code identifier} field
      * @return {@code 200 OK} with the list of found instances
      */
     @GetMapping("/search")
-    public ResponseEntity<List<ItemInstanceSummaryDTO>> findByIdentifier(@RequestParam String identificador) {
-        return ResponseEntity.ok(service.findByIdentifier(identificador));
+    public ResponseEntity<List<ItemInstanceSummaryDTO>> findByIdentifier(@RequestParam String identifier) {
+        return ResponseEntity.ok(service.findByIdentifier(identifier));
     }
 
     /**
      * Filters active instances with multiple optional criteria.
      * Parameters not provided are ignored (no restriction on the corresponding field).
      *
-     * @param identificacao   text to search in identifier, asset tag or serial number
+     * @param identification   text to search in identifier, asset tag or serial number
      * @param mainItem      substring of the main item name
-     * @param categoriaId     UUID of the category
-     * @param statusOperacional desired operational status
+     * @param categoryId     UUID of the category
+     * @param operationalStatus desired operational status
      * @return {@code 200 OK} with the list of instances satisfying the criteria
      */
     @GetMapping("/filtrar")
     public ResponseEntity<List<ItemInstanceSummaryDTO>> filtrar(
-            @RequestParam(required = false) String identificacao,
+            @RequestParam(required = false) String identification,
             @RequestParam(required = false) String mainItem,
-            @RequestParam(required = false) UUID categoriaId,
-            @RequestParam(required = false) ItemInstanceStatus statusOperacional
+            @RequestParam(required = false) UUID categoryId,
+            @RequestParam(required = false) ItemInstanceStatus operationalStatus
     ) {
-        return ResponseEntity.ok(service.filtrar(identificacao, mainItem, categoriaId, statusOperacional));
+        return ResponseEntity.ok(service.filtrar(identification, mainItem, categoryId, operationalStatus));
     }
 
     @Override

@@ -1,10 +1,10 @@
 package br.com.stella.api.dto;
 
 public record PhotoUploadInstanceSuggestionDTO(
-        String identificador,
-        String patrimonio,
-        String numeroSerie,
+        String identifier,
+        String assetTag,
+        String serialNumber,
         String estadoConservacao,
-        String observacoes,
+        String notes,
         Double confianca
 ) {}

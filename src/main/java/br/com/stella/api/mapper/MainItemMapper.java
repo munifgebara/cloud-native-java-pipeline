@@ -18,9 +18,9 @@ public final class MainItemMapper {
         }
 
         MainItem item = new MainItem();
-        item.setName(dto.nome());
-        item.setDescription(dto.descricao());
-        item.setNotes(dto.observacoes());
+        item.setName(dto.name());
+        item.setDescription(dto.description());
+        item.setNotes(dto.notes());
         item.setRegistrationOrigin(dto.registrationOrigin());
         if (dto.ativa() != null) {
             item.setActive(dto.ativa());
@@ -33,9 +33,9 @@ public final class MainItemMapper {
             return;
         }
 
-        entity.setName(dto.nome());
-        entity.setDescription(dto.descricao());
-        entity.setNotes(dto.observacoes());
+        entity.setName(dto.name());
+        entity.setDescription(dto.description());
+        entity.setNotes(dto.notes());
         entity.setRegistrationOrigin(dto.registrationOrigin());
         if (dto.ativa() != null) {
             entity.setActive(dto.ativa());
@@ -57,7 +57,7 @@ public final class MainItemMapper {
                 category == null ? null : category.getId(),
                 category == null ? null : category.getName(),
                 category == null ? null : category.getIcon(),
-                imagemUrl(entity),
+                imageUrl(entity),
                 entity.getImageContentType(),
                 entity.getImageSizeBytes(),
                 entity.isImageGeneratedByAi(),
@@ -79,12 +79,12 @@ public final class MainItemMapper {
                 category == null ? null : category.getId(),
                 category == null ? null : category.getName(),
                 category == null ? null : category.getIcon(),
-                imagemUrl(entity),
+                imageUrl(entity),
                 entity.isActive()
         );
     }
 
-    private static String imagemUrl(MainItem entity) {
-        return entity.getImageObjectKey() == null ? null : "/api/public/itens-mestre/%s/imagem-principal".formatted(entity.getId());
+    private static String imageUrl(MainItem entity) {
+        return entity.getImageObjectKey() == null ? null : "/api/public/itens-mestre/%s/image-principal".formatted(entity.getId());
     }
 }

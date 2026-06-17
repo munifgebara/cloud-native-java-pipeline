@@ -11,29 +11,29 @@ import java.util.UUID;
  * of the instance, without including less-used fields such as notes.</p>
  *
  * @param id                unique identifier of the instance
- * @param itemMestreId      identifier of the main item to which this instance belongs
- * @param itemMestreNome    main item name (denormalized to avoid joins on the client)
- * @param categoriaNome     category name of the main item; may be {@code null}
- * @param categoriaIcone    category icon key; may be {@code null}
- * @param localAtualId      identifier of the current storage location; may be {@code null}
- * @param localAtualNome    current location name (denormalized to avoid joins on the client); may be {@code null}
- * @param identificador     internal identification code of the instance; may be {@code null}
- * @param patrimonio        asset number; may be {@code null}
- * @param numeroSerie       manufacturer's serial number; may be {@code null}
- * @param statusOperacional current operational status of the instance
+ * @param mainItemId      identifier of the main item to which this instance belongs
+ * @param mainItemName    main item name (denormalized to avoid joins on the client)
+ * @param categoryName     category name of the main item; may be {@code null}
+ * @param categoryIcon    category icon key; may be {@code null}
+ * @param currentLocationId      identifier of the current storage location; may be {@code null}
+ * @param currentLocationName    current location name (denormalized to avoid joins on the client); may be {@code null}
+ * @param identifier     internal identification code of the instance; may be {@code null}
+ * @param assetTag        asset number; may be {@code null}
+ * @param serialNumber       manufacturer's serial number; may be {@code null}
+ * @param operationalStatus current operational status of the instance
  * @param ativa             indicates whether the instance is active in the system
  */
 public record ItemInstanceSummaryDTO(
         UUID id,
-        UUID itemMestreId,
-        String itemMestreNome,
-        String categoriaNome,
-        String categoriaIcone,
-        UUID localAtualId,
-        String localAtualNome,
-        String identificador,
-        String patrimonio,
-        String numeroSerie,
-        ItemInstanceStatus statusOperacional,
+        UUID mainItemId,
+        String mainItemName,
+        String categoryName,
+        String categoryIcon,
+        UUID currentLocationId,
+        String currentLocationName,
+        String identifier,
+        String assetTag,
+        String serialNumber,
+        ItemInstanceStatus operationalStatus,
         boolean ativa
 ) {}

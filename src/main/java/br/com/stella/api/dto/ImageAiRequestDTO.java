@@ -6,11 +6,11 @@ import jakarta.validation.constraints.Size;
 public record ImageAiRequestDTO(
         @NotBlank
         @Size(max = 150)
-        String nome,
+        String name,
 
         @Size(max = 150)
         String category,
 
         @Size(max = 500)
-        String descricao
+        String description
 ) {}

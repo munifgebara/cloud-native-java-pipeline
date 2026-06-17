@@ -41,7 +41,7 @@ class KeycloakLoginServiceTest {
     void deveRealizarLoginComPasswordGrant() {
         server.expect(once(), requestTo("http://keycloak/realms/stella/protocol/openid-connect/token"))
                 .andExpect(method(HttpMethod.POST))
-                .andExpect(content().string("client_id=stella-cli&grant_type=password&username=usuario&password=senha123"))
+                .andExpect(content().string("client_id=stella-cli&grant_type=password&username=user&password=senha123"))
                 .andRespond(withSuccess("""
                         {
                           "access_token": "access",
@@ -51,7 +51,7 @@ class KeycloakLoginServiceTest {
                         }
                         """, MediaType.APPLICATION_JSON));
 
-        var response = service.login(new LoginRequestDTO("usuario", "senha123"));
+        var response = service.login(new LoginRequestDTO("user", "senha123"));
 
         assertThat(response.accessToken()).isEqualTo("access");
         assertThat(response.refreshToken()).isEqualTo("refresh");
@@ -66,7 +66,7 @@ class KeycloakLoginServiceTest {
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
 
-        assertThatThrownBy(() -> service.login(new LoginRequestDTO("usuario", "senha123")))
+        assertThatThrownBy(() -> service.login(new LoginRequestDTO("user", "senha123")))
                 .isInstanceOf(ExternalIntegrationException.class)
                 .hasMessage("Empty response from Keycloak.");
 
@@ -79,7 +79,7 @@ class KeycloakLoginServiceTest {
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
 
-        assertThatThrownBy(() -> service.login(new LoginRequestDTO("usuario", "senha-invalida")))
+        assertThatThrownBy(() -> service.login(new LoginRequestDTO("user", "senha-invalida")))
                 .isInstanceOf(IdentityException.class)
                 .hasMessage("Invalid credentials.")
                 .extracting(ex -> ((IdentityException) ex).getStatus())
@@ -95,7 +95,7 @@ class KeycloakLoginServiceTest {
                 RestClient.builder()
         );
 
-        assertThatThrownBy(() -> servicoIndisponivel.login(new LoginRequestDTO("usuario", "senha123")))
+        assertThatThrownBy(() -> servicoIndisponivel.login(new LoginRequestDTO("user", "senha123")))
                 .isInstanceOf(ExternalIntegrationException.class)
                 .hasMessage("Identity service unavailable.");
     }

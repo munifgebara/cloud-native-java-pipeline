@@ -15,15 +15,15 @@ public class ImageAiService {
     }
 
     public ImageAiResponseDTO generateImage(ImageAiRequestDTO request) {
-        String nome = BrValidations.trimToNull(request.nome());
-        if (nome == null) {
+        String name = BrValidations.trimToNull(request.name());
+        if (name == null) {
             throw new IllegalArgumentException("Provide the item name to generate the image.");
         }
 
         return provider.generateImage(new ImageAiRequestDTO(
-                nome,
+                name,
                 BrValidations.trimToNull(request.category()),
-                BrValidations.trimToNull(request.descricao())
+                BrValidations.trimToNull(request.description())
         ));
     }
 }

@@ -27,14 +27,14 @@ import java.util.UUID;
 /**
  * REST controller for managing item categories.
  *
- * <p>Exposes the {@code /api/v0/categorias} resource with full CRUD,
+ * <p>Exposes the {@code /api/v0/categories} resource with full CRUD,
  * name search, and audit history queries.</p>
  *
  * <p>Categories group main items by type (e.g.: "Electronics", "Furniture")
  * and are used in filtering and the dashboard.</p>
  */
 @RestController
-@RequestMapping("/api/v0/categorias")
+@RequestMapping("/api/v0/categories")
 public class CategoryController extends SuperController<CategorySummaryDTO, CategoryResponseDTO, CategoryCreateDTO, CategoryUpdateDTO, Category> {
 
     private final CategoryService service;
@@ -69,12 +69,12 @@ public class CategoryController extends SuperController<CategorySummaryDTO, Cate
     /**
      * Finds active categories whose name contains the given text (case-insensitive).
      *
-     * @param nome substring to search in the category name
+     * @param name substring to search in the category name
      * @return {@code 200 OK} with the list of found categories
      */
     @GetMapping("/search")
-    public ResponseEntity<List<CategorySummaryDTO>> findByName(@RequestParam String nome) {
-        return ResponseEntity.ok(service.findByName(nome));
+    public ResponseEntity<List<CategorySummaryDTO>> findByName(@RequestParam String name) {
+        return ResponseEntity.ok(service.findByName(name));
     }
 
     @Override

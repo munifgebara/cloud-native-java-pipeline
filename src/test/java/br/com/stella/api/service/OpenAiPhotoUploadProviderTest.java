@@ -50,26 +50,26 @@ class OpenAiPhotoUploadProviderTest {
     @Test
     void deveEnviarImagemParaOpenAiEConverterRespostaEstruturada() {
         when(chatModel.call(any(Prompt.class))).thenReturn(respostaJson("""
-                {"itens":[{"nome":"Clean Code","descricao":"Livro identificado pela capa","categoriaSugerida":"Livros",\
+                {"itens":[{"name":"Clean Code","description":"Livro identificado pela capa","categoriaSugerida":"Livros",\
                 "marca":null,"modelo":null,"autor":"Robert C. Martin","editora":"Prentice Hall",\
                 "anoPublicacao":"2008","isbn":"9780132350884","fontePesquisa":"conhecimento do modelo",\
-                "identificacaoVerificada":true,"quantidade":1,"estadoConservacao":"bom",\
-                "observacoes":"Capa visivel","confianca":0.82,\
-                "instancias":[{"identificador":"Clean Code 1","patrimonio":null,"numeroSerie":null,\
-                "estadoConservacao":"bom","observacoes":null,"confianca":0.82}]}],\
-                "mensagem":"Sugestoes geradas."}
+                "identificacaoVerificada":true,"quantity":1,"estadoConservacao":"bom",\
+                "notes":"Capa visivel","confianca":0.82,\
+                "instances":[{"identifier":"Clean Code 1","assetTag":null,"serialNumber":null,\
+                "estadoConservacao":"bom","notes":null,"confianca":0.82}]}],\
+                "message":"Sugestoes geradas."}
                 """));
 
-        var response = provider.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "imagem".getBytes()));
+        var response = provider.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "image".getBytes()));
 
-        assertThat(response.mensagem()).isEqualTo("Sugestoes geradas.");
+        assertThat(response.message()).isEqualTo("Sugestoes geradas.");
         assertThat(response.itens()).hasSize(1);
-        assertThat(response.itens().getFirst().nome()).isEqualTo("Clean Code");
+        assertThat(response.itens().getFirst().name()).isEqualTo("Clean Code");
         assertThat(response.itens().getFirst().autor()).isEqualTo("Robert C. Martin");
         assertThat(response.itens().getFirst().isbn()).isEqualTo("9780132350884");
         assertThat(response.itens().getFirst().identificacaoVerificada()).isTrue();
-        assertThat(response.itens().getFirst().instancias()).hasSize(1);
-        assertThat(response.itens().getFirst().instancias().getFirst().identificador()).isEqualTo("Clean Code 1");
+        assertThat(response.itens().getFirst().instances()).hasSize(1);
+        assertThat(response.itens().getFirst().instances().getFirst().identifier()).isEqualTo("Clean Code 1");
     }
 
     @Test
@@ -80,7 +80,7 @@ class OpenAiPhotoUploadProviderTest {
                 guardSemLimite()
         );
 
-        assertThatThrownBy(() -> providerSemChave.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "imagem".getBytes())))
+        assertThatThrownBy(() -> providerSemChave.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "image".getBytes())))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("OPENAI_API_KEY not configured in the environment.");
 
@@ -90,20 +90,20 @@ class OpenAiPhotoUploadProviderTest {
     @Test
     void deveConverterRespostaComListaVazia() {
         when(chatModel.call(any(Prompt.class))).thenReturn(respostaJson(
-                "{\"itens\":null,\"mensagem\":\"Without sugestoes.\"}"
+                "{\"itens\":null,\"message\":\"Without sugestoes.\"}"
         ));
 
-        var response = provider.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "imagem".getBytes()));
+        var response = provider.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "image".getBytes()));
 
         assertThat(response.itens()).isNull();
-        assertThat(response.mensagem()).isEqualTo("Without sugestoes.");
+        assertThat(response.message()).isEqualTo("Without sugestoes.");
     }
 
     @Test
     void deveRegistrarFalhaQuandoOpenAiLancaExcecao() {
         when(chatModel.call(any(Prompt.class))).thenThrow(new RuntimeException("Fail na API"));
 
-        assertThatThrownBy(() -> provider.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "imagem".getBytes())))
+        assertThatThrownBy(() -> provider.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "image".getBytes())))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("Fail na API");
     }
@@ -116,7 +116,7 @@ class OpenAiPhotoUploadProviderTest {
                 new AiUsageGuard(new AiProperties(false), new OpenAiLimitsProperties(null, null, null))
         );
 
-        assertThatThrownBy(() -> providerBloqueado.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "imagem".getBytes())))
+        assertThatThrownBy(() -> providerBloqueado.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "image".getBytes())))
                 .isInstanceOf(AiUsageLimitException.class)
                 .hasMessage("AI features are disabled in this environment.");
 
@@ -131,7 +131,7 @@ class OpenAiPhotoUploadProviderTest {
                 new AiUsageGuard(new AiProperties(true), new OpenAiLimitsProperties(0, null, null))
         );
 
-        assertThatThrownBy(() -> providerBloqueado.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "imagem".getBytes())))
+        assertThatThrownBy(() -> providerBloqueado.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "image".getBytes())))
                 .isInstanceOf(AiUsageLimitException.class)
                 .hasMessage("Daily limit for OpenAI image analysis reached.");
 

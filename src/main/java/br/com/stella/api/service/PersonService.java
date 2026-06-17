@@ -65,11 +65,11 @@ public class PersonService extends SuperService<Person, PersonRepository> {
             throw new DuplicateRegistrationException("A person with this CPF/CNPJ is already registered.");
         }
 
-        Person pessoa = PersonMapper.toEntity(dto);
-        normalizarCampos(pessoa);
-        pessoa.setTaxId(cpfCnpjNormalizado);
+        Person person = PersonMapper.toEntity(dto);
+        normalizarCampos(person);
+        person.setTaxId(cpfCnpjNormalizado);
 
-        Person salva = save(pessoa);
+        Person salva = save(person);
         return PersonMapper.toResponseDTO(salva);
     }
 
@@ -124,16 +124,16 @@ public class PersonService extends SuperService<Person, PersonRepository> {
     public PersonResponseDTO update(UUID id, PersonUpdateDTO dto) {
         validarUpdate(dto);
 
-        Person pessoa = findById(id);
-        PersonMapper.updateEntity(pessoa, dto);
-        normalizarCampos(pessoa);
+        Person person = findById(id);
+        PersonMapper.updateEntity(person, dto);
+        normalizarCampos(person);
 
-        Person salva = save(pessoa);
+        Person salva = save(person);
         return PersonMapper.toResponseDTO(salva);
     }
 
     /**
-     * Logically deactivates a person (sets {@code ativo = false}).
+     * Logically deactivates a person (sets {@code active = false}).
      *
      * @param id UUID of the person to deactivate
      * @throws jakarta.persistence.EntityNotFoundException if the person does not exist
@@ -146,17 +146,17 @@ public class PersonService extends SuperService<Person, PersonRepository> {
     /**
      * Finds active persons whose name contains the given text (partial, case-insensitive search).
      *
-     * @param nome text to search; returns empty list if blank
+     * @param name text to search; returns empty list if blank
      * @return list of summary DTOs of the found persons
      */
     @Transactional(readOnly = true)
-    public List<PersonSummaryDTO> findByName(String nome) {
-        String nomeTratado = BrValidations.trimToNull(nome);
-        if (nomeTratado == null) {
+    public List<PersonSummaryDTO> findByName(String name) {
+        String normalizedName = BrValidations.trimToNull(name);
+        if (normalizedName == null) {
             return List.of();
         }
 
-        return repository.findByActiveTrueAndNameContainingIgnoreCase(nomeTratado).stream()
+        return repository.findByActiveTrueAndNameContainingIgnoreCase(normalizedName).stream()
                 .map(PersonMapper::toResumoDTO)
                 .toList();
     }
@@ -195,7 +195,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
      * Counts the total active persons in the registry.
      * Used by the dashboard to display the registered persons indicator.
      *
-     * @return number of persons with {@code ativo = true}
+     * @return number of persons with {@code active = true}
      */
     @Transactional(readOnly = true)
     public long contarPessoasAtivas() {
@@ -271,17 +271,17 @@ public class PersonService extends SuperService<Person, PersonRepository> {
         return valor;
     }
 
-    private void normalizarCampos(Person pessoa) {
-        pessoa.setName(BrValidations.trimToNull(pessoa.getName()));
-        pessoa.setPrimaryPhone(normalizarTelefone(pessoa.getPrimaryPhone()));
-        pessoa.setSecondaryPhone(normalizarTelefone(pessoa.getSecondaryPhone()));
-        pessoa.setEmail(normalizarEmail(pessoa.getEmail()));
-        pessoa.setZipCode(normalizarCep(pessoa.getZipCode()));
-        pessoa.setAddress(BrValidations.trimToNull(pessoa.getAddress()));
-        pessoa.setComplement(BrValidations.trimToNull(pessoa.getComplement()));
-        pessoa.setNeighborhood(BrValidations.trimToNull(pessoa.getNeighborhood()));
-        pessoa.setCity(BrValidations.trimToNull(pessoa.getCity()));
-        pessoa.setState(normalizarUf(pessoa.getState()));
+    private void normalizarCampos(Person person) {
+        person.setName(BrValidations.trimToNull(person.getName()));
+        person.setPrimaryPhone(normalizarTelefone(person.getPrimaryPhone()));
+        person.setSecondaryPhone(normalizarTelefone(person.getSecondaryPhone()));
+        person.setEmail(normalizarEmail(person.getEmail()));
+        person.setZipCode(normalizarCep(person.getZipCode()));
+        person.setAddress(BrValidations.trimToNull(person.getAddress()));
+        person.setComplement(BrValidations.trimToNull(person.getComplement()));
+        person.setNeighborhood(BrValidations.trimToNull(person.getNeighborhood()));
+        person.setCity(BrValidations.trimToNull(person.getCity()));
+        person.setState(normalizarUf(person.getState()));
     }
 
     private String normalizarTelefone(String telefone) {
@@ -315,14 +315,14 @@ public class PersonService extends SuperService<Person, PersonRepository> {
      */
     private PersonRevisionDTO toPessoaRevisionDTO(Object item) {
         if (item instanceof Object[] dadosRevisao
-                && dadosRevisao[0] instanceof Person pessoa
+                && dadosRevisao[0] instanceof Person person
                 && dadosRevisao[1] instanceof MRevisionEntity revisao
                 && dadosRevisao[2] instanceof RevisionType tipo) {
             return new PersonRevisionDTO(
                     revisao.getId(),
                     revisao.getTimestamp(),
                     tipo.name(),
-                    PersonMapper.toResponseDTO(pessoa),
+                    PersonMapper.toResponseDTO(person),
                     List.of()
             );
         }
@@ -330,22 +330,22 @@ public class PersonService extends SuperService<Person, PersonRepository> {
     }
 
     private List<PersonRevisionDTO> adicionarCamposAlterados(List<PersonRevisionDTO> revisoes) {
-        List<PersonRevisionDTO> resultado = new ArrayList<>();
+        List<PersonRevisionDTO> result = new ArrayList<>();
 
         for (int i = 0; i < revisoes.size(); i++) {
             PersonRevisionDTO revisao = revisoes.get(i);
-            PersonResponseDTO versaoAnterior = i + 1 < revisoes.size() ? revisoes.get(i + 1).pessoa() : null;
+            PersonResponseDTO versaoAnterior = i + 1 < revisoes.size() ? revisoes.get(i + 1).person() : null;
 
-            resultado.add(new PersonRevisionDTO(
+            result.add(new PersonRevisionDTO(
                     revisao.revisao(),
                     revisao.dataHora(),
                     revisao.tipo(),
-                    revisao.pessoa(),
-                    camposAlterados(revisao.pessoa(), versaoAnterior)
+                    revisao.person(),
+                    camposAlterados(revisao.person(), versaoAnterior)
             ));
         }
 
-        return resultado;
+        return result;
     }
 
     private List<String> camposAlterados(PersonResponseDTO atual, PersonResponseDTO anterior) {
@@ -355,7 +355,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
 
         List<String> campos = new ArrayList<>();
 
-        adicionarSeAlterado(campos, "nome", atual.nome(), anterior.nome());
+        adicionarSeAlterado(campos, "name", atual.name(), anterior.name());
         adicionarSeAlterado(campos, "cpfCnpj", atual.cpfCnpj(), anterior.cpfCnpj());
         adicionarSeAlterado(campos, "telefonePrincipal", atual.telefonePrincipal(), anterior.telefonePrincipal());
         adicionarSeAlterado(campos, "telefoneSecundario", atual.telefoneSecundario(), anterior.telefoneSecundario());

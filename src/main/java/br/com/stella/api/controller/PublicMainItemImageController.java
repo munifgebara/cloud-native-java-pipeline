@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Public REST controller for serving the main image of main items.
  *
- * <p>Exposes the endpoint {@code GET /api/public/itens-mestre/{id}/imagem-principal}
+ * <p>Exposes the endpoint {@code GET /api/public/itens-mestre/{id}/image-principal}
  * without requiring JWT authentication, allowing the web interface to display images
  * directly in {@code <img>} tags.</p>
  *
@@ -29,15 +29,15 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/api/public/itens-mestre")
 public class PublicMainItemImageController {
 
-    private final MainItemService itemMestreService;
+    private final MainItemService mainItemService;
 
     /**
      * Constructs the controller injecting the main item service.
      *
-     * @param itemMestreService service responsible for retrieving image metadata and streams
+     * @param mainItemService service responsible for retrieving image metadata and streams
      */
-    public PublicMainItemImageController(MainItemService itemMestreService) {
-        this.itemMestreService = itemMestreService;
+    public PublicMainItemImageController(MainItemService mainItemService) {
+        this.mainItemService = mainItemService;
     }
 
     /**
@@ -47,14 +47,14 @@ public class PublicMainItemImageController {
      * @return {@code 200 OK} with the image content and content-type and cache headers
      * @throws IllegalArgumentException if the item does not have a registered image
      */
-    @GetMapping("/{id}/imagem-principal")
+    @GetMapping("/{id}/image-principal")
     public ResponseEntity<InputStreamResource> buscarImagemPrincipal(@PathVariable UUID id) {
-        MainItemImageDTO imagem = itemMestreService.buscarMetadadosImagemPrincipal(id);
-        InputStream stream = itemMestreService.abrirImagemPrincipal(id);
+        MainItemImageDTO image = mainItemService.buscarMetadadosImagemPrincipal(id);
+        InputStream stream = mainItemService.abrirImagemPrincipal(id);
 
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(imagem.contentType()))
-                .contentLength(imagem.tamanhoBytes() == null ? -1 : imagem.tamanhoBytes())
+                .contentType(MediaType.parseMediaType(image.contentType()))
+                .contentLength(image.tamanhoBytes() == null ? -1 : image.tamanhoBytes())
                 .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS).cachePublic())
                 .body(new InputStreamResource(stream));
     }

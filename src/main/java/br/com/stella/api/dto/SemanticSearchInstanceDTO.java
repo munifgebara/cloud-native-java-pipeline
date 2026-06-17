@@ -6,10 +6,10 @@ import java.util.UUID;
 
 public record SemanticSearchInstanceDTO(
         UUID id,
-        String identificador,
-        String patrimonio,
-        String numeroSerie,
-        ItemInstanceStatus statusOperacional,
-        UUID localAtualId,
-        String localAtualNome
+        String identifier,
+        String assetTag,
+        String serialNumber,
+        ItemInstanceStatus operationalStatus,
+        UUID currentLocationId,
+        String currentLocationName
 ) {}

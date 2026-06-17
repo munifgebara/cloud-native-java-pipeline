@@ -34,21 +34,21 @@ import java.time.Instant;
 @Service
 public class ItemLoanService extends SuperService<ItemLoan, ItemLoanRepository> {
 
-    private final ItemInstanceRepository instanciaItemRepository;
-    private final PersonRepository pessoaRepository;
-    private final StorageLocationRepository localArmazenamentoRepository;
+    private final ItemInstanceRepository itemInstanceRepository;
+    private final PersonRepository personRepository;
+    private final StorageLocationRepository storageLocationRepository;
 
     public ItemLoanService(
             ItemLoanRepository repository,
             EntityManager entityManager,
-            ItemInstanceRepository instanciaItemRepository,
-            PersonRepository pessoaRepository,
-            StorageLocationRepository localArmazenamentoRepository
+            ItemInstanceRepository itemInstanceRepository,
+            PersonRepository personRepository,
+            StorageLocationRepository storageLocationRepository
     ) {
         super(repository, entityManager, ItemLoan.class);
-        this.instanciaItemRepository = instanciaItemRepository;
-        this.pessoaRepository = pessoaRepository;
-        this.localArmazenamentoRepository = localArmazenamentoRepository;
+        this.itemInstanceRepository = itemInstanceRepository;
+        this.personRepository = personRepository;
+        this.storageLocationRepository = storageLocationRepository;
     }
 
     /**
@@ -62,9 +62,9 @@ public class ItemLoanService extends SuperService<ItemLoan, ItemLoanRepository> 
      */
     @Transactional
     public ItemLoanResponseDTO registerLoan(ItemLoanCreateDTO dto) {
-        ItemInstance instance = instanciaItemRepository.findById(dto.instanciaItemId())
+        ItemInstance instance = itemInstanceRepository.findById(dto.itemInstanceId())
                 .orElseThrow(() -> new IllegalArgumentException("Instance not found."));
-        Person pessoa = pessoaRepository.findById(dto.pessoaId())
+        Person person = personRepository.findById(dto.pessoaId())
                 .orElseThrow(() -> new IllegalArgumentException("Person not found."));
 
         ItemInstanceRules.exigirDisponivelComLocal(
@@ -73,7 +73,7 @@ public class ItemLoanService extends SuperService<ItemLoan, ItemLoanRepository> 
                 "Only available instances can be loaned.",
                 "Instance must have a current location to register a loan."
         );
-        if (!pessoa.isActive()) {
+        if (!person.isActive()) {
             throw new IllegalArgumentException("Person must be active to register a loan.");
         }
         if (repository.existsByItemInstanceIdAndReturnDateIsNull(instance.getId())) {
@@ -82,15 +82,15 @@ public class ItemLoanService extends SuperService<ItemLoan, ItemLoanRepository> 
 
         instance.setCurrentLocation(null);
         instance.setOperationalStatus(ItemInstanceStatus.EMPRESTADO);
-        instanciaItemRepository.save(instance);
+        itemInstanceRepository.save(instance);
 
-        ItemLoan emprestimo = new ItemLoan();
-        emprestimo.setItemInstance(instance);
-        emprestimo.setPerson(pessoa);
-        emprestimo.setExpectedReturnDate(dto.previsaoDevolucao());
-        emprestimo.setNotes(BrValidations.trimToNull(dto.observacao()));
+        ItemLoan loan = new ItemLoan();
+        loan.setItemInstance(instance);
+        loan.setPerson(person);
+        loan.setExpectedReturnDate(dto.expectedReturnDate());
+        loan.setNotes(BrValidations.trimToNull(dto.notes()));
 
-        return ItemLoanMapper.toResponseDTO(save(emprestimo));
+        return ItemLoanMapper.toResponseDTO(save(loan));
     }
 
     /**
@@ -105,28 +105,28 @@ public class ItemLoanService extends SuperService<ItemLoan, ItemLoanRepository> 
      */
     @Transactional
     public ItemLoanResponseDTO registerReturn(ItemLoanReturnDTO dto) {
-        ItemLoan emprestimo = repository.findByItemInstanceIdAndReturnDateIsNull(dto.instanciaItemId())
+        ItemLoan loan = repository.findByItemInstanceIdAndReturnDateIsNull(dto.itemInstanceId())
                 .orElseThrow(() -> new IllegalArgumentException("There is no open loan for this instance."));
-        ItemInstance instance = emprestimo.getItemInstance();
+        ItemInstance instance = loan.getItemInstance();
         StorageLocation localRetorno = findActiveLocation(dto.localRetornoId());
 
         ItemInstanceRules.exigirEmprestada(instance, "Instance must be loaned to register a return.");
 
-        emprestimo.setReturnDate(Instant.now());
-        String observacao = BrValidations.trimToNull(dto.observacao());
-        if (observacao != null) {
-            emprestimo.setNotes(observacao);
+        loan.setReturnDate(Instant.now());
+        String notes = BrValidations.trimToNull(dto.notes());
+        if (notes != null) {
+            loan.setNotes(notes);
         }
 
         instance.setCurrentLocation(localRetorno);
         instance.setOperationalStatus(ItemInstanceStatus.DISPONIVEL);
-        instanciaItemRepository.save(instance);
+        itemInstanceRepository.save(instance);
 
-        return ItemLoanMapper.toResponseDTO(save(emprestimo));
+        return ItemLoanMapper.toResponseDTO(save(loan));
     }
 
-    private StorageLocation findActiveLocation(java.util.UUID localId) {
-        StorageLocation location = localArmazenamentoRepository.findById(localId)
+    private StorageLocation findActiveLocation(java.util.UUID locationId) {
+        StorageLocation location = storageLocationRepository.findById(locationId)
                 .orElseThrow(() -> new IllegalArgumentException("Return location not found."));
         if (!location.isActive()) {
             throw new IllegalArgumentException("Return location must be active.");

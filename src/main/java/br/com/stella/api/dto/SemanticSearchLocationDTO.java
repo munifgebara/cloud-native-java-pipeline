@@ -4,6 +4,6 @@ import java.util.UUID;
 
 public record SemanticSearchLocationDTO(
         UUID id,
-        String nome,
-        long quantidade
+        String name,
+        long quantity
 ) {}

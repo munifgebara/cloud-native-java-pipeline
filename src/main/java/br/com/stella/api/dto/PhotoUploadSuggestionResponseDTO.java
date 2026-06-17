@@ -4,5 +4,5 @@ import java.util.List;
 
 public record PhotoUploadSuggestionResponseDTO(
         List<PhotoUploadItemSuggestionDTO> itens,
-        String mensagem
+        String message
 ) {}

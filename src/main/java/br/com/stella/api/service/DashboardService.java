@@ -23,24 +23,24 @@ public class DashboardService {
     private static final int LIMITE_LOCAIS_COM_MAIS_ITENS = 5;
     private static final int LIMITE_CATEGORIAS_COM_MAIS_ITENS = 5;
 
-    private final PersonService pessoaService;
-    private final MainItemRepository itemMestreRepository;
-    private final ItemInstanceRepository instanciaItemRepository;
-    private final StorageLocationRepository localArmazenamentoRepository;
-    private final VectorSearchMetricsService consultaVetorialMetricasService;
+    private final PersonService personService;
+    private final MainItemRepository mainItemRepository;
+    private final ItemInstanceRepository itemInstanceRepository;
+    private final StorageLocationRepository storageLocationRepository;
+    private final VectorSearchMetricsService vectorSearchMetricsService;
 
     public DashboardService(
-            PersonService pessoaService,
-            MainItemRepository itemMestreRepository,
-            ItemInstanceRepository instanciaItemRepository,
-            StorageLocationRepository localArmazenamentoRepository,
-            VectorSearchMetricsService consultaVetorialMetricasService
+            PersonService personService,
+            MainItemRepository mainItemRepository,
+            ItemInstanceRepository itemInstanceRepository,
+            StorageLocationRepository storageLocationRepository,
+            VectorSearchMetricsService vectorSearchMetricsService
     ) {
-        this.pessoaService = pessoaService;
-        this.itemMestreRepository = itemMestreRepository;
-        this.instanciaItemRepository = instanciaItemRepository;
-        this.localArmazenamentoRepository = localArmazenamentoRepository;
-        this.consultaVetorialMetricasService = consultaVetorialMetricasService;
+        this.personService = personService;
+        this.mainItemRepository = mainItemRepository;
+        this.itemInstanceRepository = itemInstanceRepository;
+        this.storageLocationRepository = storageLocationRepository;
+        this.vectorSearchMetricsService = vectorSearchMetricsService;
     }
 
     /**
@@ -51,17 +51,17 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public DashboardSummaryDTO carregarResumo() {
         return new DashboardSummaryDTO(
-                pessoaService.contarPessoasAtivas(),
-                itemMestreRepository.countByActiveTrue(),
-                instanciaItemRepository.countByActiveTrue(),
-                instanciaItemRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.DISPONIVEL),
-                instanciaItemRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.EMPRESTADO),
-                localArmazenamentoRepository.countByActiveTrue(),
-                itemMestreRepository.countByActiveTrueAndImageObjectKeyIsNull(),
-                itemMestreRepository.countItemsRegisteredByAi(),
-                consultaVetorialMetricasService.contarConsultas(),
-                instanciaItemRepository.findLocationsWithMostItems(PageRequest.of(0, LIMITE_LOCAIS_COM_MAIS_ITENS)),
-                itemMestreRepository.findCategoriesWithMostItems(PageRequest.of(0, LIMITE_CATEGORIAS_COM_MAIS_ITENS))
+                personService.contarPessoasAtivas(),
+                mainItemRepository.countByActiveTrue(),
+                itemInstanceRepository.countByActiveTrue(),
+                itemInstanceRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.DISPONIVEL),
+                itemInstanceRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.EMPRESTADO),
+                storageLocationRepository.countByActiveTrue(),
+                mainItemRepository.countByActiveTrueAndImageObjectKeyIsNull(),
+                mainItemRepository.countItemsRegisteredByAi(),
+                vectorSearchMetricsService.contarConsultas(),
+                itemInstanceRepository.findLocationsWithMostItems(PageRequest.of(0, LIMITE_LOCAIS_COM_MAIS_ITENS)),
+                mainItemRepository.findCategoriesWithMostItems(PageRequest.of(0, LIMITE_CATEGORIAS_COM_MAIS_ITENS))
         );
     }
 }

@@ -12,7 +12,7 @@ import jakarta.validation.constraints.Size;
  * The CPF/CNPJ is not editable after the initial registration — to correct it
  * the person would need to be deleted and re-registered.</p>
  *
- * @param nome               full name or company name; required, up to 150 characters
+ * @param name               full name or company name; required, up to 150 characters
  * @param telefonePrincipal  primary contact phone; up to 20 characters; optional
  * @param telefoneSecundario alternative phone; up to 20 characters; optional
  * @param email              email address; up to 150 characters; optional
@@ -26,7 +26,7 @@ import jakarta.validation.constraints.Size;
 public record PersonUpdateDTO(
         @NotBlank(message = "Name is required.")
         @Size(max = 150, message = "Name must not exceed 150 characters.")
-        String nome,
+        String name,
 
         @Size(max = 20, message = "Primary phone must not exceed 20 characters.")
         String telefonePrincipal,

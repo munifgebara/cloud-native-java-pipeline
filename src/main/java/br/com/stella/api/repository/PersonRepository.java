@@ -38,7 +38,7 @@ public interface PersonRepository extends SuperRepository<Person> {
      * Finds active persons whose name contains the given substring,
      * case-insensitively.
      *
-     * @param nome name substring to search (partial, case-insensitive)
+     * @param name name substring to search (partial, case-insensitive)
      * @return list of matching persons; never {@code null}, may be empty
      */
     List<Person> findByActiveTrueAndNameContainingIgnoreCase(String name);
@@ -54,7 +54,7 @@ public interface PersonRepository extends SuperRepository<Person> {
      * Counts the total active persons in the system.
      * Used for statistics displayed on the control panel.
      *
-     * @return number of persons with {@code ativo = true}
+     * @return number of persons with {@code active = true}
      */
     long countByActiveTrue();
 }

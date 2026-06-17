@@ -63,7 +63,7 @@ public abstract class SuperController<RESUMO, RESPONSE, CREATE, UPDATE, ENTITY> 
     public abstract ResponseEntity<RESPONSE> update(UUID id, UPDATE dto);
 
     /**
-     * Performs the soft deletion of a record (sets {@code ativo = false}).
+     * Performs the soft deletion of a record (sets {@code active = false}).
      *
      * @param id UUID identifier of the record to deactivate
      * @return {@code 204 In Content} after deactivation; {@code 404} if it does not exist

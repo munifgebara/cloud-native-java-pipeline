@@ -101,17 +101,17 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
     /**
      * Finds active categories whose name contains the given text (partial, case-insensitive search).
      *
-     * @param nome text to search in the category name; returns empty list if blank
+     * @param name text to search in the category name; returns empty list if blank
      * @return list of summary DTOs of the found categories
      */
     @Transactional(readOnly = true)
-    public List<CategorySummaryDTO> findByName(String nome) {
-        String nomeTratado = BrValidations.trimToNull(nome);
-        if (nomeTratado == null) {
+    public List<CategorySummaryDTO> findByName(String name) {
+        String normalizedName = BrValidations.trimToNull(name);
+        if (normalizedName == null) {
             return List.of();
         }
 
-        return repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(nomeTratado).stream()
+        return repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(normalizedName).stream()
                 .map(CategoryMapper::toResumoDTO)
                 .toList();
     }
@@ -136,7 +136,7 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
     }
 
     /**
-     * Logically deactivates a category (sets {@code ativo = false}).
+     * Logically deactivates a category (sets {@code active = false}).
      *
      * @param id UUID of the category to deactivate
      * @throws jakarta.persistence.EntityNotFoundException if the category does not exist
@@ -163,8 +163,8 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
         category.setIcon(normalizarIcone(category.getIcon()));
     }
 
-    private String normalizarIcone(String icone) {
-        String valor = BrValidations.trimToNull(icone);
+    private String normalizarIcone(String icon) {
+        String valor = BrValidations.trimToNull(icon);
         if (!CategoryIcon.isChaveValida(valor)) {
             throw new IllegalArgumentException("Invalid category icon.");
         }

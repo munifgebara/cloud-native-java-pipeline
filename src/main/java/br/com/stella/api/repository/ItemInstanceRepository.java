@@ -51,45 +51,45 @@ public interface ItemInstanceRepository extends SuperRepository<ItemInstance>, J
      * This solves the null parameter type inference issue for UUID and enum parameters
      * in PostgreSQL that occurs when using {@code (:param is null or ...)} in JPQL.</p>
      *
-     * @param identificacao     text to search in identifier, asset number or serial number (case-insensitive);
+     * @param identification     text to search in identifier, asset number or serial number (case-insensitive);
      *                          {@code null} ignores the filter
      * @param mainItem        substring to search in the main item name (case-insensitive);
      *                          {@code null} ignores the filter
-     * @param categoriaId       UUID of the main item category; {@code null} ignores the filter
-     * @param statusOperacional operational status of the instance; {@code null} ignores the filter
+     * @param categoryId       UUID of the main item category; {@code null} ignores the filter
+     * @param operationalStatus operational status of the instance; {@code null} ignores the filter
      * @return specification combining the given filters with {@code AND}
      */
     static Specification<ItemInstance> filterActive(
-            String identificacao,
+            String identification,
             String mainItem,
-            UUID categoriaId,
-            ItemInstanceStatus statusOperacional
+            UUID categoryId,
+            ItemInstanceStatus operationalStatus
     ) {
         return (root, query, cb) -> {
-            List<Predicate> predicados = new ArrayList<>();
-            predicados.add(cb.isTrue(root.get("active")));
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.isTrue(root.get("active")));
 
-            if (identificacao != null) {
-                String padrao = "%" + identificacao.toLowerCase() + "%";
-                predicados.add(cb.or(
-                        cb.like(cb.lower(root.get("identifier")), padrao),
-                        cb.like(cb.lower(root.get("assetTag")), padrao),
-                        cb.like(cb.lower(root.get("serialNumber")), padrao)
+            if (identification != null) {
+                String pattern = "%" + identification.toLowerCase() + "%";
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("identifier")), pattern),
+                        cb.like(cb.lower(root.get("assetTag")), pattern),
+                        cb.like(cb.lower(root.get("serialNumber")), pattern)
                 ));
             }
 
             var mainItemJoin = root.join("mainItem");
             if (mainItem != null) {
-                predicados.add(cb.like(cb.lower(mainItemJoin.get("name")), "%" + mainItem.toLowerCase() + "%"));
+                predicates.add(cb.like(cb.lower(mainItemJoin.get("name")), "%" + mainItem.toLowerCase() + "%"));
             }
-            if (categoriaId != null) {
-                predicados.add(cb.equal(mainItemJoin.join("category").get("id"), categoriaId));
+            if (categoryId != null) {
+                predicates.add(cb.equal(mainItemJoin.join("category").get("id"), categoryId));
             }
-            if (statusOperacional != null) {
-                predicados.add(cb.equal(root.get("operationalStatus"), statusOperacional));
+            if (operationalStatus != null) {
+                predicates.add(cb.equal(root.get("operationalStatus"), operationalStatus));
             }
 
-            return cb.and(predicados.toArray(Predicate[]::new));
+            return cb.and(predicates.toArray(Predicate[]::new));
         };
     }
 

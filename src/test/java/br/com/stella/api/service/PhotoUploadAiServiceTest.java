@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PhotoUploadAiServiceTest {
 
-    private final PhotoUploadAiService service = new PhotoUploadAiService(imagem -> new PhotoUploadSuggestionResponseDTO(List.of(), "ok"));
+    private final PhotoUploadAiService service = new PhotoUploadAiService(image -> new PhotoUploadSuggestionResponseDTO(List.of(), "ok"));
 
     @Test
     void deveRejeitarArquivoVazio() {

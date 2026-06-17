@@ -5,13 +5,13 @@ public enum AiOperation {
     IMAGE_GENERATION("image generation"),
     EMBEDDING("embedding generation");
 
-    private final String descricao;
+    private final String description;
 
-    AiOperation(String descricao) {
-        this.descricao = descricao;
+    AiOperation(String description) {
+        this.description = description;
     }
 
-    public String descricao() {
-        return descricao;
+    public String description() {
+        return description;
     }
 }

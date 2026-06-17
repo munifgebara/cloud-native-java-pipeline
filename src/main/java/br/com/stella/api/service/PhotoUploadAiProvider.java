@@ -5,5 +5,5 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface PhotoUploadAiProvider {
 
-    PhotoUploadSuggestionResponseDTO sugerirCadastro(MultipartFile imagem);
+    PhotoUploadSuggestionResponseDTO sugerirCadastro(MultipartFile image);
 }

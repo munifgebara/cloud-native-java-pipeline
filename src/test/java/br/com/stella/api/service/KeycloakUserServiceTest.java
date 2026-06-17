@@ -80,11 +80,11 @@ class KeycloakUsuarioServiceTest {
                         ]
                         """, MediaType.APPLICATION_JSON));
 
-        List<UserResponseDTO> usuarios = service.listar();
+        List<UserResponseDTO> users = service.listar();
 
-        assertThat(usuarios).hasSize(1);
-        assertThat(usuarios.getFirst().username()).isEqualTo("admin");
-        assertThat(usuarios.getFirst().roles()).containsExactly("admin");
+        assertThat(users).hasSize(1);
+        assertThat(users.getFirst().username()).isEqualTo("admin");
+        assertThat(users.getFirst().roles()).containsExactly("admin");
         server.verify();
     }
 
@@ -102,10 +102,10 @@ class KeycloakUsuarioServiceTest {
                 .andRespond(withSuccess("[]", MediaType.APPLICATION_JSON));
 
         expectAdminToken();
-        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/roles/usuario"))
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/roles/user"))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess("""
-                        {"id": "role-usuario", "name": "usuario"}
+                        {"id": "role-user", "name": "user"}
                         """, MediaType.APPLICATION_JSON));
 
         expectAdminToken();
@@ -115,18 +115,18 @@ class KeycloakUsuarioServiceTest {
 
         expectUsuarioCompleto("user-2", "novo");
 
-        UserResponseDTO usuario = service.create(new UserCreateDTO(
+        UserResponseDTO user = service.create(new UserCreateDTO(
                 "novo",
                 "Novo",
                 "User",
                 "novo@example.location",
                 "segredo123",
                 true,
-                List.of("usuario")
+                List.of("user")
         ));
 
-        assertThat(usuario.id()).isEqualTo("user-2");
-        assertThat(usuario.roles()).containsExactly("usuario");
+        assertThat(user.id()).isEqualTo("user-2");
+        assertThat(user.roles()).containsExactly("user");
         server.verify();
     }
 
@@ -164,7 +164,7 @@ class KeycloakUsuarioServiceTest {
                 "existente@example.location",
                 "segredo123",
                 true,
-                List.of("usuario")
+                List.of("user")
         )))
                 .isInstanceOf(IdentityException.class)
                 .hasMessage("User already exists or there is a conflict in the identity provider.")
@@ -198,7 +198,7 @@ class KeycloakUsuarioServiceTest {
         assertThat(perfil.firstName()).isEqualTo("Name");
         assertThat(perfil.lastName()).isEqualTo("Sobrenome");
         assertThat(perfil.email()).isEqualTo("perfil7@example.location");
-        assertThat(perfil.roles()).containsExactly("admin", "usuario");
+        assertThat(perfil.roles()).containsExactly("admin", "user");
         assertThat(perfil.alteracaoSenhaUrl()).isEqualTo("http://keycloak/realms/stella/account");
         server.verify();
     }
@@ -255,13 +255,13 @@ class KeycloakUsuarioServiceTest {
                 .andExpect(method(HttpMethod.GET))
                 .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer service-account-token"))
                 .andRespond(withSuccess("""
-                        [{"id": "role-usuario", "name": "usuario"}]
+                        [{"id": "role-user", "name": "user"}]
                         """, MediaType.APPLICATION_JSON));
 
-        UserResponseDTO usuario = service.findById("user-3");
+        UserResponseDTO user = service.findById("user-3");
 
-        assertThat(usuario.username()).isEqualTo("usuario3");
-        assertThat(usuario.roles()).containsExactly("usuario");
+        assertThat(user.username()).isEqualTo("usuario3");
+        assertThat(user.roles()).containsExactly("user");
         server.verify();
     }
 
@@ -312,10 +312,10 @@ class KeycloakUsuarioServiceTest {
                 .andRespond(withNoContent());
 
         expectAdminToken();
-        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/roles/usuario"))
+        server.expect(once(), requestTo("http://keycloak/admin/realms/stella/roles/user"))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess("""
-                        {"id": "role-usuario", "name": "usuario"}
+                        {"id": "role-user", "name": "user"}
                         """, MediaType.APPLICATION_JSON));
 
         expectAdminToken();
@@ -341,22 +341,22 @@ class KeycloakUsuarioServiceTest {
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess("""
                         [
-                          {"id": "role-usuario", "name": "usuario"},
+                          {"id": "role-user", "name": "user"},
                           {"id": "role-default", "name": "default-roles-stella"}
                         ]
                         """, MediaType.APPLICATION_JSON));
 
-        UserResponseDTO usuario = service.update("user-4", new UserUpdateDTO(
+        UserResponseDTO user = service.update("user-4", new UserUpdateDTO(
                 " Name ",
                 " Atualizado ",
                 " ",
                 false,
-                List.of("usuario", "default-roles-stella")
+                List.of("user", "default-roles-stella")
         ));
 
-        assertThat(usuario.enabled()).isFalse();
-        assertThat(usuario.email()).isNull();
-        assertThat(usuario.roles()).containsExactly("usuario");
+        assertThat(user.enabled()).isFalse();
+        assertThat(user.email()).isNull();
+        assertThat(user.roles()).containsExactly("user");
         server.verify();
     }
 
@@ -481,7 +481,7 @@ class KeycloakUsuarioServiceTest {
                 "sem-location@example.location",
                 "segredo123",
                 true,
-                List.of("usuario")
+                List.of("user")
         )))
                 .isInstanceOf(ExternalIntegrationException.class)
                 .hasMessage("Keycloak did not return the identifier of the created user.");
@@ -508,7 +508,7 @@ class KeycloakUsuarioServiceTest {
         server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/" + id + "/role-mappings/realm"))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess("""
-                        [{"id": "role-usuario", "name": "usuario"}]
+                        [{"id": "role-user", "name": "user"}]
                         """, MediaType.APPLICATION_JSON));
     }
 
@@ -528,7 +528,7 @@ class KeycloakUsuarioServiceTest {
                 .claim("given_name", "Name")
                 .claim("family_name", "Sobrenome")
                 .claim("email", username + "@example.location")
-                .claim("realm_access", Map.of("roles", List.of("offline_access", "usuario", "admin")))
+                .claim("realm_access", Map.of("roles", List.of("offline_access", "user", "admin")))
                 .issuer("http://keycloak/realms/stella")
                 .issuedAt(java.time.Instant.now())
                 .expiresAt(java.time.Instant.now().plusSeconds(300))

@@ -32,18 +32,18 @@ public final class ItemMovementMapper {
         }
 
         ItemInstance instance = entity.getItemInstance();
-        StorageLocation localOrigem = entity.getOriginLocation();
-        StorageLocation localDestino = entity.getDestinationLocation();
+        StorageLocation originLocation = entity.getOriginLocation();
+        StorageLocation destinationLocation = entity.getDestinationLocation();
         return new ItemMovementResponseDTO(
                 entity.getId(),
                 entity.getType(),
                 entity.getMovementDate(),
                 instance == null ? null : instance.getId(),
-                identificacao(instance),
-                localOrigem == null ? null : localOrigem.getId(),
-                localOrigem == null ? null : localOrigem.getName(),
-                localDestino == null ? null : localDestino.getId(),
-                localDestino == null ? null : localDestino.getName(),
+                identification(instance),
+                originLocation == null ? null : originLocation.getId(),
+                originLocation == null ? null : originLocation.getName(),
+                destinationLocation == null ? null : destinationLocation.getId(),
+                destinationLocation == null ? null : destinationLocation.getName(),
                 entity.getReason(),
                 entity.getNotes()
         );
@@ -56,7 +56,7 @@ public final class ItemMovementMapper {
      * @param instance instance whose identifier will be resolved; may be {@code null}
      * @return first non-null identification field, or {@code null} if the instance is {@code null}
      */
-    private static String identificacao(ItemInstance instance) {
+    private static String identification(ItemInstance instance) {
         if (instance == null) {
             return null;
         }

@@ -39,21 +39,21 @@ import java.util.UUID;
 @Service
 public class ItemMovementService extends SuperService<ItemMovement, ItemMovementRepository> {
 
-    private final ItemInstanceRepository instanciaItemRepository;
-    private final MainItemRepository itemMestreRepository;
-    private final StorageLocationRepository localArmazenamentoRepository;
+    private final ItemInstanceRepository itemInstanceRepository;
+    private final MainItemRepository mainItemRepository;
+    private final StorageLocationRepository storageLocationRepository;
 
     public ItemMovementService(
             ItemMovementRepository repository,
             EntityManager entityManager,
-            ItemInstanceRepository instanciaItemRepository,
-            MainItemRepository itemMestreRepository,
-            StorageLocationRepository localArmazenamentoRepository
+            ItemInstanceRepository itemInstanceRepository,
+            MainItemRepository mainItemRepository,
+            StorageLocationRepository storageLocationRepository
     ) {
         super(repository, entityManager, ItemMovement.class);
-        this.instanciaItemRepository = instanciaItemRepository;
-        this.itemMestreRepository = itemMestreRepository;
-        this.localArmazenamentoRepository = localArmazenamentoRepository;
+        this.itemInstanceRepository = itemInstanceRepository;
+        this.mainItemRepository = mainItemRepository;
+        this.storageLocationRepository = storageLocationRepository;
     }
 
     /**
@@ -68,25 +68,25 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
     @Transactional
     public ItemMovementResponseDTO registerInbound(ItemInputMovementCreateDTO dto) {
         ItemInstance instance = new ItemInstance();
-        instance.setMainItem(findActiveMainItem(dto.itemMestreId()));
-        instance.setCurrentLocation(findActiveLocation(dto.localDestinoId()));
-        instance.setIdentifier(BrValidations.trimToNull(dto.identificador()));
-        instance.setAssetTag(BrValidations.trimToNull(dto.patrimonio()));
-        instance.setSerialNumber(BrValidations.trimToNull(dto.numeroSerie()));
-        instance.setNotes(BrValidations.trimToNull(dto.observacao()));
+        instance.setMainItem(findActiveMainItem(dto.mainItemId()));
+        instance.setCurrentLocation(findActiveLocation(dto.destinationLocationId()));
+        instance.setIdentifier(BrValidations.trimToNull(dto.identifier()));
+        instance.setAssetTag(BrValidations.trimToNull(dto.assetTag()));
+        instance.setSerialNumber(BrValidations.trimToNull(dto.serialNumber()));
+        instance.setNotes(BrValidations.trimToNull(dto.notes()));
         instance.setOperationalStatus(ItemInstanceStatus.DISPONIVEL);
 
         validateIdentification(instance);
 
-        ItemInstance instanciaSalva = instanciaItemRepository.save(instance);
+        ItemInstance instanciaSalva = itemInstanceRepository.save(instance);
 
-        ItemMovement movimentacao = new ItemMovement();
-        movimentacao.setType(ItemMovementType.ENTRADA);
-        movimentacao.setItemInstance(instanciaSalva);
-        movimentacao.setDestinationLocation(instanciaSalva.getCurrentLocation());
-        movimentacao.setNotes(BrValidations.trimToNull(dto.observacao()));
+        ItemMovement movement = new ItemMovement();
+        movement.setType(ItemMovementType.ENTRADA);
+        movement.setItemInstance(instanciaSalva);
+        movement.setDestinationLocation(instanciaSalva.getCurrentLocation());
+        movement.setNotes(BrValidations.trimToNull(dto.notes()));
 
-        return ItemMovementMapper.toResponseDTO(save(movimentacao));
+        return ItemMovementMapper.toResponseDTO(save(movement));
     }
 
     /**
@@ -100,7 +100,7 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
      */
     @Transactional
     public ItemMovementResponseDTO registerOutbound(ItemOutputMovementCreateDTO dto) {
-        ItemInstance instance = instanciaItemRepository.findById(dto.instanciaItemId())
+        ItemInstance instance = itemInstanceRepository.findById(dto.itemInstanceId())
                 .orElseThrow(() -> new IllegalArgumentException("Instance not found."));
         ItemInstanceRules.exigirDisponivelComLocal(
                 instance,
@@ -109,7 +109,7 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
                 "Instance must have a current location to register an outbound."
         );
 
-        StorageLocation localOrigem = instance.getCurrentLocation();
+        StorageLocation originLocation = instance.getCurrentLocation();
         String motivo = BrValidations.trimToNull(dto.motivo());
         if (motivo == null) {
             throw new IllegalArgumentException("Reason is required.");
@@ -117,16 +117,16 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
 
         instance.setCurrentLocation(null);
         instance.setOperationalStatus(ItemInstanceStatus.EM_MOVIMENTACAO);
-        instanciaItemRepository.save(instance);
+        itemInstanceRepository.save(instance);
 
-        ItemMovement movimentacao = new ItemMovement();
-        movimentacao.setType(ItemMovementType.SAIDA);
-        movimentacao.setItemInstance(instance);
-        movimentacao.setOriginLocation(localOrigem);
-        movimentacao.setReason(motivo);
-        movimentacao.setNotes(BrValidations.trimToNull(dto.observacao()));
+        ItemMovement movement = new ItemMovement();
+        movement.setType(ItemMovementType.SAIDA);
+        movement.setItemInstance(instance);
+        movement.setOriginLocation(originLocation);
+        movement.setReason(motivo);
+        movement.setNotes(BrValidations.trimToNull(dto.notes()));
 
-        return ItemMovementMapper.toResponseDTO(save(movimentacao));
+        return ItemMovementMapper.toResponseDTO(save(movement));
     }
 
     /**
@@ -141,7 +141,7 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
      */
     @Transactional
     public ItemMovementResponseDTO registerTransfer(ItemTransferMovementCreateDTO dto) {
-        ItemInstance instance = instanciaItemRepository.findById(dto.instanciaItemId())
+        ItemInstance instance = itemInstanceRepository.findById(dto.itemInstanceId())
                 .orElseThrow(() -> new IllegalArgumentException("Instance not found."));
         ItemInstanceRules.exigirDisponivelComLocal(
                 instance,
@@ -150,28 +150,28 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
                 "Instance must have a current location to register a transfer."
         );
 
-        StorageLocation localOrigem = instance.getCurrentLocation();
-        StorageLocation localDestino = findActiveLocation(dto.localDestinoId());
-        if (localOrigem.getId().equals(localDestino.getId())) {
+        StorageLocation originLocation = instance.getCurrentLocation();
+        StorageLocation destinationLocation = findActiveLocation(dto.destinationLocationId());
+        if (originLocation.getId().equals(destinationLocation.getId())) {
             throw new IllegalArgumentException("Destination location must be different from the current location.");
         }
 
-        instance.setCurrentLocation(localDestino);
+        instance.setCurrentLocation(destinationLocation);
         instance.setOperationalStatus(ItemInstanceStatus.DISPONIVEL);
-        instanciaItemRepository.save(instance);
+        itemInstanceRepository.save(instance);
 
-        ItemMovement movimentacao = new ItemMovement();
-        movimentacao.setType(ItemMovementType.TRANSFERENCIA);
-        movimentacao.setItemInstance(instance);
-        movimentacao.setOriginLocation(localOrigem);
-        movimentacao.setDestinationLocation(localDestino);
-        movimentacao.setNotes(BrValidations.trimToNull(dto.observacao()));
+        ItemMovement movement = new ItemMovement();
+        movement.setType(ItemMovementType.TRANSFERENCIA);
+        movement.setItemInstance(instance);
+        movement.setOriginLocation(originLocation);
+        movement.setDestinationLocation(destinationLocation);
+        movement.setNotes(BrValidations.trimToNull(dto.notes()));
 
-        return ItemMovementMapper.toResponseDTO(save(movimentacao));
+        return ItemMovementMapper.toResponseDTO(save(movement));
     }
 
-    private MainItem findActiveMainItem(UUID itemMestreId) {
-        MainItem mainItem = itemMestreRepository.findById(itemMestreId)
+    private MainItem findActiveMainItem(UUID mainItemId) {
+        MainItem mainItem = mainItemRepository.findById(mainItemId)
                 .orElseThrow(() -> new IllegalArgumentException("Main item not found."));
         if (!mainItem.isActive()) {
             throw new IllegalArgumentException("Main item must be active.");
@@ -179,8 +179,8 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
         return mainItem;
     }
 
-    private StorageLocation findActiveLocation(UUID localId) {
-        StorageLocation location = localArmazenamentoRepository.findById(localId)
+    private StorageLocation findActiveLocation(UUID locationId) {
+        StorageLocation location = storageLocationRepository.findById(locationId)
                 .orElseThrow(() -> new IllegalArgumentException("Destination location not found."));
         if (!location.isActive()) {
             throw new IllegalArgumentException("Destination location must be active.");

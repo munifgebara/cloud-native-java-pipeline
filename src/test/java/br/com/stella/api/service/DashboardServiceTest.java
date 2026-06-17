@@ -25,41 +25,41 @@ import static org.mockito.Mockito.when;
 class DashboardServiceTest {
 
     @Mock
-    private PersonService pessoaService;
+    private PersonService personService;
 
     @Mock
-    private MainItemRepository itemMestreRepository;
+    private MainItemRepository mainItemRepository;
 
     @Mock
-    private ItemInstanceRepository instanciaItemRepository;
+    private ItemInstanceRepository itemInstanceRepository;
 
     @Mock
-    private StorageLocationRepository localArmazenamentoRepository;
+    private StorageLocationRepository storageLocationRepository;
 
     @Mock
-    private VectorSearchMetricsService consultaVetorialMetricasService;
+    private VectorSearchMetricsService vectorSearchMetricsService;
 
     @InjectMocks
     private DashboardService service;
 
     @Test
     void deveCarregarResumoDoInventario() {
-        var localId = UUID.randomUUID();
-        var categoriaId = UUID.randomUUID();
-        var locais = List.of(new DashboardLocationQuantityDTO(localId, "Biblioteca", 12));
-        var categorias = List.of(new DashboardCategoryQuantityDTO(categoriaId, "Livros", 7));
+        var locationId = UUID.randomUUID();
+        var categoryId = UUID.randomUUID();
+        var locais = List.of(new DashboardLocationQuantityDTO(locationId, "Biblioteca", 12));
+        var categories = List.of(new DashboardCategoryQuantityDTO(categoryId, "Livros", 7));
 
-        when(pessoaService.contarPessoasAtivas()).thenReturn(4L);
-        when(itemMestreRepository.countByActiveTrue()).thenReturn(10L);
-        when(itemMestreRepository.countByActiveTrueAndImageObjectKeyIsNull()).thenReturn(2L);
-        when(itemMestreRepository.countItemsRegisteredByAi()).thenReturn(3L);
-        when(instanciaItemRepository.countByActiveTrue()).thenReturn(25L);
-        when(instanciaItemRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.DISPONIVEL)).thenReturn(18L);
-        when(instanciaItemRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.EMPRESTADO)).thenReturn(5L);
-        when(localArmazenamentoRepository.countByActiveTrue()).thenReturn(3L);
-        when(consultaVetorialMetricasService.contarConsultas()).thenReturn(11L);
-        when(instanciaItemRepository.findLocationsWithMostItems(org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(locais);
-        when(itemMestreRepository.findCategoriesWithMostItems(org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(categorias);
+        when(personService.contarPessoasAtivas()).thenReturn(4L);
+        when(mainItemRepository.countByActiveTrue()).thenReturn(10L);
+        when(mainItemRepository.countByActiveTrueAndImageObjectKeyIsNull()).thenReturn(2L);
+        when(mainItemRepository.countItemsRegisteredByAi()).thenReturn(3L);
+        when(itemInstanceRepository.countByActiveTrue()).thenReturn(25L);
+        when(itemInstanceRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.DISPONIVEL)).thenReturn(18L);
+        when(itemInstanceRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.EMPRESTADO)).thenReturn(5L);
+        when(storageLocationRepository.countByActiveTrue()).thenReturn(3L);
+        when(vectorSearchMetricsService.contarConsultas()).thenReturn(11L);
+        when(itemInstanceRepository.findLocationsWithMostItems(org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(locais);
+        when(mainItemRepository.findCategoriesWithMostItems(org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(categories);
 
         var resumo = service.carregarResumo();
 
@@ -73,12 +73,12 @@ class DashboardServiceTest {
         assertThat(resumo.quantidadeItensCadastradosPorIa()).isEqualTo(3);
         assertThat(resumo.quantidadeConsultasVetoriais()).isEqualTo(11);
         assertThat(resumo.locaisComMaisItens()).containsExactlyElementsOf(locais);
-        assertThat(resumo.categoriasComMaisItens()).containsExactlyElementsOf(categorias);
+        assertThat(resumo.categoriasComMaisItens()).containsExactlyElementsOf(categories);
 
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-        verify(instanciaItemRepository).findLocationsWithMostItems(pageableCaptor.capture());
+        verify(itemInstanceRepository).findLocationsWithMostItems(pageableCaptor.capture());
         assertThat(pageableCaptor.getValue().getPageSize()).isEqualTo(5);
-        verify(itemMestreRepository).findCategoriesWithMostItems(pageableCaptor.capture());
+        verify(mainItemRepository).findCategoriesWithMostItems(pageableCaptor.capture());
         assertThat(pageableCaptor.getValue().getPageSize()).isEqualTo(5);
     }
 }

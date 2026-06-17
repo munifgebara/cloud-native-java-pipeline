@@ -14,7 +14,7 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void deveRetornarMensagemDeRegraDeNegocioComContexto() {
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v0/pessoas");
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v0/people");
 
         var response = handler.handleBusinessRule(new IllegalArgumentException("CPF/CNPJ is required."), request);
 
@@ -22,7 +22,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getBody())
                 .containsEntry("status", 400)
                 .containsEntry("erro", "CPF/CNPJ is required.")
-                .containsEntry("path", "/api/v0/pessoas");
+                .containsEntry("path", "/api/v0/people");
     }
 
     @Test
@@ -40,24 +40,24 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void deveRetornarCamposEmErroDeValidacao() {
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v0/pessoas");
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v0/people");
         Map<String, Object> body = handler.handleValidation(
-                TestValidationSupport.methodArgumentNotValid("nome", "Name is required."),
+                TestValidationSupport.methodArgumentNotValid("name", "Name is required."),
                 request
         ).getBody();
 
         assertThat(body)
                 .containsEntry("status", 400)
                 .containsEntry("erro", "Invalid data.")
-                .containsEntry("path", "/api/v0/pessoas");
+                .containsEntry("path", "/api/v0/people");
         assertThat(body).extracting("campos")
                 .asInstanceOf(org.assertj.core.api.InstanceOfAssertFactories.map(String.class, String.class))
-                .containsEntry("nome", "Name is required.");
+                .containsEntry("name", "Name is required.");
     }
 
     @Test
     void deveRetornarStatusDeBloqueioDeUsoIa() {
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v0/itens-mestre/imagem-ia");
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v0/itens-mestre/image-ia");
 
         var response = handler.handleAiUsageLimit(new AiUsageLimitException(HttpStatus.TOO_MANY_REQUESTS, "Daily limit for OpenAI image generation reached."), request);
 
@@ -65,12 +65,12 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getBody())
                 .containsEntry("status", 429)
                 .containsEntry("erro", "Daily limit for OpenAI image generation reached.")
-                .containsEntry("path", "/api/v0/itens-mestre/imagem-ia");
+                .containsEntry("path", "/api/v0/itens-mestre/image-ia");
     }
 
     @Test
     void deveRetornar502ComMensagemDaExcecaoParaFalhaDeIntegracao() {
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v0/itens-mestre/imagem-ia");
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v0/itens-mestre/image-ia");
 
         var response = handler.handleExternalIntegration(
                 new ExternalIntegrationException("OpenAI returned an empty response for the image."), request);
@@ -79,7 +79,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getBody())
                 .containsEntry("status", 502)
                 .containsEntry("erro", "OpenAI returned an empty response for the image.")
-                .containsEntry("path", "/api/v0/itens-mestre/imagem-ia");
+                .containsEntry("path", "/api/v0/itens-mestre/image-ia");
     }
 
     @Test

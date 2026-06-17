@@ -38,13 +38,13 @@ class MovimentacaoItemServiceTest {
     private ItemMovementRepository repository;
 
     @Mock
-    private ItemInstanceRepository instanciaItemRepository;
+    private ItemInstanceRepository itemInstanceRepository;
 
     @Mock
-    private MainItemRepository itemMestreRepository;
+    private MainItemRepository mainItemRepository;
 
     @Mock
-    private StorageLocationRepository localArmazenamentoRepository;
+    private StorageLocationRepository storageLocationRepository;
 
     @Mock
     private EntityManager entityManager;
@@ -54,27 +54,27 @@ class MovimentacaoItemServiceTest {
 
     @Test
     void deveRegistrarEntradaCriandoInstanciaDisponivelNoLocalDestino() {
-        UUID itemMestreId = UUID.randomUUID();
-        UUID localId = UUID.randomUUID();
-        MainItem mainItem = mainItem(itemMestreId, true);
-        StorageLocation location = location(localId, "Biblioteca", true);
+        UUID mainItemId = UUID.randomUUID();
+        UUID locationId = UUID.randomUUID();
+        MainItem mainItem = mainItem(mainItemId, true);
+        StorageLocation location = location(locationId, "Biblioteca", true);
 
-        when(itemMestreRepository.findById(itemMestreId)).thenReturn(Optional.of(mainItem));
-        when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(location));
-        when(instanciaItemRepository.save(any(ItemInstance.class))).thenAnswer(invocation -> {
+        when(mainItemRepository.findById(mainItemId)).thenReturn(Optional.of(mainItem));
+        when(storageLocationRepository.findById(locationId)).thenReturn(Optional.of(location));
+        when(itemInstanceRepository.save(any(ItemInstance.class))).thenAnswer(invocation -> {
             ItemInstance instance = invocation.getArgument(0);
             instance.setId(UUID.randomUUID());
             return instance;
         });
         when(repository.save(any(ItemMovement.class))).thenAnswer(invocation -> {
-            ItemMovement movimentacao = invocation.getArgument(0);
-            movimentacao.setId(UUID.randomUUID());
-            return movimentacao;
+            ItemMovement movement = invocation.getArgument(0);
+            movement.setId(UUID.randomUUID());
+            return movement;
         });
 
-        var resposta = service.registerInbound(new ItemInputMovementCreateDTO(
-                itemMestreId,
-                localId,
+        var response = service.registerInbound(new ItemInputMovementCreateDTO(
+                mainItemId,
+                locationId,
                 "  LIV-001  ",
                 null,
                 "  SN-001  ",
@@ -83,7 +83,7 @@ class MovimentacaoItemServiceTest {
 
         ArgumentCaptor<ItemInstance> instanciaCaptor = ArgumentCaptor.forClass(ItemInstance.class);
         ArgumentCaptor<ItemMovement> movimentacaoCaptor = ArgumentCaptor.forClass(ItemMovement.class);
-        verify(instanciaItemRepository).save(instanciaCaptor.capture());
+        verify(itemInstanceRepository).save(instanciaCaptor.capture());
         verify(repository).save(movimentacaoCaptor.capture());
 
         ItemInstance instance = instanciaCaptor.getValue();
@@ -93,48 +93,48 @@ class MovimentacaoItemServiceTest {
         assertThat(instance.getSerialNumber()).isEqualTo("SN-001");
         assertThat(instance.getOperationalStatus()).isEqualTo(ItemInstanceStatus.DISPONIVEL);
 
-        ItemMovement movimentacao = movimentacaoCaptor.getValue();
-        assertThat(movimentacao.getType()).isEqualTo(ItemMovementType.ENTRADA);
-        assertThat(movimentacao.getItemInstance()).isEqualTo(instance);
-        assertThat(movimentacao.getDestinationLocation()).isEqualTo(location);
-        assertThat(movimentacao.getOriginLocation()).isNull();
-        assertThat(movimentacao.getNotes()).isEqualTo("Entrada inicial");
-        assertThat(resposta.tipo()).isEqualTo(ItemMovementType.ENTRADA);
-        assertThat(resposta.localDestinoId()).isEqualTo(localId);
+        ItemMovement movement = movimentacaoCaptor.getValue();
+        assertThat(movement.getType()).isEqualTo(ItemMovementType.ENTRADA);
+        assertThat(movement.getItemInstance()).isEqualTo(instance);
+        assertThat(movement.getDestinationLocation()).isEqualTo(location);
+        assertThat(movement.getOriginLocation()).isNull();
+        assertThat(movement.getNotes()).isEqualTo("Entrada inicial");
+        assertThat(response.tipo()).isEqualTo(ItemMovementType.ENTRADA);
+        assertThat(response.destinationLocationId()).isEqualTo(locationId);
     }
 
     @Test
     void deveImpedirEntradaSemIdentificacaoIndividual() {
-        UUID itemMestreId = UUID.randomUUID();
-        UUID localId = UUID.randomUUID();
+        UUID mainItemId = UUID.randomUUID();
+        UUID locationId = UUID.randomUUID();
 
-        when(itemMestreRepository.findById(itemMestreId)).thenReturn(Optional.of(mainItem(itemMestreId, true)));
-        when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(location(localId, "Biblioteca", true)));
+        when(mainItemRepository.findById(mainItemId)).thenReturn(Optional.of(mainItem(mainItemId, true)));
+        when(storageLocationRepository.findById(locationId)).thenReturn(Optional.of(location(locationId, "Biblioteca", true)));
 
-        assertThatThrownBy(() -> service.registerInbound(new ItemInputMovementCreateDTO(itemMestreId, localId, " ", null, null, null)))
+        assertThatThrownBy(() -> service.registerInbound(new ItemInputMovementCreateDTO(mainItemId, locationId, " ", null, null, null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("identifier");
 
-        verify(instanciaItemRepository, never()).save(any(ItemInstance.class));
+        verify(itemInstanceRepository, never()).save(any(ItemInstance.class));
         verify(repository, never()).save(any(ItemMovement.class));
     }
 
     @Test
     void deveRegistrarSaidaAtualizandoInstanciaELocalOrigem() {
         UUID instanciaId = UUID.randomUUID();
-        UUID localId = UUID.randomUUID();
-        StorageLocation location = location(localId, "Biblioteca", true);
+        UUID locationId = UUID.randomUUID();
+        StorageLocation location = location(locationId, "Biblioteca", true);
         ItemInstance instance = instance(instanciaId, location, ItemInstanceStatus.DISPONIVEL, true);
 
-        when(instanciaItemRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
-        when(instanciaItemRepository.save(any(ItemInstance.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(itemInstanceRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
+        when(itemInstanceRepository.save(any(ItemInstance.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(repository.save(any(ItemMovement.class))).thenAnswer(invocation -> {
-            ItemMovement movimentacao = invocation.getArgument(0);
-            movimentacao.setId(UUID.randomUUID());
-            return movimentacao;
+            ItemMovement movement = invocation.getArgument(0);
+            movement.setId(UUID.randomUUID());
+            return movement;
         });
 
-        var resposta = service.registerOutbound(new ItemOutputMovementCreateDTO(
+        var response = service.registerOutbound(new ItemOutputMovementCreateDTO(
                 instanciaId,
                 "  Maintenance withdrawal  ",
                 "  Equipment sent to the technician  "
@@ -142,23 +142,23 @@ class MovimentacaoItemServiceTest {
 
         ArgumentCaptor<ItemInstance> instanciaCaptor = ArgumentCaptor.forClass(ItemInstance.class);
         ArgumentCaptor<ItemMovement> movimentacaoCaptor = ArgumentCaptor.forClass(ItemMovement.class);
-        verify(instanciaItemRepository).save(instanciaCaptor.capture());
+        verify(itemInstanceRepository).save(instanciaCaptor.capture());
         verify(repository).save(movimentacaoCaptor.capture());
 
         ItemInstance instanciaAtualizada = instanciaCaptor.getValue();
         assertThat(instanciaAtualizada.getCurrentLocation()).isNull();
         assertThat(instanciaAtualizada.getOperationalStatus()).isEqualTo(ItemInstanceStatus.EM_MOVIMENTACAO);
 
-        ItemMovement movimentacao = movimentacaoCaptor.getValue();
-        assertThat(movimentacao.getType()).isEqualTo(ItemMovementType.SAIDA);
-        assertThat(movimentacao.getItemInstance()).isEqualTo(instance);
-        assertThat(movimentacao.getOriginLocation()).isEqualTo(location);
-        assertThat(movimentacao.getDestinationLocation()).isNull();
-        assertThat(movimentacao.getReason()).isEqualTo("Maintenance withdrawal");
-        assertThat(movimentacao.getNotes()).isEqualTo("Equipment sent to the technician");
-        assertThat(resposta.tipo()).isEqualTo(ItemMovementType.SAIDA);
-        assertThat(resposta.localOrigemId()).isEqualTo(localId);
-        assertThat(resposta.localDestinoId()).isNull();
+        ItemMovement movement = movimentacaoCaptor.getValue();
+        assertThat(movement.getType()).isEqualTo(ItemMovementType.SAIDA);
+        assertThat(movement.getItemInstance()).isEqualTo(instance);
+        assertThat(movement.getOriginLocation()).isEqualTo(location);
+        assertThat(movement.getDestinationLocation()).isNull();
+        assertThat(movement.getReason()).isEqualTo("Maintenance withdrawal");
+        assertThat(movement.getNotes()).isEqualTo("Equipment sent to the technician");
+        assertThat(response.tipo()).isEqualTo(ItemMovementType.SAIDA);
+        assertThat(response.originLocationId()).isEqualTo(locationId);
+        assertThat(response.destinationLocationId()).isNull();
     }
 
     @Test
@@ -166,13 +166,13 @@ class MovimentacaoItemServiceTest {
         UUID instanciaId = UUID.randomUUID();
         ItemInstance instance = instance(instanciaId, location(UUID.randomUUID(), "Biblioteca", true), ItemInstanceStatus.EMPRESTADO, true);
 
-        when(instanciaItemRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
+        when(itemInstanceRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
 
         assertThatThrownBy(() -> service.registerOutbound(new ItemOutputMovementCreateDTO(instanciaId, "Retirada", null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("available instances");
 
-        verify(instanciaItemRepository, never()).save(any(ItemInstance.class));
+        verify(itemInstanceRepository, never()).save(any(ItemInstance.class));
         verify(repository, never()).save(any(ItemMovement.class));
     }
 
@@ -185,16 +185,16 @@ class MovimentacaoItemServiceTest {
         StorageLocation destino = location(destinoId, "Laboratory", true);
         ItemInstance instance = instance(instanciaId, origem, ItemInstanceStatus.DISPONIVEL, true);
 
-        when(instanciaItemRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
-        when(localArmazenamentoRepository.findById(destinoId)).thenReturn(Optional.of(destino));
-        when(instanciaItemRepository.save(any(ItemInstance.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(itemInstanceRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
+        when(storageLocationRepository.findById(destinoId)).thenReturn(Optional.of(destino));
+        when(itemInstanceRepository.save(any(ItemInstance.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(repository.save(any(ItemMovement.class))).thenAnswer(invocation -> {
-            ItemMovement movimentacao = invocation.getArgument(0);
-            movimentacao.setId(UUID.randomUUID());
-            return movimentacao;
+            ItemMovement movement = invocation.getArgument(0);
+            movement.setId(UUID.randomUUID());
+            return movement;
         });
 
-        var resposta = service.registerTransfer(new ItemTransferMovementCreateDTO(
+        var response = service.registerTransfer(new ItemTransferMovementCreateDTO(
                 instanciaId,
                 destinoId,
                 "  Transfer for conference  "
@@ -202,55 +202,55 @@ class MovimentacaoItemServiceTest {
 
         ArgumentCaptor<ItemInstance> instanciaCaptor = ArgumentCaptor.forClass(ItemInstance.class);
         ArgumentCaptor<ItemMovement> movimentacaoCaptor = ArgumentCaptor.forClass(ItemMovement.class);
-        verify(instanciaItemRepository).save(instanciaCaptor.capture());
+        verify(itemInstanceRepository).save(instanciaCaptor.capture());
         verify(repository).save(movimentacaoCaptor.capture());
 
         ItemInstance instanciaAtualizada = instanciaCaptor.getValue();
         assertThat(instanciaAtualizada.getCurrentLocation()).isEqualTo(destino);
         assertThat(instanciaAtualizada.getOperationalStatus()).isEqualTo(ItemInstanceStatus.DISPONIVEL);
 
-        ItemMovement movimentacao = movimentacaoCaptor.getValue();
-        assertThat(movimentacao.getType()).isEqualTo(ItemMovementType.TRANSFERENCIA);
-        assertThat(movimentacao.getItemInstance()).isEqualTo(instance);
-        assertThat(movimentacao.getOriginLocation()).isEqualTo(origem);
-        assertThat(movimentacao.getDestinationLocation()).isEqualTo(destino);
-        assertThat(movimentacao.getNotes()).isEqualTo("Transfer for conference");
-        assertThat(resposta.tipo()).isEqualTo(ItemMovementType.TRANSFERENCIA);
-        assertThat(resposta.localOrigemId()).isEqualTo(origemId);
-        assertThat(resposta.localDestinoId()).isEqualTo(destinoId);
+        ItemMovement movement = movimentacaoCaptor.getValue();
+        assertThat(movement.getType()).isEqualTo(ItemMovementType.TRANSFERENCIA);
+        assertThat(movement.getItemInstance()).isEqualTo(instance);
+        assertThat(movement.getOriginLocation()).isEqualTo(origem);
+        assertThat(movement.getDestinationLocation()).isEqualTo(destino);
+        assertThat(movement.getNotes()).isEqualTo("Transfer for conference");
+        assertThat(response.tipo()).isEqualTo(ItemMovementType.TRANSFERENCIA);
+        assertThat(response.originLocationId()).isEqualTo(origemId);
+        assertThat(response.destinationLocationId()).isEqualTo(destinoId);
     }
 
     @Test
     void deveImpedirTransferenciaParaMesmoLocal() {
         UUID instanciaId = UUID.randomUUID();
-        UUID localId = UUID.randomUUID();
-        StorageLocation location = location(localId, "Biblioteca", true);
+        UUID locationId = UUID.randomUUID();
+        StorageLocation location = location(locationId, "Biblioteca", true);
         ItemInstance instance = instance(instanciaId, location, ItemInstanceStatus.DISPONIVEL, true);
 
-        when(instanciaItemRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
-        when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(location));
+        when(itemInstanceRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
+        when(storageLocationRepository.findById(locationId)).thenReturn(Optional.of(location));
 
-        assertThatThrownBy(() -> service.registerTransfer(new ItemTransferMovementCreateDTO(instanciaId, localId, null)))
+        assertThatThrownBy(() -> service.registerTransfer(new ItemTransferMovementCreateDTO(instanciaId, locationId, null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("different");
 
-        verify(instanciaItemRepository, never()).save(any(ItemInstance.class));
+        verify(itemInstanceRepository, never()).save(any(ItemInstance.class));
         verify(repository, never()).save(any(ItemMovement.class));
     }
 
-    private MainItem mainItem(UUID id, boolean ativo) {
+    private MainItem mainItem(UUID id, boolean active) {
         MainItem mainItem = new MainItem();
         mainItem.setId(id);
         mainItem.setName("Livro");
-        mainItem.setActive(ativo);
+        mainItem.setActive(active);
         return mainItem;
     }
 
-    private StorageLocation location(UUID id, String nome, boolean ativo) {
+    private StorageLocation location(UUID id, String name, boolean active) {
         StorageLocation location = new StorageLocation();
         location.setId(id);
-        location.setName(nome);
-        location.setActive(ativo);
+        location.setName(name);
+        location.setActive(active);
         return location;
     }
 

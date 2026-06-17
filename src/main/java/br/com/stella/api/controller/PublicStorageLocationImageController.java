@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Public REST controller for serving the representation image of storage locations.
  *
- * <p>Exposes the {@code GET /api/public/locais/{id}/imagem} endpoint
+ * <p>Exposes the {@code GET /api/public/locais/{id}/image} endpoint
  * without requiring JWT authentication, allowing direct display in browsers.</p>
  *
  * <p>Responses include the {@code Cache-Control: public, max-age=3600} header
@@ -28,15 +28,15 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/api/public/locais")
 public class PublicStorageLocationImageController {
 
-    private final StorageLocationService localArmazenamentoService;
+    private final StorageLocationService storageLocationService;
 
     /**
      * Constructs the controller injecting the storage location service.
      *
-     * @param localArmazenamentoService service responsible for retrieving image metadata and streams
+     * @param storageLocationService service responsible for retrieving image metadata and streams
      */
-    public PublicStorageLocationImageController(StorageLocationService localArmazenamentoService) {
-        this.localArmazenamentoService = localArmazenamentoService;
+    public PublicStorageLocationImageController(StorageLocationService storageLocationService) {
+        this.storageLocationService = storageLocationService;
     }
 
     /**
@@ -46,14 +46,14 @@ public class PublicStorageLocationImageController {
      * @return {@code 200 OK} with the image content and content-type and cache headers
      * @throws IllegalArgumentException if the location does not have a registered image
      */
-    @GetMapping("/{id}/imagem")
+    @GetMapping("/{id}/image")
     public ResponseEntity<InputStreamResource> buscarImagem(@PathVariable UUID id) {
-        MainItemImageDTO imagem = localArmazenamentoService.buscarMetadadosImagem(id);
-        InputStream stream = localArmazenamentoService.abrirImagem(id);
+        MainItemImageDTO image = storageLocationService.buscarMetadadosImagem(id);
+        InputStream stream = storageLocationService.abrirImagem(id);
 
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(imagem.contentType()))
-                .contentLength(imagem.tamanhoBytes() == null ? -1 : imagem.tamanhoBytes())
+                .contentType(MediaType.parseMediaType(image.contentType()))
+                .contentLength(image.tamanhoBytes() == null ? -1 : image.tamanhoBytes())
                 .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS).cachePublic())
                 .body(new InputStreamResource(stream));
     }

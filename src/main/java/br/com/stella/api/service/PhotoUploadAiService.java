@@ -23,21 +23,21 @@ public class PhotoUploadAiService {
         this.provider = provider;
     }
 
-    public PhotoUploadSuggestionResponseDTO sugerirCadastro(MultipartFile imagem) {
-        validarImagem(imagem);
-        return provider.sugerirCadastro(imagem);
+    public PhotoUploadSuggestionResponseDTO sugerirCadastro(MultipartFile image) {
+        validarImagem(image);
+        return provider.sugerirCadastro(image);
     }
 
-    private void validarImagem(MultipartFile imagem) {
-        if (imagem == null || imagem.isEmpty()) {
+    private void validarImagem(MultipartFile image) {
+        if (image == null || image.isEmpty()) {
             throw new IllegalArgumentException("Please send an image for analysis.");
         }
 
-        if (imagem.getSize() > MAX_IMAGE_SIZE_BYTES) {
+        if (image.getSize() > MAX_IMAGE_SIZE_BYTES) {
             throw new IllegalArgumentException("Image must not exceed 10MB.");
         }
 
-        if (!CONTENT_TYPES_SUPORTADOS.contains(imagem.getContentType())) {
+        if (!CONTENT_TYPES_SUPORTADOS.contains(image.getContentType())) {
             throw new IllegalArgumentException("Unsupported image format. Use PNG, JPEG, WEBP or GIF.");
         }
     }

@@ -19,7 +19,7 @@ public interface ItemMovementRepository extends SuperRepository<ItemMovement> {
      * Checks whether any movement is registered for the given item instance.
      * Used to prevent deletion of instances that already have a movement history.
      *
-     * @param instanciaItemId identifier of the item instance
+     * @param itemInstanceId identifier of the item instance
      * @return {@code true} if at least one movement exists for this instance
      */
     boolean existsByItemInstanceId(UUID itemInstanceId);
@@ -30,7 +30,7 @@ public interface ItemMovementRepository extends SuperRepository<ItemMovement> {
      * <p>Ordering by {@code movementDate} and then by {@code createdAt} ensures
      * consistency when multiple movements occur at the same instant.</p>
      *
-     * @param instanciaItemId identifier of the item instance
+     * @param itemInstanceId identifier of the item instance
      * @return list of movements in ascending chronological order; never {@code null}, may be empty
      */
     List<ItemMovement> findByItemInstanceIdOrderByMovementDateAscCreatedAtAsc(UUID itemInstanceId);

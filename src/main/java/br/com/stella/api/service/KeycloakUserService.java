@@ -35,7 +35,7 @@ import java.util.function.Supplier;
 @Service
 public class KeycloakUserService {
 
-    private static final List<String> ROLES_GERENCIADAS = List.of("admin", "proprietario", "usuario");
+    private static final List<String> ROLES_GERENCIADAS = List.of("admin", "proprietario", "user");
 
     private final RestClient restClient;
     private final KeycloakProperties keycloakProperties;
@@ -46,9 +46,9 @@ public class KeycloakUserService {
     }
 
     public List<UserResponseDTO> listar() {
-        List<Map<String, Object>> usuarios = getList("/users?briefRepresentation=false");
-        return usuarios.stream()
-                .map(usuario -> toUsuarioResponse(usuario, listarRolesDoUsuario((String) usuario.get("id"))))
+        List<Map<String, Object>> users = getList("/users?briefRepresentation=false");
+        return users.stream()
+                .map(user -> toUsuarioResponse(user, listarRolesDoUsuario((String) user.get("id"))))
                 .toList();
     }
 
@@ -84,24 +84,24 @@ public class KeycloakUserService {
     }
 
     public UserResponseDTO update(String id, UserUpdateDTO dto) {
-        Map<String, Object> usuario = fetchUserMap(id);
-        usuario.put("firstName", trimToNull(dto.firstName()));
-        usuario.put("lastName", trimToNull(dto.lastName()));
-        usuario.put("email", trimToNull(dto.email()));
+        Map<String, Object> user = fetchUserMap(id);
+        user.put("firstName", trimToNull(dto.firstName()));
+        user.put("lastName", trimToNull(dto.lastName()));
+        user.put("email", trimToNull(dto.email()));
 
         if (dto.enabled() != null) {
-            usuario.put("enabled", dto.enabled());
+            user.put("enabled", dto.enabled());
         }
 
-        put("/users/" + id, usuario);
+        put("/users/" + id, user);
         updateRoles(id, dto.roles());
         return findById(id);
     }
 
     public void alterarStatus(String id, boolean enabled) {
-        Map<String, Object> usuario = fetchUserMap(id);
-        usuario.put("enabled", enabled);
-        put("/users/" + id, usuario);
+        Map<String, Object> user = fetchUserMap(id);
+        user.put("enabled", enabled);
+        put("/users/" + id, user);
     }
 
     public MeuPerfilResponseDTO meuPerfil(Jwt jwt) {
@@ -121,11 +121,11 @@ public class KeycloakUserService {
     }
 
     public MeuPerfilResponseDTO atualizarMeuPerfil(Jwt jwt, MeuPerfilUpdateDTO dto) {
-        Map<String, Object> usuario = fetchUserMap(jwt.getSubject());
-        usuario.put("firstName", trimToNull(dto.firstName()));
-        usuario.put("lastName", trimToNull(dto.lastName()));
-        usuario.put("email", trimToNull(dto.email()));
-        put("/users/" + jwt.getSubject(), usuario);
+        Map<String, Object> user = fetchUserMap(jwt.getSubject());
+        user.put("firstName", trimToNull(dto.firstName()));
+        user.put("lastName", trimToNull(dto.lastName()));
+        user.put("email", trimToNull(dto.email()));
+        put("/users/" + jwt.getSubject(), user);
         return toMeuPerfil(findById(jwt.getSubject()));
     }
 
@@ -312,26 +312,26 @@ public class KeycloakUserService {
         return (String) response.get("access_token");
     }
 
-    private UserResponseDTO toUsuarioResponse(Map<String, Object> usuario, List<String> roles) {
+    private UserResponseDTO toUsuarioResponse(Map<String, Object> user, List<String> roles) {
         return new UserResponseDTO(
-                (String) usuario.get("id"),
-                (String) usuario.get("username"),
-                (String) usuario.get("firstName"),
-                (String) usuario.get("lastName"),
-                (String) usuario.get("email"),
-                Boolean.TRUE.equals(usuario.get("enabled")),
+                (String) user.get("id"),
+                (String) user.get("username"),
+                (String) user.get("firstName"),
+                (String) user.get("lastName"),
+                (String) user.get("email"),
+                Boolean.TRUE.equals(user.get("enabled")),
                 new ArrayList<>(roles)
         );
     }
 
-    private MeuPerfilResponseDTO toMeuPerfil(UserResponseDTO usuario) {
+    private MeuPerfilResponseDTO toMeuPerfil(UserResponseDTO user) {
         return new MeuPerfilResponseDTO(
-                usuario.id(),
-                usuario.username(),
-                usuario.firstName(),
-                usuario.lastName(),
-                usuario.email(),
-                usuario.roles(),
+                user.id(),
+                user.username(),
+                user.firstName(),
+                user.lastName(),
+                user.email(),
+                user.roles(),
                 keycloakProperties.accountUrl()
         );
     }

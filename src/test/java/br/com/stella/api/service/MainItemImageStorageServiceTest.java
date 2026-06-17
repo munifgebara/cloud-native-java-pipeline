@@ -40,12 +40,12 @@ class ImagemItemMestreStorageServiceTest {
 
         when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(false);
 
-        var imagem = service.armazenar(itemId, arquivo);
+        var image = service.armazenar(itemId, arquivo);
 
-        assertThat(imagem.bucket()).isEqualTo("stella-test");
-        assertThat(imagem.contentType()).isEqualTo("image/png");
-        assertThat(imagem.tamanhoBytes()).isEqualTo(3);
-        assertThat(imagem.objectKey())
+        assertThat(image.bucket()).isEqualTo("stella-test");
+        assertThat(image.contentType()).isEqualTo("image/png");
+        assertThat(image.tamanhoBytes()).isEqualTo(3);
+        assertThat(image.objectKey())
                 .startsWith("itens-mestre/%s/".formatted(itemId))
                 .endsWith(".png");
 
@@ -60,31 +60,31 @@ class ImagemItemMestreStorageServiceTest {
         assertThat(bucketExistsCaptor.getValue().bucket()).isEqualTo("stella-test");
         assertThat(makeBucketCaptor.getValue().bucket()).isEqualTo("stella-test");
         assertThat(putObjectCaptor.getValue().bucket()).isEqualTo("stella-test");
-        assertThat(putObjectCaptor.getValue().object()).isEqualTo(imagem.objectKey());
+        assertThat(putObjectCaptor.getValue().object()).isEqualTo(image.objectKey());
         assertThat(putObjectCaptor.getValue().contentType()).isEqualTo("image/png");
     }
 
     @Test
     void deveArmazenarImagemDeLocalComPrefixoProprio() throws Exception {
-        var localId = UUID.randomUUID();
+        var locationId = UUID.randomUUID();
         var arquivo = new MockMultipartFile("arquivo", "foto.webp", "image/webp", new byte[]{1, 2, 3});
 
         when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(true);
 
-        var imagem = service.armazenarLocal(localId, arquivo);
+        var image = service.armazenarLocal(locationId, arquivo);
 
-        assertThat(imagem.bucket()).isEqualTo("stella-test");
-        assertThat(imagem.contentType()).isEqualTo("image/webp");
-        assertThat(imagem.tamanhoBytes()).isEqualTo(3);
-        assertThat(imagem.objectKey())
-                .startsWith("locais/%s/".formatted(localId))
+        assertThat(image.bucket()).isEqualTo("stella-test");
+        assertThat(image.contentType()).isEqualTo("image/webp");
+        assertThat(image.tamanhoBytes()).isEqualTo(3);
+        assertThat(image.objectKey())
+                .startsWith("locais/%s/".formatted(locationId))
                 .endsWith(".webp");
 
         ArgumentCaptor<PutObjectArgs> putObjectCaptor = ArgumentCaptor.forClass(PutObjectArgs.class);
         verify(minioClient).putObject(putObjectCaptor.capture());
 
         assertThat(putObjectCaptor.getValue().bucket()).isEqualTo("stella-test");
-        assertThat(putObjectCaptor.getValue().object()).isEqualTo(imagem.objectKey());
+        assertThat(putObjectCaptor.getValue().object()).isEqualTo(image.objectKey());
         assertThat(putObjectCaptor.getValue().contentType()).isEqualTo("image/webp");
     }
 

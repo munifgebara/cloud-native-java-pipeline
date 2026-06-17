@@ -21,7 +21,7 @@ import java.util.UUID;
  * and the corresponding repository ({@code R}).</p>
  *
  * <p><strong>Soft deletion:</strong> the {@link #delete(UUID)} method does not remove the
- * record from the database; it only sets {@code ativo = false} via
+ * record from the database; it only sets {@code active = false} via
  * {@link BaseEntity#deleteLogically()}.</p>
  *
  * <p><strong>History:</strong> {@link #listPreviousVersions(UUID)} returns audited snapshots
@@ -80,7 +80,7 @@ public abstract class SuperService<T extends BaseEntity, R extends SuperReposito
     /**
      * Returns all records of the entity, including logically deactivated ones.
      *
-     * @return complete list, regardless of the {@code ativo} field
+     * @return complete list, regardless of the {@code active} field
      */
     public List<T> findAllIncludingInactive() {
         return repository.findAllIncludingInactive();
@@ -101,7 +101,7 @@ public abstract class SuperService<T extends BaseEntity, R extends SuperReposito
     /**
      * Performs the soft deletion of the record identified by {@code id}.
      *
-     * <p>The record remains in the database with {@code ativo = false}
+     * <p>The record remains in the database with {@code active = false}
      * and will not appear in standard listings.</p>
      *
      * @param id identifier of the record to deactivate
@@ -132,7 +132,7 @@ public abstract class SuperService<T extends BaseEntity, R extends SuperReposito
             return List.of();
         }
 
-        List<RevisionDTO<T>> resultado = new ArrayList<>();
+        List<RevisionDTO<T>> result = new ArrayList<>();
         // The last revision represents the current state, already obtained by findById().
         // Therefore we iterate only up to revisoes.size() - 1.
         for (int i = 0; i < revisoes.size() - 1; i++) {
@@ -140,7 +140,7 @@ public abstract class SuperService<T extends BaseEntity, R extends SuperReposito
             T entidadeRevisada = auditReader.find(entityClass, id, numeroRevisao);
 
             if (entidadeRevisada != null) {
-                resultado.add(new RevisionDTO<>(
+                result.add(new RevisionDTO<>(
                         numeroRevisao,
                         auditReader.getRevisionDate(numeroRevisao).toInstant(),
                         entidadeRevisada
@@ -148,6 +148,6 @@ public abstract class SuperService<T extends BaseEntity, R extends SuperReposito
             }
         }
 
-        return resultado;
+        return result;
     }
 }

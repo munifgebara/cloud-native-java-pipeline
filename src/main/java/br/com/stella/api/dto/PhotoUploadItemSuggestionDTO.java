@@ -3,8 +3,8 @@ package br.com.stella.api.dto;
 import java.util.List;
 
 public record PhotoUploadItemSuggestionDTO(
-        String nome,
-        String descricao,
+        String name,
+        String description,
         String categoriaSugerida,
         String marca,
         String modelo,
@@ -14,9 +14,9 @@ public record PhotoUploadItemSuggestionDTO(
         String isbn,
         String fontePesquisa,
         Boolean identificacaoVerificada,
-        Integer quantidade,
+        Integer quantity,
         String estadoConservacao,
-        String observacoes,
+        String notes,
         Double confianca,
-        List<PhotoUploadInstanceSuggestionDTO> instancias
+        List<PhotoUploadInstanceSuggestionDTO> instances
 ) {}

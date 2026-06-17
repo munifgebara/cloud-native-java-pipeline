@@ -45,23 +45,23 @@ class UsuarioControllerIntegrationTest {
     void deveRetornarMeuPerfilSemErroInterno() throws Exception {
         when(usuarioService.meuPerfil(any(Jwt.class))).thenReturn(new MeuPerfilResponseDTO(
                 "user-1",
-                "usuario",
+                "user",
                 "User",
                 "Stella",
-                "usuario@example.location",
-                List.of("usuario"),
+                "user@example.location",
+                List.of("user"),
                 "http://keycloak/realms/stella/account"
         ));
 
-        mockMvc.perform(get("/api/v0/usuarios/me")
+        mockMvc.perform(get("/api/v0/users/me")
                         .with(jwt().jwt(token -> token
                                 .subject("user-1")
-                                .claim("preferred_username", "usuario")
+                                .claim("preferred_username", "user")
                         ))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("user-1"))
-                .andExpect(jsonPath("$.username").value("usuario"));
+                .andExpect(jsonPath("$.username").value("user"));
     }
 
     @Test
@@ -72,10 +72,10 @@ class UsuarioControllerIntegrationTest {
                 null
         ));
 
-        mockMvc.perform(get("/api/v0/usuarios/me")
+        mockMvc.perform(get("/api/v0/users/me")
                         .with(jwt().jwt(token -> token
                                 .subject("user-1")
-                                .claim("preferred_username", "usuario")
+                                .claim("preferred_username", "user")
                         ))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadGateway())
@@ -98,10 +98,10 @@ class UsuarioControllerIntegrationTest {
                 "existente@example.location",
                 "segredo123",
                 true,
-                List.of("usuario")
+                List.of("user")
         );
 
-        mockMvc.perform(post("/api/v0/usuarios")
+        mockMvc.perform(post("/api/v0/users")
                         .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_admin")))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)

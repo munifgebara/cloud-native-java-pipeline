@@ -30,9 +30,9 @@ public final class CategoryMapper {
         }
 
         Category category = new Category();
-        category.setName(dto.nome());
-        category.setDescription(dto.descricao());
-        category.setIcon(dto.icone());
+        category.setName(dto.name());
+        category.setDescription(dto.description());
+        category.setIcon(dto.icon());
         if (dto.ativa() != null) {
             category.setActive(dto.ativa());
         }
@@ -53,9 +53,9 @@ public final class CategoryMapper {
             return;
         }
 
-        entity.setName(dto.nome());
-        entity.setDescription(dto.descricao());
-        entity.setIcon(dto.icone());
+        entity.setName(dto.name());
+        entity.setDescription(dto.description());
+        entity.setIcon(dto.icon());
         if (dto.ativa() != null) {
             entity.setActive(dto.ativa());
         }

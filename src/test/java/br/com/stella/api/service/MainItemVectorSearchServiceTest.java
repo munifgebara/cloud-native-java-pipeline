@@ -40,9 +40,9 @@ class ItemMestreVectorSearchServiceTest {
 
     private final EmbeddingProvider embeddingProvider = mock(EmbeddingProvider.class);
     private final JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class);
-    private final MainItemRepository itemMestreRepository = mock(MainItemRepository.class);
-    private final ItemInstanceRepository instanciaItemRepository = mock(ItemInstanceRepository.class);
-    private final VectorSearchMetricsService consultaVetorialMetricasService = mock(VectorSearchMetricsService.class);
+    private final MainItemRepository mainItemRepository = mock(MainItemRepository.class);
+    private final ItemInstanceRepository itemInstanceRepository = mock(ItemInstanceRepository.class);
+    private final VectorSearchMetricsService vectorSearchMetricsService = mock(VectorSearchMetricsService.class);
     private final MainItemEmbeddingDocumentFactory documentFactory = new MainItemEmbeddingDocumentFactory();
 
     @Test
@@ -53,7 +53,7 @@ class ItemMestreVectorSearchServiceTest {
 
         verify(embeddingProvider, never()).gerarEmbedding(anyString());
         verifyNoInteractions(jdbcTemplate);
-        verifyNoInteractions(consultaVetorialMetricasService);
+        verifyNoInteractions(vectorSearchMetricsService);
     }
 
     @Test
@@ -118,11 +118,11 @@ class ItemMestreVectorSearchServiceTest {
     void deveBuscarSemanticamenteMontandoItemInstanciasLocaisESimilaridade() throws Exception {
         UUID itemId = UUID.randomUUID();
         UUID instanciaId = UUID.randomUUID();
-        UUID localId = UUID.randomUUID();
+        UUID locationId = UUID.randomUUID();
         MainItem item = item(itemId, true);
         item.setImageObjectKey("itens/foto.png");
         StorageLocation location = new StorageLocation();
-        location.setId(localId);
+        location.setId(locationId);
         location.setName("Caixa A");
         ItemInstance instance = new ItemInstance();
         instance.setId(instanciaId);
@@ -138,28 +138,28 @@ class ItemMestreVectorSearchServiceTest {
             when(rs.getDouble("similaridade")).thenReturn(0.87654);
             return List.of(mapper.mapRow(rs, 0));
         });
-        when(itemMestreRepository.findWithCategoryByIds(List.of(itemId))).thenReturn(List.of(item));
-        when(instanciaItemRepository.findActiveByMainItemIds(List.of(itemId))).thenReturn(List.of(instance));
+        when(mainItemRepository.findWithCategoryByIds(List.of(itemId))).thenReturn(List.of(item));
+        when(itemInstanceRepository.findActiveByMainItemIds(List.of(itemId))).thenReturn(List.of(instance));
 
-        var resultado = service(true).search(" onde encontro placa de computador ");
+        var result = service(true).search(" onde encontro placa de computador ");
 
-        assertThat(resultado).hasSize(1);
-        assertThat(resultado.getFirst().nome()).isEqualTo("Video card");
-        assertThat(resultado.getFirst().similaridade()).isEqualTo(0.8765);
-        assertThat(resultado.getFirst().imagemUrl()).isEqualTo("/api/public/itens-mestre/%s/imagem-principal".formatted(itemId));
-        assertThat(resultado.getFirst().instancias()).extracting("identificador").containsExactly("GPU 1");
-        assertThat(resultado.getFirst().locaisProvaveis()).extracting("nome").containsExactly("Caixa A");
-        verify(consultaVetorialMetricasService).recordQuery("onde encontro placa de computador", 1);
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().name()).isEqualTo("Video card");
+        assertThat(result.getFirst().similaridade()).isEqualTo(0.8765);
+        assertThat(result.getFirst().imageUrl()).isEqualTo("/api/public/itens-mestre/%s/image-principal".formatted(itemId));
+        assertThat(result.getFirst().instances()).extracting("identifier").containsExactly("GPU 1");
+        assertThat(result.getFirst().locaisProvaveis()).extracting("name").containsExactly("Caixa A");
+        verify(vectorSearchMetricsService).recordQuery("onde encontro placa de computador", 1);
     }
 
     @Test
     void deveRetornarListaVaziaQuandoBuscaVetorialEstaDesabilitada() {
-        var resultado = service(false).search("placa de video");
+        var result = service(false).search("placa de video");
 
-        assertThat(resultado).isEmpty();
+        assertThat(result).isEmpty();
         verifyNoInteractions(embeddingProvider);
         verifyNoInteractions(jdbcTemplate);
-        verifyNoInteractions(consultaVetorialMetricasService);
+        verifyNoInteractions(vectorSearchMetricsService);
     }
 
     @Test
@@ -167,10 +167,10 @@ class ItemMestreVectorSearchServiceTest {
         when(embeddingProvider.gerarEmbedding("placa de video")).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any())).thenReturn(List.of());
 
-        var resultado = service(true).search("placa de video");
+        var result = service(true).search("placa de video");
 
-        assertThat(resultado).isEmpty();
-        verify(consultaVetorialMetricasService).recordQuery("placa de video", 0);
+        assertThat(result).isEmpty();
+        verify(vectorSearchMetricsService).recordQuery("placa de video", 0);
     }
 
     @Test
@@ -186,7 +186,7 @@ class ItemMestreVectorSearchServiceTest {
 
     @Test
     void deveReindexarItensAtivosQuandoHabilitado() {
-        when(itemMestreRepository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(item(UUID.randomUUID(), true), item(UUID.randomUUID(), true)));
+        when(mainItemRepository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(item(UUID.randomUUID(), true), item(UUID.randomUUID(), true)));
         when(embeddingProvider.gerarEmbedding(anyString())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
 
         int total = service(true).reindexarItensAtivos();
@@ -199,13 +199,13 @@ class ItemMestreVectorSearchServiceTest {
     void deveRetornarZeroAoReindexarQuandoBuscaVetorialEstaDesabilitada() {
         assertThat(service(false).reindexarItensAtivos()).isZero();
 
-        verifyNoInteractions(itemMestreRepository);
+        verifyNoInteractions(mainItemRepository);
         verifyNoInteractions(embeddingProvider);
     }
 
     @Test
     void devePropagarFalhaAoReindexarItensAtivos() {
-        when(itemMestreRepository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(item(UUID.randomUUID(), true)));
+        when(mainItemRepository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(item(UUID.randomUUID(), true)));
         when(embeddingProvider.gerarEmbedding(anyString())).thenReturn(new float[]{0.1f});
 
         assertThatThrownBy(() -> service(true).reindexarItensAtivos())
@@ -246,14 +246,14 @@ class ItemMestreVectorSearchServiceTest {
                 embeddingProvider,
                 documentFactory,
                 jdbcTemplate,
-                itemMestreRepository,
-                instanciaItemRepository,
-                consultaVetorialMetricasService,
+                mainItemRepository,
+                itemInstanceRepository,
+                vectorSearchMetricsService,
                 new AiUsageGuard(aiProperties, limitsProperties)
         );
     }
 
-    private MainItem item(UUID id, boolean ativo) {
+    private MainItem item(UUID id, boolean active) {
         Category category = new Category();
         category.setId(UUID.randomUUID());
         category.setName("Electronics");
@@ -265,7 +265,7 @@ class ItemMestreVectorSearchServiceTest {
         item.setDescription("Computer component");
         item.setNotes("PC part");
         item.setCategory(category);
-        item.setActive(ativo);
+        item.setActive(active);
         return item;
     }
 }

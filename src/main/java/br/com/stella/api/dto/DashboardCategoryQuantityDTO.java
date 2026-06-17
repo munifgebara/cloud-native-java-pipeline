@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public record DashboardCategoryQuantityDTO(
         UUID id,
-        String nome,
+        String name,
         long quantidadeItens
 ) {
 }

@@ -40,10 +40,10 @@ class ItemMestreServiceTest {
     private MainItemRepository repository;
 
     @Mock
-    private CategoryRepository categoriaRepository;
+    private CategoryRepository categoryRepository;
 
     @Mock
-    private MainItemImageStorageService imagemStorageService;
+    private MainItemImageStorageService imageStorageService;
 
     @Mock
     private MainItemVectorSearchService vectorSearchService;
@@ -56,18 +56,18 @@ class ItemMestreServiceTest {
 
     @Test
     void deveCriarItemMestreComCategoriaNormalizandoCampos() {
-        UUID categoriaId = UUID.randomUUID();
-        Category category = category(categoriaId, "Eletronicos", "eletronicos", true);
+        UUID categoryId = UUID.randomUUID();
+        Category category = category(categoryId, "Eletronicos", "eletronicos", true);
 
-        when(categoriaRepository.findById(categoriaId)).thenReturn(Optional.of(category));
+        when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.create(new MainItemCreateDTO(
+        var response = service.create(new MainItemCreateDTO(
                 "  Notebook Dell Latitude 5440  ",
                 "  Notebook corporativo  ",
                 "  Prepared for future instances  ",
                 null,
-                categoriaId,
+                categoryId,
                 true
         ));
 
@@ -79,9 +79,9 @@ class ItemMestreServiceTest {
         assertThat(itemSalvo.getDescription()).isEqualTo("Notebook corporativo");
         assertThat(itemSalvo.getNotes()).isEqualTo("Prepared for future instances");
         assertThat(itemSalvo.getCategory()).isEqualTo(category);
-        assertThat(resposta.categoriaId()).isEqualTo(categoriaId);
-        assertThat(resposta.categoriaNome()).isEqualTo("Eletronicos");
-        assertThat(resposta.categoriaIcone()).isEqualTo("eletronicos");
+        assertThat(response.categoryId()).isEqualTo(categoryId);
+        assertThat(response.categoryName()).isEqualTo("Eletronicos");
+        assertThat(response.categoryIcon()).isEqualTo("eletronicos");
         verify(vectorSearchService).sincronizar(itemSalvo);
     }
 
@@ -89,11 +89,11 @@ class ItemMestreServiceTest {
     void deveCriarItemMestreSemCategoria() {
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.create(new MainItemCreateDTO("Cadeira ergonomica", null, null, null, null, true));
+        var response = service.create(new MainItemCreateDTO("Cadeira ergonomica", null, null, null, null, true));
 
-        assertThat(resposta.nome()).isEqualTo("Cadeira ergonomica");
-        assertThat(resposta.categoriaId()).isNull();
-        verify(categoriaRepository, never()).findById(any(UUID.class));
+        assertThat(response.name()).isEqualTo("Cadeira ergonomica");
+        assertThat(response.categoryId()).isNull();
+        verify(categoryRepository, never()).findById(any(UUID.class));
     }
 
     @Test
@@ -102,9 +102,9 @@ class ItemMestreServiceTest {
         doThrow(new ExternalIntegrationException("pgvector unavailable"))
                 .when(vectorSearchService).sincronizar(any(MainItem.class));
 
-        var resposta = service.create(new MainItemCreateDTO("Cadeira ergonomica", null, null, null, null, true));
+        var response = service.create(new MainItemCreateDTO("Cadeira ergonomica", null, null, null, null, true));
 
-        assertThat(resposta.nome()).isEqualTo("Cadeira ergonomica");
+        assertThat(response.name()).isEqualTo("Cadeira ergonomica");
         verify(repository).save(any(MainItem.class));
         verify(vectorSearchService).sincronizar(any(MainItem.class));
     }
@@ -134,36 +134,36 @@ class ItemMestreServiceTest {
     void deveCriarItemMestreInativoAposPersistenciaInicial() {
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.create(new MainItemCreateDTO("Arquivo legado", null, null, null, null, false));
+        var response = service.create(new MainItemCreateDTO("Arquivo legado", null, null, null, null, false));
 
-        assertThat(resposta.ativa()).isFalse();
+        assertThat(response.ativa()).isFalse();
         verify(repository).flush();
     }
 
     @Test
     void deveAtualizarItemMestreComCategoria() {
         UUID id = UUID.randomUUID();
-        UUID categoriaId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
         MainItem item = item(id, "Antigo", null);
-        Category category = category(categoriaId, "Moveis", "moveis", true);
+        Category category = category(categoryId, "Moveis", "moveis", true);
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
-        when(categoriaRepository.findById(categoriaId)).thenReturn(Optional.of(category));
+        when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.update(id, new MainItemUpdateDTO(
+        var response = service.update(id, new MainItemUpdateDTO(
                 "  Cadeira ergonomica  ",
                 "  Cadeira de escritorio  ",
                 null,
                 null,
-                categoriaId,
+                categoryId,
                 false
         ));
 
-        assertThat(resposta.nome()).isEqualTo("Cadeira ergonomica");
-        assertThat(resposta.descricao()).isEqualTo("Cadeira de escritorio");
-        assertThat(resposta.categoriaNome()).isEqualTo("Moveis");
-        assertThat(resposta.ativa()).isFalse();
+        assertThat(response.name()).isEqualTo("Cadeira ergonomica");
+        assertThat(response.description()).isEqualTo("Cadeira de escritorio");
+        assertThat(response.categoryName()).isEqualTo("Moveis");
+        assertThat(response.ativa()).isFalse();
         verify(vectorSearchService).sincronizar(item);
     }
 
@@ -175,23 +175,23 @@ class ItemMestreServiceTest {
         when(repository.findById(id)).thenReturn(Optional.of(item));
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.update(id, new MainItemUpdateDTO(" Notebook ", " ", " Observacao ", null, null, true));
+        var response = service.update(id, new MainItemUpdateDTO(" Notebook ", " ", " Observacao ", null, null, true));
 
-        assertThat(resposta.nome()).isEqualTo("Notebook");
-        assertThat(resposta.descricao()).isNull();
-        assertThat(resposta.observacoes()).isEqualTo("Observacao");
-        assertThat(resposta.categoriaId()).isNull();
-        verify(categoriaRepository, never()).findById(any(UUID.class));
+        assertThat(response.name()).isEqualTo("Notebook");
+        assertThat(response.description()).isNull();
+        assertThat(response.notes()).isEqualTo("Observacao");
+        assertThat(response.categoryId()).isNull();
+        verify(categoryRepository, never()).findById(any(UUID.class));
     }
 
     @Test
     void deveImpedirCategoriaInativaNoItemMestre() {
-        UUID categoriaId = UUID.randomUUID();
-        Category category = category(categoriaId, "Inativa", null, false);
+        UUID categoryId = UUID.randomUUID();
+        Category category = category(categoryId, "Inativa", null, false);
 
-        when(categoriaRepository.findById(categoriaId)).thenReturn(Optional.of(category));
+        when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
 
-        assertThatThrownBy(() -> service.create(new MainItemCreateDTO("Furadeira", null, null, null, categoriaId, true)))
+        assertThatThrownBy(() -> service.create(new MainItemCreateDTO("Furadeira", null, null, null, categoryId, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Category must be active");
 
@@ -200,11 +200,11 @@ class ItemMestreServiceTest {
 
     @Test
     void deveImpedirCategoriaInexistenteNoItemMestre() {
-        UUID categoriaId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
 
-        when(categoriaRepository.findById(categoriaId)).thenReturn(Optional.empty());
+        when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.create(new MainItemCreateDTO("Furadeira", null, null, null, categoriaId, true)))
+        assertThatThrownBy(() -> service.create(new MainItemCreateDTO("Furadeira", null, null, null, categoryId, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Category not found.");
 
@@ -213,14 +213,14 @@ class ItemMestreServiceTest {
 
     @Test
     void deveListarResumoEInativos() {
-        MainItem ativo = item(UUID.randomUUID(), "Notebook", null);
-        MainItem inativo = item(UUID.randomUUID(), "Arquivo legado", null);
-        inativo.setActive(false);
+        MainItem active = item(UUID.randomUUID(), "Notebook", null);
+        MainItem inactive = item(UUID.randomUUID(), "Arquivo legado", null);
+        inactive.setActive(false);
 
-        when(repository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(ativo));
-        when(repository.findAllIncludingInactive()).thenReturn(List.of(ativo, inativo));
+        when(repository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(active));
+        when(repository.findAllIncludingInactive()).thenReturn(List.of(active, inactive));
 
-        assertThat(service.listSummary()).extracting("nome").containsExactly("Notebook");
+        assertThat(service.listSummary()).extracting("name").containsExactly("Notebook");
         assertThat(service.listSummaryIncludingInactive()).extracting("ativa").containsExactly(true, false);
     }
 
@@ -236,16 +236,16 @@ class ItemMestreServiceTest {
 
     @Test
     void deveFiltrarPorNomeECategoria() {
-        UUID categoriaId = UUID.randomUUID();
-        Category category = category(categoriaId, "Eletronicos", "eletronicos", true);
+        UUID categoryId = UUID.randomUUID();
+        Category category = category(categoryId, "Eletronicos", "eletronicos", true);
         MainItem item = item(UUID.randomUUID(), "Notebook", category);
 
         when(repository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of(item));
 
-        var resposta = service.filtrar(" Notebook ", categoriaId);
+        var response = service.filtrar(" Notebook ", categoryId);
 
-        assertThat(resposta).hasSize(1);
-        assertThat(resposta.getFirst().nome()).isEqualTo("Notebook");
+        assertThat(response).hasSize(1);
+        assertThat(response.getFirst().name()).isEqualTo("Notebook");
     }
 
     @Test
@@ -255,20 +255,20 @@ class ItemMestreServiceTest {
         item.setImageBucket("stella-itens");
         item.setImageObjectKey("itens-mestre/antiga.jpg");
         var arquivo = new MockMultipartFile("arquivo", "foto.png", "image/png", new byte[]{1, 2, 3});
-        var imagem = new MainItemImageDTO("stella-itens", "itens-mestre/nova.png", "image/png", 3L);
+        var image = new MainItemImageDTO("stella-itens", "itens-mestre/nova.png", "image/png", 3L);
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
-        when(imagemStorageService.armazenar(id, arquivo)).thenReturn(imagem);
+        when(imageStorageService.armazenar(id, arquivo)).thenReturn(image);
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.atualizarImagemPrincipal(id, arquivo);
+        var response = service.updateMainImage(id, arquivo);
 
-        assertThat(resposta.imagemUrl()).isEqualTo("/api/public/itens-mestre/%s/imagem-principal".formatted(id));
-        assertThat(resposta.imageContentType()).isEqualTo("image/png");
-        assertThat(resposta.imageSizeBytes()).isEqualTo(3L);
-        assertThat(resposta.imageGeneratedByAi()).isFalse();
-        assertThat(resposta.imageProvider()).isNull();
-        verify(imagemStorageService).removerSilenciosamente("stella-itens", "itens-mestre/antiga.jpg");
+        assertThat(response.imageUrl()).isEqualTo("/api/public/itens-mestre/%s/image-principal".formatted(id));
+        assertThat(response.imageContentType()).isEqualTo("image/png");
+        assertThat(response.imageSizeBytes()).isEqualTo(3L);
+        assertThat(response.imageGeneratedByAi()).isFalse();
+        assertThat(response.imageProvider()).isNull();
+        verify(imageStorageService).removerSilenciosamente("stella-itens", "itens-mestre/antiga.jpg");
     }
 
     @Test
@@ -276,16 +276,16 @@ class ItemMestreServiceTest {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
         var arquivo = new MockMultipartFile("arquivo", "foto.png", "image/png", new byte[]{1, 2, 3});
-        var imagem = new MainItemImageDTO("stella-itens", "itens-mestre/ia.png", "image/png", 3L);
+        var image = new MainItemImageDTO("stella-itens", "itens-mestre/ia.png", "image/png", 3L);
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
-        when(imagemStorageService.armazenar(id, arquivo)).thenReturn(imagem);
+        when(imageStorageService.armazenar(id, arquivo)).thenReturn(image);
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.atualizarImagemPrincipal(id, arquivo, true, " openai ");
+        var response = service.updateMainImage(id, arquivo, true, " openai ");
 
-        assertThat(resposta.imageGeneratedByAi()).isTrue();
-        assertThat(resposta.imageProvider()).isEqualTo("openai");
+        assertThat(response.imageGeneratedByAi()).isTrue();
+        assertThat(response.imageProvider()).isEqualTo("openai");
     }
 
     @Test
@@ -327,15 +327,15 @@ class ItemMestreServiceTest {
         item.setImageSizeBytes(3L);
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
-        when(imagemStorageService.abrir("stella-itens", "itens-mestre/%s/foto.png".formatted(id)))
+        when(imageStorageService.abrir("stella-itens", "itens-mestre/%s/foto.png".formatted(id)))
                 .thenReturn(new ByteArrayInputStream(new byte[]{1, 2, 3}));
 
         var metadados = service.buscarMetadadosImagemPrincipal(id);
-        var imagem = service.abrirImagemPrincipal(id);
+        var image = service.abrirImagemPrincipal(id);
 
         assertThat(metadados.objectKey()).isEqualTo("itens-mestre/%s/foto.png".formatted(id));
         assertThat(metadados.tamanhoBytes()).isEqualTo(3L);
-        assertThat(imagem).hasSameContentAs(new ByteArrayInputStream(new byte[]{1, 2, 3}));
+        assertThat(image).hasSameContentAs(new ByteArrayInputStream(new byte[]{1, 2, 3}));
     }
 
     @Test
@@ -350,20 +350,20 @@ class ItemMestreServiceTest {
                 .hasMessage("Main item does not have a main image.");
     }
 
-    private MainItem item(UUID id, String nome, Category category) {
+    private MainItem item(UUID id, String name, Category category) {
         MainItem item = new MainItem();
         item.setId(id);
-        item.setName(nome);
+        item.setName(name);
         item.setCategory(category);
         item.setActive(true);
         return item;
     }
 
-    private Category category(UUID id, String nome, String icone, boolean ativa) {
+    private Category category(UUID id, String name, String icon, boolean ativa) {
         Category category = new Category();
         category.setId(id);
-        category.setName(nome);
-        category.setIcon(icone);
+        category.setName(name);
+        category.setIcon(icon);
         category.setActive(ativa);
         return category;
     }

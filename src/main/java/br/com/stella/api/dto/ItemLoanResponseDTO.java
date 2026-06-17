@@ -6,12 +6,12 @@ import java.util.UUID;
 
 public record ItemLoanResponseDTO(
         UUID id,
-        UUID instanciaItemId,
+        UUID itemInstanceId,
         String instanciaIdentificacao,
         UUID pessoaId,
         String pessoaNome,
         Instant loanDate,
-        LocalDate previsaoDevolucao,
-        Instant dataDevolucao,
-        String observacao
+        LocalDate expectedReturnDate,
+        Instant returnDate,
+        String notes
 ) {}

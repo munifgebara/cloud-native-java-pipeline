@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.UUID;
 
 public record SemanticSearchItemDTO(
-        UUID itemMestreId,
-        String nome,
-        String descricao,
-        String categoriaNome,
-        String categoriaIcone,
-        String imagemUrl,
+        UUID mainItemId,
+        String name,
+        String description,
+        String categoryName,
+        String categoryIcon,
+        String imageUrl,
         double similaridade,
-        List<SemanticSearchInstanceDTO> instancias,
+        List<SemanticSearchInstanceDTO> instances,
         List<SemanticSearchLocationDTO> locaisProvaveis
 ) {}

@@ -12,28 +12,28 @@ import java.util.UUID;
  * in the inventory. Image fields are not included here — the image is sent
  * via a dedicated endpoint after creation.</p>
  *
- * @param nome           main item name; required, up to 150 characters
- * @param descricao      detailed description of the item (characteristics, usage, etc.); up to 500 characters; optional
- * @param observacoes    internal notes (maintenance history, restrictions, etc.); up to 1000 characters; optional
+ * @param name           main item name; required, up to 150 characters
+ * @param description      detailed description of the item (characteristics, usage, etc.); up to 500 characters; optional
+ * @param notes    internal notes (maintenance history, restrictions, etc.); up to 1000 characters; optional
  * @param registrationOrigin registration origin (e.g.: {@code "MANUAL"}, {@code "IA"}); up to 50 characters; optional
- * @param categoriaId    identifier of the item category; optional
+ * @param categoryId    identifier of the item category; optional
  * @param ativa          indicates whether the item should be created as active; when {@code null}, defaults to {@code true}
  */
 public record MainItemCreateDTO(
         @NotBlank(message = "Name is required.")
         @Size(max = 150, message = "Name must not exceed 150 characters.")
-        String nome,
+        String name,
 
         @Size(max = 500, message = "Description must not exceed 500 characters.")
-        String descricao,
+        String description,
 
         @Size(max = 1000, message = "Notes must not exceed 1000 characters.")
-        String observacoes,
+        String notes,
 
         @Size(max = 50, message = "Registration origin must not exceed 50 characters.")
         String registrationOrigin,
 
-        UUID categoriaId,
+        UUID categoryId,
 
         Boolean ativa
 ) {}

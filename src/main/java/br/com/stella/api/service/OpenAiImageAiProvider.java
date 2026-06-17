@@ -53,15 +53,15 @@ public class OpenAiImageAiProvider implements ImageAiProvider {
 
             ImageResponse response = imageModel.call(new ImagePrompt(prompt(request), options));
 
-            var resultado = parseResponse(response);
+            var result = parseResponse(response);
             StructuredBusinessLogger.info(log, "ai", "image-generation", StructuredBusinessLogger.fields(
                     "ai_provider", PROVIDER,
                     "ai_model", modelo,
                     "duration_ms", elapsedMillis(inicio),
-                    "image_content_type", resultado.contentType(),
+                    "image_content_type", result.contentType(),
                     "success", true
             ));
-            return resultado;
+            return result;
         } catch (RuntimeException ex) {
             logFailure(modelo, inicio, ex);
             throw ex;
@@ -95,9 +95,9 @@ public class OpenAiImageAiProvider implements ImageAiProvider {
                 Category: %s
                 Description: %s
                 """.formatted(
-                request.nome(),
+                request.name(),
                 request.category() == null ? "not provided" : request.category(),
-                request.descricao() == null ? "not provided" : request.descricao()
+                request.description() == null ? "not provided" : request.description()
         );
     }
 

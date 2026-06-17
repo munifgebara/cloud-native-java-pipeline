@@ -72,12 +72,12 @@ public class StorageLocationController extends SuperController<StorageLocationSu
      * Finds active locations whose name contains the given text (case-insensitive).
      * Returns results in hierarchical order.
      *
-     * @param nome substring to search in the location name
+     * @param name substring to search in the location name
      * @return {@code 200 OK} with the list of found locations
      */
     @GetMapping("/search")
-    public ResponseEntity<List<StorageLocationSummaryDTO>> findByName(@RequestParam String nome) {
-        return ResponseEntity.ok(service.findByName(nome));
+    public ResponseEntity<List<StorageLocationSummaryDTO>> findByName(@RequestParam String name) {
+        return ResponseEntity.ok(service.findByName(name));
     }
 
     /**
@@ -87,7 +87,7 @@ public class StorageLocationController extends SuperController<StorageLocationSu
      * @param arquivo image file uploaded by the client
      * @return {@code 200 OK} with the full DTO of the updated location
      */
-    @PostMapping(value = "/{id}/imagem", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<StorageLocationResponseDTO> updateImage(@PathVariable UUID id, @RequestParam("arquivo") MultipartFile arquivo) {
         return ResponseEntity.ok(service.updateImage(id, arquivo));
     }
@@ -98,7 +98,7 @@ public class StorageLocationController extends SuperController<StorageLocationSu
      * @param id UUID of the location
      * @return {@code 200 OK} with the full DTO of the location without an image
      */
-    @DeleteMapping("/{id}/imagem")
+    @DeleteMapping("/{id}/image")
     public ResponseEntity<StorageLocationResponseDTO> removerImagem(@PathVariable UUID id) {
         return ResponseEntity.ok(service.removerImagem(id));
     }

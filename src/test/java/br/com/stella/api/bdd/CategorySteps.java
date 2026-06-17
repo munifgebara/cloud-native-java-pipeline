@@ -33,8 +33,8 @@ public class CategorySteps {
     }
 
     @Given("that a category registration exists with name {string} and icon {string}")
-    public void queExisteUmCadastroDeCategoriaComNomeEIcone(String nome, String icone) {
-        request = new CategoryCreateDTO(nome, null, icone, true);
+    public void queExisteUmCadastroDeCategoriaComNomeEIcone(String name, String icon) {
+        request = new CategoryCreateDTO(name, null, icon, true);
     }
 
     @When("the category is saved")
@@ -43,13 +43,13 @@ public class CategorySteps {
     }
 
     @Then("the registered category must be named {string}")
-    public void aCategoriaCadastradaDeveSeChamar(String nome) {
-        assertThat(response.nome()).isEqualTo(nome);
+    public void aCategoriaCadastradaDeveSeChamar(String name) {
+        assertThat(response.name()).isEqualTo(name);
     }
 
     @Then("the icon of the registered category must be {string}")
-    public void oIconeDaCategoriaCadastradaDeveSer(String icone) {
-        assertThat(response.icone()).isEqualTo(icone);
+    public void oIconeDaCategoriaCadastradaDeveSer(String icon) {
+        assertThat(response.icon()).isEqualTo(icon);
     }
 
     @Then("the registered category must be active")

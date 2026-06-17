@@ -32,13 +32,13 @@ public final class ItemLoanMapper {
         }
 
         ItemInstance instance = entity.getItemInstance();
-        Person pessoa = entity.getPerson();
+        Person person = entity.getPerson();
         return new ItemLoanResponseDTO(
                 entity.getId(),
                 instance == null ? null : instance.getId(),
-                identificacao(instance),
-                pessoa == null ? null : pessoa.getId(),
-                pessoa == null ? null : pessoa.getName(),
+                identification(instance),
+                person == null ? null : person.getId(),
+                person == null ? null : person.getName(),
                 entity.getLoanDate(),
                 entity.getExpectedReturnDate(),
                 entity.getReturnDate(),
@@ -53,7 +53,7 @@ public final class ItemLoanMapper {
      * @param instance instance whose identifier will be resolved; may be {@code null}
      * @return first non-null identification field, or {@code null} if the instance is {@code null}
      */
-    private static String identificacao(ItemInstance instance) {
+    private static String identification(ItemInstance instance) {
         if (instance == null) {
             return null;
         }

@@ -12,9 +12,9 @@ class ImageAiServiceTest {
     @Test
     void deveNormalizarRequestEDelegarParaProvider() {
         ImageAiService service = new ImageAiService(request -> {
-            assertThat(request.nome()).isEqualTo("Furadeira");
+            assertThat(request.name()).isEqualTo("Furadeira");
             assertThat(request.category()).isEqualTo("Ferramentas");
-            assertThat(request.descricao()).isNull();
+            assertThat(request.description()).isNull();
             return new ImageAiResponseDTO("data:image/png;base64,abc", "image/png", "openai");
         });
 

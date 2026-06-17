@@ -60,21 +60,21 @@ public interface MainItemRepository extends SuperRepository<MainItem>, JpaSpecif
      * This avoids the null parameter type inference issue in PostgreSQL that occurs
      * with JPQL queries using the {@code (:param is null or ...)} construct.</p>
      *
-     * @param nome        substring to search in the item name (case-insensitive); {@code null} ignores the filter
-     * @param categoriaId UUID of the category; {@code null} ignores the filter
+     * @param name        substring to search in the item name (case-insensitive); {@code null} ignores the filter
+     * @param categoryId UUID of the category; {@code null} ignores the filter
      * @return specification combining the given filters with {@code AND}
      */
-    static Specification<MainItem> filterActive(String nome, UUID categoriaId) {
+    static Specification<MainItem> filterActive(String name, UUID categoryId) {
         return (root, query, cb) -> {
-            List<Predicate> predicados = new ArrayList<>();
-            predicados.add(cb.isTrue(root.get("active")));
-            if (nome != null) {
-                predicados.add(cb.like(cb.lower(root.get("name")), "%" + nome.toLowerCase() + "%"));
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.isTrue(root.get("active")));
+            if (name != null) {
+                predicates.add(cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
             }
-            if (categoriaId != null) {
-                predicados.add(cb.equal(root.join("category").get("id"), categoriaId));
+            if (categoryId != null) {
+                predicates.add(cb.equal(root.join("category").get("id"), categoryId));
             }
-            return cb.and(predicados.toArray(Predicate[]::new));
+            return cb.and(predicates.toArray(Predicate[]::new));
         };
     }
 

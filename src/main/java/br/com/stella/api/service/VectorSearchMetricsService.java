@@ -11,7 +11,7 @@ import java.util.UUID;
 public class VectorSearchMetricsService {
 
     private static final String INSERT_SQL = """
-            insert into public.consulta_vetorial_metrica (id, consulta, quantidade_resultados)
+            insert into public.consulta_vetorial_metrica (id, query, quantidade_resultados)
             values (?, ?, ?)
             """;
 
@@ -22,12 +22,12 @@ public class VectorSearchMetricsService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void recordQuery(String consulta, int quantidadeResultados) {
+    public void recordQuery(String query, int resultCount) {
         jdbcTemplate.update(
                 INSERT_SQL,
                 UUID.randomUUID(),
-                consulta.length() > 1000 ? consulta.substring(0, 1000) : consulta,
-                quantidadeResultados
+                query.length() > 1000 ? query.substring(0, 1000) : query,
+                resultCount
         );
     }
 

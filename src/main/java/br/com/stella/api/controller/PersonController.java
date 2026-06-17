@@ -19,11 +19,11 @@ import java.util.UUID;
 /**
  * REST controller for managing persons (individuals or legal entities).
  *
- * <p>Exposes the {@code /api/v0/pessoas} resource with CRUD, name search,
+ * <p>Exposes the {@code /api/v0/people} resource with CRUD, name search,
  * and audit revision history.</p>
  */
 @RestController
-@RequestMapping("/api/v0/pessoas")
+@RequestMapping("/api/v0/people")
 public class PersonController extends SuperController<PersonSummaryDTO, PersonResponseDTO, PersonCreateDTO, PersonUpdateDTO, Person> {
 
     private final PersonService service;
@@ -58,12 +58,12 @@ public class PersonController extends SuperController<PersonSummaryDTO, PersonRe
     /**
      * Finds active persons whose name contains the given text (partial, case-insensitive search).
      *
-     * @param nome substring to search in the person's name
+     * @param name substring to search in the person's name
      * @return {@code 200 OK} with the list of found persons
      */
     @GetMapping("/search")
-    public ResponseEntity<List<PersonSummaryDTO>> findByName(@RequestParam String nome) {
-        return ResponseEntity.ok(service.findByName(nome));
+    public ResponseEntity<List<PersonSummaryDTO>> findByName(@RequestParam String name) {
+        return ResponseEntity.ok(service.findByName(name));
     }
 
     @Override

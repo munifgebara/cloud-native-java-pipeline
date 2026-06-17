@@ -383,12 +383,12 @@ public final class BrValidations {
      * Throws {@link IllegalArgumentException} if the provided CPF is invalid.
      *
      * @param cpf       CPF to validate
-     * @param nomeCampo field name to include in the error message (e.g.: {@code "CPF"})
+     * @param fieldName field name to include in the error message (e.g.: {@code "CPF"})
      * @throws IllegalArgumentException if the CPF is not valid
      */
-    public static void exigirCPFValido(String cpf, String nomeCampo) {
+    public static void exigirCPFValido(String cpf, String fieldName) {
         if (!validarCPF(cpf)) {
-            throw new IllegalArgumentException(nomeCampo + " is invalid.");
+            throw new IllegalArgumentException(fieldName + " is invalid.");
         }
     }
 
@@ -396,12 +396,12 @@ public final class BrValidations {
      * Throws {@link IllegalArgumentException} if the provided CNPJ is invalid.
      *
      * @param cnpj      CNPJ to validate
-     * @param nomeCampo field name to include in the error message (e.g.: {@code "CNPJ"})
+     * @param fieldName field name to include in the error message (e.g.: {@code "CNPJ"})
      * @throws IllegalArgumentException if the CNPJ is not valid
      */
-    public static void exigirCNPJValido(String cnpj, String nomeCampo) {
+    public static void exigirCNPJValido(String cnpj, String fieldName) {
         if (!validarCNPJ(cnpj)) {
-            throw new IllegalArgumentException(nomeCampo + " is invalid.");
+            throw new IllegalArgumentException(fieldName + " is invalid.");
         }
     }
 
@@ -409,12 +409,12 @@ public final class BrValidations {
      * Throws {@link IllegalArgumentException} if the provided phone number is invalid.
      *
      * @param telefone  phone number to validate
-     * @param nomeCampo field name to include in the error message
+     * @param fieldName field name to include in the error message
      * @throws IllegalArgumentException if the phone number is not valid
      */
-    public static void exigirTelefoneValido(String telefone, String nomeCampo) {
+    public static void exigirTelefoneValido(String telefone, String fieldName) {
         if (!validarTelefoneBR(telefone)) {
-            throw new IllegalArgumentException(nomeCampo + " is invalid.");
+            throw new IllegalArgumentException(fieldName + " is invalid.");
         }
     }
 
@@ -422,12 +422,12 @@ public final class BrValidations {
      * Throws {@link IllegalArgumentException} if the provided CEP is invalid.
      *
      * @param cep       CEP to validate
-     * @param nomeCampo field name to include in the error message
+     * @param fieldName field name to include in the error message
      * @throws IllegalArgumentException if the CEP is not valid
      */
-    public static void exigirCEPValido(String cep, String nomeCampo) {
+    public static void exigirCEPValido(String cep, String fieldName) {
         if (!validarCEP(cep)) {
-            throw new IllegalArgumentException(nomeCampo + " is invalid.");
+            throw new IllegalArgumentException(fieldName + " is invalid.");
         }
     }
 
@@ -435,12 +435,12 @@ public final class BrValidations {
      * Throws {@link IllegalArgumentException} if the provided email is invalid.
      *
      * @param email     email to validate
-     * @param nomeCampo field name to include in the error message
+     * @param fieldName field name to include in the error message
      * @throws IllegalArgumentException if the email is not valid
      */
-    public static void exigirEmailValido(String email, String nomeCampo) {
+    public static void exigirEmailValido(String email, String fieldName) {
         if (!validarEmail(email)) {
-            throw new IllegalArgumentException(nomeCampo + " is invalid.");
+            throw new IllegalArgumentException(fieldName + " is invalid.");
         }
     }
 

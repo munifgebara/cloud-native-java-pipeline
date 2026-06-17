@@ -44,15 +44,15 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
 
     private static final Logger log = LoggerFactory.getLogger(StorageLocationService.class);
 
-    private final MainItemImageStorageService imagemStorageService;
+    private final MainItemImageStorageService imageStorageService;
 
     public StorageLocationService(
             StorageLocationRepository repository,
             EntityManager entityManager,
-            MainItemImageStorageService imagemStorageService
+            MainItemImageStorageService imageStorageService
     ) {
         super(repository, entityManager, StorageLocation.class);
-        this.imagemStorageService = imagemStorageService;
+        this.imageStorageService = imageStorageService;
     }
 
     /**
@@ -119,17 +119,17 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      * Finds active locations whose name contains the given text (case-insensitive),
      * returning the list in hierarchical order.
      *
-     * @param nome substring to search in the location name; returns empty list if blank
+     * @param name substring to search in the location name; returns empty list if blank
      * @return list of summary DTOs of the found locations
      */
     @Transactional(readOnly = true)
-    public List<StorageLocationSummaryDTO> findByName(String nome) {
-        String nomeTratado = BrValidations.trimToNull(nome);
-        if (nomeTratado == null) {
+    public List<StorageLocationSummaryDTO> findByName(String name) {
+        String normalizedName = BrValidations.trimToNull(name);
+        if (normalizedName == null) {
             return List.of();
         }
 
-        return buildHierarchy(repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(nomeTratado));
+        return buildHierarchy(repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(normalizedName));
     }
 
     /**
@@ -174,19 +174,19 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
         String bucketAnterior = location.getImageBucket();
         String objectKeyAnterior = location.getImageObjectKey();
 
-        MainItemImageDTO imagem = imagemStorageService.armazenarLocal(id, arquivo);
-        location.setImageBucket(imagem.bucket());
-        location.setImageObjectKey(imagem.objectKey());
-        location.setImageContentType(imagem.contentType());
-        location.setImageSizeBytes(imagem.tamanhoBytes());
+        MainItemImageDTO image = imageStorageService.armazenarLocal(id, arquivo);
+        location.setImageBucket(image.bucket());
+        location.setImageObjectKey(image.objectKey());
+        location.setImageContentType(image.contentType());
+        location.setImageSizeBytes(image.tamanhoBytes());
 
         StorageLocation salvo = save(location);
-        imagemStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
+        imageStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
         StructuredBusinessLogger.info(log, "inventory", "location-image-updated", StructuredBusinessLogger.fields(
                 "location_id", salvo.getId(),
                 "location_name", salvo.getName(),
-                "image_content_type", imagem.contentType(),
-                "image_size_bytes", imagem.tamanhoBytes(),
+                "image_content_type", image.contentType(),
+                "image_size_bytes", image.tamanhoBytes(),
                 "success", true
         ));
         return StorageLocationMapper.toResponseDTO(salvo);
@@ -210,7 +210,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
         location.setImageSizeBytes(null);
 
         StorageLocation salvo = save(location);
-        imagemStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
+        imageStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
         StructuredBusinessLogger.info(log, "inventory", "location-image-removed", StructuredBusinessLogger.fields(
                 "location_id", salvo.getId(),
                 "location_name", salvo.getName(),
@@ -250,8 +250,8 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      */
     @Transactional(readOnly = true)
     public InputStream abrirImagem(UUID id) {
-        MainItemImageDTO imagem = buscarMetadadosImagem(id);
-        return imagemStorageService.abrir(imagem.bucket(), imagem.objectKey());
+        MainItemImageDTO image = buscarMetadadosImagem(id);
+        return imageStorageService.abrir(image.bucket(), image.objectKey());
     }
 
     /**
@@ -292,12 +292,12 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
                 .sorted(Comparator.comparing(StorageLocation::getName, String.CASE_INSENSITIVE_ORDER))
                 .toList();
 
-        List<StorageLocationSummaryDTO> resultado = new ArrayList<>();
+        List<StorageLocationSummaryDTO> result = new ArrayList<>();
         Set<UUID> visitados = new HashSet<>();
         for (StorageLocation raiz : raizes) {
-            adicionarNaHierarquia(raiz, raiz.getName(), 0, filhosPorPai, resultado, visitados);
+            adicionarNaHierarquia(raiz, raiz.getName(), 0, filhosPorPai, result, visitados);
         }
-        return resultado;
+        return result;
     }
 
     private void adicionarNaHierarquia(
@@ -305,17 +305,17 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
             String caminho,
             int nivel,
             Map<UUID, List<StorageLocation>> filhosPorPai,
-            List<StorageLocationSummaryDTO> resultado,
+            List<StorageLocationSummaryDTO> result,
             Set<UUID> visitados
     ) {
         if (!visitados.add(location.getId())) {
             return;
         }
 
-        resultado.add(StorageLocationMapper.toResumoDTO(location, caminho, nivel));
+        result.add(StorageLocationMapper.toResumoDTO(location, caminho, nivel));
         filhosPorPai.getOrDefault(location.getId(), List.of()).stream()
                 .sorted(Comparator.comparing(StorageLocation::getName, String.CASE_INSENSITIVE_ORDER))
-                .forEach(filho -> adicionarNaHierarquia(filho, caminho + " > " + filho.getName(), nivel + 1, filhosPorPai, resultado, visitados));
+                .forEach(filho -> adicionarNaHierarquia(filho, caminho + " > " + filho.getName(), nivel + 1, filhosPorPai, result, visitados));
     }
 
     private StorageLocation buscarPaiAtivo(UUID paiId) {

@@ -8,13 +8,13 @@ import java.util.UUID;
 
 public record ItemLoanCreateDTO(
         @NotNull(message = "Instance is required.")
-        UUID instanciaItemId,
+        UUID itemInstanceId,
 
         @NotNull(message = "Person is required.")
         UUID pessoaId,
 
-        LocalDate previsaoDevolucao,
+        LocalDate expectedReturnDate,
 
         @Size(max = 1000, message = "Observation must not exceed 1000 characters.")
-        String observacao
+        String notes
 ) {}

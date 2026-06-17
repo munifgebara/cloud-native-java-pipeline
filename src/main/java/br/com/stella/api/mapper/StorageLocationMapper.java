@@ -33,8 +33,8 @@ public final class StorageLocationMapper {
         }
 
         StorageLocation location = new StorageLocation();
-        location.setName(dto.nome());
-        location.setDescription(dto.descricao());
+        location.setName(dto.name());
+        location.setDescription(dto.description());
         if (dto.ativa() != null) {
             location.setActive(dto.ativa());
         }
@@ -54,8 +54,8 @@ public final class StorageLocationMapper {
             return;
         }
 
-        entity.setName(dto.nome());
-        entity.setDescription(dto.descricao());
+        entity.setName(dto.name());
+        entity.setDescription(dto.description());
         if (dto.ativa() != null) {
             entity.setActive(dto.ativa());
         }
@@ -83,7 +83,7 @@ public final class StorageLocationMapper {
                 entity.getParent() == null ? null : entity.getParent().getName(),
                 caminho(entity),
                 nivel(entity),
-                imagemUrl(entity),
+                imageUrl(entity),
                 entity.getImageContentType(),
                 entity.getImageSizeBytes(),
                 entity.isActive()
@@ -114,7 +114,7 @@ public final class StorageLocationMapper {
                 entity.getParent() == null ? null : entity.getParent().getName(),
                 caminho,
                 nivel,
-                imagemUrl(entity),
+                imageUrl(entity),
                 entity.isActive()
         );
     }
@@ -125,11 +125,11 @@ public final class StorageLocationMapper {
      * @param entity location whose image path will be checked
      * @return relative URL of the image, or {@code null} if the location has no image
      */
-    private static String imagemUrl(StorageLocation entity) {
+    private static String imageUrl(StorageLocation entity) {
         if (entity.getImageObjectKey() == null) {
             return null;
         }
-        return "/api/public/locais/%s/imagem".formatted(entity.getId());
+        return "/api/public/locais/%s/image".formatted(entity.getId());
     }
 
     /**

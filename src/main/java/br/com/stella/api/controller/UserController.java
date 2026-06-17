@@ -28,14 +28,14 @@ import java.util.Map;
 /**
  * REST controller for managing users via Keycloak.
  *
- * <p>Exposes the {@code /api/v0/usuarios} resource with administrative operations
+ * <p>Exposes the {@code /api/v0/users} resource with administrative operations
  * (restricted to the {@code admin} role) and operations by the current user ({@code /me}).</p>
  *
  * <p>All changes are propagated directly to Keycloak via the Admin API,
  * without location persistence.</p>
  */
 @RestController
-@RequestMapping("/api/v0/usuarios")
+@RequestMapping("/api/v0/users")
 public class UserController {
 
     private final KeycloakUserService service;

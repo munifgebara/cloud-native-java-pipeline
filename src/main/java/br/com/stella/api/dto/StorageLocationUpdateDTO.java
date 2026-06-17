@@ -12,18 +12,18 @@ import java.util.UUID;
  * The image is updated via a separate endpoint. Providing {@code null} for {@code paiId}
  * removes the hierarchy, making the location a root node.</p>
  *
- * @param nome      location name; required, up to 150 characters
- * @param descricao optional description; up to 500 characters; optional
+ * @param name      location name; required, up to 150 characters
+ * @param description optional description; up to 500 characters; optional
  * @param paiId     identifier of the new parent location; {@code null} makes the location a root
  * @param ativa     indicates whether the location is active; optional
  */
 public record StorageLocationUpdateDTO(
         @NotBlank(message = "Name is required.")
         @Size(max = 150, message = "Name must not exceed 150 characters.")
-        String nome,
+        String name,
 
         @Size(max = 500, message = "Description must not exceed 500 characters.")
-        String descricao,
+        String description,
 
         UUID paiId,
 

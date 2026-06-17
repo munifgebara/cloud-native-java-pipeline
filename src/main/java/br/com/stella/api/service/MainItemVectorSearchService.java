@@ -36,7 +36,7 @@ public class MainItemVectorSearchService {
 
     private static final String UPSERT_SQL = """
             insert into public.item_mestre_embedding
-                (item_mestre_id, provider, modelo, dimensoes, texto_indexado, embedding, ativo, alterado_em)
+                (item_mestre_id, provider, modelo, dimensoes, texto_indexado, embedding, active, alterado_em)
             values (?, ?, ?, ?, ?, ?::vector, true, now())
             on conflict (item_mestre_id) do update set
                 provider = excluded.provider,
@@ -44,13 +44,13 @@ public class MainItemVectorSearchService {
                 dimensoes = excluded.dimensoes,
                 texto_indexado = excluded.texto_indexado,
                 embedding = excluded.embedding,
-                ativo = true,
+                active = true,
                 alterado_em = now()
             """;
 
     private static final String REMOVER_SQL = """
             update public.item_mestre_embedding
-            set ativo = false, alterado_em = now()
+            set active = false, alterado_em = now()
             where item_mestre_id = ?
             """;
 
@@ -58,8 +58,8 @@ public class MainItemVectorSearchService {
             select e.item_mestre_id, 1 - (e.embedding <=> ?::vector) as similaridade
             from public.item_mestre_embedding e
             join public.item_mestre i on i.id = e.item_mestre_id
-            where e.ativo = true
-              and i.ativo = true
+            where e.active = true
+              and i.active = true
             order by e.embedding <=> ?::vector
             limit ?
             """;
@@ -69,9 +69,9 @@ public class MainItemVectorSearchService {
     private final EmbeddingProvider embeddingProvider;
     private final MainItemEmbeddingDocumentFactory documentFactory;
     private final JdbcTemplate jdbcTemplate;
-    private final MainItemRepository itemMestreRepository;
-    private final ItemInstanceRepository instanciaItemRepository;
-    private final VectorSearchMetricsService consultaVetorialMetricasService;
+    private final MainItemRepository mainItemRepository;
+    private final ItemInstanceRepository itemInstanceRepository;
+    private final VectorSearchMetricsService vectorSearchMetricsService;
     private final AiUsageGuard aiUsageGuard;
 
     public MainItemVectorSearchService(
@@ -80,9 +80,9 @@ public class MainItemVectorSearchService {
             EmbeddingProvider embeddingProvider,
             MainItemEmbeddingDocumentFactory documentFactory,
             JdbcTemplate jdbcTemplate,
-            MainItemRepository itemMestreRepository,
-            ItemInstanceRepository instanciaItemRepository,
-            VectorSearchMetricsService consultaVetorialMetricasService,
+            MainItemRepository mainItemRepository,
+            ItemInstanceRepository itemInstanceRepository,
+            VectorSearchMetricsService vectorSearchMetricsService,
             AiUsageGuard aiUsageGuard
     ) {
         this.vectorSearchProperties = vectorSearchProperties;
@@ -90,9 +90,9 @@ public class MainItemVectorSearchService {
         this.embeddingProvider = embeddingProvider;
         this.documentFactory = documentFactory;
         this.jdbcTemplate = jdbcTemplate;
-        this.itemMestreRepository = itemMestreRepository;
-        this.instanciaItemRepository = instanciaItemRepository;
-        this.consultaVetorialMetricasService = consultaVetorialMetricasService;
+        this.mainItemRepository = mainItemRepository;
+        this.itemInstanceRepository = itemInstanceRepository;
+        this.vectorSearchMetricsService = vectorSearchMetricsService;
         this.aiUsageGuard = aiUsageGuard;
     }
 
@@ -150,15 +150,15 @@ public class MainItemVectorSearchService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void remover(UUID itemMestreId) {
-        if (!vectorSearchProperties.enabled() || itemMestreId == null) {
+    public void remover(UUID mainItemId) {
+        if (!vectorSearchProperties.enabled() || mainItemId == null) {
             return;
         }
         long inicio = System.nanoTime();
         try {
-            jdbcTemplate.update(REMOVER_SQL, itemMestreId);
+            jdbcTemplate.update(REMOVER_SQL, mainItemId);
             StructuredBusinessLogger.info(log, "vector-search", "item-index-removed", StructuredBusinessLogger.fields(
-                    "item_id", itemMestreId,
+                    "item_id", mainItemId,
                     "embeddings_provider", embeddingsProperties.provider(),
                     "embeddings_model", embeddingsProperties.model(),
                     "duration_ms", elapsedMillis(inicio),
@@ -166,7 +166,7 @@ public class MainItemVectorSearchService {
             ));
         } catch (RuntimeException ex) {
             StructuredBusinessLogger.error(log, "vector-search", "item-index-removed", StructuredBusinessLogger.fields(
-                    "item_id", itemMestreId,
+                    "item_id", mainItemId,
                     "embeddings_provider", embeddingsProperties.provider(),
                     "embeddings_model", embeddingsProperties.model(),
                     "duration_ms", elapsedMillis(inicio),
@@ -183,7 +183,7 @@ public class MainItemVectorSearchService {
         }
 
         long inicio = System.nanoTime();
-        List<MainItem> itens = itemMestreRepository.findByActiveTrueOrderByNameAsc();
+        List<MainItem> itens = mainItemRepository.findByActiveTrueOrderByNameAsc();
         try {
             itens.forEach(this::sincronizar);
             StructuredBusinessLogger.info(log, "vector-search", "items-reindexed", StructuredBusinessLogger.fields(
@@ -207,8 +207,8 @@ public class MainItemVectorSearchService {
     }
 
     @Transactional(readOnly = true)
-    public List<SemanticSearchItemDTO> search(String consulta) {
-        String texto = BrValidations.trimToNull(consulta);
+    public List<SemanticSearchItemDTO> search(String query) {
+        String texto = BrValidations.trimToNull(query);
         if (!vectorSearchProperties.enabled() || texto == null) {
             return List.of();
         }
@@ -220,7 +220,7 @@ public class MainItemVectorSearchService {
             validarDimensoes(embedding);
             String literal = vectorLiteral(embedding);
 
-            List<ResultadoVetorial> resultados = jdbcTemplate.query(
+            List<ResultadoVetorial> results = jdbcTemplate.query(
                     BUSCAR_SQL,
                     (rs, rowNum) -> new ResultadoVetorial(
                             rs.getObject("item_mestre_id", UUID.class),
@@ -230,24 +230,24 @@ public class MainItemVectorSearchService {
                     literal,
                     vectorSearchProperties.maxResults()
             ).stream()
-                    .filter(resultado -> resultado.similaridade() >= vectorSearchProperties.minSimilarity())
+                    .filter(result -> result.similaridade() >= vectorSearchProperties.minSimilarity())
                     .toList();
 
-            consultaVetorialMetricasService.recordQuery(texto, resultados.size());
+            vectorSearchMetricsService.recordQuery(texto, results.size());
             StructuredBusinessLogger.info(log, "vector-search", "semantic-query", StructuredBusinessLogger.fields(
                     "query_text", truncate(texto, 200),
-                    "results_count", resultados.size(),
+                    "results_count", results.size(),
                     "embeddings_provider", embeddingsProperties.provider(),
                     "embeddings_model", embeddingsProperties.model(),
                     "duration_ms", elapsedMillis(inicio),
                     "success", true
             ));
 
-            if (resultados.isEmpty()) {
+            if (results.isEmpty()) {
                 return List.of();
             }
 
-            return buildResponse(resultados);
+            return buildResponse(results);
         } catch (RuntimeException ex) {
             StructuredBusinessLogger.error(log, "vector-search", "semantic-query", StructuredBusinessLogger.fields(
                     "query_text", truncate(texto, 200),
@@ -260,38 +260,38 @@ public class MainItemVectorSearchService {
         }
     }
 
-    private List<SemanticSearchItemDTO> buildResponse(List<ResultadoVetorial> resultados) {
-        List<UUID> ids = resultados.stream().map(ResultadoVetorial::itemMestreId).toList();
-        Map<UUID, Double> similaridades = resultados.stream()
-                .collect(Collectors.toMap(ResultadoVetorial::itemMestreId, ResultadoVetorial::similaridade));
+    private List<SemanticSearchItemDTO> buildResponse(List<ResultadoVetorial> results) {
+        List<UUID> ids = results.stream().map(ResultadoVetorial::mainItemId).toList();
+        Map<UUID, Double> similaridades = results.stream()
+                .collect(Collectors.toMap(ResultadoVetorial::mainItemId, ResultadoVetorial::similaridade));
 
-        Map<UUID, MainItem> itensPorId = itemMestreRepository.findWithCategoryByIds(ids).stream()
+        Map<UUID, MainItem> itensPorId = mainItemRepository.findWithCategoryByIds(ids).stream()
                 .collect(Collectors.toMap(MainItem::getId, item -> item));
-        Map<UUID, List<ItemInstance>> instanciasPorItem = instanciaItemRepository.findActiveByMainItemIds(ids).stream()
+        Map<UUID, List<ItemInstance>> instanciasPorItem = itemInstanceRepository.findActiveByMainItemIds(ids).stream()
                 .collect(Collectors.groupingBy(instance -> instance.getMainItem().getId()));
 
-        List<SemanticSearchItemDTO> resposta = new ArrayList<>();
+        List<SemanticSearchItemDTO> response = new ArrayList<>();
         for (UUID id : ids) {
             MainItem item = itensPorId.get(id);
             if (item == null || !item.isActive()) {
                 continue;
             }
 
-            List<ItemInstance> instancias = instanciasPorItem.getOrDefault(id, List.of());
-            resposta.add(new SemanticSearchItemDTO(
+            List<ItemInstance> instances = instanciasPorItem.getOrDefault(id, List.of());
+            response.add(new SemanticSearchItemDTO(
                     item.getId(),
                     item.getName(),
                     item.getDescription(),
                     item.getCategory() == null ? null : item.getCategory().getName(),
                     item.getCategory() == null ? null : item.getCategory().getIcon(),
-                    imagemUrl(item),
+                    imageUrl(item),
                     arredondar(similaridades.getOrDefault(id, 0.0)),
-                    instancias.stream().map(this::toInstanciaDTO).toList(),
-                    locaisProvaveis(instancias)
+                    instances.stream().map(this::toInstanciaDTO).toList(),
+                    locaisProvaveis(instances)
             ));
         }
 
-        return resposta;
+        return response;
     }
 
     private SemanticSearchInstanceDTO toInstanciaDTO(ItemInstance instance) {
@@ -307,8 +307,8 @@ public class MainItemVectorSearchService {
         );
     }
 
-    private List<SemanticSearchLocationDTO> locaisProvaveis(List<ItemInstance> instancias) {
-        return instancias.stream()
+    private List<SemanticSearchLocationDTO> locaisProvaveis(List<ItemInstance> instances) {
+        return instances.stream()
                 .map(ItemInstance::getCurrentLocation)
                 .filter(location -> location != null && location.isActive())
                 .collect(Collectors.groupingBy(StorageLocation::getId, LinkedHashMap::new, Collectors.toList()))
@@ -319,8 +319,8 @@ public class MainItemVectorSearchService {
                         locais.getFirst().getName(),
                         locais.size()
                 ))
-                .sorted(Comparator.comparing(SemanticSearchLocationDTO::quantidade).reversed()
-                        .thenComparing(SemanticSearchLocationDTO::nome, String.CASE_INSENSITIVE_ORDER))
+                .sorted(Comparator.comparing(SemanticSearchLocationDTO::quantity).reversed()
+                        .thenComparing(SemanticSearchLocationDTO::name, String.CASE_INSENSITIVE_ORDER))
                 .toList();
     }
 
@@ -341,8 +341,8 @@ public class MainItemVectorSearchService {
         return literal.append(']').toString();
     }
 
-    private String imagemUrl(MainItem item) {
-        return item.getImageObjectKey() == null ? null : "/api/public/itens-mestre/%s/imagem-principal".formatted(item.getId());
+    private String imageUrl(MainItem item) {
+        return item.getImageObjectKey() == null ? null : "/api/public/itens-mestre/%s/image-principal".formatted(item.getId());
     }
 
     private double arredondar(double valor) {
@@ -360,6 +360,6 @@ public class MainItemVectorSearchService {
         return value.substring(0, maxLength);
     }
 
-    private record ResultadoVetorial(UUID itemMestreId, double similaridade) {
+    private record ResultadoVetorial(UUID mainItemId, double similaridade) {
     }
 }

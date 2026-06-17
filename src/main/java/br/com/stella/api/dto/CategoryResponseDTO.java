@@ -9,15 +9,15 @@ import java.util.UUID;
  * Includes all fields of the category.</p>
  *
  * @param id        unique identifier of the category
- * @param nome      category name
- * @param descricao descriptive text about the category scope; may be {@code null}
- * @param icone     associated visual icon key (e.g.: {@code "livros"}); may be {@code null}
+ * @param name      category name
+ * @param description descriptive text about the category scope; may be {@code null}
+ * @param icon     associated visual icon key (e.g.: {@code "livros"}); may be {@code null}
  * @param ativa     indicates whether the category is active in the system
  */
 public record CategoryResponseDTO(
         UUID id,
-        String nome,
-        String descricao,
-        String icone,
+        String name,
+        String description,
+        String icon,
         boolean ativa
 ) {}
