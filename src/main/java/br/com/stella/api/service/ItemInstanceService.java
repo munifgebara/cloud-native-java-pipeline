@@ -183,7 +183,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
      * @return list of DTOs ordered by identifier, asset number and serial number
      */
     @Transactional(readOnly = true)
-    public List<ItemInstanceSummaryDTO> filtrar(String identification, String mainItem, UUID categoryId, ItemInstanceStatus operationalStatus) {
+    public List<ItemInstanceSummaryDTO> filter(String identification, String mainItem, UUID categoryId, ItemInstanceStatus operationalStatus) {
         return repository.findAll(
                         ItemInstanceRepository.filterActive(
                                 BrValidations.trimToNull(identification),

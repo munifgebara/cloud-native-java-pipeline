@@ -256,7 +256,7 @@ class InstanciaItemServiceTest {
 
         when(repository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of(instance));
 
-        var response = service.filtrar(" NB ", " Notebook ", categoryId, ItemInstanceStatus.DISPONIVEL);
+        var response = service.filter(" NB ", " Notebook ", categoryId, ItemInstanceStatus.DISPONIVEL);
 
         assertThat(response).hasSize(1);
         assertThat(response.getFirst().identifier()).isEqualTo("NB-001");

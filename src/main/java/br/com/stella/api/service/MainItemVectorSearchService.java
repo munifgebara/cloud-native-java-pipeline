@@ -117,7 +117,7 @@ public class MainItemVectorSearchService {
         try {
             aiUsageGuard.consume(AiOperation.EMBEDDING);
             float[] embedding = embeddingProvider.generateEmbedding(document);
-            validarDimensoes(embedding);
+            validateDimensions(embedding);
 
             jdbcTemplate.update(
                     UPSERT_SQL,
@@ -217,7 +217,7 @@ public class MainItemVectorSearchService {
         try {
             aiUsageGuard.consume(AiOperation.EMBEDDING);
             float[] embedding = embeddingProvider.generateEmbedding(texto);
-            validarDimensoes(embedding);
+            validateDimensions(embedding);
             String literal = vectorLiteral(embedding);
 
             List<VectorResult> results = jdbcTemplate.query(
@@ -324,7 +324,7 @@ public class MainItemVectorSearchService {
                 .toList();
     }
 
-    private void validarDimensoes(float[] embedding) {
+    private void validateDimensions(float[] embedding) {
         if (embedding == null || embedding.length != embeddingsProperties.dimensions()) {
             throw new ExternalIntegrationException("Embeddings provider returned a vector with incompatible dimensions.");
         }

@@ -102,13 +102,13 @@ public class ItemInstanceController extends SuperController<ItemInstanceSummaryD
      * @return {@code 200 OK} with the list of instances satisfying the criteria
      */
     @GetMapping("/filter")
-    public ResponseEntity<List<ItemInstanceSummaryDTO>> filtrar(
+    public ResponseEntity<List<ItemInstanceSummaryDTO>> filter(
             @RequestParam(required = false) String identification,
             @RequestParam(required = false) String mainItem,
             @RequestParam(required = false) UUID categoryId,
             @RequestParam(required = false) ItemInstanceStatus operationalStatus
     ) {
-        return ResponseEntity.ok(service.filtrar(identification, mainItem, categoryId, operationalStatus));
+        return ResponseEntity.ok(service.filter(identification, mainItem, categoryId, operationalStatus));
     }
 
     @Override

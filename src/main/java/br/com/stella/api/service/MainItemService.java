@@ -153,7 +153,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      * @return list of summary DTOs of items matching the filters
      */
     @Transactional(readOnly = true)
-    public List<MainItemSummaryDTO> filtrar(String name, UUID categoryId) {
+    public List<MainItemSummaryDTO> filter(String name, UUID categoryId) {
         return repository.findAll(
                         MainItemRepository.filterActive(BrValidations.trimToNull(name), categoryId),
                         Sort.by("name").ascending()

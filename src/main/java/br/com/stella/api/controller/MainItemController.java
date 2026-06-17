@@ -95,10 +95,10 @@ public class MainItemController extends SuperController<MainItemSummaryDTO, Main
      * @return {@code 200 OK} with the list of items satisfying the criteria
      */
     @GetMapping("/filter")
-    public ResponseEntity<List<MainItemSummaryDTO>> filtrar(
+    public ResponseEntity<List<MainItemSummaryDTO>> filter(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) UUID categoryId) {
-        return ResponseEntity.ok(service.filtrar(name, categoryId));
+        return ResponseEntity.ok(service.filter(name, categoryId));
     }
 
     /**

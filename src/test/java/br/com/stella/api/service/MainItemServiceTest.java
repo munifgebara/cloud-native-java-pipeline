@@ -242,7 +242,7 @@ class ItemMestreServiceTest {
 
         when(repository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of(item));
 
-        var response = service.filtrar(" Notebook ", categoryId);
+        var response = service.filter(" Notebook ", categoryId);
 
         assertThat(response).hasSize(1);
         assertThat(response.getFirst().name()).isEqualTo("Notebook");

@@ -128,7 +128,7 @@ class ControllerUnitTest {
         when(service.findResponseById(id)).thenReturn(response);
         when(service.listSummary()).thenReturn(List.of(resumo));
         when(service.findByName("livro")).thenReturn(List.of(resumo));
-        when(service.filtrar("livro", categoryId)).thenReturn(List.of(resumo));
+        when(service.filter("livro", categoryId)).thenReturn(List.of(resumo));
         when(service.searchSemantically("where is book")).thenReturn(List.of(resultadoSemantico));
         when(service.reindexSemanticSearch()).thenReturn(2);
         when(service.updateMainImage(id, file, true, "openai")).thenReturn(response);
@@ -141,7 +141,7 @@ class ControllerUnitTest {
         assertThat(controller.findById(id).getBody()).isEqualTo(response);
         assertThat(controller.list().getBody()).containsExactly(resumo);
         assertThat(controller.findByName("livro").getBody()).containsExactly(resumo);
-        assertThat(controller.filtrar("livro", categoryId).getBody()).containsExactly(resumo);
+        assertThat(controller.filter("livro", categoryId).getBody()).containsExactly(resumo);
         assertThat(controller.searchSemantically("where is book").getBody()).containsExactly(resultadoSemantico);
         assertThat(controller.reindexSemanticSearch().getBody()).containsEntry("itensReindexados", 2);
         assertThat(controller.updateMainImage(id, file, true, "openai").getBody()).isEqualTo(response);
@@ -198,7 +198,7 @@ class ControllerUnitTest {
         when(service.findHistory(id)).thenReturn(history);
         when(service.listSummary()).thenReturn(List.of(resumo));
         when(service.findByIdentifier("pat")).thenReturn(List.of(resumo));
-        when(service.filtrar("pat", "livro", categoryId, ItemInstanceStatus.DISPONIVEL)).thenReturn(List.of(resumo));
+        when(service.filter("pat", "livro", categoryId, ItemInstanceStatus.DISPONIVEL)).thenReturn(List.of(resumo));
         when(service.update(id, null)).thenReturn(response);
         when(service.listSummaryIncludingInactive()).thenReturn(List.of(resumo));
         when(service.listRevisions(id)).thenReturn(List.of());
@@ -208,7 +208,7 @@ class ControllerUnitTest {
         assertThat(controller.findHistory(id).getBody()).isEqualTo(history);
         assertThat(controller.list().getBody()).containsExactly(resumo);
         assertThat(controller.findByIdentifier("pat").getBody()).containsExactly(resumo);
-        assertThat(controller.filtrar("pat", "livro", categoryId, ItemInstanceStatus.DISPONIVEL).getBody()).containsExactly(resumo);
+        assertThat(controller.filter("pat", "livro", categoryId, ItemInstanceStatus.DISPONIVEL).getBody()).containsExactly(resumo);
         assertThat(controller.update(id, null).getBody()).isEqualTo(response);
         assertThat(controller.delete(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(controller.findAllIncludingInactive().getBody()).containsExactly(resumo);
