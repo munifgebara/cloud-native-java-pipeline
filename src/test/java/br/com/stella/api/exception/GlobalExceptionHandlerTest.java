@@ -95,4 +95,32 @@ class GlobalExceptionHandlerTest {
                 .containsEntry("erro", "Unexpected error while processing the request.")
                 .containsEntry("path", "/api/v0/main-items");
     }
+
+    @Test
+    void shouldReturn403WhenAccessDenied() {
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v0/users");
+
+        var response = handler.handleAccessDenied(
+                new org.springframework.security.access.AccessDeniedException("Access Denied"), request);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getBody())
+                .containsEntry("status", 403)
+                .containsEntry("path", "/api/v0/users");
+    }
+
+    @Test
+    void shouldReturn404WhenRouteDoesNotExist() {
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v0/itens-mestre");
+
+        var response = handler.handleNoResourceFound(
+                new org.springframework.web.servlet.resource.NoResourceFoundException(
+                        org.springframework.http.HttpMethod.GET, "/api/v0/itens-mestre", "/api/v0/itens-mestre"),
+                request);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody())
+                .containsEntry("status", 404)
+                .containsEntry("path", "/api/v0/itens-mestre");
+    }
 }
