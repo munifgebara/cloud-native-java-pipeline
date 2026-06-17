@@ -51,7 +51,7 @@ public abstract class SuperController<RESUMO, RESPONSE, CREATE, UPDATE, ENTITY> 
      *
      * @return {@code 200 OK} with the list of summary DTOs
      */
-    public abstract ResponseEntity<List<RESUMO>> listar();
+    public abstract ResponseEntity<List<RESUMO>> list();
 
     /**
      * Updates an existing record.

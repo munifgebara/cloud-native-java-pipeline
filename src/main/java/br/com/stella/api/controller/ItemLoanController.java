@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * REST controller for recording item instance loans and returns.
  *
- * <p>Exposes the {@code /api/v0/emprestimos-item} resource with two operations:</p>
+ * <p>Exposes the {@code /api/v0/loans-item} resource with two operations:</p>
  * <ul>
  *   <li><strong>Loan</strong> — associates an available instance with a person.</li>
  *   <li><strong>Return</strong> — closes the loan and returns the instance to the inventory.</li>
  * </ul>
  */
 @RestController
-@RequestMapping("/api/v0/emprestimos-item")
+@RequestMapping("/api/v0/loans-item")
 public class ItemLoanController {
 
     private final ItemLoanService service;
@@ -53,7 +53,7 @@ public class ItemLoanController {
      * @param dto return data validated by Bean Validation
      * @return {@code 201 Created} with the closed loan data
      */
-    @PostMapping("/devolucao")
+    @PostMapping("/return")
     public ResponseEntity<ItemLoanResponseDTO> registerReturn(@RequestBody @Valid ItemLoanReturnDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.registerReturn(dto));
     }

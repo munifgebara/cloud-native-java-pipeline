@@ -45,7 +45,7 @@ public class KeycloakUserService {
         this.keycloakProperties = keycloakProperties;
     }
 
-    public List<UserResponseDTO> listar() {
+    public List<UserResponseDTO> list() {
         List<Map<String, Object>> users = getList("/users?briefRepresentation=false");
         return users.stream()
                 .map(user -> toUserResponse(user, listUserRoles((String) user.get("id"))))

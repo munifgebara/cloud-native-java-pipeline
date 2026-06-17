@@ -94,13 +94,13 @@ class LocalArmazenamentoServiceTest {
         var locais = service.listSummary();
 
         assertThat(locais).extracting("name").containsExactly("Casa", "Escritorio", "Gaveta 2", "Deposito");
-        assertThat(locais).extracting("caminho").containsExactly(
+        assertThat(locais).extracting("path").containsExactly(
                 "Casa",
                 "Casa > Escritorio",
                 "Casa > Escritorio > Gaveta 2",
                 "Deposito"
         );
-        assertThat(locais).extracting("nivel").containsExactly(0, 1, 2, 0);
+        assertThat(locais).extracting("level").containsExactly(0, 1, 2, 0);
     }
 
     @Test
@@ -114,7 +114,7 @@ class LocalArmazenamentoServiceTest {
         var locais = service.listSummaryIncludingInactive();
 
         assertThat(locais).extracting("name").containsExactly("Orfao", "Removido");
-        assertThat(locais).extracting("nivel").containsExactly(0, 0);
+        assertThat(locais).extracting("level").containsExactly(0, 0);
         assertThat(locais.getLast().ativa()).isFalse();
     }
 
@@ -203,12 +203,12 @@ class LocalArmazenamentoServiceTest {
         var image = new MainItemImageDTO("bucket-novo", "locais/%s/nova.png".formatted(id), "image/png", 2L);
 
         when(repository.findById(id)).thenReturn(Optional.of(location));
-        when(imageStorageService.store(id, file)).thenReturn(image);
+        when(imageStorageService.storeLocationImage(id, file)).thenReturn(image);
         when(repository.save(any(StorageLocation.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         var response = service.updateImage(id, file);
 
-        assertThat(response.imageUrl()).isEqualTo("/api/public/locais/%s/image".formatted(id));
+        assertThat(response.imageUrl()).isEqualTo("/api/public/locations/%s/image".formatted(id));
         assertThat(location.getImageBucket()).isEqualTo("bucket-novo");
         assertThat(location.getImageObjectKey()).isEqualTo("locais/%s/nova.png".formatted(id));
         assertThat(location.getImageContentType()).isEqualTo("image/png");
@@ -249,7 +249,7 @@ class LocalArmazenamentoServiceTest {
         service.removeImage(id);
 
         verify(imageStorageService).removeSilently(null, null);
-        verify(imageStorageService, never()).store(any(), any());
+        verify(imageStorageService, never()).storeLocationImage(any(), any());
     }
 
     @Test
@@ -262,7 +262,7 @@ class LocalArmazenamentoServiceTest {
         location.setImageSizeBytes(2L);
 
         when(repository.findById(id)).thenReturn(Optional.of(location));
-        when(imageStorageService.abrir("stella-locais", "locais/%s/photo.png".formatted(id)))
+        when(imageStorageService.open("stella-locais", "locais/%s/photo.png".formatted(id)))
                 .thenReturn(new ByteArrayInputStream(new byte[]{1, 2}));
 
         var metadados = service.fetchImageMetadata(id);

@@ -37,7 +37,7 @@ public class LocalEmbeddingProvider implements EmbeddingProvider {
     }
 
     @Override
-    public float[] gerarEmbedding(String texto) {
+    public float[] generateEmbedding(String texto) {
         long inicio = System.nanoTime();
         try {
             float[] embedding = embeddingModel.embed(texto);

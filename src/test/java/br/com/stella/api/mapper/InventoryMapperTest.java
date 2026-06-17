@@ -123,12 +123,12 @@ class InventoryMapperTest {
 
         assertThat(response.parentId()).isEqualTo(raiz.getId());
         assertThat(response.parentName()).isEqualTo("Casa");
-        assertThat(response.caminho()).isEqualTo("Casa > Sala");
-        assertThat(response.nivel()).isEqualTo(1);
-        assertThat(response.imageUrl()).isEqualTo("/api/public/locais/%s/image".formatted(sala.getId()));
+        assertThat(response.path()).isEqualTo("Casa > Sala");
+        assertThat(response.level()).isEqualTo(1);
+        assertThat(response.imageUrl()).isEqualTo("/api/public/locations/%s/image".formatted(sala.getId()));
         assertThat(response.imageContentType()).isEqualTo("image/png");
         assertThat(response.imageSizeBytes()).isEqualTo(20L);
-        assertThat(resumo.caminho()).isEqualTo("Casa > Sala");
+        assertThat(resumo.path()).isEqualTo("Casa > Sala");
         assertThat(resumo.imageUrl()).isEqualTo(response.imageUrl());
     }
 
@@ -167,7 +167,7 @@ class InventoryMapperTest {
         assertThat(response.categoryId()).isEqualTo(category.getId());
         assertThat(response.categoryName()).isEqualTo("Ferramentas");
         assertThat(response.categoryIcon()).isEqualTo("tools");
-        assertThat(response.imageUrl()).isEqualTo("/api/public/itens-mestre/%s/image-principal".formatted(item.getId()));
+        assertThat(response.imageUrl()).isEqualTo("/api/public/main-items/%s/main-image".formatted(item.getId()));
         assertThat(response.imageContentType()).isEqualTo("image/png");
         assertThat(response.imageSizeBytes()).isEqualTo(30L);
         assertThat(resumo.imageUrl()).isEqualTo(response.imageUrl());

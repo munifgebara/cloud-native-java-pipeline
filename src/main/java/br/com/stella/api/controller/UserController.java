@@ -56,8 +56,8 @@ public class UserController {
      */
     @GetMapping
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<List<UserResponseDTO>> listar() {
-        return ResponseEntity.ok(service.listar());
+    public ResponseEntity<List<UserResponseDTO>> list() {
+        return ResponseEntity.ok(service.list());
     }
 
     /**
@@ -144,7 +144,7 @@ public class UserController {
      * @param dto DTO with the current and new passwords validated by Bean Validation
      * @return {@code 204 In Content} on success
      */
-    @PutMapping("/me/senha")
+    @PutMapping("/me/password")
     public ResponseEntity<Void> alterarMinhaSenha(
             @AuthenticationPrincipal Jwt jwt,
             @RequestBody @Valid AlterarSenhaDTO dto

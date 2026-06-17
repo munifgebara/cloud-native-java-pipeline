@@ -13,8 +13,8 @@ import java.util.UUID;
  * @param description          description of the location; may be {@code null}
  * @param parentId              identifier of the parent location; {@code null} for root locations
  * @param parentName            parent location name (denormalized); {@code null} for root locations
- * @param caminho            full path in the hierarchy (e.g.: {@code "Building A > Room 101"})
- * @param nivel              depth in the hierarchy: {@code 0} for root locations
+ * @param path            full path in the hierarchy (e.g.: {@code "Building A > Room 101"})
+ * @param level              depth in the hierarchy: {@code 0} for root locations
  * @param imageUrl          relative URL for accessing the image; {@code null} when no image
  * @param imageContentType  image MIME type (e.g.: {@code "image/jpeg"}); may be {@code null}
  * @param imageSizeBytes image size in bytes; may be {@code null}
@@ -26,8 +26,8 @@ public record StorageLocationResponseDTO(
         String description,
         UUID parentId,
         String parentName,
-        String caminho,
-        int nivel,
+        String path,
+        int level,
         String imageUrl,
         String imageContentType,
         Long imageSizeBytes,

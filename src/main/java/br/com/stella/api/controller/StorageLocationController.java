@@ -29,14 +29,14 @@ import java.util.UUID;
 /**
  * REST controller for managing storage locations.
  *
- * <p>Exposes the {@code /api/v0/locais} resource with full CRUD, name search,
+ * <p>Exposes the {@code /api/v0/locations} resource with full CRUD, name search,
  * representation image upload and removal, and audit revision queries.</p>
  *
  * <p>Locations can be organized in a parent-child hierarchy. The listing returns
  * nodes depth-first, with the full path and level of each node.</p>
  */
 @RestController
-@RequestMapping("/api/v0/locais")
+@RequestMapping("/api/v0/locations")
 public class StorageLocationController extends SuperController<StorageLocationSummaryDTO, StorageLocationResponseDTO, StorageLocationCreateDTO, StorageLocationUpdateDTO, StorageLocation> {
 
     private final StorageLocationService service;
@@ -64,7 +64,7 @@ public class StorageLocationController extends SuperController<StorageLocationSu
 
     @Override
     @GetMapping
-    public ResponseEntity<List<StorageLocationSummaryDTO>> listar() {
+    public ResponseEntity<List<StorageLocationSummaryDTO>> list() {
         return ResponseEntity.ok(service.listSummary());
     }
 
@@ -117,13 +117,13 @@ public class StorageLocationController extends SuperController<StorageLocationSu
     }
 
     @Override
-    @GetMapping("/todos")
+    @GetMapping("/all")
     public ResponseEntity<List<StorageLocationSummaryDTO>> findAllIncludingInactive() {
         return ResponseEntity.ok(service.listSummaryIncludingInactive());
     }
 
     @Override
-    @GetMapping("/{id}/revisoes")
+    @GetMapping("/{id}/revisions")
     public ResponseEntity<List<RevisionDTO<StorageLocation>>> listPreviousVersions(@PathVariable UUID id) {
         return ResponseEntity.ok(service.listRevisions(id));
     }

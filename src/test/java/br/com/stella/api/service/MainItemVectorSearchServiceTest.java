@@ -51,7 +51,7 @@ class ItemMestreVectorSearchServiceTest {
 
         service.sincronizar(item(UUID.randomUUID(), true));
 
-        verify(embeddingProvider, never()).gerarEmbedding(anyString());
+        verify(embeddingProvider, never()).generateEmbedding(anyString());
         verifyNoInteractions(jdbcTemplate);
         verifyNoInteractions(vectorSearchMetricsService);
     }
@@ -60,12 +60,12 @@ class ItemMestreVectorSearchServiceTest {
     void shouldGenerateEmbeddingAndUpdateIndexOfItemActive() {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, true);
-        when(embeddingProvider.gerarEmbedding(anyString())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
+        when(embeddingProvider.generateEmbedding(anyString())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
 
         service(true).sincronizar(item);
 
         ArgumentCaptor<String> documento = ArgumentCaptor.forClass(String.class);
-        verify(embeddingProvider).gerarEmbedding(documento.capture());
+        verify(embeddingProvider).generateEmbedding(documento.capture());
         assertThat(documento.getValue()).contains("Name: Video card", "Description: Computer component", "Category: Electronics");
         verify(jdbcTemplate).update(anyString(), eq(id), eq("location"), eq("modelo-teste"), eq(3), eq(documento.getValue()), eq("[0.10000000,0.20000000,0.30000001]"));
     }
@@ -78,7 +78,7 @@ class ItemMestreVectorSearchServiceTest {
         service(true).sincronizar(item);
 
         verify(jdbcTemplate).update(anyString(), eq(id));
-        verify(embeddingProvider, never()).gerarEmbedding(anyString());
+        verify(embeddingProvider, never()).generateEmbedding(anyString());
     }
 
     @Test
@@ -91,7 +91,7 @@ class ItemMestreVectorSearchServiceTest {
         service(true).sincronizar(item);
 
         verify(jdbcTemplate).update(anyString(), eq(id));
-        verify(embeddingProvider, never()).gerarEmbedding(anyString());
+        verify(embeddingProvider, never()).generateEmbedding(anyString());
     }
 
     @Test
@@ -107,7 +107,7 @@ class ItemMestreVectorSearchServiceTest {
     @Test
     void shouldFailWhenProviderReturnsDimensionsIncompatible() {
         MainItem item = item(UUID.randomUUID(), true);
-        when(embeddingProvider.gerarEmbedding(anyString())).thenReturn(new float[]{0.1f});
+        when(embeddingProvider.generateEmbedding(anyString())).thenReturn(new float[]{0.1f});
 
         assertThatThrownBy(() -> service(true).sincronizar(item))
                 .isInstanceOf(ExternalIntegrationException.class)
@@ -130,7 +130,7 @@ class ItemMestreVectorSearchServiceTest {
         instance.setCurrentLocation(location);
         instance.setIdentifier("GPU 1");
 
-        when(embeddingProvider.gerarEmbedding("onde encontro placa de computador")).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
+        when(embeddingProvider.generateEmbedding("onde encontro placa de computador")).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any())).thenAnswer(invocation -> {
             RowMapper<?> mapper = invocation.getArgument(1);
             ResultSet rs = mock(ResultSet.class);
@@ -146,7 +146,7 @@ class ItemMestreVectorSearchServiceTest {
         assertThat(result).hasSize(1);
         assertThat(result.getFirst().name()).isEqualTo("Video card");
         assertThat(result.getFirst().similarity()).isEqualTo(0.8765);
-        assertThat(result.getFirst().imageUrl()).isEqualTo("/api/public/itens-mestre/%s/image-principal".formatted(itemId));
+        assertThat(result.getFirst().imageUrl()).isEqualTo("/api/public/main-items/%s/main-image".formatted(itemId));
         assertThat(result.getFirst().instances()).extracting("identifier").containsExactly("GPU 1");
         assertThat(result.getFirst().locaisProvaveis()).extracting("name").containsExactly("Caixa A");
         verify(vectorSearchMetricsService).recordQuery("onde encontro placa de computador", 1);
@@ -164,7 +164,7 @@ class ItemMestreVectorSearchServiceTest {
 
     @Test
     void shouldReturnListEmptyWhenQueryNotHasResults() {
-        when(embeddingProvider.gerarEmbedding("placa de video")).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
+        when(embeddingProvider.generateEmbedding("placa de video")).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any())).thenReturn(List.of());
 
         var result = service(true).search("placa de video");
@@ -177,7 +177,7 @@ class ItemMestreVectorSearchServiceTest {
     void shouldPropagateFailureOnFindSemantically() {
         String consultaLonga = "placa ".repeat(60);
         RuntimeException falha = new RuntimeException("query failure");
-        when(embeddingProvider.gerarEmbedding(consultaLonga.trim())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
+        when(embeddingProvider.generateEmbedding(consultaLonga.trim())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any())).thenThrow(falha);
 
         assertThatThrownBy(() -> service(true).search(consultaLonga))
@@ -187,7 +187,7 @@ class ItemMestreVectorSearchServiceTest {
     @Test
     void shouldReindexItemsActiveWhenEnabled() {
         when(mainItemRepository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(item(UUID.randomUUID(), true), item(UUID.randomUUID(), true)));
-        when(embeddingProvider.gerarEmbedding(anyString())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
+        when(embeddingProvider.generateEmbedding(anyString())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
 
         int total = service(true).reindexActiveItems();
 
@@ -206,7 +206,7 @@ class ItemMestreVectorSearchServiceTest {
     @Test
     void shouldPropagateFailureOnReindexItemsActive() {
         when(mainItemRepository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(item(UUID.randomUUID(), true)));
-        when(embeddingProvider.gerarEmbedding(anyString())).thenReturn(new float[]{0.1f});
+        when(embeddingProvider.generateEmbedding(anyString())).thenReturn(new float[]{0.1f});
 
         assertThatThrownBy(() -> service(true).reindexActiveItems())
                 .isInstanceOf(ExternalIntegrationException.class)
@@ -221,7 +221,7 @@ class ItemMestreVectorSearchServiceTest {
                 .isInstanceOf(AiUsageLimitException.class)
                 .hasMessage("AI features are disabled in this environment.");
 
-        verify(embeddingProvider, never()).gerarEmbedding(anyString());
+        verify(embeddingProvider, never()).generateEmbedding(anyString());
     }
 
     @Test
@@ -232,7 +232,7 @@ class ItemMestreVectorSearchServiceTest {
                 .isInstanceOf(AiUsageLimitException.class)
                 .hasMessage("Daily limit for OpenAI embedding generation reached.");
 
-        verify(embeddingProvider, never()).gerarEmbedding(anyString());
+        verify(embeddingProvider, never()).generateEmbedding(anyString());
     }
 
     private MainItemVectorSearchService service(boolean enabled) {

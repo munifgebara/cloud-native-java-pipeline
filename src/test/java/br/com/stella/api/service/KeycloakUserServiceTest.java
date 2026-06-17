@@ -80,7 +80,7 @@ class KeycloakUsuarioServiceTest {
                         ]
                         """, MediaType.APPLICATION_JSON));
 
-        List<UserResponseDTO> users = service.listar();
+        List<UserResponseDTO> users = service.list();
 
         assertThat(users).hasSize(1);
         assertThat(users.getFirst().username()).isEqualTo("admin");
@@ -180,7 +180,7 @@ class KeycloakUsuarioServiceTest {
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
 
-        assertThatThrownBy(() -> service.listar())
+        assertThatThrownBy(() -> service.list())
                 .isInstanceOf(IdentityException.class)
                 .hasMessage("Identity service unavailable. Please try again in a moment.")
                 .extracting("status")
@@ -210,7 +210,7 @@ class KeycloakUsuarioServiceTest {
                 RestClient.builder()
         );
 
-        assertThatThrownBy(servicoIndisponivel::listar)
+        assertThatThrownBy(servicoIndisponivel::list)
                 .isInstanceOf(IdentityException.class)
                 .hasMessage("Identity service unavailable. Please try again in a moment.")
                 .extracting("status")
@@ -460,7 +460,7 @@ class KeycloakUsuarioServiceTest {
                 builder
         );
 
-        assertThatThrownBy(() -> service.listar())
+        assertThatThrownBy(() -> service.list())
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Keycloak administrative credentials not configured.");
 

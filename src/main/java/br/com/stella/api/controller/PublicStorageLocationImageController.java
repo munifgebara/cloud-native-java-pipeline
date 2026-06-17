@@ -18,14 +18,14 @@ import java.util.concurrent.TimeUnit;
 /**
  * Public REST controller for serving the representation image of storage locations.
  *
- * <p>Exposes the {@code GET /api/public/locais/{id}/image} endpoint
+ * <p>Exposes the {@code GET /api/public/locations/{id}/image} endpoint
  * without requiring JWT authentication, allowing direct display in browsers.</p>
  *
  * <p>Responses include the {@code Cache-Control: public, max-age=3600} header
  * for browser caching for 1 hour.</p>
  */
 @RestController
-@RequestMapping("/api/public/locais")
+@RequestMapping("/api/public/locations")
 public class PublicStorageLocationImageController {
 
     private final StorageLocationService storageLocationService;

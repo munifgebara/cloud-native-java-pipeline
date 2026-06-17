@@ -174,7 +174,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
         String bucketAnterior = location.getImageBucket();
         String objectKeyAnterior = location.getImageObjectKey();
 
-        MainItemImageDTO image = imageStorageService.store(id, file);
+        MainItemImageDTO image = imageStorageService.storeLocationImage(id, file);
         location.setImageBucket(image.bucket());
         location.setImageObjectKey(image.objectKey());
         location.setImageContentType(image.contentType());
@@ -251,7 +251,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
     @Transactional(readOnly = true)
     public InputStream openImage(UUID id) {
         MainItemImageDTO image = fetchImageMetadata(id);
-        return imageStorageService.abrir(image.bucket(), image.objectKey());
+        return imageStorageService.open(image.bucket(), image.objectKey());
     }
 
     /**
@@ -293,29 +293,29 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
                 .toList();
 
         List<StorageLocationSummaryDTO> result = new ArrayList<>();
-        Set<UUID> visitados = new HashSet<>();
+        Set<UUID> visited = new HashSet<>();
         for (StorageLocation raiz : raizes) {
-            adicionarNaHierarquia(raiz, raiz.getName(), 0, childrenByParent, result, visitados);
+            addToHierarchy(raiz, raiz.getName(), 0, childrenByParent, result, visited);
         }
         return result;
     }
 
-    private void adicionarNaHierarquia(
+    private void addToHierarchy(
             StorageLocation location,
-            String caminho,
-            int nivel,
+            String path,
+            int level,
             Map<UUID, List<StorageLocation>> childrenByParent,
             List<StorageLocationSummaryDTO> result,
-            Set<UUID> visitados
+            Set<UUID> visited
     ) {
-        if (!visitados.add(location.getId())) {
+        if (!visited.add(location.getId())) {
             return;
         }
 
-        result.add(StorageLocationMapper.toResumoDTO(location, caminho, nivel));
+        result.add(StorageLocationMapper.toResumoDTO(location, path, level));
         childrenByParent.getOrDefault(location.getId(), List.of()).stream()
                 .sorted(Comparator.comparing(StorageLocation::getName, String.CASE_INSENSITIVE_ORDER))
-                .forEach(filho -> adicionarNaHierarquia(filho, caminho + " > " + filho.getName(), nivel + 1, childrenByParent, result, visitados));
+                .forEach(child -> addToHierarchy(child, path + " > " + child.getName(), level + 1, childrenByParent, result, visited));
     }
 
     private StorageLocation findActiveParent(UUID parentId) {

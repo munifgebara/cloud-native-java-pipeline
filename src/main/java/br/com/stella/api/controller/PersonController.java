@@ -51,7 +51,7 @@ public class PersonController extends SuperController<PersonSummaryDTO, PersonRe
 
     @Override
     @GetMapping
-    public ResponseEntity<List<PersonSummaryDTO>> listar() {
+    public ResponseEntity<List<PersonSummaryDTO>> list() {
         return ResponseEntity.ok(service.listSummary());
     }
 
@@ -80,13 +80,13 @@ public class PersonController extends SuperController<PersonSummaryDTO, PersonRe
     }
 
     @Override
-    @GetMapping("/todos")
+    @GetMapping("/all")
     public ResponseEntity<List<PersonSummaryDTO>> findAllIncludingInactive() {
         return ResponseEntity.ok(service.listSummaryIncludingInactive());
     }
 
     @Override
-    @GetMapping("/{id}/revisoes")
+    @GetMapping("/{id}/revisions")
     public ResponseEntity<List<PersonRevisionDTO>> listPreviousVersions(@PathVariable UUID id) {
         return ResponseEntity.ok(service.listRevisions(id));
     }

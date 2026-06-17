@@ -222,7 +222,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
         String bucketAnterior = item.getImageBucket();
         String objectKeyAnterior = item.getImageObjectKey();
 
-        MainItemImageDTO image = imageStorageService.armazenar(id, file);
+        MainItemImageDTO image = imageStorageService.storeMainItemImage(id, file);
         item.setImageBucket(image.bucket());
         item.setImageObjectKey(image.objectKey());
         item.setImageContentType(image.contentType());
@@ -277,7 +277,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
     @Transactional(readOnly = true)
     public InputStream openMainImage(UUID id) {
         MainItemImageDTO image = fetchMainImageMetadata(id);
-        return imageStorageService.abrir(image.bucket(), image.objectKey());
+        return imageStorageService.open(image.bucket(), image.objectKey());
     }
 
     /**

@@ -81,8 +81,8 @@ public final class StorageLocationMapper {
                 entity.getDescription(),
                 entity.getParent() == null ? null : entity.getParent().getId(),
                 entity.getParent() == null ? null : entity.getParent().getName(),
-                caminho(entity),
-                nivel(entity),
+                path(entity),
+                level(entity),
                 imageUrl(entity),
                 entity.getImageContentType(),
                 entity.getImageSizeBytes(),
@@ -97,11 +97,11 @@ public final class StorageLocationMapper {
      * the hierarchy in operations that already know them (e.g.: batch listings).</p>
      *
      * @param entity  entity to convert; may be {@code null}
-     * @param caminho pre-calculated hierarchical path (e.g.: {@code "Building A > Room 101"})
-     * @param nivel   pre-calculated depth level ({@code 0} for root)
+     * @param path pre-calculated hierarchical path (e.g.: {@code "Building A > Room 101"})
+     * @param level   pre-calculated depth level ({@code 0} for root)
      * @return populated {@link StorageLocationSummaryDTO}, or {@code null} if {@code entity} is {@code null}
      */
-    public static StorageLocationSummaryDTO toResumoDTO(StorageLocation entity, String caminho, int nivel) {
+    public static StorageLocationSummaryDTO toResumoDTO(StorageLocation entity, String path, int level) {
         if (entity == null) {
             return null;
         }
@@ -112,8 +112,8 @@ public final class StorageLocationMapper {
                 entity.getDescription(),
                 entity.getParent() == null ? null : entity.getParent().getId(),
                 entity.getParent() == null ? null : entity.getParent().getName(),
-                caminho,
-                nivel,
+                path,
+                level,
                 imageUrl(entity),
                 entity.isActive()
         );
@@ -129,7 +129,7 @@ public final class StorageLocationMapper {
         if (entity.getImageObjectKey() == null) {
             return null;
         }
-        return "/api/public/locais/%s/image".formatted(entity.getId());
+        return "/api/public/locations/%s/image".formatted(entity.getId());
     }
 
     /**
@@ -138,12 +138,12 @@ public final class StorageLocationMapper {
      * @param entity location whose path will be calculated
      * @return path in the format {@code "Parent > Child > Grandchild"}, or just the name if it is a root
      */
-    private static String caminho(StorageLocation entity) {
+    private static String path(StorageLocation entity) {
         if (entity.getParent() == null) {
             return entity.getName();
         }
 
-        return caminho(entity.getParent()) + " > " + entity.getName();
+        return path(entity.getParent()) + " > " + entity.getName();
     }
 
     /**
@@ -152,13 +152,13 @@ public final class StorageLocationMapper {
      * @param entity location whose level will be calculated
      * @return {@code 0} for root locations, {@code 1} for direct children, and so on
      */
-    private static int nivel(StorageLocation entity) {
-        int nivel = 0;
+    private static int level(StorageLocation entity) {
+        int level = 0;
         StorageLocation atual = entity.getParent();
         while (atual != null) {
-            nivel++;
+            level++;
             atual = atual.getParent();
         }
-        return nivel;
+        return level;
     }
 }

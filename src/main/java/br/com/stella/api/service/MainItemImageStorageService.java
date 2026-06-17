@@ -21,14 +21,14 @@ import java.util.UUID;
 @Service
 public class MainItemImageStorageService {
 
-    private static final Set<String> CONTENT_TYPES_PERMITIDOS = Set.of(
+    private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
             "image/jpeg",
             "image/png",
             "image/webp",
             "image/gif"
     );
 
-    private static final Map<String, String> EXTENSOES = Map.of(
+    private static final Map<String, String> EXTENSIONS = Map.of(
             "image/jpeg", "jpg",
             "image/png", "png",
             "image/webp", "webp",
@@ -43,22 +43,22 @@ public class MainItemImageStorageService {
         this.properties = properties;
     }
 
-    public MainItemImageDTO armazenar(UUID itemId, MultipartFile file) {
-        return armazenar("itens-mestre", itemId, file);
+    public MainItemImageDTO storeMainItemImage(UUID itemId, MultipartFile file) {
+        return store("main-items", itemId, file);
     }
 
-    public MainItemImageDTO store(UUID locationId, MultipartFile file) {
-        return armazenar("locais", locationId, file);
+    public MainItemImageDTO storeLocationImage(UUID locationId, MultipartFile file) {
+        return store("locations", locationId, file);
     }
 
-    private MainItemImageDTO armazenar(String prefixo, UUID entidadeId, MultipartFile file) {
-        validarArquivo(file);
+    private MainItemImageDTO store(String prefix, UUID entityId, MultipartFile file) {
+        validateFile(file);
 
         String contentType = file.getContentType().toLowerCase(Locale.ROOT);
-        String objectKey = "%s/%s/%s.%s".formatted(prefixo, entidadeId, UUID.randomUUID(), EXTENSOES.get(contentType));
+        String objectKey = "%s/%s/%s.%s".formatted(prefix, entityId, UUID.randomUUID(), EXTENSIONS.get(contentType));
 
         try {
-            garantirBucket();
+            ensureBucket();
             minioClient.putObject(PutObjectArgs.builder()
                     .bucket(properties.bucket())
                     .object(objectKey)
@@ -71,7 +71,7 @@ public class MainItemImageStorageService {
         }
     }
 
-    public InputStream abrir(String bucket, String objectKey) {
+    public InputStream open(String bucket, String objectKey) {
         if (bucket == null || objectKey == null) {
             throw new IllegalArgumentException("Image not found.");
         }
@@ -100,7 +100,7 @@ public class MainItemImageStorageService {
         }
     }
 
-    private void validarArquivo(MultipartFile file) {
+    private void validateFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Please provide an image for upload.");
         }
@@ -110,16 +110,16 @@ public class MainItemImageStorageService {
         }
 
         String contentType = file.getContentType();
-        if (contentType == null || !CONTENT_TYPES_PERMITIDOS.contains(contentType.toLowerCase(Locale.ROOT))) {
+        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase(Locale.ROOT))) {
             throw new IllegalArgumentException("Image format not allowed. Use JPG, PNG, WebP or GIF.");
         }
     }
 
-    private void garantirBucket() throws Exception {
-        boolean existe = minioClient.bucketExists(BucketExistsArgs.builder()
+    private void ensureBucket() throws Exception {
+        boolean exists = minioClient.bucketExists(BucketExistsArgs.builder()
                 .bucket(properties.bucket())
                 .build());
-        if (!existe) {
+        if (!exists) {
             minioClient.makeBucket(MakeBucketArgs.builder()
                     .bucket(properties.bucket())
                     .build());

@@ -62,7 +62,7 @@ public class CategoryController extends SuperController<CategorySummaryDTO, Cate
 
     @Override
     @GetMapping
-    public ResponseEntity<List<CategorySummaryDTO>> listar() {
+    public ResponseEntity<List<CategorySummaryDTO>> list() {
         return ResponseEntity.ok(service.listSummary());
     }
 
@@ -91,13 +91,13 @@ public class CategoryController extends SuperController<CategorySummaryDTO, Cate
     }
 
     @Override
-    @GetMapping("/todos")
+    @GetMapping("/all")
     public ResponseEntity<List<CategorySummaryDTO>> findAllIncludingInactive() {
         return ResponseEntity.ok(service.listSummaryIncludingInactive());
     }
 
     @Override
-    @GetMapping("/{id}/revisoes")
+    @GetMapping("/{id}/revisions")
     public ResponseEntity<List<RevisionDTO<Category>>> listPreviousVersions(@PathVariable UUID id) {
         return ResponseEntity.ok(service.listRevisions(id));
     }

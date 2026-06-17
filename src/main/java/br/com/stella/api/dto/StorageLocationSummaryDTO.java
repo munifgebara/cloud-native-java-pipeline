@@ -13,8 +13,8 @@ import java.util.UUID;
  * @param description description of the location; may be {@code null}
  * @param parentId     identifier of the parent location; {@code null} for root locations
  * @param parentName   parent location name (denormalized); {@code null} for root locations
- * @param caminho   full path of the location in the hierarchy (e.g.: {@code "Building A > Room 101 > Cabinet 2"})
- * @param nivel     depth in the hierarchy: {@code 0} for root locations, {@code 1} for children, etc.
+ * @param path   full path of the location in the hierarchy (e.g.: {@code "Building A > Room 101 > Cabinet 2"})
+ * @param level     depth in the hierarchy: {@code 0} for root locations, {@code 1} for children, etc.
  * @param imageUrl relative URL for accessing the location image; {@code null} when no image
  * @param ativa     indicates whether the location is active in the system
  */
@@ -24,8 +24,8 @@ public record StorageLocationSummaryDTO(
         String description,
         UUID parentId,
         String parentName,
-        String caminho,
-        int nivel,
+        String path,
+        int level,
         String imageUrl,
         boolean ativa
 ) {}

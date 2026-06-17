@@ -40,13 +40,13 @@ class ImagemItemMestreStorageServiceTest {
 
         when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(false);
 
-        var image = service.armazenar(itemId, file);
+        var image = service.storeMainItemImage(itemId, file);
 
         assertThat(image.bucket()).isEqualTo("stella-test");
         assertThat(image.contentType()).isEqualTo("image/png");
         assertThat(image.tamanhoBytes()).isEqualTo(3);
         assertThat(image.objectKey())
-                .startsWith("itens-mestre/%s/".formatted(itemId))
+                .startsWith("main-items/%s/".formatted(itemId))
                 .endsWith(".png");
 
         ArgumentCaptor<BucketExistsArgs> bucketExistsCaptor = ArgumentCaptor.forClass(BucketExistsArgs.class);
@@ -71,13 +71,13 @@ class ImagemItemMestreStorageServiceTest {
 
         when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(true);
 
-        var image = service.store(locationId, file);
+        var image = service.storeLocationImage(locationId, file);
 
         assertThat(image.bucket()).isEqualTo("stella-test");
         assertThat(image.contentType()).isEqualTo("image/webp");
         assertThat(image.tamanhoBytes()).isEqualTo(3);
         assertThat(image.objectKey())
-                .startsWith("locais/%s/".formatted(locationId))
+                .startsWith("locations/%s/".formatted(locationId))
                 .endsWith(".webp");
 
         ArgumentCaptor<PutObjectArgs> putObjectCaptor = ArgumentCaptor.forClass(PutObjectArgs.class);
@@ -92,7 +92,7 @@ class ImagemItemMestreStorageServiceTest {
     void shouldRejectFileEmpty() {
         var file = new MockMultipartFile("file", "vazio.png", "image/png", new byte[0]);
 
-        assertThatThrownBy(() -> service.armazenar(UUID.randomUUID(), file))
+        assertThatThrownBy(() -> service.storeMainItemImage(UUID.randomUUID(), file))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("provide an image");
     }
@@ -101,7 +101,7 @@ class ImagemItemMestreStorageServiceTest {
     void shouldRejectFormatoNotAllowed() {
         var file = new MockMultipartFile("file", "file.txt", "text/plain", new byte[]{1});
 
-        assertThatThrownBy(() -> service.armazenar(UUID.randomUUID(), file))
+        assertThatThrownBy(() -> service.storeMainItemImage(UUID.randomUUID(), file))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Image format not allowed");
     }
@@ -110,7 +110,7 @@ class ImagemItemMestreStorageServiceTest {
     void shouldRejectImageGreaterThatLimitConfigured() {
         var file = new MockMultipartFile("file", "photo.png", "image/png", new byte[11]);
 
-        assertThatThrownBy(() -> service.armazenar(UUID.randomUUID(), file))
+        assertThatThrownBy(() -> service.storeMainItemImage(UUID.randomUUID(), file))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("10 bytes");
     }

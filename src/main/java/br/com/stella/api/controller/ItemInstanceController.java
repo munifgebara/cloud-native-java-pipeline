@@ -69,14 +69,14 @@ public class ItemInstanceController extends SuperController<ItemInstanceSummaryD
      * @param id UUID of the instance
      * @return {@code 200 OK} with the instance and its list of movements in chronological order
      */
-    @GetMapping("/{id}/historico")
+    @GetMapping("/{id}/history")
     public ResponseEntity<ItemInstanceHistoryDTO> findHistory(@PathVariable UUID id) {
         return ResponseEntity.ok(service.findHistory(id));
     }
 
     @Override
     @GetMapping
-    public ResponseEntity<List<ItemInstanceSummaryDTO>> listar() {
+    public ResponseEntity<List<ItemInstanceSummaryDTO>> list() {
         return ResponseEntity.ok(service.listSummary());
     }
 
@@ -101,7 +101,7 @@ public class ItemInstanceController extends SuperController<ItemInstanceSummaryD
      * @param operationalStatus desired operational status
      * @return {@code 200 OK} with the list of instances satisfying the criteria
      */
-    @GetMapping("/filtrar")
+    @GetMapping("/filter")
     public ResponseEntity<List<ItemInstanceSummaryDTO>> filtrar(
             @RequestParam(required = false) String identification,
             @RequestParam(required = false) String mainItem,
@@ -125,13 +125,13 @@ public class ItemInstanceController extends SuperController<ItemInstanceSummaryD
     }
 
     @Override
-    @GetMapping("/todos")
+    @GetMapping("/all")
     public ResponseEntity<List<ItemInstanceSummaryDTO>> findAllIncludingInactive() {
         return ResponseEntity.ok(service.listSummaryIncludingInactive());
     }
 
     @Override
-    @GetMapping("/{id}/revisoes")
+    @GetMapping("/{id}/revisions")
     public ResponseEntity<List<RevisionDTO<ItemInstance>>> listPreviousVersions(@PathVariable UUID id) {
         return ResponseEntity.ok(service.listRevisions(id));
     }

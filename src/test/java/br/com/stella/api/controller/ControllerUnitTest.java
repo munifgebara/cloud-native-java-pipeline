@@ -72,7 +72,7 @@ class ControllerUnitTest {
 
         assertThat(controller.create(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(controller.findById(id).getBody()).isEqualTo(response);
-        assertThat(controller.listar().getBody()).containsExactly(resumo);
+        assertThat(controller.list().getBody()).containsExactly(resumo);
         assertThat(controller.findByName("liv").getBody()).containsExactly(resumo);
         assertThat(controller.update(id, null).getBody()).isEqualTo(response);
         assertThat(controller.delete(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
@@ -100,7 +100,7 @@ class ControllerUnitTest {
 
         assertThat(controller.create(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(controller.findById(id).getBody()).isEqualTo(response);
-        assertThat(controller.listar().getBody()).containsExactly(resumo);
+        assertThat(controller.list().getBody()).containsExactly(resumo);
         assertThat(controller.findByName("ana").getBody()).containsExactly(resumo);
         assertThat(controller.update(id, null).getBody()).isEqualTo(response);
         assertThat(controller.delete(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
@@ -139,7 +139,7 @@ class ControllerUnitTest {
 
         assertThat(controller.create(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(controller.findById(id).getBody()).isEqualTo(response);
-        assertThat(controller.listar().getBody()).containsExactly(resumo);
+        assertThat(controller.list().getBody()).containsExactly(resumo);
         assertThat(controller.findByName("livro").getBody()).containsExactly(resumo);
         assertThat(controller.filtrar("livro", categoryId).getBody()).containsExactly(resumo);
         assertThat(controller.searchSemantically("where is book").getBody()).containsExactly(resultadoSemantico);
@@ -173,7 +173,7 @@ class ControllerUnitTest {
 
         assertThat(controller.create(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(controller.findById(id).getBody()).isEqualTo(response);
-        assertThat(controller.listar().getBody()).containsExactly(resumo);
+        assertThat(controller.list().getBody()).containsExactly(resumo);
         assertThat(controller.findByName("dep").getBody()).containsExactly(resumo);
         assertThat(controller.updateImage(id, file).getBody()).isEqualTo(response);
         assertThat(controller.removeImage(id).getBody()).isEqualTo(response);
@@ -206,7 +206,7 @@ class ControllerUnitTest {
         assertThat(controller.create(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(controller.findById(id).getBody()).isEqualTo(response);
         assertThat(controller.findHistory(id).getBody()).isEqualTo(historico);
-        assertThat(controller.listar().getBody()).containsExactly(resumo);
+        assertThat(controller.list().getBody()).containsExactly(resumo);
         assertThat(controller.findByIdentifier("pat").getBody()).containsExactly(resumo);
         assertThat(controller.filtrar("pat", "livro", categoryId, ItemInstanceStatus.DISPONIVEL).getBody()).containsExactly(resumo);
         assertThat(controller.update(id, null).getBody()).isEqualTo(response);
@@ -246,14 +246,14 @@ class ControllerUnitTest {
         var user = mock(UserResponseDTO.class);
         var perfil = mock(MeuPerfilResponseDTO.class);
 
-        when(service.listar()).thenReturn(List.of(user));
+        when(service.list()).thenReturn(List.of(user));
         when(service.findById("user-1")).thenReturn(user);
         when(service.create(null)).thenReturn(user);
         when(service.update("user-1", null)).thenReturn(user);
         when(service.meuPerfil(jwt)).thenReturn(perfil);
         when(service.atualizarMeuPerfil(jwt, null)).thenReturn(perfil);
 
-        assertThat(controller.listar().getBody()).containsExactly(user);
+        assertThat(controller.list().getBody()).containsExactly(user);
         assertThat(controller.findById("user-1").getBody()).isEqualTo(user);
         assertThat(controller.create(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(controller.update("user-1", null).getBody()).isEqualTo(user);

@@ -31,7 +31,7 @@ public class DashboardController {
      * @return DTO with totals and distributions of items, instances, persons,
      *         categories and storage locations
      */
-    @GetMapping("/api/v0/dashboard/resumo")
+    @GetMapping("/api/v0/dashboard/summary")
     public DashboardSummaryDTO resumo() {
         return dashboardService.carregarResumo();
     }

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * REST controller for recording item instance movements.
  *
- * <p>Exposes the {@code /api/v0/movimentacoes-item} resource with three operations:</p>
+ * <p>Exposes the {@code /api/v0/movements-item} resource with three operations:</p>
  * <ul>
  *   <li><strong>Entry</strong> — first association of an instance to a location (initial registration).</li>
  *   <li><strong>Exit</strong> — removal of an instance from the active inventory.</li>
@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
  * </ul>
  */
 @RestController
-@RequestMapping("/api/v0/movimentacoes-item")
+@RequestMapping("/api/v0/movements-item")
 public class ItemMovementController {
 
     private final ItemMovementService service;
@@ -44,7 +44,7 @@ public class ItemMovementController {
      * @param dto entry data validated by Bean Validation
      * @return {@code 201 Created} with the recorded movement data
      */
-    @PostMapping("/entrada")
+    @PostMapping("/inbound")
     public ResponseEntity<ItemMovementResponseDTO> registerInbound(@RequestBody @Valid ItemInputMovementCreateDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.registerInbound(dto));
     }
@@ -55,7 +55,7 @@ public class ItemMovementController {
      * @param dto exit data validated by Bean Validation
      * @return {@code 201 Created} with the recorded movement data
      */
-    @PostMapping("/saida")
+    @PostMapping("/outbound")
     public ResponseEntity<ItemMovementResponseDTO> registerOutbound(@RequestBody @Valid ItemOutputMovementCreateDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.registerOutbound(dto));
     }
@@ -66,7 +66,7 @@ public class ItemMovementController {
      * @param dto transfer data validated by Bean Validation
      * @return {@code 201 Created} with the recorded movement data
      */
-    @PostMapping("/transferencia")
+    @PostMapping("/transfer")
     public ResponseEntity<ItemMovementResponseDTO> registerTransfer(@RequestBody @Valid ItemTransferMovementCreateDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.registerTransfer(dto));
     }

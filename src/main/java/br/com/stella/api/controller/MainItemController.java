@@ -34,14 +34,14 @@ import java.util.UUID;
 /**
  * REST controller for managing inventory main items.
  *
- * <p>Exposes the {@code /api/v0/itens-mestre} resource with CRUD, filters, AI-powered semantic
+ * <p>Exposes the {@code /api/v0/main-items} resource with CRUD, filters, AI-powered semantic
  * search, main image upload and audit revision queries.</p>
  *
  * <p>A <em>main item</em> represents a model or type of asset (e.g.: "Notebook Dell Inspiron 15").
  * Individual physical units are represented by {@link br.com.stella.api.entity.ItemInstance}.</p>
  */
 @RestController
-@RequestMapping("/api/v0/itens-mestre")
+@RequestMapping("/api/v0/main-items")
 public class MainItemController extends SuperController<MainItemSummaryDTO, MainItemResponseDTO, MainItemCreateDTO, MainItemUpdateDTO, MainItem> {
 
     private final MainItemService service;
@@ -72,7 +72,7 @@ public class MainItemController extends SuperController<MainItemSummaryDTO, Main
 
     @Override
     @GetMapping
-    public ResponseEntity<List<MainItemSummaryDTO>> listar() {
+    public ResponseEntity<List<MainItemSummaryDTO>> list() {
         return ResponseEntity.ok(service.listSummary());
     }
 
@@ -94,7 +94,7 @@ public class MainItemController extends SuperController<MainItemSummaryDTO, Main
      * @param categoryId UUID of the category; ignored if not provided
      * @return {@code 200 OK} with the list of items satisfying the criteria
      */
-    @GetMapping("/filtrar")
+    @GetMapping("/filter")
     public ResponseEntity<List<MainItemSummaryDTO>> filtrar(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) UUID categoryId) {
@@ -107,7 +107,7 @@ public class MainItemController extends SuperController<MainItemSummaryDTO, Main
      * @param query free text to search semantically
      * @return {@code 200 OK} with the items most similar to the query, ordered by relevance
      */
-    @GetMapping("/busca-semantic")
+    @GetMapping("/semantic-search")
     public ResponseEntity<List<SemanticSearchItemDTO>> searchSemantically(@RequestParam("query") String query) {
         return ResponseEntity.ok(service.searchSemantically(query));
     }
@@ -118,7 +118,7 @@ public class MainItemController extends SuperController<MainItemSummaryDTO, Main
      *
      * @return {@code 200 OK} with the number of re-indexed items
      */
-    @PostMapping("/busca-semantic/reindexar")
+    @PostMapping("/semantic-search/reindex")
     public ResponseEntity<Map<String, Integer>> reindexSemanticSearch() {
         return ResponseEntity.ok(Map.of("itensReindexados", service.reindexSemanticSearch()));
     }
@@ -132,7 +132,7 @@ public class MainItemController extends SuperController<MainItemSummaryDTO, Main
      * @param provider       name of the AI provider (optional, provided when {@code generatedByAi} is {@code true})
      * @return {@code 200 OK} with the full DTO of the updated item
      */
-    @PostMapping(value = "/{id}/image-principal", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{id}/main-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MainItemResponseDTO> updateMainImage(
             @PathVariable UUID id,
             @RequestParam("file") MultipartFile file,
@@ -148,7 +148,7 @@ public class MainItemController extends SuperController<MainItemSummaryDTO, Main
      * @param dto input data with the item description and other parameters
      * @return {@code 200 OK} with the URL or data of the generated image
      */
-    @PostMapping("/image-ia")
+    @PostMapping("/image-ai")
     public ResponseEntity<ImageAiResponseDTO> generateAiImage(@RequestBody @Valid ImageAiRequestDTO dto) {
         return ResponseEntity.ok(imageAiService.generateImage(dto));
     }
@@ -167,13 +167,13 @@ public class MainItemController extends SuperController<MainItemSummaryDTO, Main
     }
 
     @Override
-    @GetMapping("/todos")
+    @GetMapping("/all")
     public ResponseEntity<List<MainItemSummaryDTO>> findAllIncludingInactive() {
         return ResponseEntity.ok(service.listSummaryIncludingInactive());
     }
 
     @Override
-    @GetMapping("/{id}/revisoes")
+    @GetMapping("/{id}/revisions")
     public ResponseEntity<List<RevisionDTO<MainItem>>> listPreviousVersions(@PathVariable UUID id) {
         return ResponseEntity.ok(service.listRevisions(id));
     }

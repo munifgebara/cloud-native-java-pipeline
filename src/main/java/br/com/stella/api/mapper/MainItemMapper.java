@@ -85,6 +85,6 @@ public final class MainItemMapper {
     }
 
     private static String imageUrl(MainItem entity) {
-        return entity.getImageObjectKey() == null ? null : "/api/public/itens-mestre/%s/image-principal".formatted(entity.getId());
+        return entity.getImageObjectKey() == null ? null : "/api/public/main-items/%s/main-image".formatted(entity.getId());
     }
 }

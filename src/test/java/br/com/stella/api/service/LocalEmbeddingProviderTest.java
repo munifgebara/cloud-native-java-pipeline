@@ -35,7 +35,7 @@ class LocalEmbeddingProviderTest {
     void shouldSendTextForProviderLocationAndConvertEmbedding() {
         when(embeddingModel.embed("placa de video")).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
 
-        float[] embedding = provider.gerarEmbedding("placa de video");
+        float[] embedding = provider.generateEmbedding("placa de video");
 
         assertThat(embedding).containsExactly(0.1f, 0.2f, 0.3f);
         verify(embeddingModel).embed("placa de video");
@@ -45,14 +45,14 @@ class LocalEmbeddingProviderTest {
     void shouldReturnEmbeddingOfProviderForDifferentTexts() {
         when(embeddingModel.embed("notebook")).thenReturn(new float[]{0.4f, 0.5f, 0.6f});
 
-        assertThat(provider.gerarEmbedding("notebook")).containsExactly(0.4f, 0.5f, 0.6f);
+        assertThat(provider.generateEmbedding("notebook")).containsExactly(0.4f, 0.5f, 0.6f);
     }
 
     @Test
     void shouldFailWhenProviderThrowsException() {
         when(embeddingModel.embed(anyString())).thenThrow(new RuntimeException("connection refused"));
 
-        assertThatThrownBy(() -> provider.gerarEmbedding("notebook"))
+        assertThatThrownBy(() -> provider.generateEmbedding("notebook"))
                 .isInstanceOf(ExternalIntegrationException.class)
                 .hasMessage("Failed to query the location embeddings provider.");
     }

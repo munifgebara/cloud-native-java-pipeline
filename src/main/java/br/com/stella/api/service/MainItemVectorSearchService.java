@@ -116,7 +116,7 @@ public class MainItemVectorSearchService {
 
         try {
             aiUsageGuard.consume(AiOperation.EMBEDDING);
-            float[] embedding = embeddingProvider.gerarEmbedding(documento);
+            float[] embedding = embeddingProvider.generateEmbedding(documento);
             validarDimensoes(embedding);
 
             jdbcTemplate.update(
@@ -216,7 +216,7 @@ public class MainItemVectorSearchService {
         long inicio = System.nanoTime();
         try {
             aiUsageGuard.consume(AiOperation.EMBEDDING);
-            float[] embedding = embeddingProvider.gerarEmbedding(texto);
+            float[] embedding = embeddingProvider.generateEmbedding(texto);
             validarDimensoes(embedding);
             String literal = vectorLiteral(embedding);
 
@@ -342,7 +342,7 @@ public class MainItemVectorSearchService {
     }
 
     private String imageUrl(MainItem item) {
-        return item.getImageObjectKey() == null ? null : "/api/public/itens-mestre/%s/image-principal".formatted(item.getId());
+        return item.getImageObjectKey() == null ? null : "/api/public/main-items/%s/main-image".formatted(item.getId());
     }
 
     private double arredondar(double valor) {

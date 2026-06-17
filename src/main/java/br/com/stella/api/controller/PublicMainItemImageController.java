@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Public REST controller for serving the main image of main items.
  *
- * <p>Exposes the endpoint {@code GET /api/public/itens-mestre/{id}/image-principal}
+ * <p>Exposes the endpoint {@code GET /api/public/main-items/{id}/main-image}
  * without requiring JWT authentication, allowing the web interface to display images
  * directly in {@code <img>} tags.</p>
  *
@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * to allow browser caching for 1 hour.</p>
  */
 @RestController
-@RequestMapping("/api/public/itens-mestre")
+@RequestMapping("/api/public/main-items")
 public class PublicMainItemImageController {
 
     private final MainItemService mainItemService;
@@ -47,7 +47,7 @@ public class PublicMainItemImageController {
      * @return {@code 200 OK} with the image content and content-type and cache headers
      * @throws IllegalArgumentException if the item does not have a registered image
      */
-    @GetMapping("/{id}/image-principal")
+    @GetMapping("/{id}/main-image")
     public ResponseEntity<InputStreamResource> fetchMainImage(@PathVariable UUID id) {
         MainItemImageDTO image = mainItemService.fetchMainImageMetadata(id);
         InputStream stream = mainItemService.openMainImage(id);

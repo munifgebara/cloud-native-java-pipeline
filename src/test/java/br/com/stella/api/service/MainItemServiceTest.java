@@ -253,22 +253,22 @@ class ItemMestreServiceTest {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
         item.setImageBucket("stella-itens");
-        item.setImageObjectKey("itens-mestre/antiga.jpg");
+        item.setImageObjectKey("main-items/antiga.jpg");
         var file = new MockMultipartFile("file", "photo.png", "image/png", new byte[]{1, 2, 3});
-        var image = new MainItemImageDTO("stella-itens", "itens-mestre/nova.png", "image/png", 3L);
+        var image = new MainItemImageDTO("stella-itens", "main-items/nova.png", "image/png", 3L);
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
-        when(imageStorageService.armazenar(id, file)).thenReturn(image);
+        when(imageStorageService.storeMainItemImage(id, file)).thenReturn(image);
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         var response = service.updateMainImage(id, file);
 
-        assertThat(response.imageUrl()).isEqualTo("/api/public/itens-mestre/%s/image-principal".formatted(id));
+        assertThat(response.imageUrl()).isEqualTo("/api/public/main-items/%s/main-image".formatted(id));
         assertThat(response.imageContentType()).isEqualTo("image/png");
         assertThat(response.imageSizeBytes()).isEqualTo(3L);
         assertThat(response.imageGeneratedByAi()).isFalse();
         assertThat(response.imageProvider()).isNull();
-        verify(imageStorageService).removeSilently("stella-itens", "itens-mestre/antiga.jpg");
+        verify(imageStorageService).removeSilently("stella-itens", "main-items/antiga.jpg");
     }
 
     @Test
@@ -276,10 +276,10 @@ class ItemMestreServiceTest {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
         var file = new MockMultipartFile("file", "photo.png", "image/png", new byte[]{1, 2, 3});
-        var image = new MainItemImageDTO("stella-itens", "itens-mestre/ia.png", "image/png", 3L);
+        var image = new MainItemImageDTO("stella-itens", "main-items/ia.png", "image/png", 3L);
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
-        when(imageStorageService.armazenar(id, file)).thenReturn(image);
+        when(imageStorageService.storeMainItemImage(id, file)).thenReturn(image);
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         var response = service.updateMainImage(id, file, true, " openai ");
@@ -322,18 +322,18 @@ class ItemMestreServiceTest {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
         item.setImageBucket("stella-itens");
-        item.setImageObjectKey("itens-mestre/%s/photo.png".formatted(id));
+        item.setImageObjectKey("main-items/%s/photo.png".formatted(id));
         item.setImageContentType("image/png");
         item.setImageSizeBytes(3L);
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
-        when(imageStorageService.abrir("stella-itens", "itens-mestre/%s/photo.png".formatted(id)))
+        when(imageStorageService.open("stella-itens", "main-items/%s/photo.png".formatted(id)))
                 .thenReturn(new ByteArrayInputStream(new byte[]{1, 2, 3}));
 
         var metadados = service.fetchMainImageMetadata(id);
         var image = service.openMainImage(id);
 
-        assertThat(metadados.objectKey()).isEqualTo("itens-mestre/%s/photo.png".formatted(id));
+        assertThat(metadados.objectKey()).isEqualTo("main-items/%s/photo.png".formatted(id));
         assertThat(metadados.tamanhoBytes()).isEqualTo(3L);
         assertThat(image).hasSameContentAs(new ByteArrayInputStream(new byte[]{1, 2, 3}));
     }
