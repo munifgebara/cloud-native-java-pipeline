@@ -84,8 +84,8 @@ public final class StorageLocationMapper {
                 caminho(entity),
                 nivel(entity),
                 imagemUrl(entity),
-                entity.getImagemContentType(),
-                entity.getImagemTamanhoBytes(),
+                entity.getImageContentType(),
+                entity.getImageSizeBytes(),
                 entity.isActive()
         );
     }
@@ -126,7 +126,7 @@ public final class StorageLocationMapper {
      * @return relative URL of the image, or {@code null} if the location has no image
      */
     private static String imagemUrl(StorageLocation entity) {
-        if (entity.getImagemObjectKey() == null) {
+        if (entity.getImageObjectKey() == null) {
             return null;
         }
         return "/api/public/locais/%s/imagem".formatted(entity.getId());

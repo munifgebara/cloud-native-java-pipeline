@@ -7,9 +7,9 @@ import br.com.stella.api.dto.MainItemUpdateDTO;
 import br.com.stella.api.entity.Category;
 import br.com.stella.api.entity.MainItem;
 
-public final class ItemMestreMapper {
+public final class MainItemMapper {
 
-    private ItemMestreMapper() {
+    private MainItemMapper() {
     }
 
     public static MainItem toEntity(MainItemCreateDTO dto) {
@@ -21,7 +21,7 @@ public final class ItemMestreMapper {
         item.setName(dto.nome());
         item.setDescription(dto.descricao());
         item.setNotes(dto.observacoes());
-        item.setOrigemCadastro(dto.origemCadastro());
+        item.setRegistrationOrigin(dto.registrationOrigin());
         if (dto.ativa() != null) {
             item.setActive(dto.ativa());
         }
@@ -36,7 +36,7 @@ public final class ItemMestreMapper {
         entity.setName(dto.nome());
         entity.setDescription(dto.descricao());
         entity.setNotes(dto.observacoes());
-        entity.setOrigemCadastro(dto.origemCadastro());
+        entity.setRegistrationOrigin(dto.registrationOrigin());
         if (dto.ativa() != null) {
             entity.setActive(dto.ativa());
         }
@@ -53,15 +53,15 @@ public final class ItemMestreMapper {
                 entity.getName(),
                 entity.getDescription(),
                 entity.getNotes(),
-                entity.getOrigemCadastro(),
+                entity.getRegistrationOrigin(),
                 category == null ? null : category.getId(),
                 category == null ? null : category.getName(),
                 category == null ? null : category.getIcon(),
                 imagemUrl(entity),
-                entity.getImagemContentType(),
-                entity.getImagemTamanhoBytes(),
-                entity.isImagemGeneratedByAi(),
-                entity.getImagemProvider(),
+                entity.getImageContentType(),
+                entity.getImageSizeBytes(),
+                entity.isImageGeneratedByAi(),
+                entity.getImageProvider(),
                 entity.isActive()
         );
     }
@@ -85,6 +85,6 @@ public final class ItemMestreMapper {
     }
 
     private static String imagemUrl(MainItem entity) {
-        return entity.getImagemObjectKey() == null ? null : "/api/public/itens-mestre/%s/imagem-principal".formatted(entity.getId());
+        return entity.getImageObjectKey() == null ? null : "/api/public/itens-mestre/%s/imagem-principal".formatted(entity.getId());
     }
 }

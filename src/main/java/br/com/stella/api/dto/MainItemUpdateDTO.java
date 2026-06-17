@@ -15,7 +15,7 @@ import java.util.UUID;
  * @param nome           main item name; required, up to 150 characters
  * @param descricao      detailed description of the item; up to 500 characters; optional
  * @param observacoes    internal notes; up to 1000 characters; optional
- * @param origemCadastro registration origin; up to 50 characters; optional
+ * @param registrationOrigin registration origin; up to 50 characters; optional
  * @param categoriaId    category identifier; {@code null} removes the association with the category
  * @param ativa          indicates whether the item is active; optional
  */
@@ -31,7 +31,7 @@ public record MainItemUpdateDTO(
         String observacoes,
 
         @Size(max = 50, message = "Registration origin must not exceed 50 characters.")
-        String origemCadastro,
+        String registrationOrigin,
 
         UUID categoriaId,
 

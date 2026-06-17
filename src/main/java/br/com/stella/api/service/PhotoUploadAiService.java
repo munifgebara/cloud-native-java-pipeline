@@ -1,6 +1,6 @@
 package br.com.stella.api.service;
 
-import br.com.stella.api.dto.CadastroFotoSugestaoResponseDTO;
+import br.com.stella.api.dto.PhotoUploadSuggestionResponseDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,7 +23,7 @@ public class PhotoUploadAiService {
         this.provider = provider;
     }
 
-    public CadastroFotoSugestaoResponseDTO sugerirCadastro(MultipartFile imagem) {
+    public PhotoUploadSuggestionResponseDTO sugerirCadastro(MultipartFile imagem) {
         validarImagem(imagem);
         return provider.sugerirCadastro(imagem);
     }

@@ -27,14 +27,14 @@ public class DashboardService {
     private final MainItemRepository itemMestreRepository;
     private final ItemInstanceRepository instanciaItemRepository;
     private final StorageLocationRepository localArmazenamentoRepository;
-    private final ConsultaVetorialMetricasService consultaVetorialMetricasService;
+    private final VectorSearchMetricsService consultaVetorialMetricasService;
 
     public DashboardService(
             PersonService pessoaService,
             MainItemRepository itemMestreRepository,
             ItemInstanceRepository instanciaItemRepository,
             StorageLocationRepository localArmazenamentoRepository,
-            ConsultaVetorialMetricasService consultaVetorialMetricasService
+            VectorSearchMetricsService consultaVetorialMetricasService
     ) {
         this.pessoaService = pessoaService;
         this.itemMestreRepository = itemMestreRepository;
@@ -57,7 +57,7 @@ public class DashboardService {
                 instanciaItemRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.DISPONIVEL),
                 instanciaItemRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.EMPRESTADO),
                 localArmazenamentoRepository.countByActiveTrue(),
-                itemMestreRepository.countByActiveTrueAndImagemObjectKeyIsNull(),
+                itemMestreRepository.countByActiveTrueAndImageObjectKeyIsNull(),
                 itemMestreRepository.contarItensCadastradosPorIa(),
                 consultaVetorialMetricasService.contarConsultas(),
                 instanciaItemRepository.buscarLocaisComMaisItens(PageRequest.of(0, LIMITE_LOCAIS_COM_MAIS_ITENS)),

@@ -27,11 +27,11 @@ public interface ItemMovementRepository extends SuperRepository<ItemMovement> {
     /**
      * Returns the full movement history of an instance, ordered chronologically.
      *
-     * <p>Ordering by {@code dataMovimentacao} and then by {@code criadoEm} ensures
+     * <p>Ordering by {@code movementDate} and then by {@code createdAt} ensures
      * consistency when multiple movements occur at the same instant.</p>
      *
      * @param instanciaItemId identifier of the item instance
      * @return list of movements in ascending chronological order; never {@code null}, may be empty
      */
-    List<ItemMovement> findByItemInstanceIdOrderByDataMovimentacaoAscCriadoEmAsc(UUID itemInstanceId);
+    List<ItemMovement> findByItemInstanceIdOrderByMovementDateAscCreatedAtAsc(UUID itemInstanceId);
 }

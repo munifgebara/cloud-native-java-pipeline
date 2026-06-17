@@ -2,10 +2,10 @@ package br.com.stella.api.controller;
 
 import br.com.stella.api.dto.CategoryResponseDTO;
 import br.com.stella.api.dto.CategorySummaryDTO;
-import br.com.stella.api.dto.ConsultaSemanticaItemDTO;
+import br.com.stella.api.dto.SemanticSearchItemDTO;
 import br.com.stella.api.dto.DashboardSummaryDTO;
 import br.com.stella.api.dto.ItemLoanResponseDTO;
-import br.com.stella.api.dto.ImagemItemMestreDTO;
+import br.com.stella.api.dto.MainItemImageDTO;
 import br.com.stella.api.dto.ImageAiRequestDTO;
 import br.com.stella.api.dto.ImageAiResponseDTO;
 import br.com.stella.api.dto.ItemInstanceHistoryDTO;
@@ -119,7 +119,7 @@ class ControllerUnitTest {
         UUID categoriaId = UUID.randomUUID();
         var response = mock(MainItemResponseDTO.class);
         var resumo = mock(MainItemSummaryDTO.class);
-        var resultadoSemantico = mock(ConsultaSemanticaItemDTO.class);
+        var resultadoSemantico = mock(SemanticSearchItemDTO.class);
         var arquivo = new MockMultipartFile("arquivo", "foto.png", "image/png", new byte[]{1});
         var imagemIaRequest = new ImageAiRequestDTO("Livro", "Livros", "Capa azul");
         var imagemIaResponse = new ImageAiResponseDTO("data:image/png;base64,abc", "image/png", "openai");
@@ -290,7 +290,7 @@ class ControllerUnitTest {
         MainItemService itemService = mock(MainItemService.class);
         StorageLocationService localService = mock(StorageLocationService.class);
         UUID id = UUID.randomUUID();
-        var imagem = new ImagemItemMestreDTO("bucket", "objeto.png", "image/png", 2L);
+        var imagem = new MainItemImageDTO("bucket", "objeto.png", "image/png", 2L);
 
         when(itemService.buscarMetadadosImagemPrincipal(id)).thenReturn(imagem);
         when(itemService.abrirImagemPrincipal(id)).thenReturn(new ByteArrayInputStream(new byte[]{1, 2}));

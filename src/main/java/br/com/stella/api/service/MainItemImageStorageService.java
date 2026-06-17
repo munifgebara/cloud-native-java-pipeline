@@ -2,7 +2,7 @@ package br.com.stella.api.service;
 
 import br.com.stella.api.config.MinioProperties;
 import br.com.stella.api.exception.ExternalIntegrationException;
-import br.com.stella.api.dto.ImagemItemMestreDTO;
+import br.com.stella.api.dto.MainItemImageDTO;
 import io.minio.BucketExistsArgs;
 import io.minio.GetObjectArgs;
 import io.minio.MakeBucketArgs;
@@ -43,15 +43,15 @@ public class MainItemImageStorageService {
         this.properties = properties;
     }
 
-    public ImagemItemMestreDTO armazenar(UUID itemId, MultipartFile arquivo) {
+    public MainItemImageDTO armazenar(UUID itemId, MultipartFile arquivo) {
         return armazenar("itens-mestre", itemId, arquivo);
     }
 
-    public ImagemItemMestreDTO armazenarLocal(UUID localId, MultipartFile arquivo) {
+    public MainItemImageDTO armazenarLocal(UUID localId, MultipartFile arquivo) {
         return armazenar("locais", localId, arquivo);
     }
 
-    private ImagemItemMestreDTO armazenar(String prefixo, UUID entidadeId, MultipartFile arquivo) {
+    private MainItemImageDTO armazenar(String prefixo, UUID entidadeId, MultipartFile arquivo) {
         validarArquivo(arquivo);
 
         String contentType = arquivo.getContentType().toLowerCase(Locale.ROOT);
@@ -65,7 +65,7 @@ public class MainItemImageStorageService {
                     .stream(arquivo.getInputStream(), arquivo.getSize(), -1)
                     .contentType(contentType)
                     .build());
-            return new ImagemItemMestreDTO(properties.bucket(), objectKey, contentType, arquivo.getSize());
+            return new MainItemImageDTO(properties.bucket(), objectKey, contentType, arquivo.getSize());
         } catch (Exception ex) {
             throw new ExternalIntegrationException("Unable to store the image in MinIO.", ex);
         }

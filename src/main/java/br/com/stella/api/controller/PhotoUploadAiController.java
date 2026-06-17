@@ -1,6 +1,6 @@
 package br.com.stella.api.controller;
 
-import br.com.stella.api.dto.CadastroFotoSugestaoResponseDTO;
+import br.com.stella.api.dto.PhotoUploadSuggestionResponseDTO;
 import br.com.stella.api.service.PhotoUploadAiService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +39,7 @@ public class PhotoUploadAiController {
      * @return {@code 200 OK} with name, category, description and other field suggestions
      */
     @PostMapping(value = "/sugestoes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<CadastroFotoSugestaoResponseDTO> sugerirCadastro(@RequestParam("arquivo") MultipartFile arquivo) {
+    public ResponseEntity<PhotoUploadSuggestionResponseDTO> sugerirCadastro(@RequestParam("arquivo") MultipartFile arquivo) {
         return ResponseEntity.ok(service.sugerirCadastro(arquivo));
     }
 }

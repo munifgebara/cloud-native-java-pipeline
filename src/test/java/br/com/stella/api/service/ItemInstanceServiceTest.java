@@ -273,7 +273,7 @@ class InstanciaItemServiceTest {
         ItemMovement movimentacao = movimentacao(instance, origem, destino, ItemMovementType.TRANSFERENCIA);
 
         when(repository.findById(instanciaId)).thenReturn(Optional.of(instance));
-        when(movimentacaoItemRepository.findByItemInstanceIdOrderByDataMovimentacaoAscCriadoEmAsc(instanciaId))
+        when(movimentacaoItemRepository.findByItemInstanceIdOrderByMovementDateAscCreatedAtAsc(instanciaId))
                 .thenReturn(List.of(movimentacao));
 
         var resposta = service.buscarHistorico(instanciaId);
@@ -292,7 +292,7 @@ class InstanciaItemServiceTest {
         ItemInstance instance = instance(instanciaId, "NB-001", mainItem(UUID.randomUUID(), "Notebook", true));
 
         when(repository.findById(instanciaId)).thenReturn(Optional.of(instance));
-        when(movimentacaoItemRepository.findByItemInstanceIdOrderByDataMovimentacaoAscCriadoEmAsc(instanciaId))
+        when(movimentacaoItemRepository.findByItemInstanceIdOrderByMovementDateAscCreatedAtAsc(instanciaId))
                 .thenReturn(List.of());
 
         var resposta = service.buscarHistorico(instanciaId);

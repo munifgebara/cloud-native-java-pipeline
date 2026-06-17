@@ -1,7 +1,7 @@
 package br.com.stella.api.service;
 
-import br.com.stella.api.dto.DashboardLocalQuantidadeDTO;
-import br.com.stella.api.dto.DashboardCategoriaQuantidadeDTO;
+import br.com.stella.api.dto.DashboardLocationQuantityDTO;
+import br.com.stella.api.dto.DashboardCategoryQuantityDTO;
 import br.com.stella.api.entity.ItemInstanceStatus;
 import br.com.stella.api.repository.ItemInstanceRepository;
 import br.com.stella.api.repository.MainItemRepository;
@@ -37,7 +37,7 @@ class DashboardServiceTest {
     private StorageLocationRepository localArmazenamentoRepository;
 
     @Mock
-    private ConsultaVetorialMetricasService consultaVetorialMetricasService;
+    private VectorSearchMetricsService consultaVetorialMetricasService;
 
     @InjectMocks
     private DashboardService service;
@@ -46,12 +46,12 @@ class DashboardServiceTest {
     void deveCarregarResumoDoInventario() {
         var localId = UUID.randomUUID();
         var categoriaId = UUID.randomUUID();
-        var locais = List.of(new DashboardLocalQuantidadeDTO(localId, "Biblioteca", 12));
-        var categorias = List.of(new DashboardCategoriaQuantidadeDTO(categoriaId, "Livros", 7));
+        var locais = List.of(new DashboardLocationQuantityDTO(localId, "Biblioteca", 12));
+        var categorias = List.of(new DashboardCategoryQuantityDTO(categoriaId, "Livros", 7));
 
         when(pessoaService.contarPessoasAtivas()).thenReturn(4L);
         when(itemMestreRepository.countByActiveTrue()).thenReturn(10L);
-        when(itemMestreRepository.countByActiveTrueAndImagemObjectKeyIsNull()).thenReturn(2L);
+        when(itemMestreRepository.countByActiveTrueAndImageObjectKeyIsNull()).thenReturn(2L);
         when(itemMestreRepository.contarItensCadastradosPorIa()).thenReturn(3L);
         when(instanciaItemRepository.countByActiveTrue()).thenReturn(25L);
         when(instanciaItemRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.DISPONIVEL)).thenReturn(18L);

@@ -20,7 +20,7 @@ import java.util.UUID;
  * @param numeroSerie       manufacturer's serial number stamped on the equipment (up to 150 characters); optional
  * @param statusOperacional initial operational status; when {@code null}, defaults to {@code DISPONIVEL}
  * @param observacoes       internal notes about this instance (up to 1000 characters); optional
- * @param origemCadastro    registration origin (e.g.: {@code "MANUAL"}, {@code "FOTO"}); up to 50 characters; optional
+ * @param registrationOrigin    registration origin (e.g.: {@code "MANUAL"}, {@code "FOTO"}); up to 50 characters; optional
  * @param ativa             indicates whether the instance should be created as active; when {@code null}, defaults to {@code true}
  */
 public record ItemInstanceCreateDTO(
@@ -44,7 +44,7 @@ public record ItemInstanceCreateDTO(
         String observacoes,
 
         @Size(max = 50, message = "Registration origin must not exceed 50 characters.")
-        String origemCadastro,
+        String registrationOrigin,
 
         Boolean ativa
 ) {}

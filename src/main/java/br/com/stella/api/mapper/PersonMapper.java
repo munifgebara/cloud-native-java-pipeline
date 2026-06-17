@@ -94,8 +94,8 @@ public final class PersonMapper {
                 entity.getNeighborhood(),
                 entity.getCity(),
                 entity.getState(),
-                entity.getCriadoEm(),
-                entity.getAlteradoEm()
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
         );
     }
 

@@ -10,9 +10,9 @@ import br.com.stella.api.entity.MainItem;
 import br.com.stella.api.entity.StorageLocation;
 import br.com.stella.api.entity.ItemInstanceStatus;
 
-public final class InstanciaItemMapper {
+public final class ItemInstanceMapper {
 
-    private InstanciaItemMapper() {
+    private ItemInstanceMapper() {
     }
 
     public static ItemInstance toEntity(ItemInstanceCreateDTO dto) {
@@ -26,7 +26,7 @@ public final class InstanciaItemMapper {
         instance.setSerialNumber(dto.numeroSerie());
         instance.setOperationalStatus(statusOrDefault(dto.statusOperacional()));
         instance.setNotes(dto.observacoes());
-        instance.setOrigemCadastro(dto.origemCadastro());
+        instance.setRegistrationOrigin(dto.registrationOrigin());
         if (dto.ativa() != null) {
             instance.setActive(dto.ativa());
         }
@@ -43,7 +43,7 @@ public final class InstanciaItemMapper {
         entity.setSerialNumber(dto.numeroSerie());
         entity.setOperationalStatus(statusOrDefault(dto.statusOperacional()));
         entity.setNotes(dto.observacoes());
-        entity.setOrigemCadastro(dto.origemCadastro());
+        entity.setRegistrationOrigin(dto.registrationOrigin());
         if (dto.ativa() != null) {
             entity.setActive(dto.ativa());
         }
@@ -71,7 +71,7 @@ public final class InstanciaItemMapper {
                 entity.getSerialNumber(),
                 entity.getOperationalStatus(),
                 entity.getNotes(),
-                entity.getOrigemCadastro(),
+                entity.getRegistrationOrigin(),
                 entity.isActive()
         );
     }

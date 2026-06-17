@@ -3,15 +3,15 @@ package br.com.stella.api.service;
 import br.com.munif.common.dto.RevisionDTO;
 import br.com.munif.common.service.SuperService;
 import br.com.munif.common.utils.validacoes.BrValidations;
-import br.com.stella.api.dto.ConsultaSemanticaItemDTO;
+import br.com.stella.api.dto.SemanticSearchItemDTO;
 import br.com.stella.api.dto.MainItemCreateDTO;
-import br.com.stella.api.dto.ImagemItemMestreDTO;
+import br.com.stella.api.dto.MainItemImageDTO;
 import br.com.stella.api.dto.MainItemResponseDTO;
 import br.com.stella.api.dto.MainItemSummaryDTO;
 import br.com.stella.api.dto.MainItemUpdateDTO;
 import br.com.stella.api.entity.Category;
 import br.com.stella.api.entity.MainItem;
-import br.com.stella.api.mapper.ItemMestreMapper;
+import br.com.stella.api.mapper.MainItemMapper;
 import br.com.stella.api.observability.StructuredBusinessLogger;
 import br.com.stella.api.repository.CategoryRepository;
 import br.com.stella.api.repository.MainItemRepository;
@@ -70,7 +70,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      */
     @Transactional
     public MainItemResponseDTO criar(MainItemCreateDTO dto) {
-        MainItem item = ItemMestreMapper.toEntity(dto);
+        MainItem item = MainItemMapper.toEntity(dto);
         normalizarCampos(item);
         item.setCategory(buscarCategoriaAtiva(dto.categoriaId()));
 
@@ -87,7 +87,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
                 "category_id", salvo.getCategory() == null ? null : salvo.getCategory().getId(),
                 "success", true
         ));
-        return ItemMestreMapper.toResponseDTO(salvo);
+        return MainItemMapper.toResponseDTO(salvo);
     }
 
     /**
@@ -99,7 +99,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      */
     @Transactional(readOnly = true)
     public MainItemResponseDTO buscarResponsePorId(UUID id) {
-        return ItemMestreMapper.toResponseDTO(buscarPorId(id));
+        return MainItemMapper.toResponseDTO(buscarPorId(id));
     }
 
     /**
@@ -110,7 +110,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
     @Transactional(readOnly = true)
     public List<MainItemSummaryDTO> listarResumo() {
         return repository.findByActiveTrueOrderByNameAsc().stream()
-                .map(ItemMestreMapper::toResumoDTO)
+                .map(MainItemMapper::toResumoDTO)
                 .toList();
     }
 
@@ -122,7 +122,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
     @Transactional(readOnly = true)
     public List<MainItemSummaryDTO> listarResumoIncluindoInativos() {
         return findAllIncludingInactive().stream()
-                .map(ItemMestreMapper::toResumoDTO)
+                .map(MainItemMapper::toResumoDTO)
                 .toList();
     }
 
@@ -140,7 +140,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
         }
 
         return repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(nomeTratado).stream()
-                .map(ItemMestreMapper::toResumoDTO)
+                .map(MainItemMapper::toResumoDTO)
                 .toList();
     }
 
@@ -158,7 +158,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
                         MainItemRepository.filtrarAtivos(BrValidations.trimToNull(nome), categoriaId),
                         Sort.by("nome").ascending()
                 ).stream()
-                .map(ItemMestreMapper::toResumoDTO)
+                .map(MainItemMapper::toResumoDTO)
                 .toList();
     }
 
@@ -176,7 +176,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
         MainItem item = buscarPorId(id);
         Category category = buscarCategoriaAtiva(dto.categoriaId());
 
-        ItemMestreMapper.updateEntity(item, dto);
+        MainItemMapper.updateEntity(item, dto);
         normalizarCampos(item);
         item.setCategory(category);
 
@@ -188,7 +188,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
                 "category_id", salvo.getCategory() == null ? null : salvo.getCategory().getId(),
                 "success", true
         ));
-        return ItemMestreMapper.toResponseDTO(salvo);
+        return MainItemMapper.toResponseDTO(salvo);
     }
 
     /**
@@ -219,16 +219,16 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
     @Transactional
     public MainItemResponseDTO atualizarImagemPrincipal(UUID id, MultipartFile arquivo, boolean generatedByAi, String provider) {
         MainItem item = buscarPorId(id);
-        String bucketAnterior = item.getImagemBucket();
-        String objectKeyAnterior = item.getImagemObjectKey();
+        String bucketAnterior = item.getImageBucket();
+        String objectKeyAnterior = item.getImageObjectKey();
 
-        ImagemItemMestreDTO imagem = imagemStorageService.armazenar(id, arquivo);
-        item.setImagemBucket(imagem.bucket());
-        item.setImagemObjectKey(imagem.objectKey());
-        item.setImagemContentType(imagem.contentType());
-        item.setImagemTamanhoBytes(imagem.tamanhoBytes());
-        item.setImagemGeneratedByAi(generatedByAi);
-        item.setImagemProvider(generatedByAi ? BrValidations.trimToNull(provider) : null);
+        MainItemImageDTO imagem = imagemStorageService.armazenar(id, arquivo);
+        item.setImageBucket(imagem.bucket());
+        item.setImageObjectKey(imagem.objectKey());
+        item.setImageContentType(imagem.contentType());
+        item.setImageSizeBytes(imagem.tamanhoBytes());
+        item.setImageGeneratedByAi(generatedByAi);
+        item.setImageProvider(generatedByAi ? BrValidations.trimToNull(provider) : null);
 
         MainItem salvo = salvar(item);
         sincronizarIndiceVetorialSilenciosamente(salvo, "item-index-sync-after-image-update");
@@ -242,7 +242,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
                 "ai_provider", generatedByAi ? BrValidations.trimToNull(provider) : null,
                 "success", true
         ));
-        return ItemMestreMapper.toResponseDTO(salvo);
+        return MainItemMapper.toResponseDTO(salvo);
     }
 
     /**
@@ -253,16 +253,16 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      * @throws IllegalArgumentException if the item does not have a registered image
      */
     @Transactional(readOnly = true)
-    public ImagemItemMestreDTO buscarMetadadosImagemPrincipal(UUID id) {
+    public MainItemImageDTO buscarMetadadosImagemPrincipal(UUID id) {
         MainItem item = buscarPorId(id);
-        if (item.getImagemObjectKey() == null) {
+        if (item.getImageObjectKey() == null) {
             throw new IllegalArgumentException("Main item does not have a main image.");
         }
-        return new ImagemItemMestreDTO(
-                item.getImagemBucket(),
-                item.getImagemObjectKey(),
-                item.getImagemContentType(),
-                item.getImagemTamanhoBytes()
+        return new MainItemImageDTO(
+                item.getImageBucket(),
+                item.getImageObjectKey(),
+                item.getImageContentType(),
+                item.getImageSizeBytes()
         );
     }
 
@@ -276,7 +276,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      */
     @Transactional(readOnly = true)
     public InputStream abrirImagemPrincipal(UUID id) {
-        ImagemItemMestreDTO imagem = buscarMetadadosImagemPrincipal(id);
+        MainItemImageDTO imagem = buscarMetadadosImagemPrincipal(id);
         return imagemStorageService.abrir(imagem.bucket(), imagem.objectKey());
     }
 
@@ -305,7 +305,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      * @return list of results ordered by semantic similarity
      */
     @Transactional(readOnly = true)
-    public List<ConsultaSemanticaItemDTO> buscarSemanticamente(String consulta) {
+    public List<SemanticSearchItemDTO> buscarSemanticamente(String consulta) {
         return vectorSearchService.buscar(consulta);
     }
 

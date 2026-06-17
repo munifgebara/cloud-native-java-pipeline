@@ -30,7 +30,7 @@ public record DashboardSummaryDTO(
         long quantidadeItensSemImagem,
         long quantidadeItensCadastradosPorIa,
         long quantidadeConsultasVetoriais,
-        List<DashboardLocalQuantidadeDTO> locaisComMaisItens,
-        List<DashboardCategoriaQuantidadeDTO> categoriasComMaisItens
+        List<DashboardLocationQuantityDTO> locaisComMaisItens,
+        List<DashboardCategoryQuantityDTO> categoriasComMaisItens
 ) {
 }

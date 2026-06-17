@@ -54,15 +54,15 @@ public class StorageLocation extends BaseEntity {
      * Up to 100 characters.
      */
     @Column(name = "imagem_bucket", length = 100)
-    private String imagemBucket;
+    private String imageBucket;
 
     /**
      * Key (path/object name) of the image within the object storage bucket.
-     * Used together with {@link #imagemBucket} to locate the file.
+     * Used together with {@link #imageBucket} to locate the file.
      * Up to 500 characters.
      */
     @Column(name = "imagem_object_key", length = 500)
-    private String imagemObjectKey;
+    private String imageObjectKey;
 
     /**
      * MIME type of the stored image (e.g.: {@code "image/jpeg"}, {@code "image/png"}).
@@ -70,14 +70,14 @@ public class StorageLocation extends BaseEntity {
      * Up to 100 characters.
      */
     @Column(name = "imagem_content_type", length = 100)
-    private String imagemContentType;
+    private String imageContentType;
 
     /**
      * Size of the image in bytes. Useful for displaying information to the user
      * and for storage quota checks.
      */
     @Column(name = "imagem_tamanho_bytes")
-    private Long imagemTamanhoBytes;
+    private Long imageSizeBytes;
 
     /**
      * Parent location in the storage hierarchy.

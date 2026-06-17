@@ -39,7 +39,7 @@ public final class ItemLoanMapper {
                 identificacao(instance),
                 pessoa == null ? null : pessoa.getId(),
                 pessoa == null ? null : pessoa.getName(),
-                entity.getDataEmprestimo(),
+                entity.getLoanDate(),
                 entity.getExpectedReturnDate(),
                 entity.getReturnDate(),
                 entity.getNotes()

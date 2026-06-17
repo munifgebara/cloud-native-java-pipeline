@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class InventarioRepositoryIntegrationTest {
+class InventoryRepositoryIntegrationTest {
 
     @Autowired
     private EntityManager entityManager;
@@ -130,9 +130,9 @@ class InventarioRepositoryIntegrationTest {
         persistir(maisRecente, maisAntiga);
         flushAndClear();
 
-        var historico = movimentacaoItemRepository.findByItemInstanceIdOrderByDataMovimentacaoAscCriadoEmAsc(instance.getId());
+        var historico = movimentacaoItemRepository.findByItemInstanceIdOrderByMovementDateAscCreatedAtAsc(instance.getId());
 
-        assertThat(historico).extracting(ItemMovement::getDataMovimentacao)
+        assertThat(historico).extracting(ItemMovement::getMovementDate)
                 .containsExactly(
                         Instant.parse("2026-01-01T10:00:00Z"),
                         Instant.parse("2026-01-02T10:00:00Z")
@@ -227,14 +227,14 @@ class InventarioRepositoryIntegrationTest {
             ItemInstance instance,
             StorageLocation origem,
             StorageLocation destino,
-            Instant dataMovimentacao
+            Instant movementDate
     ) {
         ItemMovement movimentacao = new ItemMovement();
         movimentacao.setType(origem == null ? ItemMovementType.ENTRADA : ItemMovementType.TRANSFERENCIA);
         movimentacao.setItemInstance(instance);
         movimentacao.setOriginLocation(origem);
         movimentacao.setDestinationLocation(destino);
-        movimentacao.setDataMovimentacao(dataMovimentacao);
+        movimentacao.setMovementDate(movementDate);
         movimentacao.setActive(true);
         return movimentacao;
     }

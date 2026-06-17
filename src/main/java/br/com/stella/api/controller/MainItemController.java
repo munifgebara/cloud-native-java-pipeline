@@ -2,7 +2,7 @@ package br.com.stella.api.controller;
 
 import br.com.munif.common.controller.SuperController;
 import br.com.munif.common.dto.RevisionDTO;
-import br.com.stella.api.dto.ConsultaSemanticaItemDTO;
+import br.com.stella.api.dto.SemanticSearchItemDTO;
 import br.com.stella.api.dto.MainItemCreateDTO;
 import br.com.stella.api.dto.ImageAiRequestDTO;
 import br.com.stella.api.dto.ImageAiResponseDTO;
@@ -108,7 +108,7 @@ public class MainItemController extends SuperController<MainItemSummaryDTO, Main
      * @return {@code 200 OK} with the items most similar to the query, ordered by relevance
      */
     @GetMapping("/busca-semantica")
-    public ResponseEntity<List<ConsultaSemanticaItemDTO>> buscarSemanticamente(@RequestParam("consulta") String consulta) {
+    public ResponseEntity<List<SemanticSearchItemDTO>> buscarSemanticamente(@RequestParam("consulta") String consulta) {
         return ResponseEntity.ok(service.buscarSemanticamente(consulta));
     }
 

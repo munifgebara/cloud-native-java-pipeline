@@ -1,6 +1,6 @@
 package br.com.stella.api.controller;
 
-import br.com.stella.api.dto.ImagemItemMestreDTO;
+import br.com.stella.api.dto.MainItemImageDTO;
 import br.com.stella.api.service.MainItemService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.CacheControl;
@@ -49,7 +49,7 @@ public class PublicMainItemImageController {
      */
     @GetMapping("/{id}/imagem-principal")
     public ResponseEntity<InputStreamResource> buscarImagemPrincipal(@PathVariable UUID id) {
-        ImagemItemMestreDTO imagem = itemMestreService.buscarMetadadosImagemPrincipal(id);
+        MainItemImageDTO imagem = itemMestreService.buscarMetadadosImagemPrincipal(id);
         InputStream stream = itemMestreService.abrirImagemPrincipal(id);
 
         return ResponseEntity.ok()

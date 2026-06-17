@@ -15,7 +15,7 @@ import java.util.UUID;
  * @param nome           main item name; required, up to 150 characters
  * @param descricao      detailed description of the item (characteristics, usage, etc.); up to 500 characters; optional
  * @param observacoes    internal notes (maintenance history, restrictions, etc.); up to 1000 characters; optional
- * @param origemCadastro registration origin (e.g.: {@code "MANUAL"}, {@code "IA"}); up to 50 characters; optional
+ * @param registrationOrigin registration origin (e.g.: {@code "MANUAL"}, {@code "IA"}); up to 50 characters; optional
  * @param categoriaId    identifier of the item category; optional
  * @param ativa          indicates whether the item should be created as active; when {@code null}, defaults to {@code true}
  */
@@ -31,7 +31,7 @@ public record MainItemCreateDTO(
         String observacoes,
 
         @Size(max = 50, message = "Registration origin must not exceed 50 characters.")
-        String origemCadastro,
+        String registrationOrigin,
 
         UUID categoriaId,
 

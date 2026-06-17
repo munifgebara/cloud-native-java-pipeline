@@ -14,7 +14,7 @@ import java.util.UUID;
  *
  * @param id                     unique identifier of the movement
  * @param tipo                   movement type ({@code ENTRADA}, {@code SAIDA} or {@code TRANSFERENCIA})
- * @param dataMovimentacao       date and time when the movement occurred (UTC)
+ * @param movementDate       date and time when the movement occurred (UTC)
  * @param instanciaItemId        identifier of the moved item instance
  * @param instanciaIdentificacao readable identification of the instance (identifier, asset number or serial number)
  * @param localOrigemId          identifier of the origin location; {@code null} in inbound movements
@@ -27,7 +27,7 @@ import java.util.UUID;
 public record ItemMovementResponseDTO(
         UUID id,
         ItemMovementType tipo,
-        Instant dataMovimentacao,
+        Instant movementDate,
         UUID instanciaItemId,
         String instanciaIdentificacao,
         UUID localOrigemId,

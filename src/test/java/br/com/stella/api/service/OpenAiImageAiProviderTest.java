@@ -32,14 +32,14 @@ class OpenAiImagemIaProviderTest {
     @Mock
     private ImageModel imageModel;
 
-    private OpenAiImagemIaProvider provider;
+    private OpenAiImageAiProvider provider;
 
     @BeforeEach
     void setUp() {
         var environment = new MockEnvironment()
                 .withProperty("OPENAI_API_KEY", "test-key")
                 .withProperty("STELLA_OPENAI_IMAGE_MODEL", "gpt-image-test");
-        provider = new OpenAiImagemIaProvider(imageModel, environment, guardSemLimite());
+        provider = new OpenAiImageAiProvider(imageModel, environment, guardSemLimite());
     }
 
     @Test
@@ -64,7 +64,7 @@ class OpenAiImagemIaProviderTest {
 
     @Test
     void deveFalharQuandoApiKeyNaoEstaNoAmbiente() {
-        OpenAiImagemIaProvider providerSemChave = new OpenAiImagemIaProvider(imageModel, new MockEnvironment(), guardSemLimite());
+        OpenAiImageAiProvider providerSemChave = new OpenAiImageAiProvider(imageModel, new MockEnvironment(), guardSemLimite());
 
         assertThatThrownBy(() -> providerSemChave.gerarImagem(new ImageAiRequestDTO("Furadeira", null, null)))
                 .isInstanceOf(IllegalStateException.class)
@@ -93,7 +93,7 @@ class OpenAiImagemIaProviderTest {
 
     @Test
     void deveBloquearGeracaoQuandoIaEstaDesabilitadaSemChamarOpenAi() {
-        OpenAiImagemIaProvider providerBloqueado = new OpenAiImagemIaProvider(
+        OpenAiImageAiProvider providerBloqueado = new OpenAiImageAiProvider(
                 imageModel,
                 new MockEnvironment().withProperty("OPENAI_API_KEY", "test-key"),
                 new AiUsageGuard(new AiProperties(false), new OpenAiLimitsProperties(null, null, null))
@@ -108,7 +108,7 @@ class OpenAiImagemIaProviderTest {
 
     @Test
     void deveBloquearGeracaoQuandoLimiteDiarioFoiAtingidoSemChamarOpenAi() {
-        OpenAiImagemIaProvider providerBloqueado = new OpenAiImagemIaProvider(
+        OpenAiImageAiProvider providerBloqueado = new OpenAiImageAiProvider(
                 imageModel,
                 new MockEnvironment().withProperty("OPENAI_API_KEY", "test-key"),
                 new AiUsageGuard(new AiProperties(true), new OpenAiLimitsProperties(null, 0, null))

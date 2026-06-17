@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 @Service
-public class ConsultaVetorialMetricasService {
+public class VectorSearchMetricsService {
 
     private static final String INSERT_SQL = """
             insert into public.consulta_vetorial_metrica (id, consulta, quantidade_resultados)
@@ -17,7 +17,7 @@ public class ConsultaVetorialMetricasService {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public ConsultaVetorialMetricasService(JdbcTemplate jdbcTemplate) {
+    public VectorSearchMetricsService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
-public class ItemMestreEmbeddingDocumentFactory {
+public class MainItemEmbeddingDocumentFactory {
 
     public String criarDocumento(MainItem item) {
         if (item == null) {

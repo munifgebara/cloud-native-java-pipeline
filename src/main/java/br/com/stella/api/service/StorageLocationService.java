@@ -4,7 +4,7 @@ import br.com.munif.common.dto.RevisionDTO;
 import br.com.munif.common.service.SuperService;
 import br.com.munif.common.utils.validacoes.BrValidations;
 import br.com.stella.api.dto.StorageLocationCreateDTO;
-import br.com.stella.api.dto.ImagemItemMestreDTO;
+import br.com.stella.api.dto.MainItemImageDTO;
 import br.com.stella.api.dto.StorageLocationResponseDTO;
 import br.com.stella.api.dto.StorageLocationSummaryDTO;
 import br.com.stella.api.dto.StorageLocationUpdateDTO;
@@ -171,14 +171,14 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
     @Transactional
     public StorageLocationResponseDTO atualizarImagem(UUID id, MultipartFile arquivo) {
         StorageLocation location = buscarPorId(id);
-        String bucketAnterior = location.getImagemBucket();
-        String objectKeyAnterior = location.getImagemObjectKey();
+        String bucketAnterior = location.getImageBucket();
+        String objectKeyAnterior = location.getImageObjectKey();
 
-        ImagemItemMestreDTO imagem = imagemStorageService.armazenarLocal(id, arquivo);
-        location.setImagemBucket(imagem.bucket());
-        location.setImagemObjectKey(imagem.objectKey());
-        location.setImagemContentType(imagem.contentType());
-        location.setImagemTamanhoBytes(imagem.tamanhoBytes());
+        MainItemImageDTO imagem = imagemStorageService.armazenarLocal(id, arquivo);
+        location.setImageBucket(imagem.bucket());
+        location.setImageObjectKey(imagem.objectKey());
+        location.setImageContentType(imagem.contentType());
+        location.setImageSizeBytes(imagem.tamanhoBytes());
 
         StorageLocation salvo = salvar(location);
         imagemStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
@@ -201,13 +201,13 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
     @Transactional
     public StorageLocationResponseDTO removerImagem(UUID id) {
         StorageLocation location = buscarPorId(id);
-        String bucketAnterior = location.getImagemBucket();
-        String objectKeyAnterior = location.getImagemObjectKey();
+        String bucketAnterior = location.getImageBucket();
+        String objectKeyAnterior = location.getImageObjectKey();
 
-        location.setImagemBucket(null);
-        location.setImagemObjectKey(null);
-        location.setImagemContentType(null);
-        location.setImagemTamanhoBytes(null);
+        location.setImageBucket(null);
+        location.setImageObjectKey(null);
+        location.setImageContentType(null);
+        location.setImageSizeBytes(null);
 
         StorageLocation salvo = salvar(location);
         imagemStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
@@ -227,16 +227,16 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      * @throws IllegalArgumentException if the location does not have a registered image
      */
     @Transactional(readOnly = true)
-    public ImagemItemMestreDTO buscarMetadadosImagem(UUID id) {
+    public MainItemImageDTO buscarMetadadosImagem(UUID id) {
         StorageLocation location = buscarPorId(id);
-        if (location.getImagemObjectKey() == null) {
+        if (location.getImageObjectKey() == null) {
             throw new IllegalArgumentException("Location does not have an image.");
         }
-        return new ImagemItemMestreDTO(
-                location.getImagemBucket(),
-                location.getImagemObjectKey(),
-                location.getImagemContentType(),
-                location.getImagemTamanhoBytes()
+        return new MainItemImageDTO(
+                location.getImageBucket(),
+                location.getImageObjectKey(),
+                location.getImageContentType(),
+                location.getImageSizeBytes()
         );
     }
 
@@ -250,7 +250,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      */
     @Transactional(readOnly = true)
     public InputStream abrirImagem(UUID id) {
-        ImagemItemMestreDTO imagem = buscarMetadadosImagem(id);
+        MainItemImageDTO imagem = buscarMetadadosImagem(id);
         return imagemStorageService.abrir(imagem.bucket(), imagem.objectKey());
     }
 

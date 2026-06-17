@@ -2,7 +2,7 @@ package br.com.stella.api.service;
 
 import br.com.stella.api.dto.MainItemCreateDTO;
 import br.com.stella.api.exception.ExternalIntegrationException;
-import br.com.stella.api.dto.ImagemItemMestreDTO;
+import br.com.stella.api.dto.MainItemImageDTO;
 import br.com.stella.api.dto.MainItemUpdateDTO;
 import br.com.stella.api.entity.Category;
 import br.com.stella.api.entity.MainItem;
@@ -252,10 +252,10 @@ class ItemMestreServiceTest {
     void deveAtualizarImagemPrincipalDoItemMestre() {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
-        item.setImagemBucket("stella-itens");
-        item.setImagemObjectKey("itens-mestre/antiga.jpg");
+        item.setImageBucket("stella-itens");
+        item.setImageObjectKey("itens-mestre/antiga.jpg");
         var arquivo = new MockMultipartFile("arquivo", "foto.png", "image/png", new byte[]{1, 2, 3});
-        var imagem = new ImagemItemMestreDTO("stella-itens", "itens-mestre/nova.png", "image/png", 3L);
+        var imagem = new MainItemImageDTO("stella-itens", "itens-mestre/nova.png", "image/png", 3L);
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
         when(imagemStorageService.armazenar(id, arquivo)).thenReturn(imagem);
@@ -264,10 +264,10 @@ class ItemMestreServiceTest {
         var resposta = service.atualizarImagemPrincipal(id, arquivo);
 
         assertThat(resposta.imagemUrl()).isEqualTo("/api/public/itens-mestre/%s/imagem-principal".formatted(id));
-        assertThat(resposta.imagemContentType()).isEqualTo("image/png");
-        assertThat(resposta.imagemTamanhoBytes()).isEqualTo(3L);
-        assertThat(resposta.imagemGeneratedByAi()).isFalse();
-        assertThat(resposta.imagemProvider()).isNull();
+        assertThat(resposta.imageContentType()).isEqualTo("image/png");
+        assertThat(resposta.imageSizeBytes()).isEqualTo(3L);
+        assertThat(resposta.imageGeneratedByAi()).isFalse();
+        assertThat(resposta.imageProvider()).isNull();
         verify(imagemStorageService).removerSilenciosamente("stella-itens", "itens-mestre/antiga.jpg");
     }
 
@@ -276,7 +276,7 @@ class ItemMestreServiceTest {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
         var arquivo = new MockMultipartFile("arquivo", "foto.png", "image/png", new byte[]{1, 2, 3});
-        var imagem = new ImagemItemMestreDTO("stella-itens", "itens-mestre/ia.png", "image/png", 3L);
+        var imagem = new MainItemImageDTO("stella-itens", "itens-mestre/ia.png", "image/png", 3L);
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
         when(imagemStorageService.armazenar(id, arquivo)).thenReturn(imagem);
@@ -284,8 +284,8 @@ class ItemMestreServiceTest {
 
         var resposta = service.atualizarImagemPrincipal(id, arquivo, true, " openai ");
 
-        assertThat(resposta.imagemGeneratedByAi()).isTrue();
-        assertThat(resposta.imagemProvider()).isEqualTo("openai");
+        assertThat(resposta.imageGeneratedByAi()).isTrue();
+        assertThat(resposta.imageProvider()).isEqualTo("openai");
     }
 
     @Test
@@ -321,10 +321,10 @@ class ItemMestreServiceTest {
     void deveBuscarMetadadosEAbrirImagemPrincipal() {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
-        item.setImagemBucket("stella-itens");
-        item.setImagemObjectKey("itens-mestre/%s/foto.png".formatted(id));
-        item.setImagemContentType("image/png");
-        item.setImagemTamanhoBytes(3L);
+        item.setImageBucket("stella-itens");
+        item.setImageObjectKey("itens-mestre/%s/foto.png".formatted(id));
+        item.setImageContentType("image/png");
+        item.setImageSizeBytes(3L);
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
         when(imagemStorageService.abrir("stella-itens", "itens-mestre/%s/foto.png".formatted(id)))

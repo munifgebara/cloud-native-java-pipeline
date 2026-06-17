@@ -1,6 +1,6 @@
 package br.com.stella.api.controller;
 
-import br.com.stella.api.dto.ImagemItemMestreDTO;
+import br.com.stella.api.dto.MainItemImageDTO;
 import br.com.stella.api.service.StorageLocationService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.CacheControl;
@@ -48,7 +48,7 @@ public class PublicStorageLocationImageController {
      */
     @GetMapping("/{id}/imagem")
     public ResponseEntity<InputStreamResource> buscarImagem(@PathVariable UUID id) {
-        ImagemItemMestreDTO imagem = localArmazenamentoService.buscarMetadadosImagem(id);
+        MainItemImageDTO imagem = localArmazenamentoService.buscarMetadadosImagem(id);
         InputStream stream = localArmazenamentoService.abrirImagem(id);
 
         return ResponseEntity.ok()

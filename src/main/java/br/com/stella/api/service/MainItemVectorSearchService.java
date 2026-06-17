@@ -3,9 +3,9 @@ package br.com.stella.api.service;
 import br.com.munif.common.utils.validacoes.BrValidations;
 import br.com.stella.api.config.EmbeddingsProperties;
 import br.com.stella.api.config.VectorSearchProperties;
-import br.com.stella.api.dto.ConsultaSemanticaInstanciaDTO;
-import br.com.stella.api.dto.ConsultaSemanticaItemDTO;
-import br.com.stella.api.dto.ConsultaSemanticaLocalDTO;
+import br.com.stella.api.dto.SemanticSearchInstanceDTO;
+import br.com.stella.api.dto.SemanticSearchItemDTO;
+import br.com.stella.api.dto.SemanticSearchLocationDTO;
 import br.com.stella.api.entity.ItemInstance;
 import br.com.stella.api.entity.MainItem;
 import br.com.stella.api.entity.StorageLocation;
@@ -67,22 +67,22 @@ public class MainItemVectorSearchService {
     private final VectorSearchProperties vectorSearchProperties;
     private final EmbeddingsProperties embeddingsProperties;
     private final EmbeddingProvider embeddingProvider;
-    private final ItemMestreEmbeddingDocumentFactory documentFactory;
+    private final MainItemEmbeddingDocumentFactory documentFactory;
     private final JdbcTemplate jdbcTemplate;
     private final MainItemRepository itemMestreRepository;
     private final ItemInstanceRepository instanciaItemRepository;
-    private final ConsultaVetorialMetricasService consultaVetorialMetricasService;
+    private final VectorSearchMetricsService consultaVetorialMetricasService;
     private final AiUsageGuard aiUsageGuard;
 
     public MainItemVectorSearchService(
             VectorSearchProperties vectorSearchProperties,
             EmbeddingsProperties embeddingsProperties,
             EmbeddingProvider embeddingProvider,
-            ItemMestreEmbeddingDocumentFactory documentFactory,
+            MainItemEmbeddingDocumentFactory documentFactory,
             JdbcTemplate jdbcTemplate,
             MainItemRepository itemMestreRepository,
             ItemInstanceRepository instanciaItemRepository,
-            ConsultaVetorialMetricasService consultaVetorialMetricasService,
+            VectorSearchMetricsService consultaVetorialMetricasService,
             AiUsageGuard aiUsageGuard
     ) {
         this.vectorSearchProperties = vectorSearchProperties;
@@ -207,7 +207,7 @@ public class MainItemVectorSearchService {
     }
 
     @Transactional(readOnly = true)
-    public List<ConsultaSemanticaItemDTO> buscar(String consulta) {
+    public List<SemanticSearchItemDTO> buscar(String consulta) {
         String texto = BrValidations.trimToNull(consulta);
         if (!vectorSearchProperties.enabled() || texto == null) {
             return List.of();
@@ -260,7 +260,7 @@ public class MainItemVectorSearchService {
         }
     }
 
-    private List<ConsultaSemanticaItemDTO> montarResposta(List<ResultadoVetorial> resultados) {
+    private List<SemanticSearchItemDTO> montarResposta(List<ResultadoVetorial> resultados) {
         List<UUID> ids = resultados.stream().map(ResultadoVetorial::itemMestreId).toList();
         Map<UUID, Double> similaridades = resultados.stream()
                 .collect(Collectors.toMap(ResultadoVetorial::itemMestreId, ResultadoVetorial::similaridade));
@@ -270,7 +270,7 @@ public class MainItemVectorSearchService {
         Map<UUID, List<ItemInstance>> instanciasPorItem = instanciaItemRepository.buscarAtivasPorItemMestreIds(ids).stream()
                 .collect(Collectors.groupingBy(instance -> instance.getMainItem().getId()));
 
-        List<ConsultaSemanticaItemDTO> resposta = new ArrayList<>();
+        List<SemanticSearchItemDTO> resposta = new ArrayList<>();
         for (UUID id : ids) {
             MainItem item = itensPorId.get(id);
             if (item == null || !item.isActive()) {
@@ -278,7 +278,7 @@ public class MainItemVectorSearchService {
             }
 
             List<ItemInstance> instancias = instanciasPorItem.getOrDefault(id, List.of());
-            resposta.add(new ConsultaSemanticaItemDTO(
+            resposta.add(new SemanticSearchItemDTO(
                     item.getId(),
                     item.getName(),
                     item.getDescription(),
@@ -294,9 +294,9 @@ public class MainItemVectorSearchService {
         return resposta;
     }
 
-    private ConsultaSemanticaInstanciaDTO toInstanciaDTO(ItemInstance instance) {
+    private SemanticSearchInstanceDTO toInstanciaDTO(ItemInstance instance) {
         StorageLocation location = instance.getCurrentLocation();
-        return new ConsultaSemanticaInstanciaDTO(
+        return new SemanticSearchInstanceDTO(
                 instance.getId(),
                 instance.getIdentifier(),
                 instance.getAssetTag(),
@@ -307,20 +307,20 @@ public class MainItemVectorSearchService {
         );
     }
 
-    private List<ConsultaSemanticaLocalDTO> locaisProvaveis(List<ItemInstance> instancias) {
+    private List<SemanticSearchLocationDTO> locaisProvaveis(List<ItemInstance> instancias) {
         return instancias.stream()
                 .map(ItemInstance::getCurrentLocation)
                 .filter(location -> location != null && location.isActive())
                 .collect(Collectors.groupingBy(StorageLocation::getId, LinkedHashMap::new, Collectors.toList()))
                 .values()
                 .stream()
-                .map(locais -> new ConsultaSemanticaLocalDTO(
+                .map(locais -> new SemanticSearchLocationDTO(
                         locais.getFirst().getId(),
                         locais.getFirst().getName(),
                         locais.size()
                 ))
-                .sorted(Comparator.comparing(ConsultaSemanticaLocalDTO::quantidade).reversed()
-                        .thenComparing(ConsultaSemanticaLocalDTO::nome, String.CASE_INSENSITIVE_ORDER))
+                .sorted(Comparator.comparing(SemanticSearchLocationDTO::quantidade).reversed()
+                        .thenComparing(SemanticSearchLocationDTO::nome, String.CASE_INSENSITIVE_ORDER))
                 .toList();
     }
 
@@ -342,7 +342,7 @@ public class MainItemVectorSearchService {
     }
 
     private String imagemUrl(MainItem item) {
-        return item.getImagemObjectKey() == null ? null : "/api/public/itens-mestre/%s/imagem-principal".formatted(item.getId());
+        return item.getImageObjectKey() == null ? null : "/api/public/itens-mestre/%s/imagem-principal".formatted(item.getId());
     }
 
     private double arredondar(double valor) {

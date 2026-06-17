@@ -1,6 +1,6 @@
 package br.com.stella.api.dto;
 
-public record CadastroFotoInstanciaSugestaoDTO(
+public record PhotoUploadInstanceSuggestionDTO(
         String identificador,
         String patrimonio,
         String numeroSerie,

@@ -23,7 +23,7 @@ import java.util.UUID;
  * @param numeroSerie       manufacturer's serial number; may be {@code null}
  * @param statusOperacional current operational status of the instance
  * @param observacoes       internal notes about this instance; may be {@code null}
- * @param origemCadastro    registration origin (e.g.: {@code "MANUAL"}, {@code "FOTO"}); may be {@code null}
+ * @param registrationOrigin    registration origin (e.g.: {@code "MANUAL"}, {@code "FOTO"}); may be {@code null}
  * @param ativa             indicates whether the instance is active in the system
  */
 public record ItemInstanceResponseDTO(
@@ -40,6 +40,6 @@ public record ItemInstanceResponseDTO(
         String numeroSerie,
         ItemInstanceStatus statusOperacional,
         String observacoes,
-        String origemCadastro,
+        String registrationOrigin,
         boolean ativa
 ) {}

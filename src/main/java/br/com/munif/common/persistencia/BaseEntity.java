@@ -67,14 +67,14 @@ public abstract class BaseEntity implements Serializable {
      * and never changed.
      */
     @Column(name = "criado_em", nullable = false, updatable = false)
-    private Instant criadoEm;
+    private Instant createdAt;
 
     /**
      * Instant of the last modification to the record. Automatically updated in
      * {@link #prePersist()} and {@link #preUpdate()}.
      */
     @Column(name = "alterado_em", nullable = false)
-    private Instant alteradoEm;
+    private Instant updatedAt;
 
     /**
      * Record version for optimistic concurrency control (optimistic locking).
@@ -105,7 +105,7 @@ public abstract class BaseEntity implements Serializable {
      *
      * <p>Responsibilities:</p>
      * <ul>
-     *   <li>Set the {@code criadoEm} and {@code alteradoEm} instants.</li>
+     *   <li>Set the {@code createdAt} and {@code updatedAt} instants.</li>
      *   <li>Ensure the entity always starts in the active state — even if the
      *       caller changed the {@code active} field before calling {@code save()},
      *       because deactivation must occur in a dedicated operation after creation.</li>
@@ -114,19 +114,19 @@ public abstract class BaseEntity implements Serializable {
     @PrePersist
     public void prePersist() {
         Instant agora = Instant.now();
-        this.criadoEm = agora;
-        this.alteradoEm = agora;
+        this.createdAt = agora;
+        this.updatedAt = agora;
         // Ensures active state on creation; deactivation is done after the initial persistence.
         this.active = true;
     }
 
     /**
      * JPA callback executed immediately before each update of the record.
-     * Keeps {@code alteradoEm} synchronized with the actual instant of the modification.
+     * Keeps {@code updatedAt} synchronized with the actual instant of the modification.
      */
     @PreUpdate
     public void preUpdate() {
-        this.alteradoEm = Instant.now();
+        this.updatedAt = Instant.now();
     }
 
     /**

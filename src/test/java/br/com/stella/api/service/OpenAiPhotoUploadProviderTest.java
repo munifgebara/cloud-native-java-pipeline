@@ -29,13 +29,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class OpenAiCadastroFotoProviderTest {
+class OpenAiPhotoUploadProviderTest {
 
     @Mock
     private ChatModel chatModel;
 
     private MockEnvironment environment;
-    private OpenAiCadastroFotoProvider provider;
+    private OpenAiPhotoUploadProvider provider;
 
     @BeforeEach
     void setUp() {
@@ -44,7 +44,7 @@ class OpenAiCadastroFotoProviderTest {
                 .withProperty("OPENAI_API_KEY", "test-key")
                 .withProperty("STELLA_OPENAI_MODEL", "gpt-test");
         ChatClient chatClient = ChatClient.builder(chatModel).build();
-        provider = new OpenAiCadastroFotoProvider(chatClient, environment, guardSemLimite());
+        provider = new OpenAiPhotoUploadProvider(chatClient, environment, guardSemLimite());
     }
 
     @Test
@@ -74,7 +74,7 @@ class OpenAiCadastroFotoProviderTest {
 
     @Test
     void deveFalharQuandoApiKeyNaoEstaNoAmbiente() {
-        OpenAiCadastroFotoProvider providerSemChave = new OpenAiCadastroFotoProvider(
+        OpenAiPhotoUploadProvider providerSemChave = new OpenAiPhotoUploadProvider(
                 ChatClient.builder(chatModel).build(),
                 new MockEnvironment(),
                 guardSemLimite()
@@ -110,7 +110,7 @@ class OpenAiCadastroFotoProviderTest {
 
     @Test
     void deveBloquearAnaliseQuandoIaEstaDesabilitadaSemChamarOpenAi() {
-        OpenAiCadastroFotoProvider providerBloqueado = new OpenAiCadastroFotoProvider(
+        OpenAiPhotoUploadProvider providerBloqueado = new OpenAiPhotoUploadProvider(
                 ChatClient.builder(chatModel).build(),
                 new MockEnvironment().withProperty("OPENAI_API_KEY", "test-key"),
                 new AiUsageGuard(new AiProperties(false), new OpenAiLimitsProperties(null, null, null))
@@ -125,7 +125,7 @@ class OpenAiCadastroFotoProviderTest {
 
     @Test
     void deveBloquearAnaliseQuandoLimiteDiarioFoiAtingidoSemChamarOpenAi() {
-        OpenAiCadastroFotoProvider providerBloqueado = new OpenAiCadastroFotoProvider(
+        OpenAiPhotoUploadProvider providerBloqueado = new OpenAiPhotoUploadProvider(
                 ChatClient.builder(chatModel).build(),
                 new MockEnvironment().withProperty("OPENAI_API_KEY", "test-key"),
                 new AiUsageGuard(new AiProperties(true), new OpenAiLimitsProperties(0, null, null))

@@ -10,7 +10,7 @@ public record ItemLoanResponseDTO(
         String instanciaIdentificacao,
         UUID pessoaId,
         String pessoaNome,
-        Instant dataEmprestimo,
+        Instant loanDate,
         LocalDate previsaoDevolucao,
         Instant dataDevolucao,
         String observacao

@@ -27,7 +27,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class InventarioMapperTest {
+class InventoryMapperTest {
 
     @Test
     void deveMapearPessoaEmTodosOsContratos() {
@@ -114,9 +114,9 @@ class InventarioMapperTest {
 
         StorageLocation raiz = location("Casa", null);
         StorageLocation sala = location("Sala", raiz);
-        sala.setImagemObjectKey("locais/%s/foto.png".formatted(sala.getId()));
-        sala.setImagemContentType("image/png");
-        sala.setImagemTamanhoBytes(20L);
+        sala.setImageObjectKey("locais/%s/foto.png".formatted(sala.getId()));
+        sala.setImageContentType("image/png");
+        sala.setImageSizeBytes(20L);
 
         var response = StorageLocationMapper.toResponseDTO(sala);
         var resumo = StorageLocationMapper.toResumoDTO(sala, "Casa > Sala", 1);
@@ -126,8 +126,8 @@ class InventarioMapperTest {
         assertThat(response.caminho()).isEqualTo("Casa > Sala");
         assertThat(response.nivel()).isEqualTo(1);
         assertThat(response.imagemUrl()).isEqualTo("/api/public/locais/%s/imagem".formatted(sala.getId()));
-        assertThat(response.imagemContentType()).isEqualTo("image/png");
-        assertThat(response.imagemTamanhoBytes()).isEqualTo(20L);
+        assertThat(response.imageContentType()).isEqualTo("image/png");
+        assertThat(response.imageSizeBytes()).isEqualTo(20L);
         assertThat(resumo.caminho()).isEqualTo("Casa > Sala");
         assertThat(resumo.imagemUrl()).isEqualTo(response.imagemUrl());
     }
@@ -149,27 +149,27 @@ class InventarioMapperTest {
 
     @Test
     void deveMapearItemMestreComCategoriaEImagem() {
-        assertThat(ItemMestreMapper.toEntity(null)).isNull();
-        assertThat(ItemMestreMapper.toResponseDTO(null)).isNull();
-        assertThat(ItemMestreMapper.toResumoDTO(null)).isNull();
+        assertThat(MainItemMapper.toEntity(null)).isNull();
+        assertThat(MainItemMapper.toResponseDTO(null)).isNull();
+        assertThat(MainItemMapper.toResumoDTO(null)).isNull();
 
         Category category = category("Ferramentas", "tools");
-        MainItem item = ItemMestreMapper.toEntity(new MainItemCreateDTO("Furadeira", "Impacto", "220V", "CADASTRO_IA_FOTO", category.getId(), false));
+        MainItem item = MainItemMapper.toEntity(new MainItemCreateDTO("Furadeira", "Impacto", "220V", "CADASTRO_IA_FOTO", category.getId(), false));
         item.setId(UUID.randomUUID());
         item.setCategory(category);
-        item.setImagemObjectKey("itens/%s/foto.png".formatted(item.getId()));
-        item.setImagemContentType("image/png");
-        item.setImagemTamanhoBytes(30L);
+        item.setImageObjectKey("itens/%s/foto.png".formatted(item.getId()));
+        item.setImageContentType("image/png");
+        item.setImageSizeBytes(30L);
 
-        var response = ItemMestreMapper.toResponseDTO(item);
-        var resumo = ItemMestreMapper.toResumoDTO(item);
+        var response = MainItemMapper.toResponseDTO(item);
+        var resumo = MainItemMapper.toResumoDTO(item);
 
         assertThat(response.categoriaId()).isEqualTo(category.getId());
         assertThat(response.categoriaNome()).isEqualTo("Ferramentas");
         assertThat(response.categoriaIcone()).isEqualTo("tools");
         assertThat(response.imagemUrl()).isEqualTo("/api/public/itens-mestre/%s/imagem-principal".formatted(item.getId()));
-        assertThat(response.imagemContentType()).isEqualTo("image/png");
-        assertThat(response.imagemTamanhoBytes()).isEqualTo(30L);
+        assertThat(response.imageContentType()).isEqualTo("image/png");
+        assertThat(response.imageSizeBytes()).isEqualTo(30L);
         assertThat(resumo.imagemUrl()).isEqualTo(response.imagemUrl());
     }
 
@@ -178,7 +178,7 @@ class InventarioMapperTest {
         MainItem item = new MainItem();
         item.setActive(false);
 
-        ItemMestreMapper.updateEntity(item, new MainItemUpdateDTO("Notebook", "Descricao", "Obs", null, null, null));
+        MainItemMapper.updateEntity(item, new MainItemUpdateDTO("Notebook", "Descricao", "Obs", null, null, null));
 
         assertThat(item.getName()).isEqualTo("Notebook");
         assertThat(item.getDescription()).isEqualTo("Descricao");
@@ -188,23 +188,23 @@ class InventarioMapperTest {
 
     @Test
     void deveMapearInstanciaItemComDefaultsERelacionamentos() {
-        assertThat(InstanciaItemMapper.toEntity(null)).isNull();
-        assertThat(InstanciaItemMapper.toResponseDTO(null)).isNull();
-        assertThat(InstanciaItemMapper.toResumoDTO(null)).isNull();
+        assertThat(ItemInstanceMapper.toEntity(null)).isNull();
+        assertThat(ItemInstanceMapper.toResponseDTO(null)).isNull();
+        assertThat(ItemInstanceMapper.toResumoDTO(null)).isNull();
 
         Category category = category("Livros", "book");
         MainItem item = item("Clean Code", category);
         StorageLocation location = location("Estante", null);
 
-        ItemInstance instance = InstanciaItemMapper.toEntity(new ItemInstanceCreateDTO(
+        ItemInstance instance = ItemInstanceMapper.toEntity(new ItemInstanceCreateDTO(
                 item.getId(), location.getId(), "EX-1", "PAT-1", "SER-1", null, "Novo", null, false
         ));
         instance.setId(UUID.randomUUID());
         instance.setMainItem(item);
         instance.setCurrentLocation(location);
 
-        var response = InstanciaItemMapper.toResponseDTO(instance);
-        var resumo = InstanciaItemMapper.toResumoDTO(instance);
+        var response = ItemInstanceMapper.toResponseDTO(instance);
+        var resumo = ItemInstanceMapper.toResumoDTO(instance);
 
         assertThat(instance.getOperationalStatus()).isEqualTo(ItemInstanceStatus.DISPONIVEL);
         assertThat(instance.isActive()).isFalse();
@@ -218,7 +218,7 @@ class InventarioMapperTest {
     void deveAtualizarInstanciaComStatusInformado() {
         ItemInstance instance = new ItemInstance();
 
-        InstanciaItemMapper.updateEntity(instance, new ItemInstanceUpdateDTO(
+        ItemInstanceMapper.updateEntity(instance, new ItemInstanceUpdateDTO(
                 UUID.randomUUID(), null, "EX-2", "PAT-2", "SER-2",
                 ItemInstanceStatus.EMPRESTADO, "Emprestado", null, true
         ));
@@ -242,7 +242,7 @@ class InventarioMapperTest {
         emprestimo.setId(UUID.randomUUID());
         emprestimo.setItemInstance(instance);
         emprestimo.setPerson(pessoa);
-        emprestimo.setDataEmprestimo(Instant.parse("2026-01-01T10:00:00Z"));
+        emprestimo.setLoanDate(Instant.parse("2026-01-01T10:00:00Z"));
         emprestimo.setExpectedReturnDate(LocalDate.parse("2026-01-10"));
         emprestimo.setReturnDate(Instant.parse("2026-01-05T10:00:00Z"));
         emprestimo.setNotes("ok");
@@ -266,7 +266,7 @@ class InventarioMapperTest {
         ItemMovement movimentacao = new ItemMovement();
         movimentacao.setId(UUID.randomUUID());
         movimentacao.setType(ItemMovementType.TRANSFERENCIA);
-        movimentacao.setDataMovimentacao(Instant.parse("2026-01-01T10:00:00Z"));
+        movimentacao.setMovementDate(Instant.parse("2026-01-01T10:00:00Z"));
         movimentacao.setItemInstance(instance);
         movimentacao.setOriginLocation(origem);
         movimentacao.setDestinationLocation(destino);

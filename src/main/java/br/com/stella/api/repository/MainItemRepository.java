@@ -1,7 +1,7 @@
 package br.com.stella.api.repository;
 
 import br.com.munif.common.persistencia.SuperRepository;
-import br.com.stella.api.dto.DashboardCategoriaQuantidadeDTO;
+import br.com.stella.api.dto.DashboardCategoryQuantityDTO;
 import br.com.stella.api.entity.MainItem;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Pageable;
@@ -28,18 +28,18 @@ public interface MainItemRepository extends SuperRepository<MainItem>, JpaSpecif
 
     long countByActiveTrue();
 
-    long countByActiveTrueAndImagemObjectKeyIsNull();
+    long countByActiveTrueAndImageObjectKeyIsNull();
 
     @Query("""
             select count(item)
             from MainItem item
             where item.active = true
-              and (item.origemCadastro = 'CADASTRO_IA_FOTO' or item.imagemGeneratedByAi = true)
+              and (item.registrationOrigin = 'CADASTRO_IA_FOTO' or item.imageGeneratedByAi = true)
             """)
     long contarItensCadastradosPorIa();
 
     @Query("""
-            select new br.com.stella.api.dto.DashboardCategoriaQuantidadeDTO(
+            select new br.com.stella.api.dto.DashboardCategoryQuantityDTO(
                 category.id,
                 category.name,
                 count(item)
@@ -51,7 +51,7 @@ public interface MainItemRepository extends SuperRepository<MainItem>, JpaSpecif
             group by category.id, category.name
             order by count(item) desc, category.name asc
             """)
-    List<DashboardCategoriaQuantidadeDTO> buscarCategoriasComMaisItens(Pageable pageable);
+    List<DashboardCategoryQuantityDTO> buscarCategoriasComMaisItens(Pageable pageable);
 
     /**
      * Builds a {@link Specification} to filter active main items with optional criteria.

@@ -20,7 +20,7 @@ import java.util.UUID;
  * @param numeroSerie       manufacturer's serial number (up to 150 characters); optional
  * @param statusOperacional new operational status of the instance; optional
  * @param observacoes       internal notes (up to 1000 characters); optional
- * @param origemCadastro    registration origin (up to 50 characters); optional
+ * @param registrationOrigin    registration origin (up to 50 characters); optional
  * @param ativa             indicates whether the instance is active; optional
  */
 public record ItemInstanceUpdateDTO(
@@ -44,7 +44,7 @@ public record ItemInstanceUpdateDTO(
         String observacoes,
 
         @Size(max = 50, message = "Registration origin must not exceed 50 characters.")
-        String origemCadastro,
+        String registrationOrigin,
 
         Boolean ativa
 ) {}

@@ -42,8 +42,8 @@ class ItemMestreVectorSearchServiceTest {
     private final JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class);
     private final MainItemRepository itemMestreRepository = mock(MainItemRepository.class);
     private final ItemInstanceRepository instanciaItemRepository = mock(ItemInstanceRepository.class);
-    private final ConsultaVetorialMetricasService consultaVetorialMetricasService = mock(ConsultaVetorialMetricasService.class);
-    private final ItemMestreEmbeddingDocumentFactory documentFactory = new ItemMestreEmbeddingDocumentFactory();
+    private final VectorSearchMetricsService consultaVetorialMetricasService = mock(VectorSearchMetricsService.class);
+    private final MainItemEmbeddingDocumentFactory documentFactory = new MainItemEmbeddingDocumentFactory();
 
     @Test
     void naoDeveIndexarQuandoBuscaVetorialEstaDesabilitada() {
@@ -120,7 +120,7 @@ class ItemMestreVectorSearchServiceTest {
         UUID instanciaId = UUID.randomUUID();
         UUID localId = UUID.randomUUID();
         MainItem item = item(itemId, true);
-        item.setImagemObjectKey("itens/foto.png");
+        item.setImageObjectKey("itens/foto.png");
         StorageLocation location = new StorageLocation();
         location.setId(localId);
         location.setName("Caixa A");

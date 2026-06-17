@@ -12,7 +12,7 @@ import br.com.stella.api.entity.ItemInstance;
 import br.com.stella.api.entity.MainItem;
 import br.com.stella.api.entity.StorageLocation;
 import br.com.stella.api.entity.ItemInstanceStatus;
-import br.com.stella.api.mapper.InstanciaItemMapper;
+import br.com.stella.api.mapper.ItemInstanceMapper;
 import br.com.stella.api.mapper.ItemMovementMapper;
 import br.com.stella.api.observability.StructuredBusinessLogger;
 import br.com.stella.api.repository.ItemLoanRepository;
@@ -77,7 +77,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
      */
     @Transactional
     public ItemInstanceResponseDTO criar(ItemInstanceCreateDTO dto) {
-        ItemInstance instance = InstanciaItemMapper.toEntity(dto);
+        ItemInstance instance = ItemInstanceMapper.toEntity(dto);
         normalizarCampos(instance);
         validarIdentificacao(instance);
         instance.setMainItem(buscarItemMestreAtivo(dto.itemMestreId()));
@@ -96,7 +96,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
                 "location_id", salva.getCurrentLocation() == null ? null : salva.getCurrentLocation().getId(),
                 "success", true
         ));
-        return InstanciaItemMapper.toResponseDTO(salva);
+        return ItemInstanceMapper.toResponseDTO(salva);
     }
 
     /**
@@ -108,7 +108,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
      */
     @Transactional(readOnly = true)
     public ItemInstanceResponseDTO buscarResponsePorId(UUID id) {
-        return InstanciaItemMapper.toResponseDTO(buscarPorId(id));
+        return ItemInstanceMapper.toResponseDTO(buscarPorId(id));
     }
 
     /**
@@ -120,12 +120,12 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
     @Transactional(readOnly = true)
     public ItemInstanceHistoryDTO buscarHistorico(UUID id) {
         ItemInstance instance = buscarPorId(id);
-        var movimentacoes = movimentacaoItemRepository.findByItemInstanceIdOrderByDataMovimentacaoAscCriadoEmAsc(id).stream()
+        var movimentacoes = movimentacaoItemRepository.findByItemInstanceIdOrderByMovementDateAscCreatedAtAsc(id).stream()
                 .map(ItemMovementMapper::toResponseDTO)
                 .toList();
 
         return new ItemInstanceHistoryDTO(
-                InstanciaItemMapper.toResponseDTO(instance),
+                ItemInstanceMapper.toResponseDTO(instance),
                 movimentacoes
         );
     }
@@ -138,7 +138,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
     @Transactional(readOnly = true)
     public List<ItemInstanceSummaryDTO> listarResumo() {
         return repository.findByActiveTrueOrderByIdentifierAscAssetTagAscSerialNumberAsc().stream()
-                .map(InstanciaItemMapper::toResumoDTO)
+                .map(ItemInstanceMapper::toResumoDTO)
                 .toList();
     }
 
@@ -150,7 +150,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
     @Transactional(readOnly = true)
     public List<ItemInstanceSummaryDTO> listarResumoIncluindoInativos() {
         return findAllIncludingInactive().stream()
-                .map(InstanciaItemMapper::toResumoDTO)
+                .map(ItemInstanceMapper::toResumoDTO)
                 .toList();
     }
 
@@ -168,7 +168,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
         }
 
         return repository.findByActiveTrueAndIdentifierContainingIgnoreCaseOrderByIdentifierAsc(valor).stream()
-                .map(InstanciaItemMapper::toResumoDTO)
+                .map(ItemInstanceMapper::toResumoDTO)
                 .toList();
     }
 
@@ -193,7 +193,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
                         ),
                         Sort.by(Sort.Order.asc("identificador").nullsLast(), Sort.Order.asc("patrimonio").nullsLast(), Sort.Order.asc("numeroSerie").nullsLast())
                 ).stream()
-                .map(InstanciaItemMapper::toResumoDTO)
+                .map(ItemInstanceMapper::toResumoDTO)
                 .toList();
     }
 
@@ -214,7 +214,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
         UUID localAnteriorId = instance.getCurrentLocation() == null ? null : instance.getCurrentLocation().getId();
         MainItem mainItem = buscarItemMestreAtivo(dto.itemMestreId());
 
-        InstanciaItemMapper.updateEntity(instance, dto);
+        ItemInstanceMapper.updateEntity(instance, dto);
         normalizarCampos(instance);
         validarIdentificacao(instance);
         instance.setMainItem(mainItem);
@@ -231,7 +231,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
                 "location_id", localAtualId,
                 "success", true
         ));
-        return InstanciaItemMapper.toResponseDTO(salva);
+        return ItemInstanceMapper.toResponseDTO(salva);
     }
 
     @Transactional

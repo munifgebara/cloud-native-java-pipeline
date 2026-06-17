@@ -4,7 +4,7 @@ import br.com.stella.api.entity.ItemInstanceStatus;
 
 import java.util.UUID;
 
-public record ConsultaSemanticaInstanciaDTO(
+public record SemanticSearchInstanceDTO(
         UUID id,
         String identificador,
         String patrimonio,

@@ -37,14 +37,14 @@ class PessoaServiceTest {
 
     @Test
     void deveCriarPessoaNormalizandoCampos() {
-        Instant criadoEm = Instant.parse("2026-06-07T10:00:00Z");
-        Instant alteradoEm = Instant.parse("2026-06-07T10:30:00Z");
+        Instant createdAt = Instant.parse("2026-06-07T10:00:00Z");
+        Instant updatedAt = Instant.parse("2026-06-07T10:30:00Z");
 
         when(repository.existsByTaxId("52998224725")).thenReturn(false);
         when(repository.save(any(Person.class))).thenAnswer(invocation -> {
             Person pessoa = invocation.getArgument(0);
-            pessoa.setCriadoEm(criadoEm);
-            pessoa.setAlteradoEm(alteradoEm);
+            pessoa.setCreatedAt(createdAt);
+            pessoa.setUpdatedAt(updatedAt);
             return pessoa;
         });
 
@@ -77,8 +77,8 @@ class PessoaServiceTest {
         assertThat(pessoaSalva.getCity()).isEqualTo("Sao Paulo");
         assertThat(pessoaSalva.getState()).isEqualTo("SP");
         assertThat(resposta.cpfCnpj()).isEqualTo("52998224725");
-        assertThat(resposta.criadoEm()).isEqualTo(criadoEm);
-        assertThat(resposta.alteradoEm()).isEqualTo(alteradoEm);
+        assertThat(resposta.createdAt()).isEqualTo(createdAt);
+        assertThat(resposta.updatedAt()).isEqualTo(updatedAt);
     }
 
     @Test

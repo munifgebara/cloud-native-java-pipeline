@@ -53,7 +53,7 @@ public class ItemMovement extends BaseEntity {
      * Automatically populated by the {@link #prePersist()} callback if not provided.
      */
     @Column(name = "data_movimentacao", nullable = false)
-    private Instant dataMovimentacao;
+    private Instant movementDate;
 
     /**
      * Item instance that was moved.
@@ -101,15 +101,15 @@ public class ItemMovement extends BaseEntity {
     /**
      * JPA callback executed automatically before the first persistence.
      *
-     * <p>Ensures that {@link #dataMovimentacao} is never persisted as {@code null},
+     * <p>Ensures that {@link #movementDate} is never persisted as {@code null},
      * using the current instant (UTC) as the default value.</p>
      */
     @Override
     @PrePersist
     public void prePersist() {
         super.prePersist();
-        if (dataMovimentacao == null) {
-            dataMovimentacao = Instant.now();
+        if (movementDate == null) {
+            movementDate = Instant.now();
         }
     }
 }

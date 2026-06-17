@@ -61,7 +61,7 @@ public class ItemLoan extends BaseEntity {
      * Automatically populated by the {@link #prePersist()} callback if not provided.
      */
     @Column(name = "data_emprestimo", nullable = false)
-    private Instant dataEmprestimo;
+    private Instant loanDate;
 
     /**
      * Expected return date of the item.
@@ -90,15 +90,15 @@ public class ItemLoan extends BaseEntity {
     /**
      * JPA callback executed automatically before the first persistence.
      *
-     * <p>Ensures that {@link #dataEmprestimo} is never persisted as {@code null},
+     * <p>Ensures that {@link #loanDate} is never persisted as {@code null},
      * using the current instant (UTC) as the default value.</p>
      */
     @Override
     @PrePersist
     public void prePersist() {
         super.prePersist();
-        if (dataEmprestimo == null) {
-            dataEmprestimo = Instant.now();
+        if (loanDate == null) {
+            loanDate = Instant.now();
         }
     }
 }

@@ -2,8 +2,9 @@ package br.com.stella.api.dto;
 
 import java.util.UUID;
 
-public record ConsultaSemanticaLocalDTO(
+public record DashboardLocationQuantityDTO(
         UUID id,
         String nome,
-        long quantidade
-) {}
+        long quantidadeInstancias
+) {
+}

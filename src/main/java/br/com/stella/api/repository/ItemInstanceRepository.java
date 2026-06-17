@@ -1,7 +1,7 @@
 package br.com.stella.api.repository;
 
 import br.com.munif.common.persistencia.SuperRepository;
-import br.com.stella.api.dto.DashboardLocalQuantidadeDTO;
+import br.com.stella.api.dto.DashboardLocationQuantityDTO;
 import br.com.stella.api.entity.ItemInstance;
 import br.com.stella.api.entity.ItemInstanceStatus;
 import jakarta.persistence.criteria.Predicate;
@@ -94,7 +94,7 @@ public interface ItemInstanceRepository extends SuperRepository<ItemInstance>, J
     }
 
     @Query("""
-            select new br.com.stella.api.dto.DashboardLocalQuantidadeDTO(
+            select new br.com.stella.api.dto.DashboardLocationQuantityDTO(
                 location.id,
                 location.name,
                 count(instance)
@@ -106,5 +106,5 @@ public interface ItemInstanceRepository extends SuperRepository<ItemInstance>, J
             group by location.id, location.name
             order by count(instance) desc, location.name asc
             """)
-    List<DashboardLocalQuantidadeDTO> buscarLocaisComMaisItens(Pageable pageable);
+    List<DashboardLocationQuantityDTO> buscarLocaisComMaisItens(Pageable pageable);
 }

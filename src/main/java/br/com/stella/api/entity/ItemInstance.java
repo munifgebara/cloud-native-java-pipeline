@@ -101,7 +101,7 @@ public class ItemInstance extends BaseEntity {
      * Up to 50 characters.
      */
     @Column(name = "origem_cadastro", length = 50)
-    private String origemCadastro;
+    private String registrationOrigin;
 
     /**
      * JPA callback executed automatically before the first persistence.

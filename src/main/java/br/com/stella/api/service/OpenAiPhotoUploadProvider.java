@@ -1,6 +1,6 @@
 package br.com.stella.api.service;
 
-import br.com.stella.api.dto.CadastroFotoSugestaoResponseDTO;
+import br.com.stella.api.dto.PhotoUploadSuggestionResponseDTO;
 import br.com.stella.api.observability.StructuredBusinessLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +16,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @Service
-public class OpenAiCadastroFotoProvider implements PhotoUploadAiProvider {
+public class OpenAiPhotoUploadProvider implements PhotoUploadAiProvider {
 
     private static final String PROVIDER = "openai";
-    private static final Logger log = LoggerFactory.getLogger(OpenAiCadastroFotoProvider.class);
+    private static final Logger log = LoggerFactory.getLogger(OpenAiPhotoUploadProvider.class);
     private static final String ORIENTACAO = """
             Analyze the photo and identify objects that could become inventory registrations.
             Respond only with JSON conforming to the schema.
@@ -40,18 +40,18 @@ public class OpenAiCadastroFotoProvider implements PhotoUploadAiProvider {
     private final AiUsageGuard aiUsageGuard;
 
     @Autowired
-    public OpenAiCadastroFotoProvider(ChatClient.Builder chatClientBuilder, Environment environment, AiUsageGuard aiUsageGuard) {
+    public OpenAiPhotoUploadProvider(ChatClient.Builder chatClientBuilder, Environment environment, AiUsageGuard aiUsageGuard) {
         this(chatClientBuilder.build(), environment, aiUsageGuard);
     }
 
-    OpenAiCadastroFotoProvider(ChatClient chatClient, Environment environment, AiUsageGuard aiUsageGuard) {
+    OpenAiPhotoUploadProvider(ChatClient chatClient, Environment environment, AiUsageGuard aiUsageGuard) {
         this.chatClient = chatClient;
         this.environment = environment;
         this.aiUsageGuard = aiUsageGuard;
     }
 
     @Override
-    public CadastroFotoSugestaoResponseDTO sugerirCadastro(MultipartFile imagem) {
+    public PhotoUploadSuggestionResponseDTO sugerirCadastro(MultipartFile imagem) {
         aiUsageGuard.assertEnabled(AiOperation.IMAGE_ANALYSIS);
         String apiKey = environment.getProperty("OPENAI_API_KEY");
         if (apiKey == null || apiKey.isBlank()) {
@@ -68,7 +68,7 @@ public class OpenAiCadastroFotoProvider implements PhotoUploadAiProvider {
                     .options(OpenAiChatOptions.builder().apiKey(apiKey).model(modelo))
                     .user(u -> u.text(ORIENTACAO).media(MimeType.valueOf(imagem.getContentType()), new ByteArrayResource(bytes)))
                     .call()
-                    .entity(CadastroFotoSugestaoResponseDTO.class);
+                    .entity(PhotoUploadSuggestionResponseDTO.class);
 
             StructuredBusinessLogger.info(log, "ai", "image-identification", StructuredBusinessLogger.fields(
                     "ai_provider", PROVIDER,

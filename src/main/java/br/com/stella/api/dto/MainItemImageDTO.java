@@ -1,6 +1,6 @@
 package br.com.stella.api.dto;
 
-public record ImagemItemMestreDTO(
+public record MainItemImageDTO(
         String bucket,
         String objectKey,
         String contentType,

@@ -1,6 +1,6 @@
 package br.com.stella.api.service;
 
-import br.com.stella.api.dto.CadastroFotoSugestaoResponseDTO;
+import br.com.stella.api.dto.PhotoUploadSuggestionResponseDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
 
@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PhotoUploadAiServiceTest {
 
-    private final PhotoUploadAiService service = new PhotoUploadAiService(imagem -> new CadastroFotoSugestaoResponseDTO(List.of(), "ok"));
+    private final PhotoUploadAiService service = new PhotoUploadAiService(imagem -> new PhotoUploadSuggestionResponseDTO(List.of(), "ok"));
 
     @Test
     void deveRejeitarArquivoVazio() {

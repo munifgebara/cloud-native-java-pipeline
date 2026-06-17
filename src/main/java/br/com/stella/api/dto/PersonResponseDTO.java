@@ -22,8 +22,8 @@ import java.util.UUID;
  * @param bairro             neighbourhood; may be {@code null}
  * @param cidade             city; may be {@code null}
  * @param uf                 state abbreviation (2 letters); may be {@code null}
- * @param criadoEm           record creation date and time (UTC)
- * @param alteradoEm         date and time of the last change to the record (UTC)
+ * @param createdAt           record creation date and time (UTC)
+ * @param updatedAt         date and time of the last change to the record (UTC)
  */
 public record PersonResponseDTO(
         UUID id,
@@ -38,6 +38,6 @@ public record PersonResponseDTO(
         String bairro,
         String cidade,
         String uf,
-        Instant criadoEm,
-        Instant alteradoEm
+        Instant createdAt,
+        Instant updatedAt
 ) {}

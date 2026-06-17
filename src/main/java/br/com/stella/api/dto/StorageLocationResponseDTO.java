@@ -16,8 +16,8 @@ import java.util.UUID;
  * @param caminho            full path in the hierarchy (e.g.: {@code "Building A > Room 101"})
  * @param nivel              depth in the hierarchy: {@code 0} for root locations
  * @param imagemUrl          relative URL for accessing the image; {@code null} when no image
- * @param imagemContentType  image MIME type (e.g.: {@code "image/jpeg"}); may be {@code null}
- * @param imagemTamanhoBytes image size in bytes; may be {@code null}
+ * @param imageContentType  image MIME type (e.g.: {@code "image/jpeg"}); may be {@code null}
+ * @param imageSizeBytes image size in bytes; may be {@code null}
  * @param ativa              indicates whether the location is active in the system
  */
 public record StorageLocationResponseDTO(
@@ -29,7 +29,7 @@ public record StorageLocationResponseDTO(
         String caminho,
         int nivel,
         String imagemUrl,
-        String imagemContentType,
-        Long imagemTamanhoBytes,
+        String imageContentType,
+        Long imageSizeBytes,
         boolean ativa
 ) {}

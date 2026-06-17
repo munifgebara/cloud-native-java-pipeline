@@ -1,7 +1,7 @@
 package br.com.stella.api.service;
 
 import br.com.stella.api.dto.StorageLocationCreateDTO;
-import br.com.stella.api.dto.ImagemItemMestreDTO;
+import br.com.stella.api.dto.MainItemImageDTO;
 import br.com.stella.api.dto.StorageLocationUpdateDTO;
 import br.com.stella.api.entity.StorageLocation;
 import br.com.stella.api.repository.StorageLocationRepository;
@@ -196,11 +196,11 @@ class LocalArmazenamentoServiceTest {
     void deveAtualizarImagemDoLocalRemovendoImagemAnterior() {
         UUID id = UUID.randomUUID();
         StorageLocation location = location(id, "Deposito", null);
-        location.setImagemBucket("bucket-antigo");
-        location.setImagemObjectKey("locais/%s/antiga.png".formatted(id));
+        location.setImageBucket("bucket-antigo");
+        location.setImageObjectKey("locais/%s/antiga.png".formatted(id));
 
         var arquivo = new org.springframework.mock.web.MockMultipartFile("arquivo", "nova.png", "image/png", new byte[]{1, 2});
-        var imagem = new ImagemItemMestreDTO("bucket-novo", "locais/%s/nova.png".formatted(id), "image/png", 2L);
+        var imagem = new MainItemImageDTO("bucket-novo", "locais/%s/nova.png".formatted(id), "image/png", 2L);
 
         when(repository.findById(id)).thenReturn(Optional.of(location));
         when(imagemStorageService.armazenarLocal(id, arquivo)).thenReturn(imagem);
@@ -209,10 +209,10 @@ class LocalArmazenamentoServiceTest {
         var resposta = service.atualizarImagem(id, arquivo);
 
         assertThat(resposta.imagemUrl()).isEqualTo("/api/public/locais/%s/imagem".formatted(id));
-        assertThat(location.getImagemBucket()).isEqualTo("bucket-novo");
-        assertThat(location.getImagemObjectKey()).isEqualTo("locais/%s/nova.png".formatted(id));
-        assertThat(location.getImagemContentType()).isEqualTo("image/png");
-        assertThat(location.getImagemTamanhoBytes()).isEqualTo(2L);
+        assertThat(location.getImageBucket()).isEqualTo("bucket-novo");
+        assertThat(location.getImageObjectKey()).isEqualTo("locais/%s/nova.png".formatted(id));
+        assertThat(location.getImageContentType()).isEqualTo("image/png");
+        assertThat(location.getImageSizeBytes()).isEqualTo(2L);
         verify(imagemStorageService).removerSilenciosamente("bucket-antigo", "locais/%s/antiga.png".formatted(id));
     }
 
@@ -220,10 +220,10 @@ class LocalArmazenamentoServiceTest {
     void deveRemoverImagemDoLocal() {
         UUID id = UUID.randomUUID();
         StorageLocation location = location(id, "Deposito", null);
-        location.setImagemBucket("bucket");
-        location.setImagemObjectKey("locais/%s/foto.png".formatted(id));
-        location.setImagemContentType("image/png");
-        location.setImagemTamanhoBytes(2L);
+        location.setImageBucket("bucket");
+        location.setImageObjectKey("locais/%s/foto.png".formatted(id));
+        location.setImageContentType("image/png");
+        location.setImageSizeBytes(2L);
 
         when(repository.findById(id)).thenReturn(Optional.of(location));
         when(repository.save(any(StorageLocation.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -231,10 +231,10 @@ class LocalArmazenamentoServiceTest {
         var resposta = service.removerImagem(id);
 
         assertThat(resposta.imagemUrl()).isNull();
-        assertThat(location.getImagemBucket()).isNull();
-        assertThat(location.getImagemObjectKey()).isNull();
-        assertThat(location.getImagemContentType()).isNull();
-        assertThat(location.getImagemTamanhoBytes()).isNull();
+        assertThat(location.getImageBucket()).isNull();
+        assertThat(location.getImageObjectKey()).isNull();
+        assertThat(location.getImageContentType()).isNull();
+        assertThat(location.getImageSizeBytes()).isNull();
         verify(imagemStorageService).removerSilenciosamente("bucket", "locais/%s/foto.png".formatted(id));
     }
 
@@ -256,10 +256,10 @@ class LocalArmazenamentoServiceTest {
     void deveBuscarMetadadosEAbrirImagemDoLocal() {
         UUID id = UUID.randomUUID();
         StorageLocation location = location(id, "Deposito", null);
-        location.setImagemBucket("stella-locais");
-        location.setImagemObjectKey("locais/%s/foto.png".formatted(id));
-        location.setImagemContentType("image/png");
-        location.setImagemTamanhoBytes(2L);
+        location.setImageBucket("stella-locais");
+        location.setImageObjectKey("locais/%s/foto.png".formatted(id));
+        location.setImageContentType("image/png");
+        location.setImageSizeBytes(2L);
 
         when(repository.findById(id)).thenReturn(Optional.of(location));
         when(imagemStorageService.abrir("stella-locais", "locais/%s/foto.png".formatted(id)))

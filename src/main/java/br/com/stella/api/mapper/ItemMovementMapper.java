@@ -37,7 +37,7 @@ public final class ItemMovementMapper {
         return new ItemMovementResponseDTO(
                 entity.getId(),
                 entity.getType(),
-                entity.getDataMovimentacao(),
+                entity.getMovementDate(),
                 instance == null ? null : instance.getId(),
                 identificacao(instance),
                 localOrigem == null ? null : localOrigem.getId(),

@@ -14,17 +14,17 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OpenAiImagemIaProvider implements ImageAiProvider {
+public class OpenAiImageAiProvider implements ImageAiProvider {
 
     private static final String PROVIDER = "openai";
     private static final String CONTENT_TYPE = "image/png";
-    private static final Logger log = LoggerFactory.getLogger(OpenAiImagemIaProvider.class);
+    private static final Logger log = LoggerFactory.getLogger(OpenAiImageAiProvider.class);
 
     private final ImageModel imageModel;
     private final Environment environment;
     private final AiUsageGuard aiUsageGuard;
 
-    public OpenAiImagemIaProvider(ImageModel imageModel, Environment environment, AiUsageGuard aiUsageGuard) {
+    public OpenAiImageAiProvider(ImageModel imageModel, Environment environment, AiUsageGuard aiUsageGuard) {
         this.imageModel = imageModel;
         this.environment = environment;
         this.aiUsageGuard = aiUsageGuard;
