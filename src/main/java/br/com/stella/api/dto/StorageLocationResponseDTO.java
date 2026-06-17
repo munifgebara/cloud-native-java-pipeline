@@ -11,7 +11,7 @@ import java.util.UUID;
  * @param id                 unique identifier of the location
  * @param name               location name
  * @param description          description of the location; may be {@code null}
- * @param paiId              identifier of the parent location; {@code null} for root locations
+ * @param parentId              identifier of the parent location; {@code null} for root locations
  * @param parentName            parent location name (denormalized); {@code null} for root locations
  * @param caminho            full path in the hierarchy (e.g.: {@code "Building A > Room 101"})
  * @param nivel              depth in the hierarchy: {@code 0} for root locations
@@ -24,7 +24,7 @@ public record StorageLocationResponseDTO(
         UUID id,
         String name,
         String description,
-        UUID paiId,
+        UUID parentId,
         String parentName,
         String caminho,
         int nivel,

@@ -14,18 +14,18 @@ class PhotoUploadAiServiceTest {
 
     @Test
     void deveRejeitarArquivoVazio() {
-        MockMultipartFile arquivo = new MockMultipartFile("arquivo", "foto.png", "image/png", new byte[0]);
+        MockMultipartFile file = new MockMultipartFile("file", "photo.png", "image/png", new byte[0]);
 
-        assertThatThrownBy(() -> service.sugerirCadastro(arquivo))
+        assertThatThrownBy(() -> service.suggestRegistration(file))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Please send an image for analysis.");
     }
 
     @Test
     void deveRejeitarFormatoNaoSuportado() {
-        MockMultipartFile arquivo = new MockMultipartFile("arquivo", "foto.txt", "text/plain", "texto".getBytes());
+        MockMultipartFile file = new MockMultipartFile("file", "photo.txt", "text/plain", "texto".getBytes());
 
-        assertThatThrownBy(() -> service.sugerirCadastro(arquivo))
+        assertThatThrownBy(() -> service.suggestRegistration(file))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Unsupported image format. Use PNG, JPEG, WEBP or GIF.");
     }

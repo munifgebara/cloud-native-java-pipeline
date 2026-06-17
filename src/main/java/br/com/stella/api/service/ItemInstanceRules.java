@@ -62,7 +62,7 @@ final class ItemInstanceRules {
      * @param mensagemLocalAusente     error message if there is no current location
      * @throws IllegalArgumentException if any of the conditions is not met
      */
-    static void exigirDisponivelComLocal(
+    static void requireAvailableWithLocation(
             ItemInstance instance,
             String mensagemInstanciaInativa,
             String mensagemStatusInvalido,

@@ -103,22 +103,22 @@ class BrValidationsTest {
 
     @Test
     void deveValidarTelefoneBrCelular() {
-        assertTrue(BrValidations.validarTelefoneBR("44999887766"));
-        assertTrue(BrValidations.validarTelefoneBR("(44) 99988-7766"));
+        assertTrue(BrValidations.validateBrazilianPhone("44999887766"));
+        assertTrue(BrValidations.validateBrazilianPhone("(44) 99988-7766"));
     }
 
     @Test
     void deveValidarTelefoneBrFixo() {
-        assertTrue(BrValidations.validarTelefoneBR("4433221100"));
-        assertTrue(BrValidations.validarTelefoneBR("(44) 3322-1100"));
+        assertTrue(BrValidations.validateBrazilianPhone("4433221100"));
+        assertTrue(BrValidations.validateBrazilianPhone("(44) 3322-1100"));
     }
 
     @Test
     void deveInvalidarTelefoneBr() {
-        assertFalse(BrValidations.validarTelefoneBR(null));
-        assertFalse(BrValidations.validarTelefoneBR("123"));
-        assertFalse(BrValidations.validarTelefoneBR("00999887766")); // invalid area code
-        assertFalse(BrValidations.validarTelefoneBR("44899887766")); // 11 digits without 9 at the start of the number
+        assertFalse(BrValidations.validateBrazilianPhone(null));
+        assertFalse(BrValidations.validateBrazilianPhone("123"));
+        assertFalse(BrValidations.validateBrazilianPhone("00999887766")); // invalid area code
+        assertFalse(BrValidations.validateBrazilianPhone("44899887766")); // 11 digits without 9 at the start of the number
     }
 
     @Test
@@ -137,15 +137,15 @@ class BrValidationsTest {
 
     @Test
     void deveValidarTelefoneFixoBr() {
-        assertTrue(BrValidations.validarTelefoneFixoBR("4433221100"));
-        assertTrue(BrValidations.validarTelefoneFixoBR("(44) 3322-1100"));
+        assertTrue(BrValidations.validateBrazilianLandline("4433221100"));
+        assertTrue(BrValidations.validateBrazilianLandline("(44) 3322-1100"));
     }
 
     @Test
     void deveInvalidarTelefoneFixoBr() {
-        assertFalse(BrValidations.validarTelefoneFixoBR(null));
-        assertFalse(BrValidations.validarTelefoneFixoBR("44999887766"));
-        assertFalse(BrValidations.validarTelefoneFixoBR("0033221100"));
+        assertFalse(BrValidations.validateBrazilianLandline(null));
+        assertFalse(BrValidations.validateBrazilianLandline("44999887766"));
+        assertFalse(BrValidations.validateBrazilianLandline("0033221100"));
     }
 
     @Test
@@ -238,20 +238,20 @@ class BrValidationsTest {
 
     @Test
     void deveFormatarTelefoneCelular() {
-        assertEquals("(44) 99988-7766", BrValidations.formatarTelefoneBR("44999887766"));
-        assertEquals("(44) 99988-7766", BrValidations.formatarTelefoneBR("(44) 99988-7766"));
+        assertEquals("(44) 99988-7766", BrValidations.formatBrazilianPhone("44999887766"));
+        assertEquals("(44) 99988-7766", BrValidations.formatBrazilianPhone("(44) 99988-7766"));
     }
 
     @Test
     void deveFormatarTelefoneFixo() {
-        assertEquals("(44) 3322-1100", BrValidations.formatarTelefoneBR("4433221100"));
-        assertEquals("(44) 3322-1100", BrValidations.formatarTelefoneBR("(44) 3322-1100"));
+        assertEquals("(44) 3322-1100", BrValidations.formatBrazilianPhone("4433221100"));
+        assertEquals("(44) 3322-1100", BrValidations.formatBrazilianPhone("(44) 3322-1100"));
     }
 
     @Test
     void deveLancarExcecaoAoFormatarTelefoneNulo() {
         IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> BrValidations.formatarTelefoneBR(null));
+                assertThrows(IllegalArgumentException.class, () -> BrValidations.formatBrazilianPhone(null));
 
         assertEquals("Invalid phone number.", exception.getMessage());
     }
@@ -259,7 +259,7 @@ class BrValidationsTest {
     @Test
     void deveLancarExcecaoAoFormatarTelefoneComTamanhoInvalido() {
         IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> BrValidations.formatarTelefoneBR("123"));
+                assertThrows(IllegalArgumentException.class, () -> BrValidations.formatBrazilianPhone("123"));
 
         assertEquals("Phone number must contain 10 or 11 digits.", exception.getMessage());
     }
@@ -288,11 +288,11 @@ class BrValidationsTest {
 
     @Test
     void deveExigirTelefoneValido() {
-        assertDoesNotThrow(() -> BrValidations.exigirTelefoneValido("(44) 99988-7766", "Telefone"));
+        assertDoesNotThrow(() -> BrValidations.requireValidPhone("(44) 99988-7766", "Telefone"));
 
         IllegalArgumentException exception =
                 assertThrows(IllegalArgumentException.class,
-                        () -> BrValidations.exigirTelefoneValido("123", "Telefone"));
+                        () -> BrValidations.requireValidPhone("123", "Telefone"));
 
         assertEquals("Telefone is invalid.", exception.getMessage());
     }

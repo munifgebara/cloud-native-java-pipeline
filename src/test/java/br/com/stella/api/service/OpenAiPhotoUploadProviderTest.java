@@ -60,7 +60,7 @@ class OpenAiPhotoUploadProviderTest {
                 "message":"Sugestoes geradas."}
                 """));
 
-        var response = provider.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "image".getBytes()));
+        var response = provider.suggestRegistration(new MockMultipartFile("file", "photo.png", "image/png", "image".getBytes()));
 
         assertThat(response.message()).isEqualTo("Sugestoes geradas.");
         assertThat(response.itens()).hasSize(1);
@@ -80,7 +80,7 @@ class OpenAiPhotoUploadProviderTest {
                 guardSemLimite()
         );
 
-        assertThatThrownBy(() -> providerSemChave.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "image".getBytes())))
+        assertThatThrownBy(() -> providerSemChave.suggestRegistration(new MockMultipartFile("file", "photo.png", "image/png", "image".getBytes())))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("OPENAI_API_KEY not configured in the environment.");
 
@@ -90,20 +90,20 @@ class OpenAiPhotoUploadProviderTest {
     @Test
     void deveConverterRespostaComListaVazia() {
         when(chatModel.call(any(Prompt.class))).thenReturn(respostaJson(
-                "{\"itens\":null,\"message\":\"Without sugestoes.\"}"
+                "{\"itens\":null,\"message\":\"Without suggestions.\"}"
         ));
 
-        var response = provider.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "image".getBytes()));
+        var response = provider.suggestRegistration(new MockMultipartFile("file", "photo.png", "image/png", "image".getBytes()));
 
         assertThat(response.itens()).isNull();
-        assertThat(response.message()).isEqualTo("Without sugestoes.");
+        assertThat(response.message()).isEqualTo("Without suggestions.");
     }
 
     @Test
     void deveRegistrarFalhaQuandoOpenAiLancaExcecao() {
         when(chatModel.call(any(Prompt.class))).thenThrow(new RuntimeException("Fail na API"));
 
-        assertThatThrownBy(() -> provider.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "image".getBytes())))
+        assertThatThrownBy(() -> provider.suggestRegistration(new MockMultipartFile("file", "photo.png", "image/png", "image".getBytes())))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("Fail na API");
     }
@@ -116,7 +116,7 @@ class OpenAiPhotoUploadProviderTest {
                 new AiUsageGuard(new AiProperties(false), new OpenAiLimitsProperties(null, null, null))
         );
 
-        assertThatThrownBy(() -> providerBloqueado.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "image".getBytes())))
+        assertThatThrownBy(() -> providerBloqueado.suggestRegistration(new MockMultipartFile("file", "photo.png", "image/png", "image".getBytes())))
                 .isInstanceOf(AiUsageLimitException.class)
                 .hasMessage("AI features are disabled in this environment.");
 
@@ -131,7 +131,7 @@ class OpenAiPhotoUploadProviderTest {
                 new AiUsageGuard(new AiProperties(true), new OpenAiLimitsProperties(0, null, null))
         );
 
-        assertThatThrownBy(() -> providerBloqueado.sugerirCadastro(new MockMultipartFile("arquivo", "foto.png", "image/png", "image".getBytes())))
+        assertThatThrownBy(() -> providerBloqueado.suggestRegistration(new MockMultipartFile("file", "photo.png", "image/png", "image".getBytes())))
                 .isInstanceOf(AiUsageLimitException.class)
                 .hasMessage("Daily limit for OpenAI image analysis reached.");
 

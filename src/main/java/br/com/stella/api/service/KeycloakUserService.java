@@ -48,12 +48,12 @@ public class KeycloakUserService {
     public List<UserResponseDTO> listar() {
         List<Map<String, Object>> users = getList("/users?briefRepresentation=false");
         return users.stream()
-                .map(user -> toUsuarioResponse(user, listarRolesDoUsuario((String) user.get("id"))))
+                .map(user -> toUserResponse(user, listUserRoles((String) user.get("id"))))
                 .toList();
     }
 
     public UserResponseDTO findById(String id) {
-        return toUsuarioResponse(fetchUserMap(id), listarRolesDoUsuario(id));
+        return toUserResponse(fetchUserMap(id), listUserRoles(id));
     }
 
     public UserResponseDTO create(UserCreateDTO dto) {
@@ -205,7 +205,7 @@ public class KeycloakUserService {
         return getMap("/roles/" + role.trim());
     }
 
-    private List<String> listarRolesDoUsuario(String id) {
+    private List<String> listUserRoles(String id) {
         return getList("/users/" + id + "/role-mappings/realm").stream()
                 .map(role -> (String) role.get("name"))
                 .filter(Objects::nonNull)
@@ -312,7 +312,7 @@ public class KeycloakUserService {
         return (String) response.get("access_token");
     }
 
-    private UserResponseDTO toUsuarioResponse(Map<String, Object> user, List<String> roles) {
+    private UserResponseDTO toUserResponse(Map<String, Object> user, List<String> roles) {
         return new UserResponseDTO(
                 (String) user.get("id"),
                 (String) user.get("username"),

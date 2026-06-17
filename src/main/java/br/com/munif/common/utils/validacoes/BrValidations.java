@@ -34,11 +34,11 @@ public final class BrValidations {
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$", Pattern.CASE_INSENSITIVE);
 
     /** Pattern for Brazilian mobile phone: 11 digits (area code + 9 + number). */
-    private static final Pattern TELEFONE_CELULAR_PATTERN =
+    private static final Pattern MOBILE_PHONE_PATTERN =
             Pattern.compile("^\\d{11}$");
 
     /** Pattern for Brazilian landline: 10 digits (area code + number). */
-    private static final Pattern TELEFONE_FIXO_PATTERN =
+    private static final Pattern LANDLINE_PHONE_PATTERN =
             Pattern.compile("^\\d{10}$");
 
     /** Pattern for Brazilian CEP (postal code): exactly 8 digits. */
@@ -177,17 +177,17 @@ public final class BrValidations {
      *   <li>Mobile must start with digit 9 after the area code.</li>
      * </ul>
      *
-     * @param telefone number to validate, with or without formatting
+     * @param phone number to validate, with or without formatting
      * @return {@code true} if it is a valid Brazilian phone number; {@code false} otherwise
      */
-    public static boolean validarTelefoneBR(String telefone) {
-        String valor = somenteDigitos(telefone);
+    public static boolean validateBrazilianPhone(String phone) {
+        String valor = somenteDigitos(phone);
 
         if (valor == null) {
             return false;
         }
-        if (!TELEFONE_FIXO_PATTERN.matcher(valor).matches()
-                && !TELEFONE_CELULAR_PATTERN.matcher(valor).matches()) {
+        if (!LANDLINE_PHONE_PATTERN.matcher(valor).matches()
+                && !MOBILE_PHONE_PATTERN.matcher(valor).matches()) {
             return false;
         }
         if (!validarDDD(valor.substring(0, 2))) {
@@ -202,13 +202,13 @@ public final class BrValidations {
     /**
      * Validates exclusively a Brazilian mobile phone number (11 digits, starting with 9 after the area code).
      *
-     * @param telefone number to validate, with or without formatting
+     * @param phone number to validate, with or without formatting
      * @return {@code true} if it is a valid mobile number; {@code false} otherwise
      */
-    public static boolean validarCelularBR(String telefone) {
-        String valor = somenteDigitos(telefone);
+    public static boolean validarCelularBR(String phone) {
+        String valor = somenteDigitos(phone);
 
-        if (valor == null || !TELEFONE_CELULAR_PATTERN.matcher(valor).matches()) {
+        if (valor == null || !MOBILE_PHONE_PATTERN.matcher(valor).matches()) {
             return false;
         }
         return validarDDD(valor.substring(0, 2)) && valor.charAt(2) == '9';
@@ -217,13 +217,13 @@ public final class BrValidations {
     /**
      * Validates exclusively a Brazilian landline phone number (10 digits).
      *
-     * @param telefone number to validate, with or without formatting
+     * @param phone number to validate, with or without formatting
      * @return {@code true} if it is a valid landline; {@code false} otherwise
      */
-    public static boolean validarTelefoneFixoBR(String telefone) {
-        String valor = somenteDigitos(telefone);
+    public static boolean validateBrazilianLandline(String phone) {
+        String valor = somenteDigitos(phone);
 
-        if (valor == null || !TELEFONE_FIXO_PATTERN.matcher(valor).matches()) {
+        if (valor == null || !LANDLINE_PHONE_PATTERN.matcher(valor).matches()) {
             return false;
         }
         return validarDDD(valor.substring(0, 2));
@@ -352,12 +352,12 @@ public final class BrValidations {
      * Formats a Brazilian phone number in the {@code (DD) NNNNN-NNNN} pattern (mobile)
      * or {@code (DD) NNNN-NNNN} (landline).
      *
-     * @param telefone phone number with 10 or 11 digits (with or without formatting)
+     * @param phone phone number with 10 or 11 digits (with or without formatting)
      * @return formatted phone number
      * @throws IllegalArgumentException if the phone number does not have 10 or 11 digits
      */
-    public static String formatarTelefoneBR(String telefone) {
-        String valor = somenteDigitos(telefone);
+    public static String formatBrazilianPhone(String phone) {
+        String valor = somenteDigitos(phone);
 
         if (valor == null) {
             throw new IllegalArgumentException("Invalid phone number.");
@@ -408,12 +408,12 @@ public final class BrValidations {
     /**
      * Throws {@link IllegalArgumentException} if the provided phone number is invalid.
      *
-     * @param telefone  phone number to validate
+     * @param phone  phone number to validate
      * @param fieldName field name to include in the error message
      * @throws IllegalArgumentException if the phone number is not valid
      */
-    public static void exigirTelefoneValido(String telefone, String fieldName) {
-        if (!validarTelefoneBR(telefone)) {
+    public static void requireValidPhone(String phone, String fieldName) {
+        if (!validateBrazilianPhone(phone)) {
             throw new IllegalArgumentException(fieldName + " is invalid.");
         }
     }

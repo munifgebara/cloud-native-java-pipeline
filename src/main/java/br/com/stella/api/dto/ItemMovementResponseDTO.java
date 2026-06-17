@@ -18,9 +18,9 @@ import java.util.UUID;
  * @param itemInstanceId        identifier of the moved item instance
  * @param instanciaIdentificacao readable identification of the instance (identifier, asset number or serial number)
  * @param originLocationId          identifier of the origin location; {@code null} in inbound movements
- * @param localOrigemNome        origin location name (denormalized); {@code null} in inbound movements
+ * @param originLocationName        origin location name (denormalized); {@code null} in inbound movements
  * @param destinationLocationId         identifier of the destination location; {@code null} in outbound movements
- * @param localDestinoNome       destination location name (denormalized); {@code null} in outbound movements
+ * @param destinationLocationName       destination location name (denormalized); {@code null} in outbound movements
  * @param motivo                 summarized reason for the movement; may be {@code null}
  * @param notes             complementary notes about the movement; may be {@code null}
  */
@@ -31,9 +31,9 @@ public record ItemMovementResponseDTO(
         UUID itemInstanceId,
         String instanciaIdentificacao,
         UUID originLocationId,
-        String localOrigemNome,
+        String originLocationName,
         UUID destinationLocationId,
-        String localDestinoNome,
+        String destinationLocationName,
         String motivo,
         String notes
 ) {}

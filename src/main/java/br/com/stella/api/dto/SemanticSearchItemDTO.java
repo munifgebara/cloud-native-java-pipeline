@@ -10,7 +10,7 @@ public record SemanticSearchItemDTO(
         String categoryName,
         String categoryIcon,
         String imageUrl,
-        double similaridade,
+        double similarity,
         List<SemanticSearchInstanceDTO> instances,
         List<SemanticSearchLocationDTO> locaisProvaveis
 ) {}

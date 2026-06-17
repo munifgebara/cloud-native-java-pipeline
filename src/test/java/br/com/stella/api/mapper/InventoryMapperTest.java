@@ -114,14 +114,14 @@ class InventoryMapperTest {
 
         StorageLocation raiz = location("Casa", null);
         StorageLocation sala = location("Sala", raiz);
-        sala.setImageObjectKey("locais/%s/foto.png".formatted(sala.getId()));
+        sala.setImageObjectKey("locais/%s/photo.png".formatted(sala.getId()));
         sala.setImageContentType("image/png");
         sala.setImageSizeBytes(20L);
 
         var response = StorageLocationMapper.toResponseDTO(sala);
         var resumo = StorageLocationMapper.toResumoDTO(sala, "Casa > Sala", 1);
 
-        assertThat(response.paiId()).isEqualTo(raiz.getId());
+        assertThat(response.parentId()).isEqualTo(raiz.getId());
         assertThat(response.parentName()).isEqualTo("Casa");
         assertThat(response.caminho()).isEqualTo("Casa > Sala");
         assertThat(response.nivel()).isEqualTo(1);
@@ -157,7 +157,7 @@ class InventoryMapperTest {
         MainItem item = MainItemMapper.toEntity(new MainItemCreateDTO("Furadeira", "Impacto", "220V", "CADASTRO_IA_FOTO", category.getId(), false));
         item.setId(UUID.randomUUID());
         item.setCategory(category);
-        item.setImageObjectKey("itens/%s/foto.png".formatted(item.getId()));
+        item.setImageObjectKey("itens/%s/photo.png".formatted(item.getId()));
         item.setImageContentType("image/png");
         item.setImageSizeBytes(30L);
 
@@ -276,8 +276,8 @@ class InventoryMapperTest {
         var response = ItemMovementMapper.toResponseDTO(movement);
 
         assertThat(response.instanciaIdentificacao()).isEqualTo("SER-10");
-        assertThat(response.localOrigemNome()).isEqualTo("Origem");
-        assertThat(response.localDestinoNome()).isEqualTo("Destino");
+        assertThat(response.originLocationName()).isEqualTo("Origem");
+        assertThat(response.destinationLocationName()).isEqualTo("Destino");
         assertThat(response.motivo()).isEqualTo("Organizacao");
     }
 
@@ -299,11 +299,11 @@ class InventoryMapperTest {
         return item;
     }
 
-    private StorageLocation location(String name, StorageLocation pai) {
+    private StorageLocation location(String name, StorageLocation parent) {
         StorageLocation location = new StorageLocation();
         location.setId(UUID.randomUUID());
         location.setName(name);
-        location.setParent(pai);
+        location.setParent(parent);
         location.setActive(true);
         return location;
     }

@@ -10,7 +10,7 @@ public record ItemLoanReturnDTO(
         UUID itemInstanceId,
 
         @NotNull(message = "Return location is required.")
-        UUID localRetornoId,
+        UUID returnLocationId,
 
         @Size(max = 1000, message = "Observation must not exceed 1000 characters.")
         String notes

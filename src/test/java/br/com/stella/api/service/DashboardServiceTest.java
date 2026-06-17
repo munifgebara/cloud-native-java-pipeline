@@ -57,7 +57,7 @@ class DashboardServiceTest {
         when(itemInstanceRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.DISPONIVEL)).thenReturn(18L);
         when(itemInstanceRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.EMPRESTADO)).thenReturn(5L);
         when(storageLocationRepository.countByActiveTrue()).thenReturn(3L);
-        when(vectorSearchMetricsService.contarConsultas()).thenReturn(11L);
+        when(vectorSearchMetricsService.countQueries()).thenReturn(11L);
         when(itemInstanceRepository.findLocationsWithMostItems(org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(locais);
         when(mainItemRepository.findCategoriesWithMostItems(org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(categories);
 
@@ -71,7 +71,7 @@ class DashboardServiceTest {
         assertThat(resumo.quantidadeLocais()).isEqualTo(3);
         assertThat(resumo.quantidadeItensSemImagem()).isEqualTo(2);
         assertThat(resumo.quantidadeItensCadastradosPorIa()).isEqualTo(3);
-        assertThat(resumo.quantidadeConsultasVetoriais()).isEqualTo(11);
+        assertThat(resumo.vectorQueryCount()).isEqualTo(11);
         assertThat(resumo.locaisComMaisItens()).containsExactlyElementsOf(locais);
         assertThat(resumo.categoriasComMaisItens()).containsExactlyElementsOf(categories);
 

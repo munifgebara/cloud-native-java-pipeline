@@ -136,11 +136,11 @@ class EmprestimoItemServiceTest {
         UUID locationId = UUID.randomUUID();
         ItemInstance instance = instance(instanciaId, ItemInstanceStatus.EMPRESTADO, true, null);
         Person person = person(UUID.randomUUID(), "Maria Silva", true);
-        StorageLocation localRetorno = location(locationId, "Biblioteca");
+        StorageLocation returnLocation = location(locationId, "Biblioteca");
         ItemLoan loan = loan(instance, person);
 
         when(repository.findByItemInstanceIdAndReturnDateIsNull(instanciaId)).thenReturn(Optional.of(loan));
-        when(storageLocationRepository.findById(locationId)).thenReturn(Optional.of(localRetorno));
+        when(storageLocationRepository.findById(locationId)).thenReturn(Optional.of(returnLocation));
         when(itemInstanceRepository.save(any(ItemInstance.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(repository.save(any(ItemLoan.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -157,7 +157,7 @@ class EmprestimoItemServiceTest {
 
         ItemInstance instanciaAtualizada = instanciaCaptor.getValue();
         assertThat(instanciaAtualizada.getOperationalStatus()).isEqualTo(ItemInstanceStatus.DISPONIVEL);
-        assertThat(instanciaAtualizada.getCurrentLocation()).isEqualTo(localRetorno);
+        assertThat(instanciaAtualizada.getCurrentLocation()).isEqualTo(returnLocation);
 
         ItemLoan emprestimoAtualizado = emprestimoCaptor.getValue();
         assertThat(emprestimoAtualizado.getReturnDate()).isNotNull();

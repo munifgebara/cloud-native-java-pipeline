@@ -67,7 +67,7 @@ public class ItemLoanService extends SuperService<ItemLoan, ItemLoanRepository> 
         Person person = personRepository.findById(dto.pessoaId())
                 .orElseThrow(() -> new IllegalArgumentException("Person not found."));
 
-        ItemInstanceRules.exigirDisponivelComLocal(
+        ItemInstanceRules.requireAvailableWithLocation(
                 instance,
                 "Instance must be active to register a loan.",
                 "Only available instances can be loaned.",
@@ -108,7 +108,7 @@ public class ItemLoanService extends SuperService<ItemLoan, ItemLoanRepository> 
         ItemLoan loan = repository.findByItemInstanceIdAndReturnDateIsNull(dto.itemInstanceId())
                 .orElseThrow(() -> new IllegalArgumentException("There is no open loan for this instance."));
         ItemInstance instance = loan.getItemInstance();
-        StorageLocation localRetorno = findActiveLocation(dto.localRetornoId());
+        StorageLocation returnLocation = findActiveLocation(dto.returnLocationId());
 
         ItemInstanceRules.exigirEmprestada(instance, "Instance must be loaned to register a return.");
 
@@ -118,7 +118,7 @@ public class ItemLoanService extends SuperService<ItemLoan, ItemLoanRepository> 
             loan.setNotes(notes);
         }
 
-        instance.setCurrentLocation(localRetorno);
+        instance.setCurrentLocation(returnLocation);
         instance.setOperationalStatus(ItemInstanceStatus.DISPONIVEL);
         itemInstanceRepository.save(instance);
 

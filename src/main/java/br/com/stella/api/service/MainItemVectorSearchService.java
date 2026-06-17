@@ -55,7 +55,7 @@ public class MainItemVectorSearchService {
             """;
 
     private static final String BUSCAR_SQL = """
-            select e.item_mestre_id, 1 - (e.embedding <=> ?::vector) as similaridade
+            select e.item_mestre_id, 1 - (e.embedding <=> ?::vector) as similarity
             from public.item_mestre_embedding e
             join public.item_mestre i on i.id = e.item_mestre_id
             where e.active = true
@@ -220,17 +220,17 @@ public class MainItemVectorSearchService {
             validarDimensoes(embedding);
             String literal = vectorLiteral(embedding);
 
-            List<ResultadoVetorial> results = jdbcTemplate.query(
+            List<VectorResult> results = jdbcTemplate.query(
                     BUSCAR_SQL,
-                    (rs, rowNum) -> new ResultadoVetorial(
+                    (rs, rowNum) -> new VectorResult(
                             rs.getObject("item_mestre_id", UUID.class),
-                            rs.getDouble("similaridade")
+                            rs.getDouble("similarity")
                     ),
                     literal,
                     literal,
                     vectorSearchProperties.maxResults()
             ).stream()
-                    .filter(result -> result.similaridade() >= vectorSearchProperties.minSimilarity())
+                    .filter(result -> result.similarity() >= vectorSearchProperties.minSimilarity())
                     .toList();
 
             vectorSearchMetricsService.recordQuery(texto, results.size());
@@ -260,10 +260,10 @@ public class MainItemVectorSearchService {
         }
     }
 
-    private List<SemanticSearchItemDTO> buildResponse(List<ResultadoVetorial> results) {
-        List<UUID> ids = results.stream().map(ResultadoVetorial::mainItemId).toList();
+    private List<SemanticSearchItemDTO> buildResponse(List<VectorResult> results) {
+        List<UUID> ids = results.stream().map(VectorResult::mainItemId).toList();
         Map<UUID, Double> similaridades = results.stream()
-                .collect(Collectors.toMap(ResultadoVetorial::mainItemId, ResultadoVetorial::similaridade));
+                .collect(Collectors.toMap(VectorResult::mainItemId, VectorResult::similarity));
 
         Map<UUID, MainItem> itensPorId = mainItemRepository.findWithCategoryByIds(ids).stream()
                 .collect(Collectors.toMap(MainItem::getId, item -> item));
@@ -360,6 +360,6 @@ public class MainItemVectorSearchService {
         return value.substring(0, maxLength);
     }
 
-    private record ResultadoVetorial(UUID mainItemId, double similaridade) {
+    private record VectorResult(UUID mainItemId, double similarity) {
     }
 }

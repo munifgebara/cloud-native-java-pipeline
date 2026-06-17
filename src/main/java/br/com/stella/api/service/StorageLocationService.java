@@ -66,7 +66,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
     public StorageLocationResponseDTO create(StorageLocationCreateDTO dto) {
         StorageLocation location = StorageLocationMapper.toEntity(dto);
         normalizarCampos(location);
-        location.setParent(buscarPaiAtivo(dto.paiId()));
+        location.setParent(findActiveParent(dto.parentId()));
 
         StorageLocation salvo = save(location);
         if (Boolean.FALSE.equals(dto.ativa())) {
@@ -144,12 +144,12 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
     @Transactional
     public StorageLocationResponseDTO update(UUID id, StorageLocationUpdateDTO dto) {
         StorageLocation location = findById(id);
-        StorageLocation pai = buscarPaiAtivo(dto.paiId());
-        validarHierarquia(location, pai);
+        StorageLocation parent = findActiveParent(dto.parentId());
+        validarHierarquia(location, parent);
 
         StorageLocationMapper.updateEntity(location, dto);
         normalizarCampos(location);
-        location.setParent(pai);
+        location.setParent(parent);
 
         StorageLocation salvo = save(location);
         StructuredBusinessLogger.info(log, "inventory", "location-updated", StructuredBusinessLogger.fields(
@@ -165,23 +165,23 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      * Updates the location image, storing it in MinIO and removing the previous one.
      *
      * @param id      UUID of the location
-     * @param arquivo image file sent by the client
+     * @param file image file sent by the client
      * @return full DTO of the location with the new image metadata
      */
     @Transactional
-    public StorageLocationResponseDTO updateImage(UUID id, MultipartFile arquivo) {
+    public StorageLocationResponseDTO updateImage(UUID id, MultipartFile file) {
         StorageLocation location = findById(id);
         String bucketAnterior = location.getImageBucket();
         String objectKeyAnterior = location.getImageObjectKey();
 
-        MainItemImageDTO image = imageStorageService.armazenarLocal(id, arquivo);
+        MainItemImageDTO image = imageStorageService.store(id, file);
         location.setImageBucket(image.bucket());
         location.setImageObjectKey(image.objectKey());
         location.setImageContentType(image.contentType());
         location.setImageSizeBytes(image.tamanhoBytes());
 
         StorageLocation salvo = save(location);
-        imageStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
+        imageStorageService.removeSilently(bucketAnterior, objectKeyAnterior);
         StructuredBusinessLogger.info(log, "inventory", "location-image-updated", StructuredBusinessLogger.fields(
                 "location_id", salvo.getId(),
                 "location_name", salvo.getName(),
@@ -210,7 +210,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
         location.setImageSizeBytes(null);
 
         StorageLocation salvo = save(location);
-        imageStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
+        imageStorageService.removeSilently(bucketAnterior, objectKeyAnterior);
         StructuredBusinessLogger.info(log, "inventory", "location-image-removed", StructuredBusinessLogger.fields(
                 "location_id", salvo.getId(),
                 "location_name", salvo.getName(),
@@ -227,7 +227,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      * @throws IllegalArgumentException if the location does not have a registered image
      */
     @Transactional(readOnly = true)
-    public MainItemImageDTO buscarMetadadosImagem(UUID id) {
+    public MainItemImageDTO fetchImageMetadata(UUID id) {
         StorageLocation location = findById(id);
         if (location.getImageObjectKey() == null) {
             throw new IllegalArgumentException("Location does not have an image.");
@@ -250,7 +250,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      */
     @Transactional(readOnly = true)
     public InputStream abrirImagem(UUID id) {
-        MainItemImageDTO image = buscarMetadadosImagem(id);
+        MainItemImageDTO image = fetchImageMetadata(id);
         return imageStorageService.abrir(image.bucket(), image.objectKey());
     }
 
@@ -283,7 +283,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
     }
 
     private List<StorageLocationSummaryDTO> buildHierarchy(List<StorageLocation> locais) {
-        Map<UUID, List<StorageLocation>> filhosPorPai = locais.stream()
+        Map<UUID, List<StorageLocation>> childrenByParent = locais.stream()
                 .filter(location -> location.getParent() != null)
                 .collect(Collectors.groupingBy(location -> location.getParent().getId()));
 
@@ -295,7 +295,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
         List<StorageLocationSummaryDTO> result = new ArrayList<>();
         Set<UUID> visitados = new HashSet<>();
         for (StorageLocation raiz : raizes) {
-            adicionarNaHierarquia(raiz, raiz.getName(), 0, filhosPorPai, result, visitados);
+            adicionarNaHierarquia(raiz, raiz.getName(), 0, childrenByParent, result, visitados);
         }
         return result;
     }
@@ -304,7 +304,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
             StorageLocation location,
             String caminho,
             int nivel,
-            Map<UUID, List<StorageLocation>> filhosPorPai,
+            Map<UUID, List<StorageLocation>> childrenByParent,
             List<StorageLocationSummaryDTO> result,
             Set<UUID> visitados
     ) {
@@ -313,33 +313,33 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
         }
 
         result.add(StorageLocationMapper.toResumoDTO(location, caminho, nivel));
-        filhosPorPai.getOrDefault(location.getId(), List.of()).stream()
+        childrenByParent.getOrDefault(location.getId(), List.of()).stream()
                 .sorted(Comparator.comparing(StorageLocation::getName, String.CASE_INSENSITIVE_ORDER))
-                .forEach(filho -> adicionarNaHierarquia(filho, caminho + " > " + filho.getName(), nivel + 1, filhosPorPai, result, visitados));
+                .forEach(filho -> adicionarNaHierarquia(filho, caminho + " > " + filho.getName(), nivel + 1, childrenByParent, result, visitados));
     }
 
-    private StorageLocation buscarPaiAtivo(UUID paiId) {
-        if (paiId == null) {
+    private StorageLocation findActiveParent(UUID parentId) {
+        if (parentId == null) {
             return null;
         }
 
-        StorageLocation pai = findById(paiId);
-        if (!pai.isActive()) {
+        StorageLocation parent = findById(parentId);
+        if (!parent.isActive()) {
             throw new IllegalArgumentException("Parent location must be active.");
         }
-        return pai;
+        return parent;
     }
 
-    private void validarHierarquia(StorageLocation location, StorageLocation pai) {
-        if (pai == null) {
+    private void validarHierarquia(StorageLocation location, StorageLocation parent) {
+        if (parent == null) {
             return;
         }
 
-        if (location.getId().equals(pai.getId())) {
+        if (location.getId().equals(parent.getId())) {
             throw new IllegalArgumentException("A location cannot be its own parent.");
         }
 
-        StorageLocation atual = pai.getParent();
+        StorageLocation atual = parent.getParent();
         while (atual != null) {
             if (location.getId().equals(atual.getId())) {
                 throw new IllegalArgumentException("Parent location cannot be a descendant of itself.");

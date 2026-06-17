@@ -58,18 +58,18 @@ class LocalArmazenamentoServiceTest {
 
     @Test
     void deveCriarSublocalComLocalPai() {
-        UUID paiId = UUID.randomUUID();
-        StorageLocation pai = location(paiId, "Escritorio", null);
+        UUID parentId = UUID.randomUUID();
+        StorageLocation parent = location(parentId, "Escritorio", null);
 
-        when(repository.findById(paiId)).thenReturn(Optional.of(pai));
+        when(repository.findById(parentId)).thenReturn(Optional.of(parent));
         when(repository.save(any(StorageLocation.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        service.create(new StorageLocationCreateDTO("Armario 1", null, paiId, true));
+        service.create(new StorageLocationCreateDTO("Armario 1", null, parentId, true));
 
         ArgumentCaptor<StorageLocation> captor = ArgumentCaptor.forClass(StorageLocation.class);
         verify(repository).save(captor.capture());
 
-        assertThat(captor.getValue().getParent()).isEqualTo(pai);
+        assertThat(captor.getValue().getParent()).isEqualTo(parent);
     }
 
     @Test
@@ -160,13 +160,13 @@ class LocalArmazenamentoServiceTest {
 
     @Test
     void deveImpedirLocalPaiInativo() {
-        UUID paiId = UUID.randomUUID();
-        StorageLocation pai = location(paiId, "Arquivo morto", null);
-        pai.setActive(false);
+        UUID parentId = UUID.randomUUID();
+        StorageLocation parent = location(parentId, "Arquivo morto", null);
+        parent.setActive(false);
 
-        when(repository.findById(paiId)).thenReturn(Optional.of(pai));
+        when(repository.findById(parentId)).thenReturn(Optional.of(parent));
 
-        assertThatThrownBy(() -> service.create(new StorageLocationCreateDTO("Caixa", null, paiId, true)))
+        assertThatThrownBy(() -> service.create(new StorageLocationCreateDTO("Caixa", null, parentId, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Parent location must be active.");
 
@@ -176,19 +176,19 @@ class LocalArmazenamentoServiceTest {
     @Test
     void deveAtualizarLocalComPaiAtivoNormalizandoCampos() {
         UUID id = UUID.randomUUID();
-        UUID paiId = UUID.randomUUID();
+        UUID parentId = UUID.randomUUID();
         StorageLocation location = location(id, "Antigo", null);
-        StorageLocation pai = location(paiId, "Sala", null);
+        StorageLocation parent = location(parentId, "Sala", null);
 
         when(repository.findById(id)).thenReturn(Optional.of(location));
-        when(repository.findById(paiId)).thenReturn(Optional.of(pai));
+        when(repository.findById(parentId)).thenReturn(Optional.of(parent));
         when(repository.save(any(StorageLocation.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var response = service.update(id, new StorageLocationUpdateDTO("  Armario  ", "  Documentos  ", paiId, false));
+        var response = service.update(id, new StorageLocationUpdateDTO("  Armario  ", "  Documentos  ", parentId, false));
 
         assertThat(response.name()).isEqualTo("Armario");
         assertThat(response.description()).isEqualTo("Documentos");
-        assertThat(response.paiId()).isEqualTo(paiId);
+        assertThat(response.parentId()).isEqualTo(parentId);
         assertThat(response.ativa()).isFalse();
     }
 
@@ -199,21 +199,21 @@ class LocalArmazenamentoServiceTest {
         location.setImageBucket("bucket-antigo");
         location.setImageObjectKey("locais/%s/antiga.png".formatted(id));
 
-        var arquivo = new org.springframework.mock.web.MockMultipartFile("arquivo", "nova.png", "image/png", new byte[]{1, 2});
+        var file = new org.springframework.mock.web.MockMultipartFile("file", "nova.png", "image/png", new byte[]{1, 2});
         var image = new MainItemImageDTO("bucket-novo", "locais/%s/nova.png".formatted(id), "image/png", 2L);
 
         when(repository.findById(id)).thenReturn(Optional.of(location));
-        when(imageStorageService.armazenarLocal(id, arquivo)).thenReturn(image);
+        when(imageStorageService.store(id, file)).thenReturn(image);
         when(repository.save(any(StorageLocation.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var response = service.updateImage(id, arquivo);
+        var response = service.updateImage(id, file);
 
         assertThat(response.imageUrl()).isEqualTo("/api/public/locais/%s/image".formatted(id));
         assertThat(location.getImageBucket()).isEqualTo("bucket-novo");
         assertThat(location.getImageObjectKey()).isEqualTo("locais/%s/nova.png".formatted(id));
         assertThat(location.getImageContentType()).isEqualTo("image/png");
         assertThat(location.getImageSizeBytes()).isEqualTo(2L);
-        verify(imageStorageService).removerSilenciosamente("bucket-antigo", "locais/%s/antiga.png".formatted(id));
+        verify(imageStorageService).removeSilently("bucket-antigo", "locais/%s/antiga.png".formatted(id));
     }
 
     @Test
@@ -221,7 +221,7 @@ class LocalArmazenamentoServiceTest {
         UUID id = UUID.randomUUID();
         StorageLocation location = location(id, "Deposito", null);
         location.setImageBucket("bucket");
-        location.setImageObjectKey("locais/%s/foto.png".formatted(id));
+        location.setImageObjectKey("locais/%s/photo.png".formatted(id));
         location.setImageContentType("image/png");
         location.setImageSizeBytes(2L);
 
@@ -235,7 +235,7 @@ class LocalArmazenamentoServiceTest {
         assertThat(location.getImageObjectKey()).isNull();
         assertThat(location.getImageContentType()).isNull();
         assertThat(location.getImageSizeBytes()).isNull();
-        verify(imageStorageService).removerSilenciosamente("bucket", "locais/%s/foto.png".formatted(id));
+        verify(imageStorageService).removeSilently("bucket", "locais/%s/photo.png".formatted(id));
     }
 
     @Test
@@ -248,8 +248,8 @@ class LocalArmazenamentoServiceTest {
 
         service.removerImagem(id);
 
-        verify(imageStorageService).removerSilenciosamente(null, null);
-        verify(imageStorageService, never()).armazenarLocal(any(), any());
+        verify(imageStorageService).removeSilently(null, null);
+        verify(imageStorageService, never()).store(any(), any());
     }
 
     @Test
@@ -257,15 +257,15 @@ class LocalArmazenamentoServiceTest {
         UUID id = UUID.randomUUID();
         StorageLocation location = location(id, "Deposito", null);
         location.setImageBucket("stella-locais");
-        location.setImageObjectKey("locais/%s/foto.png".formatted(id));
+        location.setImageObjectKey("locais/%s/photo.png".formatted(id));
         location.setImageContentType("image/png");
         location.setImageSizeBytes(2L);
 
         when(repository.findById(id)).thenReturn(Optional.of(location));
-        when(imageStorageService.abrir("stella-locais", "locais/%s/foto.png".formatted(id)))
+        when(imageStorageService.abrir("stella-locais", "locais/%s/photo.png".formatted(id)))
                 .thenReturn(new ByteArrayInputStream(new byte[]{1, 2}));
 
-        var metadados = service.buscarMetadadosImagem(id);
+        var metadados = service.fetchImageMetadata(id);
         var image = service.abrirImagem(id);
 
         assertThat(metadados.contentType()).isEqualTo("image/png");
@@ -280,16 +280,16 @@ class LocalArmazenamentoServiceTest {
 
         when(repository.findById(id)).thenReturn(Optional.of(location));
 
-        assertThatThrownBy(() -> service.buscarMetadadosImagem(id))
+        assertThatThrownBy(() -> service.fetchImageMetadata(id))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Location does not have an image.");
     }
 
-    private StorageLocation location(UUID id, String name, StorageLocation pai) {
+    private StorageLocation location(UUID id, String name, StorageLocation parent) {
         StorageLocation location = new StorageLocation();
         location.setId(id);
         location.setName(name);
-        location.setParent(pai);
+        location.setParent(parent);
         location.setActive(true);
         return location;
     }

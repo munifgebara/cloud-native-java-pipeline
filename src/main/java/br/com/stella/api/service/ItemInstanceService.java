@@ -211,7 +211,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
     @Transactional
     public ItemInstanceResponseDTO update(UUID id, ItemInstanceUpdateDTO dto) {
         ItemInstance instance = findById(id);
-        UUID localAnteriorId = instance.getCurrentLocation() == null ? null : instance.getCurrentLocation().getId();
+        UUID previousLocationId = instance.getCurrentLocation() == null ? null : instance.getCurrentLocation().getId();
         MainItem mainItem = findActiveMainItem(dto.mainItemId());
 
         ItemInstanceMapper.updateEntity(instance, dto);
@@ -223,11 +223,11 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
 
         ItemInstance salva = save(instance);
         UUID currentLocationId = salva.getCurrentLocation() == null ? null : salva.getCurrentLocation().getId();
-        String action = Objects.equals(localAnteriorId, currentLocationId) ? "instance-updated" : "instance-location-updated";
+        String action = Objects.equals(previousLocationId, currentLocationId) ? "instance-updated" : "instance-location-updated";
         StructuredBusinessLogger.info(log, "inventory", action, StructuredBusinessLogger.fields(
                 "instance_id", salva.getId(),
                 "item_id", salva.getMainItem() == null ? null : salva.getMainItem().getId(),
-                "previous_location_id", localAnteriorId,
+                "previous_location_id", previousLocationId,
                 "location_id", currentLocationId,
                 "success", true
         ));

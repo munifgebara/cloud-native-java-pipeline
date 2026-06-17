@@ -13,8 +13,8 @@ import jakarta.validation.constraints.Size;
  *
  * @param name               full name or company name; required, up to 150 characters
  * @param cpfCnpj            CPF (11 digits) or CNPJ (14 digits) without formatting; required
- * @param telefonePrincipal  primary contact phone; up to 20 characters; optional
- * @param telefoneSecundario alternative phone; up to 20 characters; optional
+ * @param primaryPhone  primary contact phone; up to 20 characters; optional
+ * @param secondaryPhone alternative phone; up to 20 characters; optional
  * @param email              email address; up to 150 characters; optional
  * @param cep                ZIP code in format {@code 99999-999} or {@code 99999999}; optional
  * @param endereco           street and number; up to 200 characters; optional
@@ -33,10 +33,10 @@ public record PersonCreateDTO(
         String cpfCnpj,
 
         @Size(max = 20, message = "Primary phone must not exceed 20 characters.")
-        String telefonePrincipal,
+        String primaryPhone,
 
         @Size(max = 20, message = "Secondary phone must not exceed 20 characters.")
-        String telefoneSecundario,
+        String secondaryPhone,
 
         @Email(message = "Invalid e-mail.")
         @Size(max = 150, message = "And-mail must not exceed 150 characters.")

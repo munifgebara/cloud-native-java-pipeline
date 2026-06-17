@@ -84,12 +84,12 @@ public class StorageLocationController extends SuperController<StorageLocationSu
      * Updates the representation image of a location via file upload.
      *
      * @param id      UUID of the location
-     * @param arquivo image file uploaded by the client
+     * @param file image file uploaded by the client
      * @return {@code 200 OK} with the full DTO of the updated location
      */
     @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<StorageLocationResponseDTO> updateImage(@PathVariable UUID id, @RequestParam("arquivo") MultipartFile arquivo) {
-        return ResponseEntity.ok(service.updateImage(id, arquivo));
+    public ResponseEntity<StorageLocationResponseDTO> updateImage(@PathVariable UUID id, @RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(service.updateImage(id, file));
     }
 
     /**

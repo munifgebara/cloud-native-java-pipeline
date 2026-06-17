@@ -32,7 +32,7 @@ public class VectorSearchMetricsService {
     }
 
     @Transactional(readOnly = true)
-    public long contarConsultas() {
+    public long countQueries() {
         Long total = jdbcTemplate.queryForObject("select count(*) from public.consulta_vetorial_metrica", Long.class);
         return total == null ? 0 : total;
     }

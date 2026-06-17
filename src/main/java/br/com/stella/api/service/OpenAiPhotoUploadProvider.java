@@ -51,7 +51,7 @@ public class OpenAiPhotoUploadProvider implements PhotoUploadAiProvider {
     }
 
     @Override
-    public PhotoUploadSuggestionResponseDTO sugerirCadastro(MultipartFile image) {
+    public PhotoUploadSuggestionResponseDTO suggestRegistration(MultipartFile image) {
         aiUsageGuard.assertEnabled(AiOperation.IMAGE_ANALYSIS);
         String apiKey = environment.getProperty("OPENAI_API_KEY");
         if (apiKey == null || apiKey.isBlank()) {

@@ -120,7 +120,7 @@ class ControllerUnitTest {
         var response = mock(MainItemResponseDTO.class);
         var resumo = mock(MainItemSummaryDTO.class);
         var resultadoSemantico = mock(SemanticSearchItemDTO.class);
-        var arquivo = new MockMultipartFile("arquivo", "foto.png", "image/png", new byte[]{1});
+        var file = new MockMultipartFile("file", "photo.png", "image/png", new byte[]{1});
         var imagemIaRequest = new ImageAiRequestDTO("Livro", "Livros", "Capa azul");
         var imagemIaResponse = new ImageAiResponseDTO("data:image/png;base64,abc", "image/png", "openai");
 
@@ -129,9 +129,9 @@ class ControllerUnitTest {
         when(service.listSummary()).thenReturn(List.of(resumo));
         when(service.findByName("livro")).thenReturn(List.of(resumo));
         when(service.filtrar("livro", categoryId)).thenReturn(List.of(resumo));
-        when(service.buscarSemanticamente("where is book")).thenReturn(List.of(resultadoSemantico));
-        when(service.reindexarBuscaSemantica()).thenReturn(2);
-        when(service.updateMainImage(id, arquivo, true, "openai")).thenReturn(response);
+        when(service.searchSemantically("where is book")).thenReturn(List.of(resultadoSemantico));
+        when(service.reindexSemanticSearch()).thenReturn(2);
+        when(service.updateMainImage(id, file, true, "openai")).thenReturn(response);
         when(imageAiService.generateImage(imagemIaRequest)).thenReturn(imagemIaResponse);
         when(service.update(id, null)).thenReturn(response);
         when(service.listSummaryIncludingInactive()).thenReturn(List.of(resumo));
@@ -142,9 +142,9 @@ class ControllerUnitTest {
         assertThat(controller.listar().getBody()).containsExactly(resumo);
         assertThat(controller.findByName("livro").getBody()).containsExactly(resumo);
         assertThat(controller.filtrar("livro", categoryId).getBody()).containsExactly(resumo);
-        assertThat(controller.buscarSemanticamente("where is book").getBody()).containsExactly(resultadoSemantico);
-        assertThat(controller.reindexarBuscaSemantica().getBody()).containsEntry("itensReindexados", 2);
-        assertThat(controller.updateMainImage(id, arquivo, true, "openai").getBody()).isEqualTo(response);
+        assertThat(controller.searchSemantically("where is book").getBody()).containsExactly(resultadoSemantico);
+        assertThat(controller.reindexSemanticSearch().getBody()).containsEntry("itensReindexados", 2);
+        assertThat(controller.updateMainImage(id, file, true, "openai").getBody()).isEqualTo(response);
         assertThat(controller.gerarImagemIa(imagemIaRequest).getBody()).isEqualTo(imagemIaResponse);
         assertThat(controller.update(id, null).getBody()).isEqualTo(response);
         assertThat(controller.delete(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
@@ -159,13 +159,13 @@ class ControllerUnitTest {
         UUID id = UUID.randomUUID();
         var response = mock(StorageLocationResponseDTO.class);
         var resumo = mock(StorageLocationSummaryDTO.class);
-        var arquivo = new MockMultipartFile("arquivo", "foto.png", "image/png", new byte[]{1});
+        var file = new MockMultipartFile("file", "photo.png", "image/png", new byte[]{1});
 
         when(service.create(null)).thenReturn(response);
         when(service.findResponseById(id)).thenReturn(response);
         when(service.listSummary()).thenReturn(List.of(resumo));
         when(service.findByName("dep")).thenReturn(List.of(resumo));
-        when(service.updateImage(id, arquivo)).thenReturn(response);
+        when(service.updateImage(id, file)).thenReturn(response);
         when(service.removerImagem(id)).thenReturn(response);
         when(service.update(id, null)).thenReturn(response);
         when(service.listSummaryIncludingInactive()).thenReturn(List.of(resumo));
@@ -175,7 +175,7 @@ class ControllerUnitTest {
         assertThat(controller.findById(id).getBody()).isEqualTo(response);
         assertThat(controller.listar().getBody()).containsExactly(resumo);
         assertThat(controller.findByName("dep").getBody()).containsExactly(resumo);
-        assertThat(controller.updateImage(id, arquivo).getBody()).isEqualTo(response);
+        assertThat(controller.updateImage(id, file).getBody()).isEqualTo(response);
         assertThat(controller.removerImagem(id).getBody()).isEqualTo(response);
         assertThat(controller.update(id, null).getBody()).isEqualTo(response);
         assertThat(controller.delete(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
@@ -292,12 +292,12 @@ class ControllerUnitTest {
         UUID id = UUID.randomUUID();
         var image = new MainItemImageDTO("bucket", "objeto.png", "image/png", 2L);
 
-        when(itemService.buscarMetadadosImagemPrincipal(id)).thenReturn(image);
-        when(itemService.abrirImagemPrincipal(id)).thenReturn(new ByteArrayInputStream(new byte[]{1, 2}));
-        when(localService.buscarMetadadosImagem(id)).thenReturn(image);
+        when(itemService.fetchMainImageMetadata(id)).thenReturn(image);
+        when(itemService.openMainImage(id)).thenReturn(new ByteArrayInputStream(new byte[]{1, 2}));
+        when(localService.fetchImageMetadata(id)).thenReturn(image);
         when(localService.abrirImagem(id)).thenReturn(new ByteArrayInputStream(new byte[]{1, 2}));
 
-        var itemResponse = new PublicMainItemImageController(itemService).buscarImagemPrincipal(id);
+        var itemResponse = new PublicMainItemImageController(itemService).fetchMainImage(id);
         var localResponse = new PublicStorageLocationImageController(localService).buscarImagem(id);
 
         assertThat(itemResponse.getBody()).isInstanceOf(InputStreamResource.class);

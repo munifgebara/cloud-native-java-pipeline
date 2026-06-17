@@ -13,8 +13,8 @@ import java.util.UUID;
  * @param id                 unique identifier of the person
  * @param name               full name or company name
  * @param cpfCnpj            CPF or CNPJ (digits only)
- * @param telefonePrincipal  primary contact phone; may be {@code null}
- * @param telefoneSecundario alternative phone; may be {@code null}
+ * @param primaryPhone  primary contact phone; may be {@code null}
+ * @param secondaryPhone alternative phone; may be {@code null}
  * @param email              email address; may be {@code null}
  * @param cep                ZIP code (digits only); may be {@code null}
  * @param endereco           street and number; may be {@code null}
@@ -29,8 +29,8 @@ public record PersonResponseDTO(
         UUID id,
         String name,
         String cpfCnpj,
-        String telefonePrincipal,
-        String telefoneSecundario,
+        String primaryPhone,
+        String secondaryPhone,
         String email,
         String cep,
         String endereco,

@@ -23,9 +23,9 @@ public class PhotoUploadAiService {
         this.provider = provider;
     }
 
-    public PhotoUploadSuggestionResponseDTO sugerirCadastro(MultipartFile image) {
+    public PhotoUploadSuggestionResponseDTO suggestRegistration(MultipartFile image) {
         validarImagem(image);
-        return provider.sugerirCadastro(image);
+        return provider.suggestRegistration(image);
     }
 
     private void validarImagem(MultipartFile image) {

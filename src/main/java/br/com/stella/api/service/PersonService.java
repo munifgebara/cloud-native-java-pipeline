@@ -214,8 +214,8 @@ public class PersonService extends SuperService<Person, PersonRepository> {
         }
 
         validarCamposComuns(
-                dto.telefonePrincipal(),
-                dto.telefoneSecundario(),
+                dto.primaryPhone(),
+                dto.secondaryPhone(),
                 dto.email(),
                 dto.cep(),
                 dto.uf()
@@ -224,8 +224,8 @@ public class PersonService extends SuperService<Person, PersonRepository> {
 
     private void validarUpdate(PersonUpdateDTO dto) {
         validarCamposComuns(
-                dto.telefonePrincipal(),
-                dto.telefoneSecundario(),
+                dto.primaryPhone(),
+                dto.secondaryPhone(),
                 dto.email(),
                 dto.cep(),
                 dto.uf()
@@ -233,18 +233,18 @@ public class PersonService extends SuperService<Person, PersonRepository> {
     }
 
     private void validarCamposComuns(
-            String telefonePrincipal,
-            String telefoneSecundario,
+            String primaryPhone,
+            String secondaryPhone,
             String email,
             String cep,
             String uf
     ) {
-        if (BrValidations.isNotBlank(telefonePrincipal)) {
-            BrValidations.exigirTelefoneValido(telefonePrincipal, "Primary phone");
+        if (BrValidations.isNotBlank(primaryPhone)) {
+            BrValidations.requireValidPhone(primaryPhone, "Primary phone");
         }
 
-        if (BrValidations.isNotBlank(telefoneSecundario)) {
-            BrValidations.exigirTelefoneValido(telefoneSecundario, "Secondary phone");
+        if (BrValidations.isNotBlank(secondaryPhone)) {
+            BrValidations.requireValidPhone(secondaryPhone, "Secondary phone");
         }
 
         if (BrValidations.isNotBlank(email)) {
@@ -273,8 +273,8 @@ public class PersonService extends SuperService<Person, PersonRepository> {
 
     private void normalizarCampos(Person person) {
         person.setName(BrValidations.trimToNull(person.getName()));
-        person.setPrimaryPhone(normalizarTelefone(person.getPrimaryPhone()));
-        person.setSecondaryPhone(normalizarTelefone(person.getSecondaryPhone()));
+        person.setPrimaryPhone(normalizePhone(person.getPrimaryPhone()));
+        person.setSecondaryPhone(normalizePhone(person.getSecondaryPhone()));
         person.setEmail(normalizarEmail(person.getEmail()));
         person.setZipCode(normalizarCep(person.getZipCode()));
         person.setAddress(BrValidations.trimToNull(person.getAddress()));
@@ -284,8 +284,8 @@ public class PersonService extends SuperService<Person, PersonRepository> {
         person.setState(normalizarUf(person.getState()));
     }
 
-    private String normalizarTelefone(String telefone) {
-        String valor = BrValidations.trimToNull(telefone);
+    private String normalizePhone(String phone) {
+        String valor = BrValidations.trimToNull(phone);
         return valor == null ? null : BrValidations.somenteDigitos(valor);
     }
 
@@ -357,8 +357,8 @@ public class PersonService extends SuperService<Person, PersonRepository> {
 
         adicionarSeAlterado(campos, "name", atual.name(), anterior.name());
         adicionarSeAlterado(campos, "cpfCnpj", atual.cpfCnpj(), anterior.cpfCnpj());
-        adicionarSeAlterado(campos, "telefonePrincipal", atual.telefonePrincipal(), anterior.telefonePrincipal());
-        adicionarSeAlterado(campos, "telefoneSecundario", atual.telefoneSecundario(), anterior.telefoneSecundario());
+        adicionarSeAlterado(campos, "primaryPhone", atual.primaryPhone(), anterior.primaryPhone());
+        adicionarSeAlterado(campos, "secondaryPhone", atual.secondaryPhone(), anterior.secondaryPhone());
         adicionarSeAlterado(campos, "email", atual.email(), anterior.email());
         adicionarSeAlterado(campos, "cep", atual.cep(), anterior.cep());
         adicionarSeAlterado(campos, "endereco", atual.endereco(), anterior.endereco());

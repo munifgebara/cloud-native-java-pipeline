@@ -33,8 +33,8 @@ public final class PersonMapper {
         Person person = new Person();
         person.setName(dto.name());
         person.setTaxId(dto.cpfCnpj());
-        person.setPrimaryPhone(dto.telefonePrincipal());
-        person.setSecondaryPhone(dto.telefoneSecundario());
+        person.setPrimaryPhone(dto.primaryPhone());
+        person.setSecondaryPhone(dto.secondaryPhone());
         person.setEmail(dto.email());
         person.setZipCode(dto.cep());
         person.setAddress(dto.endereco());
@@ -59,8 +59,8 @@ public final class PersonMapper {
         }
 
         entity.setName(dto.name());
-        entity.setPrimaryPhone(dto.telefonePrincipal());
-        entity.setSecondaryPhone(dto.telefoneSecundario());
+        entity.setPrimaryPhone(dto.primaryPhone());
+        entity.setSecondaryPhone(dto.secondaryPhone());
         entity.setEmail(dto.email());
         entity.setZipCode(dto.cep());
         entity.setAddress(dto.endereco());

@@ -28,7 +28,7 @@ public class MainItemEmbeddingDocumentFactory {
     }
 
     private String linha(String campo, String valor) {
-        String tratado = BrValidations.trimToNull(valor);
-        return tratado == null ? "" : campo + ": " + tratado;
+        String normalized = BrValidations.trimToNull(valor);
+        return normalized == null ? "" : campo + ": " + normalized;
     }
 }

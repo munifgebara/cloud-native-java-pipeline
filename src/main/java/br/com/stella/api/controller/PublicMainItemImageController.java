@@ -48,9 +48,9 @@ public class PublicMainItemImageController {
      * @throws IllegalArgumentException if the item does not have a registered image
      */
     @GetMapping("/{id}/image-principal")
-    public ResponseEntity<InputStreamResource> buscarImagemPrincipal(@PathVariable UUID id) {
-        MainItemImageDTO image = mainItemService.buscarMetadadosImagemPrincipal(id);
-        InputStream stream = mainItemService.abrirImagemPrincipal(id);
+    public ResponseEntity<InputStreamResource> fetchMainImage(@PathVariable UUID id) {
+        MainItemImageDTO image = mainItemService.fetchMainImageMetadata(id);
+        InputStream stream = mainItemService.openMainImage(id);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(image.contentType()))

@@ -21,7 +21,7 @@ public final class StorageLocationMapper {
     /**
      * Creates a new {@link StorageLocation} entity from creation data.
      *
-     * <p>The parent location ({@code paiId}) is not resolved here — it must be associated by the service
+     * <p>The parent location ({@code parentId}) is not resolved here — it must be associated by the service
      * before persisting, as it requires a repository query.</p>
      *
      * @param dto location creation data; may be {@code null}

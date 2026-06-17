@@ -120,7 +120,7 @@ class ItemMestreVectorSearchServiceTest {
         UUID instanciaId = UUID.randomUUID();
         UUID locationId = UUID.randomUUID();
         MainItem item = item(itemId, true);
-        item.setImageObjectKey("itens/foto.png");
+        item.setImageObjectKey("itens/photo.png");
         StorageLocation location = new StorageLocation();
         location.setId(locationId);
         location.setName("Caixa A");
@@ -135,7 +135,7 @@ class ItemMestreVectorSearchServiceTest {
             RowMapper<?> mapper = invocation.getArgument(1);
             ResultSet rs = mock(ResultSet.class);
             when(rs.getObject("item_mestre_id", UUID.class)).thenReturn(itemId);
-            when(rs.getDouble("similaridade")).thenReturn(0.87654);
+            when(rs.getDouble("similarity")).thenReturn(0.87654);
             return List.of(mapper.mapRow(rs, 0));
         });
         when(mainItemRepository.findWithCategoryByIds(List.of(itemId))).thenReturn(List.of(item));
@@ -145,7 +145,7 @@ class ItemMestreVectorSearchServiceTest {
 
         assertThat(result).hasSize(1);
         assertThat(result.getFirst().name()).isEqualTo("Video card");
-        assertThat(result.getFirst().similaridade()).isEqualTo(0.8765);
+        assertThat(result.getFirst().similarity()).isEqualTo(0.8765);
         assertThat(result.getFirst().imageUrl()).isEqualTo("/api/public/itens-mestre/%s/image-principal".formatted(itemId));
         assertThat(result.getFirst().instances()).extracting("identifier").containsExactly("GPU 1");
         assertThat(result.getFirst().locaisProvaveis()).extracting("name").containsExactly("Caixa A");

@@ -43,18 +43,18 @@ public class MainItemImageStorageService {
         this.properties = properties;
     }
 
-    public MainItemImageDTO armazenar(UUID itemId, MultipartFile arquivo) {
-        return armazenar("itens-mestre", itemId, arquivo);
+    public MainItemImageDTO armazenar(UUID itemId, MultipartFile file) {
+        return armazenar("itens-mestre", itemId, file);
     }
 
-    public MainItemImageDTO armazenarLocal(UUID locationId, MultipartFile arquivo) {
-        return armazenar("locais", locationId, arquivo);
+    public MainItemImageDTO store(UUID locationId, MultipartFile file) {
+        return armazenar("locais", locationId, file);
     }
 
-    private MainItemImageDTO armazenar(String prefixo, UUID entidadeId, MultipartFile arquivo) {
-        validarArquivo(arquivo);
+    private MainItemImageDTO armazenar(String prefixo, UUID entidadeId, MultipartFile file) {
+        validarArquivo(file);
 
-        String contentType = arquivo.getContentType().toLowerCase(Locale.ROOT);
+        String contentType = file.getContentType().toLowerCase(Locale.ROOT);
         String objectKey = "%s/%s/%s.%s".formatted(prefixo, entidadeId, UUID.randomUUID(), EXTENSOES.get(contentType));
 
         try {
@@ -62,10 +62,10 @@ public class MainItemImageStorageService {
             minioClient.putObject(PutObjectArgs.builder()
                     .bucket(properties.bucket())
                     .object(objectKey)
-                    .stream(arquivo.getInputStream(), arquivo.getSize(), -1)
+                    .stream(file.getInputStream(), file.getSize(), -1)
                     .contentType(contentType)
                     .build());
-            return new MainItemImageDTO(properties.bucket(), objectKey, contentType, arquivo.getSize());
+            return new MainItemImageDTO(properties.bucket(), objectKey, contentType, file.getSize());
         } catch (Exception ex) {
             throw new ExternalIntegrationException("Unable to store the image in MinIO.", ex);
         }
@@ -86,7 +86,7 @@ public class MainItemImageStorageService {
         }
     }
 
-    public void removerSilenciosamente(String bucket, String objectKey) {
+    public void removeSilently(String bucket, String objectKey) {
         if (bucket == null || objectKey == null) {
             return;
         }
@@ -100,16 +100,16 @@ public class MainItemImageStorageService {
         }
     }
 
-    private void validarArquivo(MultipartFile arquivo) {
-        if (arquivo == null || arquivo.isEmpty()) {
+    private void validarArquivo(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Please provide an image for upload.");
         }
 
-        if (arquivo.getSize() > properties.maxImageSizeBytes()) {
+        if (file.getSize() > properties.maxImageSizeBytes()) {
             throw new IllegalArgumentException("Image must not exceed %d bytes.".formatted(properties.maxImageSizeBytes()));
         }
 
-        String contentType = arquivo.getContentType();
+        String contentType = file.getContentType();
         if (contentType == null || !CONTENT_TYPES_PERMITIDOS.contains(contentType.toLowerCase(Locale.ROOT))) {
             throw new IllegalArgumentException("Image format not allowed. Use JPG, PNG, WebP or GIF.");
         }

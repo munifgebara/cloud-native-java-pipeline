@@ -48,7 +48,7 @@ public class PublicStorageLocationImageController {
      */
     @GetMapping("/{id}/image")
     public ResponseEntity<InputStreamResource> buscarImagem(@PathVariable UUID id) {
-        MainItemImageDTO image = storageLocationService.buscarMetadadosImagem(id);
+        MainItemImageDTO image = storageLocationService.fetchImageMetadata(id);
         InputStream stream = storageLocationService.abrirImagem(id);
 
         return ResponseEntity.ok()

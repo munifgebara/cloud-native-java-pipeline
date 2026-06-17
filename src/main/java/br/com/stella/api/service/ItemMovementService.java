@@ -102,7 +102,7 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
     public ItemMovementResponseDTO registerOutbound(ItemOutputMovementCreateDTO dto) {
         ItemInstance instance = itemInstanceRepository.findById(dto.itemInstanceId())
                 .orElseThrow(() -> new IllegalArgumentException("Instance not found."));
-        ItemInstanceRules.exigirDisponivelComLocal(
+        ItemInstanceRules.requireAvailableWithLocation(
                 instance,
                 "Instance must be active to register an outbound.",
                 "Only available instances can register an outbound.",
@@ -143,7 +143,7 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
     public ItemMovementResponseDTO registerTransfer(ItemTransferMovementCreateDTO dto) {
         ItemInstance instance = itemInstanceRepository.findById(dto.itemInstanceId())
                 .orElseThrow(() -> new IllegalArgumentException("Instance not found."));
-        ItemInstanceRules.exigirDisponivelComLocal(
+        ItemInstanceRules.requireAvailableWithLocation(
                 instance,
                 "Instance must be active to register a transfer.",
                 "Only available instances can be transferred.",

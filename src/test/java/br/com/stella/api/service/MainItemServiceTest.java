@@ -254,35 +254,35 @@ class ItemMestreServiceTest {
         MainItem item = item(id, "Notebook", null);
         item.setImageBucket("stella-itens");
         item.setImageObjectKey("itens-mestre/antiga.jpg");
-        var arquivo = new MockMultipartFile("arquivo", "foto.png", "image/png", new byte[]{1, 2, 3});
+        var file = new MockMultipartFile("file", "photo.png", "image/png", new byte[]{1, 2, 3});
         var image = new MainItemImageDTO("stella-itens", "itens-mestre/nova.png", "image/png", 3L);
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
-        when(imageStorageService.armazenar(id, arquivo)).thenReturn(image);
+        when(imageStorageService.armazenar(id, file)).thenReturn(image);
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var response = service.updateMainImage(id, arquivo);
+        var response = service.updateMainImage(id, file);
 
         assertThat(response.imageUrl()).isEqualTo("/api/public/itens-mestre/%s/image-principal".formatted(id));
         assertThat(response.imageContentType()).isEqualTo("image/png");
         assertThat(response.imageSizeBytes()).isEqualTo(3L);
         assertThat(response.imageGeneratedByAi()).isFalse();
         assertThat(response.imageProvider()).isNull();
-        verify(imageStorageService).removerSilenciosamente("stella-itens", "itens-mestre/antiga.jpg");
+        verify(imageStorageService).removeSilently("stella-itens", "itens-mestre/antiga.jpg");
     }
 
     @Test
     void deveAtualizarImagemPrincipalMarcandoOrigemIa() {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
-        var arquivo = new MockMultipartFile("arquivo", "foto.png", "image/png", new byte[]{1, 2, 3});
+        var file = new MockMultipartFile("file", "photo.png", "image/png", new byte[]{1, 2, 3});
         var image = new MainItemImageDTO("stella-itens", "itens-mestre/ia.png", "image/png", 3L);
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
-        when(imageStorageService.armazenar(id, arquivo)).thenReturn(image);
+        when(imageStorageService.armazenar(id, file)).thenReturn(image);
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var response = service.updateMainImage(id, arquivo, true, " openai ");
+        var response = service.updateMainImage(id, file, true, " openai ");
 
         assertThat(response.imageGeneratedByAi()).isTrue();
         assertThat(response.imageProvider()).isEqualTo("openai");
@@ -322,18 +322,18 @@ class ItemMestreServiceTest {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
         item.setImageBucket("stella-itens");
-        item.setImageObjectKey("itens-mestre/%s/foto.png".formatted(id));
+        item.setImageObjectKey("itens-mestre/%s/photo.png".formatted(id));
         item.setImageContentType("image/png");
         item.setImageSizeBytes(3L);
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
-        when(imageStorageService.abrir("stella-itens", "itens-mestre/%s/foto.png".formatted(id)))
+        when(imageStorageService.abrir("stella-itens", "itens-mestre/%s/photo.png".formatted(id)))
                 .thenReturn(new ByteArrayInputStream(new byte[]{1, 2, 3}));
 
-        var metadados = service.buscarMetadadosImagemPrincipal(id);
-        var image = service.abrirImagemPrincipal(id);
+        var metadados = service.fetchMainImageMetadata(id);
+        var image = service.openMainImage(id);
 
-        assertThat(metadados.objectKey()).isEqualTo("itens-mestre/%s/foto.png".formatted(id));
+        assertThat(metadados.objectKey()).isEqualTo("itens-mestre/%s/photo.png".formatted(id));
         assertThat(metadados.tamanhoBytes()).isEqualTo(3L);
         assertThat(image).hasSameContentAs(new ByteArrayInputStream(new byte[]{1, 2, 3}));
     }
@@ -345,7 +345,7 @@ class ItemMestreServiceTest {
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
 
-        assertThatThrownBy(() -> service.buscarMetadadosImagemPrincipal(id))
+        assertThatThrownBy(() -> service.fetchMainImageMetadata(id))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Main item does not have a main image.");
     }

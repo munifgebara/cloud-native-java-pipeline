@@ -59,7 +59,7 @@ public class DashboardService {
                 storageLocationRepository.countByActiveTrue(),
                 mainItemRepository.countByActiveTrueAndImageObjectKeyIsNull(),
                 mainItemRepository.countItemsRegisteredByAi(),
-                vectorSearchMetricsService.contarConsultas(),
+                vectorSearchMetricsService.countQueries(),
                 itemInstanceRepository.findLocationsWithMostItems(PageRequest.of(0, LIMITE_LOCAIS_COM_MAIS_ITENS)),
                 mainItemRepository.findCategoriesWithMostItems(PageRequest.of(0, LIMITE_CATEGORIAS_COM_MAIS_ITENS))
         );
