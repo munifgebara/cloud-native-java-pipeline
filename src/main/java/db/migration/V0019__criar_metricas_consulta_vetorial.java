@@ -19,7 +19,7 @@ public class V0019__criar_metricas_consulta_vetorial extends BaseJavaMigration {
                 statement.execute("""
                         create table public.consulta_vetorial_metrica (
                             id uuid not null,
-                            consulta varchar(1000) not null,
+                            query varchar(1000) not null,
                             quantidade_resultados integer not null,
                             criado_em timestamp with time zone not null default now(),
                             constraint pk_consulta_vetorial_metrica primary key (id)
@@ -29,7 +29,7 @@ public class V0019__criar_metricas_consulta_vetorial extends BaseJavaMigration {
                 statement.execute("""
                         create table public.consulta_vetorial_metrica (
                             id uuid not null,
-                            consulta varchar(1000) not null,
+                            query varchar(1000) not null,
                             quantidade_resultados integer not null,
                             criado_em timestamp with time zone not null default current_timestamp,
                             constraint pk_consulta_vetorial_metrica primary key (id)

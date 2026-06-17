@@ -1,0 +1,59 @@
+package br.com.stella.api.service;
+
+import br.com.stella.api.config.EmbeddingsProperties;
+import br.com.stella.api.exception.ExternalIntegrationException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.ai.embedding.EmbeddingModel;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class LocalEmbeddingProviderTest {
+
+    @Mock
+    private EmbeddingModel embeddingModel;
+
+    private LocalEmbeddingProvider provider;
+
+    @BeforeEach
+    void setUp() {
+        provider = new LocalEmbeddingProvider(
+                embeddingModel,
+                new EmbeddingsProperties("location", "http://stella-embeddings:8000", "modelo-location", 3)
+        );
+    }
+
+    @Test
+    void shouldSendTextForProviderLocationAndConvertEmbedding() {
+        when(embeddingModel.embed("placa de video")).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
+
+        float[] embedding = provider.generateEmbedding("placa de video");
+
+        assertThat(embedding).containsExactly(0.1f, 0.2f, 0.3f);
+        verify(embeddingModel).embed("placa de video");
+    }
+
+    @Test
+    void shouldReturnEmbeddingOfProviderForDifferentTexts() {
+        when(embeddingModel.embed("notebook")).thenReturn(new float[]{0.4f, 0.5f, 0.6f});
+
+        assertThat(provider.generateEmbedding("notebook")).containsExactly(0.4f, 0.5f, 0.6f);
+    }
+
+    @Test
+    void shouldFailWhenProviderThrowsException() {
+        when(embeddingModel.embed(anyString())).thenThrow(new RuntimeException("connection refused"));
+
+        assertThatThrownBy(() -> provider.generateEmbedding("notebook"))
+                .isInstanceOf(ExternalIntegrationException.class)
+                .hasMessage("Failed to query the location embeddings provider.");
+    }
+}

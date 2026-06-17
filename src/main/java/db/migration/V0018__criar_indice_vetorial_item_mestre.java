@@ -33,14 +33,14 @@ public class V0018__criar_indice_vetorial_item_mestre extends BaseJavaMigration 
                         dimensoes integer not null,
                         texto_indexado text not null,
                         embedding vector(384) not null,
-                        ativo boolean not null default true,
+                        active boolean not null default true,
                         criado_em timestamp with time zone not null default now(),
                         alterado_em timestamp with time zone not null default now(),
                         constraint pk_item_mestre_embedding primary key (item_mestre_id),
                         constraint fk_item_mestre_embedding_item_mestre foreign key (item_mestre_id) references public.item_mestre (id) on delete cascade
                     )
                     """);
-            statement.execute("create index ix_item_mestre_embedding_ativo on public.item_mestre_embedding (ativo)");
+            statement.execute("create index ix_item_mestre_embedding_ativo on public.item_mestre_embedding (active)");
             statement.execute("create index ix_item_mestre_embedding_vector on public.item_mestre_embedding using hnsw (embedding vector_cosine_ops)");
         }
     }
@@ -55,14 +55,14 @@ public class V0018__criar_indice_vetorial_item_mestre extends BaseJavaMigration 
                         dimensoes integer not null,
                         texto_indexado text not null,
                         embedding text not null,
-                        ativo boolean not null default true,
+                        active boolean not null default true,
                         criado_em timestamp with time zone not null default current_timestamp,
                         alterado_em timestamp with time zone not null default current_timestamp,
                         constraint pk_item_mestre_embedding primary key (item_mestre_id),
                         constraint fk_item_mestre_embedding_item_mestre foreign key (item_mestre_id) references public.item_mestre (id) on delete cascade
                     )
                     """);
-            statement.execute("create index ix_item_mestre_embedding_ativo on public.item_mestre_embedding (ativo)");
+            statement.execute("create index ix_item_mestre_embedding_ativo on public.item_mestre_embedding (active)");
         }
     }
 }
