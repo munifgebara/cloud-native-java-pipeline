@@ -34,7 +34,7 @@ class ImagemItemMestreStorageServiceTest {
     }
 
     @Test
-    void deveArmazenarImagemCriandoBucketQuandoNecessario() throws Exception {
+    void shouldStoreImageCreatingBucketWhenNecessary() throws Exception {
         var itemId = UUID.randomUUID();
         var file = new MockMultipartFile("file", "photo.png", "image/png", new byte[]{1, 2, 3});
 
@@ -65,7 +65,7 @@ class ImagemItemMestreStorageServiceTest {
     }
 
     @Test
-    void deveArmazenarImagemDeLocalComPrefixoProprio() throws Exception {
+    void shouldStoreImageOfLocationWithPrefixOwn() throws Exception {
         var locationId = UUID.randomUUID();
         var file = new MockMultipartFile("file", "photo.webp", "image/webp", new byte[]{1, 2, 3});
 
@@ -89,7 +89,7 @@ class ImagemItemMestreStorageServiceTest {
     }
 
     @Test
-    void deveRejeitarArquivoVazio() {
+    void shouldRejectFileEmpty() {
         var file = new MockMultipartFile("file", "vazio.png", "image/png", new byte[0]);
 
         assertThatThrownBy(() -> service.armazenar(UUID.randomUUID(), file))
@@ -98,7 +98,7 @@ class ImagemItemMestreStorageServiceTest {
     }
 
     @Test
-    void deveRejeitarFormatoNaoPermitido() {
+    void shouldRejectFormatoNotAllowed() {
         var file = new MockMultipartFile("file", "file.txt", "text/plain", new byte[]{1});
 
         assertThatThrownBy(() -> service.armazenar(UUID.randomUUID(), file))
@@ -107,7 +107,7 @@ class ImagemItemMestreStorageServiceTest {
     }
 
     @Test
-    void deveRejeitarImagemMaiorQueLimiteConfigurado() {
+    void shouldRejectImageGreaterThatLimitConfigured() {
         var file = new MockMultipartFile("file", "photo.png", "image/png", new byte[11]);
 
         assertThatThrownBy(() -> service.armazenar(UUID.randomUUID(), file))

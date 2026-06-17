@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class AiUsageGuardTest {
 
     @Test
-    void deveContabilizarUsoAteOLimiteDiario() {
+    void shouldCountUsageUntilOLimitDaily() {
         AiUsageGuard guard = new AiUsageGuard(
                 new AiProperties(true),
                 new OpenAiLimitsProperties(1, null, null),
@@ -35,7 +35,7 @@ class AiUsageGuardTest {
     }
 
     @Test
-    void deveBloquearQuandoIaEstaDesabilitada() {
+    void shouldBlockWhenIaIsDisabled() {
         AiUsageGuard guard = new AiUsageGuard(
                 new AiProperties(false),
                 new OpenAiLimitsProperties(null, null, null),
@@ -50,7 +50,7 @@ class AiUsageGuardTest {
     }
 
     @Test
-    void deveResetarUsoQuandoMudaODia() {
+    void shouldResetUsageWhenChangesODay() {
         MutableClock clock = new MutableClock(Instant.parse("2026-06-12T23:59:00Z"));
         AiUsageGuard guard = new AiUsageGuard(
                 new AiProperties(true),

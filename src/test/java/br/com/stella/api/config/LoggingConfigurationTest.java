@@ -16,7 +16,7 @@ class LoggingConfigurationTest {
     private final YamlPropertySourceLoader yamlLoader = new YamlPropertySourceLoader();
 
     @Test
-    void deveConfigurarConsoleLegivelNoProfilePadrao() throws Exception {
+    void shouldConfigureConsoleReadableInProfileDefault() throws Exception {
         PropertySource<?> application = loadYaml("application.yml").getFirst();
 
         assertThat(application.getProperty("logging.pattern.console"))
@@ -26,7 +26,7 @@ class LoggingConfigurationTest {
     }
 
     @Test
-    void deveConfigurarLogsEstruturadosNoProfileServidor() throws Exception {
+    void shouldConfigureLogsStructuredInProfileServer() throws Exception {
         PropertySource<?> server = loadYaml("application-server.yml").getFirst();
 
         assertThat(server.getProperty("logging.structured.format.console")).isEqualTo("ecs");
@@ -36,7 +36,7 @@ class LoggingConfigurationTest {
     }
 
     @Test
-    void deveAtivarProfileServidorNoDeploymentKubernetes() throws Exception {
+    void shouldActivateProfileServerInDeploymentKubernetes() throws Exception {
         String configMap = Files.readString(Path.of("k8s/platform/stella-api/stella-api-configmap.yaml"));
         String deployment = Files.readString(Path.of("k8s/platform/stella-api/stella-api-deployment.yaml"));
 

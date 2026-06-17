@@ -72,7 +72,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
     public MainItemResponseDTO create(MainItemCreateDTO dto) {
         MainItem item = MainItemMapper.toEntity(dto);
         normalizarCampos(item);
-        item.setCategory(buscarCategoriaAtiva(dto.categoryId()));
+        item.setCategory(findActiveCategory(dto.categoryId()));
 
         MainItem salvo = save(item);
         if (Boolean.FALSE.equals(dto.ativa())) {
@@ -174,7 +174,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
     @Transactional
     public MainItemResponseDTO update(UUID id, MainItemUpdateDTO dto) {
         MainItem item = findById(id);
-        Category category = buscarCategoriaAtiva(dto.categoryId());
+        Category category = findActiveCategory(dto.categoryId());
 
         MainItemMapper.updateEntity(item, dto);
         normalizarCampos(item);
@@ -317,7 +317,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      */
     @Transactional
     public int reindexSemanticSearch() {
-        return vectorSearchService.reindexarItensAtivos();
+        return vectorSearchService.reindexActiveItems();
     }
 
     /**
@@ -331,7 +331,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
         return listPreviousVersions(id);
     }
 
-    private Category buscarCategoriaAtiva(UUID categoryId) {
+    private Category findActiveCategory(UUID categoryId) {
         if (categoryId == null) {
             return null;
         }

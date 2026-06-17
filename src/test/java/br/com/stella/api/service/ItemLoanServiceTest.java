@@ -53,7 +53,7 @@ class EmprestimoItemServiceTest {
     private ItemLoanService service;
 
     @Test
-    void deveRegistrarEmprestimoAtualizandoStatusDaInstancia() {
+    void shouldRegisterLoanUpdatingStatusOfInstance() {
         UUID instanciaId = UUID.randomUUID();
         UUID pessoaId = UUID.randomUUID();
         ItemInstance instance = instance(instanciaId, ItemInstanceStatus.DISPONIVEL, true, location(UUID.randomUUID(), "Biblioteca"));
@@ -96,7 +96,7 @@ class EmprestimoItemServiceTest {
     }
 
     @Test
-    void deveImpedirEmprestimoDeInstanciaIndisponivel() {
+    void shouldPreventLoanOfInstanceUnavailable() {
         UUID instanciaId = UUID.randomUUID();
         UUID pessoaId = UUID.randomUUID();
         ItemInstance instance = instance(instanciaId, ItemInstanceStatus.EM_MOVIMENTACAO, true, location(UUID.randomUUID(), "Biblioteca"));
@@ -113,7 +113,7 @@ class EmprestimoItemServiceTest {
     }
 
     @Test
-    void deveImpedirEmprestimoAbertoDuplicado() {
+    void shouldPreventLoanOpenDuplicate() {
         UUID instanciaId = UUID.randomUUID();
         UUID pessoaId = UUID.randomUUID();
         ItemInstance instance = instance(instanciaId, ItemInstanceStatus.DISPONIVEL, true, location(UUID.randomUUID(), "Biblioteca"));
@@ -131,7 +131,7 @@ class EmprestimoItemServiceTest {
     }
 
     @Test
-    void deveRegistrarDevolucaoEncerrandoEmprestimoEAtualizandoInstancia() {
+    void shouldRegisterReturnEndingLoanAndUpdatingInstance() {
         UUID instanciaId = UUID.randomUUID();
         UUID locationId = UUID.randomUUID();
         ItemInstance instance = instance(instanciaId, ItemInstanceStatus.EMPRESTADO, true, null);
@@ -167,7 +167,7 @@ class EmprestimoItemServiceTest {
     }
 
     @Test
-    void deveImpedirDevolucaoSemEmprestimoAberto() {
+    void shouldPreventReturnWithoutLoanOpen() {
         UUID instanciaId = UUID.randomUUID();
         UUID locationId = UUID.randomUUID();
 
@@ -182,7 +182,7 @@ class EmprestimoItemServiceTest {
     }
 
     @Test
-    void deveImpedirDevolucaoQuandoInstanciaNaoEstaEmprestada() {
+    void shouldPreventReturnWhenInstanceNotIsLoaned() {
         UUID instanciaId = UUID.randomUUID();
         UUID locationId = UUID.randomUUID();
         ItemInstance instance = instance(instanciaId, ItemInstanceStatus.DISPONIVEL, true, null);

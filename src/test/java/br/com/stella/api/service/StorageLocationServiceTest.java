@@ -41,7 +41,7 @@ class LocalArmazenamentoServiceTest {
     private StorageLocationService service;
 
     @Test
-    void deveCriarLocalRaizNormalizandoCampos() {
+    void shouldCreateLocationRootNormalizingFields() {
         when(repository.save(any(StorageLocation.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         var response = service.create(new StorageLocationCreateDTO("  Casa  ", "  Local principal  ", null, true));
@@ -57,7 +57,7 @@ class LocalArmazenamentoServiceTest {
     }
 
     @Test
-    void deveCriarSublocalComLocalPai() {
+    void shouldCreateSubLocationWithLocationParent() {
         UUID parentId = UUID.randomUUID();
         StorageLocation parent = location(parentId, "Escritorio", null);
 
@@ -73,7 +73,7 @@ class LocalArmazenamentoServiceTest {
     }
 
     @Test
-    void deveCriarLocalInativoAposPersistenciaInicial() {
+    void shouldCreateLocationInactiveAfterPersistenceInitial() {
         when(repository.save(any(StorageLocation.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         var response = service.create(new StorageLocationCreateDTO("Arquivo morto", null, null, false));
@@ -83,7 +83,7 @@ class LocalArmazenamentoServiceTest {
     }
 
     @Test
-    void deveListarPreservandoHierarquia() {
+    void shouldListPreservingHierarchy() {
         StorageLocation casa = location(UUID.randomUUID(), "Casa", null);
         StorageLocation escritorio = location(UUID.randomUUID(), "Escritorio", casa);
         StorageLocation gaveta = location(UUID.randomUUID(), "Gaveta 2", escritorio);
@@ -104,7 +104,7 @@ class LocalArmazenamentoServiceTest {
     }
 
     @Test
-    void deveListarResumoIncluindoInativosEOrfaosComoRaiz() {
+    void shouldListResumoIncludingInactiveAndOrphansAsRoot() {
         StorageLocation removido = location(UUID.randomUUID(), "Removido", null);
         removido.setActive(false);
         StorageLocation orfao = location(UUID.randomUUID(), "Orfao", location(UUID.randomUUID(), "Pai ausente", null));
@@ -119,7 +119,7 @@ class LocalArmazenamentoServiceTest {
     }
 
     @Test
-    void deveBuscarPorNomeSomenteQuandoFiltroInformado() {
+    void shouldFindByNameOnlyWhenFilterProvided() {
         StorageLocation location = location(UUID.randomUUID(), "Deposito Central", null);
 
         when(repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc("Deposito")).thenReturn(List.of(location));
@@ -129,7 +129,7 @@ class LocalArmazenamentoServiceTest {
     }
 
     @Test
-    void deveImpedirLocalComoPaiDeleMesmo() {
+    void shouldPreventLocationAsParentItsSame() {
         UUID id = UUID.randomUUID();
         StorageLocation location = location(id, "Casa", null);
 
@@ -141,7 +141,7 @@ class LocalArmazenamentoServiceTest {
     }
 
     @Test
-    void deveImpedirPaiDescendenteDoProprioLocal() {
+    void shouldPreventParentDescendingOfOwnLocation() {
         UUID casaId = UUID.randomUUID();
         UUID escritorioId = UUID.randomUUID();
         UUID gavetaId = UUID.randomUUID();
@@ -159,7 +159,7 @@ class LocalArmazenamentoServiceTest {
     }
 
     @Test
-    void deveImpedirLocalPaiInativo() {
+    void shouldPreventLocationParentInactive() {
         UUID parentId = UUID.randomUUID();
         StorageLocation parent = location(parentId, "Arquivo morto", null);
         parent.setActive(false);
@@ -174,7 +174,7 @@ class LocalArmazenamentoServiceTest {
     }
 
     @Test
-    void deveAtualizarLocalComPaiAtivoNormalizandoCampos() {
+    void shouldUpdateLocationWithParentActiveNormalizingFields() {
         UUID id = UUID.randomUUID();
         UUID parentId = UUID.randomUUID();
         StorageLocation location = location(id, "Antigo", null);
@@ -193,7 +193,7 @@ class LocalArmazenamentoServiceTest {
     }
 
     @Test
-    void deveAtualizarImagemDoLocalRemovendoImagemAnterior() {
+    void shouldUpdateImageOfLocationRemovingImagePrevious() {
         UUID id = UUID.randomUUID();
         StorageLocation location = location(id, "Deposito", null);
         location.setImageBucket("bucket-antigo");
@@ -217,7 +217,7 @@ class LocalArmazenamentoServiceTest {
     }
 
     @Test
-    void deveRemoverImagemDoLocal() {
+    void shouldRemoveImageOfLocation() {
         UUID id = UUID.randomUUID();
         StorageLocation location = location(id, "Deposito", null);
         location.setImageBucket("bucket");
@@ -228,7 +228,7 @@ class LocalArmazenamentoServiceTest {
         when(repository.findById(id)).thenReturn(Optional.of(location));
         when(repository.save(any(StorageLocation.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var response = service.removerImagem(id);
+        var response = service.removeImage(id);
 
         assertThat(response.imageUrl()).isNull();
         assertThat(location.getImageBucket()).isNull();
@@ -239,21 +239,21 @@ class LocalArmazenamentoServiceTest {
     }
 
     @Test
-    void naoDeveRemoverObjetoQuandoLocalNaoPossuiImagem() {
+    void notShouldRemoveObjectWhenLocationNotHasImage() {
         UUID id = UUID.randomUUID();
         StorageLocation location = location(id, "Deposito", null);
 
         when(repository.findById(id)).thenReturn(Optional.of(location));
         when(repository.save(any(StorageLocation.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        service.removerImagem(id);
+        service.removeImage(id);
 
         verify(imageStorageService).removeSilently(null, null);
         verify(imageStorageService, never()).store(any(), any());
     }
 
     @Test
-    void deveBuscarMetadadosEAbrirImagemDoLocal() {
+    void shouldFindMetadataAndOpenImageOfLocation() {
         UUID id = UUID.randomUUID();
         StorageLocation location = location(id, "Deposito", null);
         location.setImageBucket("stella-locais");
@@ -266,7 +266,7 @@ class LocalArmazenamentoServiceTest {
                 .thenReturn(new ByteArrayInputStream(new byte[]{1, 2}));
 
         var metadados = service.fetchImageMetadata(id);
-        var image = service.abrirImagem(id);
+        var image = service.openImage(id);
 
         assertThat(metadados.contentType()).isEqualTo("image/png");
         assertThat(metadados.tamanhoBytes()).isEqualTo(2L);
@@ -274,7 +274,7 @@ class LocalArmazenamentoServiceTest {
     }
 
     @Test
-    void deveRejeitarMetadadosQuandoLocalNaoPossuiImagem() {
+    void shouldRejectMetadataWhenLocationNotHasImage() {
         UUID id = UUID.randomUUID();
         StorageLocation location = location(id, "Deposito", null);
 

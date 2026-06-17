@@ -43,13 +43,13 @@ class DashboardServiceTest {
     private DashboardService service;
 
     @Test
-    void deveCarregarResumoDoInventario() {
+    void shouldLoadResumoOfInventory() {
         var locationId = UUID.randomUUID();
         var categoryId = UUID.randomUUID();
         var locais = List.of(new DashboardLocationQuantityDTO(locationId, "Biblioteca", 12));
         var categories = List.of(new DashboardCategoryQuantityDTO(categoryId, "Livros", 7));
 
-        when(personService.contarPessoasAtivas()).thenReturn(4L);
+        when(personService.countActivePeople()).thenReturn(4L);
         when(mainItemRepository.countByActiveTrue()).thenReturn(10L);
         when(mainItemRepository.countByActiveTrueAndImageObjectKeyIsNull()).thenReturn(2L);
         when(mainItemRepository.countItemsRegisteredByAi()).thenReturn(3L);
@@ -63,13 +63,13 @@ class DashboardServiceTest {
 
         var resumo = service.carregarResumo();
 
-        assertThat(resumo.quantidadePessoas()).isEqualTo(4);
-        assertThat(resumo.quantidadeItensMestre()).isEqualTo(10);
-        assertThat(resumo.quantidadeInstancias()).isEqualTo(25);
-        assertThat(resumo.quantidadeInstanciasDisponiveis()).isEqualTo(18);
-        assertThat(resumo.quantidadeInstanciasEmprestadas()).isEqualTo(5);
+        assertThat(resumo.peopleCount()).isEqualTo(4);
+        assertThat(resumo.mainItemCount()).isEqualTo(10);
+        assertThat(resumo.instanceCount()).isEqualTo(25);
+        assertThat(resumo.availableInstanceCount()).isEqualTo(18);
+        assertThat(resumo.loanedInstanceCount()).isEqualTo(5);
         assertThat(resumo.quantidadeLocais()).isEqualTo(3);
-        assertThat(resumo.quantidadeItensSemImagem()).isEqualTo(2);
+        assertThat(resumo.itemsWithoutImageCount()).isEqualTo(2);
         assertThat(resumo.quantidadeItensCadastradosPorIa()).isEqualTo(3);
         assertThat(resumo.vectorQueryCount()).isEqualTo(11);
         assertThat(resumo.locaisComMaisItens()).containsExactlyElementsOf(locais);

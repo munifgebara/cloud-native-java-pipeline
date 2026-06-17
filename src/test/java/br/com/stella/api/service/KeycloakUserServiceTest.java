@@ -51,7 +51,7 @@ class KeycloakUsuarioServiceTest {
     }
 
     @Test
-    void deveListarUsuariosComRolesDoKeycloak() {
+    void shouldListUsersWithRolesOfKeycloak() {
         expectAdminToken();
         server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users?briefRepresentation=false"))
                 .andExpect(method(HttpMethod.GET))
@@ -89,7 +89,7 @@ class KeycloakUsuarioServiceTest {
     }
 
     @Test
-    void deveCriarUsuarioComSenhaERoles() {
+    void shouldCreateUserWithPasswordAndRoles() {
         expectAdminToken();
         server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users"))
                 .andExpect(method(HttpMethod.POST))
@@ -131,7 +131,7 @@ class KeycloakUsuarioServiceTest {
     }
 
     @Test
-    void deveValidarSenhaAtualAntesDeRedefinirSenhaPropria() {
+    void shouldValidatePasswordCurrentBeforeOfRedefinePasswordOwn() {
         server.expect(once(), requestTo("http://keycloak/realms/stella/protocol/openid-connect/token"))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess("""
@@ -150,7 +150,7 @@ class KeycloakUsuarioServiceTest {
     }
 
     @Test
-    void deveTraduzirConflitoDoKeycloakAoCriarUsuario() {
+    void shouldTranslateConflictOfKeycloakOnCreateUser() {
         expectAdminToken();
         server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users"))
                 .andExpect(method(HttpMethod.POST))
@@ -175,7 +175,7 @@ class KeycloakUsuarioServiceTest {
     }
 
     @Test
-    void deveTraduzirFalhaDeAutenticacaoAdministrativaDoKeycloak() {
+    void shouldTranslateFailureOfAuthenticationAdministrativeOfKeycloak() {
         server.expect(once(), requestTo("http://keycloak/realms/master/protocol/openid-connect/token"))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
@@ -190,7 +190,7 @@ class KeycloakUsuarioServiceTest {
     }
 
     @Test
-    void deveCarregarMeuPerfilAPartirDoJwtSemConsultarKeycloakAdmin() {
+    void shouldLoadMeuProfileAFromOfJwtWithoutQueryKeycloakAdmin() {
         var perfil = service.meuPerfil(jwt("user-7", "perfil7"));
 
         assertThat(perfil.id()).isEqualTo("user-7");
@@ -204,7 +204,7 @@ class KeycloakUsuarioServiceTest {
     }
 
     @Test
-    void deveTraduzirFalhaDeConexaoComKeycloakComoServicoIndisponivel() {
+    void shouldTranslateFailureOfConnectionWithKeycloakAsServiceUnavailable() {
         KeycloakUserService servicoIndisponivel = new KeycloakUserService(
                 new KeycloakProperties("http://127.0.0.1:1", "stella", "stella-cli", "master", "admin-cli", "admin", "admin", null),
                 RestClient.builder()
@@ -218,7 +218,7 @@ class KeycloakUsuarioServiceTest {
     }
 
     @Test
-    void deveObterTokenAdministrativoComClientCredentialsQuandoSecretConfigurado() {
+    void shouldGetTokenAdministrativeWithClientCredentialsWhenSecretConfigured() {
         RestClient.Builder builder = RestClient.builder();
         server = MockRestServiceServer.bindTo(builder).build();
         service = new KeycloakUserService(
@@ -266,7 +266,7 @@ class KeycloakUsuarioServiceTest {
     }
 
     @Test
-    void deveAtualizarUsuarioSubstituindoRolesGerenciadas() {
+    void shouldUpdateUserSubstitutingRolesManaged() {
         expectAdminToken();
         server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/user-4"))
                 .andExpect(method(HttpMethod.GET))
@@ -361,7 +361,7 @@ class KeycloakUsuarioServiceTest {
     }
 
     @Test
-    void deveAtualizarMeuPerfilNormalizandoCamposEInformandoUrlDaConta() {
+    void shouldUpdateMeuProfileNormalizingFieldsAndProvidingUrlOfAccount() {
         expectAdminToken();
         server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/user-5"))
                 .andExpect(method(HttpMethod.GET))
@@ -425,7 +425,7 @@ class KeycloakUsuarioServiceTest {
     }
 
     @Test
-    void deveTraduzirUsuarioNaoEncontradoParaBaseEntityNaoEncontrada() {
+    void shouldTranslateUserNotFoundForBaseEntityNotFound() {
         expectAdminToken();
         server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/desconhecido"))
                 .andExpect(method(HttpMethod.GET))
@@ -439,7 +439,7 @@ class KeycloakUsuarioServiceTest {
     }
 
     @Test
-    void deveRejeitarAlteracaoDeSenhaQuandoSenhaAtualForInvalida() {
+    void shouldRejectChangeOfPasswordWhenPasswordCurrentForInvalid() {
         server.expect(once(), requestTo("http://keycloak/realms/stella/protocol/openid-connect/token"))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
@@ -452,7 +452,7 @@ class KeycloakUsuarioServiceTest {
     }
 
     @Test
-    void deveFalharQuandoCredenciaisAdministrativasNaoEstaoConfiguradas() {
+    void shouldFailWhenCredentialsAdministrativeNotAreConfigured() {
         RestClient.Builder builder = RestClient.builder();
         server = MockRestServiceServer.bindTo(builder).build();
         service = new KeycloakUserService(
@@ -468,7 +468,7 @@ class KeycloakUsuarioServiceTest {
     }
 
     @Test
-    void deveFalharQuandoKeycloakNaoRetornaLocationAoCriarUsuario() {
+    void shouldFailWhenKeycloakNotReturnsLocationOnCreateUser() {
         expectAdminToken();
         server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users"))
                 .andExpect(method(HttpMethod.POST))

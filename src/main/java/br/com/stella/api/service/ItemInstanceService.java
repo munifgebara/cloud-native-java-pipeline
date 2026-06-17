@@ -118,7 +118,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
      * @return DTO with the instance and its list of movements in chronological order
      */
     @Transactional(readOnly = true)
-    public ItemInstanceHistoryDTO buscarHistorico(UUID id) {
+    public ItemInstanceHistoryDTO findHistory(UUID id) {
         ItemInstance instance = findById(id);
         var movimentacoes = itemMovementRepository.findByItemInstanceIdOrderByMovementDateAscCreatedAtAsc(id).stream()
                 .map(ItemMovementMapper::toResponseDTO)

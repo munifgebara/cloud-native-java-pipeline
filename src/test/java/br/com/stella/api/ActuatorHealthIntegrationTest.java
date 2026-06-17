@@ -23,7 +23,7 @@ class ActuatorHealthIntegrationTest {
     private MockMvc mockMvc;
 
     @Test
-    void deveRetornarStatusUpNoActuatorHealth() throws Exception {
+    void shouldReturnStatusUpInActuatorHealth() throws Exception {
         mockMvc.perform(get("/actuator/health")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

@@ -13,7 +13,7 @@ class GlobalExceptionHandlerTest {
     private final GlobalExceptionHandler handler = new GlobalExceptionHandler();
 
     @Test
-    void deveRetornarMensagemDeRegraDeNegocioComContexto() {
+    void shouldReturnMensagemOfRuleOfBusinessWithContext() {
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v0/people");
 
         var response = handler.handleBusinessRule(new IllegalArgumentException("CPF/CNPJ is required."), request);
@@ -26,7 +26,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void deveOcultarDetalheTecnicoEmErroInesperado() {
+    void shouldHideDetailTechnicalInErrorUnexpected() {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v0/dashboard");
 
         var response = handler.handleUnexpectedError(new RuntimeException("internal detail"), request);
@@ -39,7 +39,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void deveRetornarCamposEmErroDeValidacao() {
+    void shouldReturnFieldsInErrorOfValidation() {
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v0/people");
         Map<String, Object> body = handler.handleValidation(
                 TestValidationSupport.methodArgumentNotValid("name", "Name is required."),
@@ -56,7 +56,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void deveRetornarStatusDeBloqueioDeUsoIa() {
+    void shouldReturnStatusOfBlockOfUsageIa() {
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v0/itens-mestre/image-ia");
 
         var response = handler.handleAiUsageLimit(new AiUsageLimitException(HttpStatus.TOO_MANY_REQUESTS, "Daily limit for OpenAI image generation reached."), request);
@@ -69,7 +69,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void deveRetornar502ComMensagemDaExcecaoParaFalhaDeIntegracao() {
+    void shouldReturn502WithMensagemOfExceptionForFailureOfIntegration() {
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v0/itens-mestre/image-ia");
 
         var response = handler.handleExternalIntegration(
@@ -83,7 +83,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void deveRetornar500ComMensagemGenericaParaEstadoIlegal() {
+    void shouldReturn500WithMensagemGenericForStateIllegal() {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v0/itens-mestre");
 
         var response = handler.handleUnexpectedState(

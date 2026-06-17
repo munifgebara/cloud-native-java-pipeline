@@ -46,7 +46,7 @@ class ItemMestreVectorSearchServiceTest {
     private final MainItemEmbeddingDocumentFactory documentFactory = new MainItemEmbeddingDocumentFactory();
 
     @Test
-    void naoDeveIndexarQuandoBuscaVetorialEstaDesabilitada() {
+    void notShouldIndexWhenSearchVectorIsDisabled() {
         var service = service(false);
 
         service.sincronizar(item(UUID.randomUUID(), true));
@@ -57,7 +57,7 @@ class ItemMestreVectorSearchServiceTest {
     }
 
     @Test
-    void deveGerarEmbeddingEAtualizarIndiceDoItemAtivo() {
+    void shouldGenerateEmbeddingAndUpdateIndexOfItemActive() {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, true);
         when(embeddingProvider.gerarEmbedding(anyString())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
@@ -71,7 +71,7 @@ class ItemMestreVectorSearchServiceTest {
     }
 
     @Test
-    void deveRemoverIndiceQuandoItemEstaInativo() {
+    void shouldRemoveIndexWhenItemIsInactive() {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, false);
 
@@ -82,7 +82,7 @@ class ItemMestreVectorSearchServiceTest {
     }
 
     @Test
-    void deveRemoverIndiceQuandoDocumentoFicaVazio() {
+    void shouldRemoveIndexWhenDocumentStaysEmpty() {
         UUID id = UUID.randomUUID();
         MainItem item = new MainItem();
         item.setId(id);
@@ -95,7 +95,7 @@ class ItemMestreVectorSearchServiceTest {
     }
 
     @Test
-    void devePropagarFalhaAoRemoverIndice() {
+    void shouldPropagateFailureOnRemoveIndex() {
         UUID id = UUID.randomUUID();
         RuntimeException falha = new RuntimeException("database failure");
         doThrow(falha).when(jdbcTemplate).update(anyString(), eq(id));
@@ -105,7 +105,7 @@ class ItemMestreVectorSearchServiceTest {
     }
 
     @Test
-    void deveFalharQuandoProviderRetornaDimensoesIncompativeis() {
+    void shouldFailWhenProviderReturnsDimensionsIncompatible() {
         MainItem item = item(UUID.randomUUID(), true);
         when(embeddingProvider.gerarEmbedding(anyString())).thenReturn(new float[]{0.1f});
 
@@ -115,7 +115,7 @@ class ItemMestreVectorSearchServiceTest {
     }
 
     @Test
-    void deveBuscarSemanticamenteMontandoItemInstanciasLocaisESimilaridade() throws Exception {
+    void shouldFindSemanticallyBuildingItemInstancesLocationsAndSimilarity() throws Exception {
         UUID itemId = UUID.randomUUID();
         UUID instanciaId = UUID.randomUUID();
         UUID locationId = UUID.randomUUID();
@@ -153,7 +153,7 @@ class ItemMestreVectorSearchServiceTest {
     }
 
     @Test
-    void deveRetornarListaVaziaQuandoBuscaVetorialEstaDesabilitada() {
+    void shouldReturnListEmptyWhenSearchVectorIsDisabled() {
         var result = service(false).search("placa de video");
 
         assertThat(result).isEmpty();
@@ -163,7 +163,7 @@ class ItemMestreVectorSearchServiceTest {
     }
 
     @Test
-    void deveRetornarListaVaziaQuandoConsultaNaoTemResultados() {
+    void shouldReturnListEmptyWhenQueryNotHasResults() {
         when(embeddingProvider.gerarEmbedding("placa de video")).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any())).thenReturn(List.of());
 
@@ -174,7 +174,7 @@ class ItemMestreVectorSearchServiceTest {
     }
 
     @Test
-    void devePropagarFalhaAoBuscarSemanticamente() {
+    void shouldPropagateFailureOnFindSemantically() {
         String consultaLonga = "placa ".repeat(60);
         RuntimeException falha = new RuntimeException("query failure");
         when(embeddingProvider.gerarEmbedding(consultaLonga.trim())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
@@ -185,36 +185,36 @@ class ItemMestreVectorSearchServiceTest {
     }
 
     @Test
-    void deveReindexarItensAtivosQuandoHabilitado() {
+    void shouldReindexItemsActiveWhenEnabled() {
         when(mainItemRepository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(item(UUID.randomUUID(), true), item(UUID.randomUUID(), true)));
         when(embeddingProvider.gerarEmbedding(anyString())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
 
-        int total = service(true).reindexarItensAtivos();
+        int total = service(true).reindexActiveItems();
 
         assertThat(total).isEqualTo(2);
         verify(jdbcTemplate, org.mockito.Mockito.times(2)).update(anyString(), any(), any(), any(), any(), any(), any());
     }
 
     @Test
-    void deveRetornarZeroAoReindexarQuandoBuscaVetorialEstaDesabilitada() {
-        assertThat(service(false).reindexarItensAtivos()).isZero();
+    void shouldReturnZeroOnReindexWhenSearchVectorIsDisabled() {
+        assertThat(service(false).reindexActiveItems()).isZero();
 
         verifyNoInteractions(mainItemRepository);
         verifyNoInteractions(embeddingProvider);
     }
 
     @Test
-    void devePropagarFalhaAoReindexarItensAtivos() {
+    void shouldPropagateFailureOnReindexItemsActive() {
         when(mainItemRepository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(item(UUID.randomUUID(), true)));
         when(embeddingProvider.gerarEmbedding(anyString())).thenReturn(new float[]{0.1f});
 
-        assertThatThrownBy(() -> service(true).reindexarItensAtivos())
+        assertThatThrownBy(() -> service(true).reindexActiveItems())
                 .isInstanceOf(ExternalIntegrationException.class)
                 .hasMessage("Embeddings provider returned a vector with incompatible dimensions.");
     }
 
     @Test
-    void deveBloquearEmbeddingQuandoIaEstaDesabilitada() {
+    void shouldBlockEmbeddingWhenIaIsDisabled() {
         MainItem item = item(UUID.randomUUID(), true);
 
         assertThatThrownBy(() -> service(true, new AiProperties(false), new OpenAiLimitsProperties(null, null, null)).sincronizar(item))
@@ -225,7 +225,7 @@ class ItemMestreVectorSearchServiceTest {
     }
 
     @Test
-    void deveBloquearEmbeddingQuandoLimiteDiarioFoiAtingido() {
+    void shouldBlockEmbeddingWhenLimitDailyWasReached() {
         MainItem item = item(UUID.randomUUID(), true);
 
         assertThatThrownBy(() -> service(true, new AiProperties(true), new OpenAiLimitsProperties(null, null, 0)).sincronizar(item))

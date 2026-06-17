@@ -47,9 +47,9 @@ public class PublicStorageLocationImageController {
      * @throws IllegalArgumentException if the location does not have a registered image
      */
     @GetMapping("/{id}/image")
-    public ResponseEntity<InputStreamResource> buscarImagem(@PathVariable UUID id) {
+    public ResponseEntity<InputStreamResource> fetchImage(@PathVariable UUID id) {
         MainItemImageDTO image = storageLocationService.fetchImageMetadata(id);
-        InputStream stream = storageLocationService.abrirImagem(id);
+        InputStream stream = storageLocationService.openImage(id);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(image.contentType()))

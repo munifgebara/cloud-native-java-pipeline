@@ -61,7 +61,7 @@ class InstanciaItemServiceTest {
     private ItemInstanceService service;
 
     @Test
-    void deveCriarInstanciaComItemMestreNormalizandoCampos() {
+    void shouldCreateInstanceWithItemMainNormalizingFields() {
         UUID mainItemId = UUID.randomUUID();
         UUID locationId = UUID.randomUUID();
         MainItem mainItem = mainItem(mainItemId, "Notebook Dell Latitude 5440", true);
@@ -100,7 +100,7 @@ class InstanciaItemServiceTest {
     }
 
     @Test
-    void deveImpedirInstanciaSemIdentificacaoIndividual() {
+    void shouldPreventInstanceWithoutIdentificationIndividual() {
         UUID mainItemId = UUID.randomUUID();
 
         assertThatThrownBy(() -> service.create(new ItemInstanceCreateDTO(mainItemId, null, " ", null, null, null, null, null, true)))
@@ -112,7 +112,7 @@ class InstanciaItemServiceTest {
     }
 
     @Test
-    void deveImpedirItemMestreInativo() {
+    void shouldPreventItemMainInactive() {
         UUID mainItemId = UUID.randomUUID();
         MainItem mainItem = mainItem(mainItemId, "Notebook", false);
 
@@ -126,7 +126,7 @@ class InstanciaItemServiceTest {
     }
 
     @Test
-    void deveAtualizarInstanciaComOutroItemMestre() {
+    void shouldUpdateInstanceWithAnotherItemMain() {
         UUID id = UUID.randomUUID();
         UUID mainItemId = UUID.randomUUID();
         ItemInstance instance = instance(id, "NB-001", mainItem(UUID.randomUUID(), "Antigo", true));
@@ -156,7 +156,7 @@ class InstanciaItemServiceTest {
     }
 
     @Test
-    void deveImpedirInstanciaDisponivelSemLocalAtual() {
+    void shouldPreventInstanceAvailableWithoutLocationCurrent() {
         UUID id = UUID.randomUUID();
         UUID mainItemId = UUID.randomUUID();
         ItemInstance instance = instance(id, "NB-001", mainItem(UUID.randomUUID(), "Antigo", true));
@@ -183,7 +183,7 @@ class InstanciaItemServiceTest {
     }
 
     @Test
-    void deveImpedirInstanciaEmprestadaComLocalAtual() {
+    void shouldPreventInstanceLoanedWithLocationCurrent() {
         UUID id = UUID.randomUUID();
         UUID mainItemId = UUID.randomUUID();
         UUID locationId = UUID.randomUUID();
@@ -213,7 +213,7 @@ class InstanciaItemServiceTest {
     }
 
     @Test
-    void deveImpedirExclusaoLogicaDeInstanciaComMovimentacao() {
+    void shouldPreventDeletionLogicOfInstanceWithMovement() {
         UUID id = UUID.randomUUID();
 
         when(itemMovementRepository.existsByItemInstanceId(id)).thenReturn(true);
@@ -226,7 +226,7 @@ class InstanciaItemServiceTest {
     }
 
     @Test
-    void deveImpedirExclusaoLogicaDeInstanciaComEmprestimo() {
+    void shouldPreventDeletionLogicOfInstanceWithLoan() {
         UUID id = UUID.randomUUID();
 
         when(itemMovementRepository.existsByItemInstanceId(id)).thenReturn(false);
@@ -240,7 +240,7 @@ class InstanciaItemServiceTest {
     }
 
     @Test
-    void deveBuscarPorIdentificadorSomenteQuandoFiltroInformado() {
+    void shouldFindByIdentifierOnlyWhenFilterProvided() {
         ItemInstance instance = instance(UUID.randomUUID(), "NB-001", mainItem(UUID.randomUUID(), "Notebook", true));
 
         when(repository.findByActiveTrueAndIdentifierContainingIgnoreCaseOrderByIdentifierAsc("NB")).thenReturn(List.of(instance));
@@ -250,7 +250,7 @@ class InstanciaItemServiceTest {
     }
 
     @Test
-    void deveFiltrarPorIdentificacaoItemMestreCategoriaEStatus() {
+    void shouldFilterByIdentificationItemMainCategoryAndStatus() {
         UUID categoryId = UUID.randomUUID();
         ItemInstance instance = instance(UUID.randomUUID(), "NB-001", mainItem(UUID.randomUUID(), "Notebook", true));
 
@@ -264,7 +264,7 @@ class InstanciaItemServiceTest {
     }
 
     @Test
-    void deveBuscarHistoricoConsolidadoComMovimentacoesOrdenadas() {
+    void shouldFindHistoryConsolidatedWithMovementsOrdered() {
         UUID instanciaId = UUID.randomUUID();
         StorageLocation origem = location(UUID.randomUUID(), "Biblioteca", true);
         StorageLocation destino = location(UUID.randomUUID(), "Laboratorio", true);
@@ -276,7 +276,7 @@ class InstanciaItemServiceTest {
         when(itemMovementRepository.findByItemInstanceIdOrderByMovementDateAscCreatedAtAsc(instanciaId))
                 .thenReturn(List.of(movement));
 
-        var response = service.buscarHistorico(instanciaId);
+        var response = service.findHistory(instanciaId);
 
         assertThat(response.instance().id()).isEqualTo(instanciaId);
         assertThat(response.instance().currentLocationId()).isEqualTo(destino.getId());
@@ -287,7 +287,7 @@ class InstanciaItemServiceTest {
     }
 
     @Test
-    void deveBuscarHistoricoSemMovimentacoes() {
+    void shouldFindHistoryWithoutMovements() {
         UUID instanciaId = UUID.randomUUID();
         ItemInstance instance = instance(instanciaId, "NB-001", mainItem(UUID.randomUUID(), "Notebook", true));
 
@@ -295,7 +295,7 @@ class InstanciaItemServiceTest {
         when(itemMovementRepository.findByItemInstanceIdOrderByMovementDateAscCreatedAtAsc(instanciaId))
                 .thenReturn(List.of());
 
-        var response = service.buscarHistorico(instanciaId);
+        var response = service.findHistory(instanciaId);
 
         assertThat(response.instance().id()).isEqualTo(instanciaId);
         assertThat(response.movimentacoes()).isEmpty();

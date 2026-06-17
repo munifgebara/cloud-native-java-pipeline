@@ -36,7 +36,7 @@ class PessoaServiceTest {
     private PersonService service;
 
     @Test
-    void deveCriarPessoaNormalizandoCampos() {
+    void shouldCreatePersonNormalizingFields() {
         Instant createdAt = Instant.parse("2026-06-07T10:00:00Z");
         Instant updatedAt = Instant.parse("2026-06-07T10:30:00Z");
 
@@ -82,7 +82,7 @@ class PessoaServiceTest {
     }
 
     @Test
-    void deveImpedirPessoaComCpfCnpjDuplicado() {
+    void shouldPreventPersonWithCpfCnpjDuplicate() {
         when(repository.existsByTaxId("52998224725")).thenReturn(true);
 
         assertThatThrownBy(() -> service.create(new PersonCreateDTO(
@@ -105,7 +105,7 @@ class PessoaServiceTest {
     }
 
     @Test
-    void deveBuscarPorNomeSomenteQuandoFiltroInformado() {
+    void shouldFindByNameOnlyWhenFilterProvided() {
         Person person = new Person();
         person.setId(UUID.randomUUID());
         person.setName("Maria Silva");

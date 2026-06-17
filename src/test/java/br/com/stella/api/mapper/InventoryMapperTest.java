@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class InventoryMapperTest {
 
     @Test
-    void deveMapearPessoaEmTodosOsContratos() {
+    void shouldMapPersonInAllOsContracts() {
         assertThat(PersonMapper.toEntity(null)).isNull();
         assertThat(PersonMapper.toResponseDTO(null)).isNull();
         assertThat(PersonMapper.toResumoDTO(null)).isNull();
@@ -63,7 +63,7 @@ class InventoryMapperTest {
     }
 
     @Test
-    void deveIgnorarUpdateDePessoaQuandoEntradaForNula() {
+    void shouldIgnoreUpdateOfPersonWhenInboundForNull() {
         Person person = new Person();
         person.setName("Original");
 
@@ -74,7 +74,7 @@ class InventoryMapperTest {
     }
 
     @Test
-    void deveMapearCategoriaComAtivoOpcional() {
+    void shouldMapCategoryWithActiveOptional() {
         assertThat(CategoryMapper.toEntity(null)).isNull();
         assertThat(CategoryMapper.toResponseDTO(null)).isNull();
         assertThat(CategoryMapper.toResumoDTO(null)).isNull();
@@ -96,7 +96,7 @@ class InventoryMapperTest {
     }
 
     @Test
-    void devePreservarAtivoAoMapearCategoriaQuandoCampoVierNulo() {
+    void shouldPreserveActiveOnMapCategoryWhenFieldVierNull() {
         Category category = CategoryMapper.toEntity(new CategoryCreateDTO("Livros", null, null, null));
         category.setActive(false);
 
@@ -107,7 +107,7 @@ class InventoryMapperTest {
     }
 
     @Test
-    void deveMapearLocalComCaminhoNivelEImagem() {
+    void shouldMapLocationWithPathLevelAndImage() {
         assertThat(StorageLocationMapper.toEntity(null)).isNull();
         assertThat(StorageLocationMapper.toResponseDTO(null)).isNull();
         assertThat(StorageLocationMapper.toResumoDTO(null, "x", 0)).isNull();
@@ -133,7 +133,7 @@ class InventoryMapperTest {
     }
 
     @Test
-    void deveMapearCriacaoEAtualizacaoDeLocal() {
+    void shouldMapCreationAndUpdateOfLocation() {
         StorageLocation location = StorageLocationMapper.toEntity(new StorageLocationCreateDTO("Deposito", "Caixas", null, false));
 
         assertThat(location.getName()).isEqualTo("Deposito");
@@ -148,7 +148,7 @@ class InventoryMapperTest {
     }
 
     @Test
-    void deveMapearItemMestreComCategoriaEImagem() {
+    void shouldMapItemMainWithCategoryAndImage() {
         assertThat(MainItemMapper.toEntity(null)).isNull();
         assertThat(MainItemMapper.toResponseDTO(null)).isNull();
         assertThat(MainItemMapper.toResumoDTO(null)).isNull();
@@ -174,7 +174,7 @@ class InventoryMapperTest {
     }
 
     @Test
-    void deveAtualizarItemMestrePreservandoAtivoQuandoCampoVierNulo() {
+    void shouldUpdateItemMainPreservingActiveWhenFieldVierNull() {
         MainItem item = new MainItem();
         item.setActive(false);
 
@@ -187,7 +187,7 @@ class InventoryMapperTest {
     }
 
     @Test
-    void deveMapearInstanciaItemComDefaultsERelacionamentos() {
+    void shouldMapInstanceItemWithDefaultsAndRelationships() {
         assertThat(ItemInstanceMapper.toEntity(null)).isNull();
         assertThat(ItemInstanceMapper.toResponseDTO(null)).isNull();
         assertThat(ItemInstanceMapper.toResumoDTO(null)).isNull();
@@ -215,7 +215,7 @@ class InventoryMapperTest {
     }
 
     @Test
-    void deveAtualizarInstanciaComStatusInformado() {
+    void shouldUpdateInstanceWithStatusProvided() {
         ItemInstance instance = new ItemInstance();
 
         ItemInstanceMapper.updateEntity(instance, new ItemInstanceUpdateDTO(
@@ -229,7 +229,7 @@ class InventoryMapperTest {
     }
 
     @Test
-    void deveMapearEmprestimoComFallbackDeIdentificacao() {
+    void shouldMapLoanWithFallbackOfIdentification() {
         assertThat(ItemLoanMapper.toResponseDTO(null)).isNull();
 
         ItemInstance instance = new ItemInstance();
@@ -255,7 +255,7 @@ class InventoryMapperTest {
     }
 
     @Test
-    void deveMapearMovimentacaoComFallbackDeIdentificacao() {
+    void shouldMapMovementWithFallbackOfIdentification() {
         assertThat(ItemMovementMapper.toResponseDTO(null)).isNull();
 
         ItemInstance instance = new ItemInstance();

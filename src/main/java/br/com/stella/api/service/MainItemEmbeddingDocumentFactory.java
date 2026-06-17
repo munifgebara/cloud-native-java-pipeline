@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 @Component
 public class MainItemEmbeddingDocumentFactory {
 
-    public String criarDocumento(MainItem item) {
+    public String createDocument(MainItem item) {
         if (item == null) {
             return "";
         }

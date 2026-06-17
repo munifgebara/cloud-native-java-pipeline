@@ -35,7 +35,7 @@ class CategoriaServiceTest {
     private CategoryService service;
 
     @Test
-    void deveCriarCategoriaNormalizandoCampos() {
+    void shouldCreateCategoryNormalizingFields() {
         when(repository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         var response = service.create(new CategoryCreateDTO("  Eletronicos  ", "  Items eletronicos  ", " eletronicos ", true));
@@ -53,7 +53,7 @@ class CategoriaServiceTest {
     }
 
     @Test
-    void devePermitirCriarCategoriaInativa() {
+    void shouldAllowCreateCategoryInactive() {
         when(repository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         var response = service.create(new CategoryCreateDTO("Livros", null, null, false));
@@ -62,7 +62,7 @@ class CategoriaServiceTest {
     }
 
     @Test
-    void deveAtualizarCategoriaComSituacao() {
+    void shouldUpdateCategoryWithStatus() {
         UUID id = UUID.randomUUID();
         Category category = new Category();
         category.setId(id);
@@ -83,14 +83,14 @@ class CategoriaServiceTest {
     }
 
     @Test
-    void deveRejeitarIconeForaDaListaControlada() {
+    void shouldRejectIconOutsideOfListControlled() {
         assertThatThrownBy(() -> service.create(new CategoryCreateDTO("Livros", null, "classe-css-livre", true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Invalid category icon");
     }
 
     @Test
-    void deveBuscarPorNomeSomenteQuandoFiltroInformado() {
+    void shouldFindByNameOnlyWhenFilterProvided() {
         Category category = new Category();
         category.setId(UUID.randomUUID());
         category.setName("Livros");

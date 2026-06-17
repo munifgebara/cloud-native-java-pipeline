@@ -13,7 +13,7 @@ class PhotoUploadAiServiceTest {
     private final PhotoUploadAiService service = new PhotoUploadAiService(image -> new PhotoUploadSuggestionResponseDTO(List.of(), "ok"));
 
     @Test
-    void deveRejeitarArquivoVazio() {
+    void shouldRejectFileEmpty() {
         MockMultipartFile file = new MockMultipartFile("file", "photo.png", "image/png", new byte[0]);
 
         assertThatThrownBy(() -> service.suggestRegistration(file))
@@ -22,7 +22,7 @@ class PhotoUploadAiServiceTest {
     }
 
     @Test
-    void deveRejeitarFormatoNaoSuportado() {
+    void shouldRejectFormatoNotSupported() {
         MockMultipartFile file = new MockMultipartFile("file", "photo.txt", "text/plain", "texto".getBytes());
 
         assertThatThrownBy(() -> service.suggestRegistration(file))

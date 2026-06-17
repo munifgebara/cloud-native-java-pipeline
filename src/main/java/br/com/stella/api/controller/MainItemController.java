@@ -149,7 +149,7 @@ public class MainItemController extends SuperController<MainItemSummaryDTO, Main
      * @return {@code 200 OK} with the URL or data of the generated image
      */
     @PostMapping("/image-ia")
-    public ResponseEntity<ImageAiResponseDTO> gerarImagemIa(@RequestBody @Valid ImageAiRequestDTO dto) {
+    public ResponseEntity<ImageAiResponseDTO> generateAiImage(@RequestBody @Valid ImageAiRequestDTO dto) {
         return ResponseEntity.ok(imageAiService.generateImage(dto));
     }
 

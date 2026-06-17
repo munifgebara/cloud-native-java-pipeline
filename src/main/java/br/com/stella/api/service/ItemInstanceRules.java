@@ -57,25 +57,25 @@ final class ItemInstanceRules {
      * present and ready for use, such as loans and transfers.</p>
      *
      * @param instance                the instance to check
-     * @param mensagemInstanciaInativa error message if the instance is inactive
+     * @param inactiveInstanceMessage error message if the instance is inactive
      * @param mensagemStatusInvalido   error message if the status is not {@code DISPONIVEL}
-     * @param mensagemLocalAusente     error message if there is no current location
+     * @param missingLocationMessage     error message if there is no current location
      * @throws IllegalArgumentException if any of the conditions is not met
      */
     static void requireAvailableWithLocation(
             ItemInstance instance,
-            String mensagemInstanciaInativa,
+            String inactiveInstanceMessage,
             String mensagemStatusInvalido,
-            String mensagemLocalAusente
+            String missingLocationMessage
     ) {
         if (!instance.isActive()) {
-            throw new IllegalArgumentException(mensagemInstanciaInativa);
+            throw new IllegalArgumentException(inactiveInstanceMessage);
         }
         if (instance.getOperationalStatus() != ItemInstanceStatus.DISPONIVEL) {
             throw new IllegalArgumentException(mensagemStatusInvalido);
         }
         if (instance.getCurrentLocation() == null) {
-            throw new IllegalArgumentException(mensagemLocalAusente);
+            throw new IllegalArgumentException(missingLocationMessage);
         }
     }
 

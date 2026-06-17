@@ -70,8 +70,8 @@ public class ItemInstanceController extends SuperController<ItemInstanceSummaryD
      * @return {@code 200 OK} with the instance and its list of movements in chronological order
      */
     @GetMapping("/{id}/historico")
-    public ResponseEntity<ItemInstanceHistoryDTO> buscarHistorico(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.buscarHistorico(id));
+    public ResponseEntity<ItemInstanceHistoryDTO> findHistory(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.findHistory(id));
     }
 
     @Override

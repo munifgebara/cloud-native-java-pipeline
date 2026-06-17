@@ -185,7 +185,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
                 .addOrder(AuditEntity.revisionNumber().desc())
                 .getResultList()
                 .stream()
-                .map(this::toPessoaRevisionDTO)
+                .map(this::toPersonRevisionDTO)
                 .toList();
 
         return adicionarCamposAlterados(revisoes);
@@ -198,7 +198,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
      * @return number of persons with {@code active = true}
      */
     @Transactional(readOnly = true)
-    public long contarPessoasAtivas() {
+    public long countActivePeople() {
         return repository.countByActiveTrue();
     }
 
@@ -313,7 +313,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
      * @param item array {@code [Person, MRevisionEntity, RevisionType]} returned by Envers
      * @return revision DTO with changed fields still empty (populated by {@link #adicionarCamposAlterados})
      */
-    private PersonRevisionDTO toPessoaRevisionDTO(Object item) {
+    private PersonRevisionDTO toPersonRevisionDTO(Object item) {
         if (item instanceof Object[] dadosRevisao
                 && dadosRevisao[0] instanceof Person person
                 && dadosRevisao[1] instanceof MRevisionEntity revisao

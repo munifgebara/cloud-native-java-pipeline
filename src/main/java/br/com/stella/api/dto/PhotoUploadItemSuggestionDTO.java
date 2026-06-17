@@ -5,7 +5,7 @@ import java.util.List;
 public record PhotoUploadItemSuggestionDTO(
         String name,
         String description,
-        String categoriaSugerida,
+        String suggestedCategory,
         String marca,
         String modelo,
         String autor,

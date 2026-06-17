@@ -42,7 +42,7 @@ class UsuarioControllerIntegrationTest {
     private KeycloakUserService usuarioService;
 
     @Test
-    void deveRetornarMeuPerfilSemErroInterno() throws Exception {
+    void shouldReturnMeuProfileWithoutErrorInternal() throws Exception {
         when(usuarioService.meuPerfil(any(Jwt.class))).thenReturn(new MeuPerfilResponseDTO(
                 "user-1",
                 "user",
@@ -65,7 +65,7 @@ class UsuarioControllerIntegrationTest {
     }
 
     @Test
-    void deveTraduzirFalhaDoKeycloakNoMeuPerfilSemErroInterno() throws Exception {
+    void shouldTranslateFailureOfKeycloakInMeuProfileWithoutErrorInternal() throws Exception {
         when(usuarioService.meuPerfil(any(Jwt.class))).thenThrow(new IdentityException(
                 HttpStatus.BAD_GATEWAY,
                 "Identity service unavailable. Please try again in a moment.",
@@ -84,7 +84,7 @@ class UsuarioControllerIntegrationTest {
     }
 
     @Test
-    void deveTraduzirConflitoDoKeycloakNoCadastroSemErroInterno() throws Exception {
+    void shouldTranslateConflictOfKeycloakInRegistrationWithoutErrorInternal() throws Exception {
         when(usuarioService.create(any(UserCreateDTO.class))).thenThrow(new IdentityException(
                 HttpStatus.CONFLICT,
                 "User already exists or there is a conflict in the identity provider.",

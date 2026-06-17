@@ -51,7 +51,7 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public DashboardSummaryDTO carregarResumo() {
         return new DashboardSummaryDTO(
-                personService.contarPessoasAtivas(),
+                personService.countActivePeople(),
                 mainItemRepository.countByActiveTrue(),
                 itemInstanceRepository.countByActiveTrue(),
                 itemInstanceRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.DISPONIVEL),

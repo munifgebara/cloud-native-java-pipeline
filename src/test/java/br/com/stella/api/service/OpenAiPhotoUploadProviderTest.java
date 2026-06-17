@@ -48,9 +48,9 @@ class OpenAiPhotoUploadProviderTest {
     }
 
     @Test
-    void deveEnviarImagemParaOpenAiEConverterRespostaEstruturada() {
+    void shouldSendImageForOpenAiAndConvertResponseStructured() {
         when(chatModel.call(any(Prompt.class))).thenReturn(respostaJson("""
-                {"itens":[{"name":"Clean Code","description":"Livro identificado pela capa","categoriaSugerida":"Livros",\
+                {"itens":[{"name":"Clean Code","description":"Livro identificado pela capa","suggestedCategory":"Livros",\
                 "marca":null,"modelo":null,"autor":"Robert C. Martin","editora":"Prentice Hall",\
                 "anoPublicacao":"2008","isbn":"9780132350884","fontePesquisa":"conhecimento do modelo",\
                 "identificacaoVerificada":true,"quantity":1,"estadoConservacao":"bom",\
@@ -73,7 +73,7 @@ class OpenAiPhotoUploadProviderTest {
     }
 
     @Test
-    void deveFalharQuandoApiKeyNaoEstaNoAmbiente() {
+    void shouldFailWhenApiKeyNotIsInEnvironment() {
         OpenAiPhotoUploadProvider providerSemChave = new OpenAiPhotoUploadProvider(
                 ChatClient.builder(chatModel).build(),
                 new MockEnvironment(),
@@ -88,7 +88,7 @@ class OpenAiPhotoUploadProviderTest {
     }
 
     @Test
-    void deveConverterRespostaComListaVazia() {
+    void shouldConvertResponseWithListEmpty() {
         when(chatModel.call(any(Prompt.class))).thenReturn(respostaJson(
                 "{\"itens\":null,\"message\":\"Without suggestions.\"}"
         ));
@@ -100,7 +100,7 @@ class OpenAiPhotoUploadProviderTest {
     }
 
     @Test
-    void deveRegistrarFalhaQuandoOpenAiLancaExcecao() {
+    void shouldRegisterFailureWhenOpenAiThrowsException() {
         when(chatModel.call(any(Prompt.class))).thenThrow(new RuntimeException("Fail na API"));
 
         assertThatThrownBy(() -> provider.suggestRegistration(new MockMultipartFile("file", "photo.png", "image/png", "image".getBytes())))
@@ -109,7 +109,7 @@ class OpenAiPhotoUploadProviderTest {
     }
 
     @Test
-    void deveBloquearAnaliseQuandoIaEstaDesabilitadaSemChamarOpenAi() {
+    void shouldBlockAnalysisWhenIaIsDisabledWithoutCallOpenAi() {
         OpenAiPhotoUploadProvider providerBloqueado = new OpenAiPhotoUploadProvider(
                 ChatClient.builder(chatModel).build(),
                 new MockEnvironment().withProperty("OPENAI_API_KEY", "test-key"),
@@ -124,7 +124,7 @@ class OpenAiPhotoUploadProviderTest {
     }
 
     @Test
-    void deveBloquearAnaliseQuandoLimiteDiarioFoiAtingidoSemChamarOpenAi() {
+    void shouldBlockAnalysisWhenLimitDailyWasReachedWithoutCallOpenAi() {
         OpenAiPhotoUploadProvider providerBloqueado = new OpenAiPhotoUploadProvider(
                 ChatClient.builder(chatModel).build(),
                 new MockEnvironment().withProperty("OPENAI_API_KEY", "test-key"),

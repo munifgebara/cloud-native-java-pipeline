@@ -55,7 +55,7 @@ class ItemMestreServiceTest {
     private MainItemService service;
 
     @Test
-    void deveCriarItemMestreComCategoriaNormalizandoCampos() {
+    void shouldCreateItemMainWithCategoryNormalizingFields() {
         UUID categoryId = UUID.randomUUID();
         Category category = category(categoryId, "Eletronicos", "eletronicos", true);
 
@@ -86,7 +86,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void deveCriarItemMestreSemCategoria() {
+    void shouldCreateItemMainWithoutCategory() {
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         var response = service.create(new MainItemCreateDTO("Cadeira ergonomica", null, null, null, null, true));
@@ -97,7 +97,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void deveCriarItemMestreMesmoQuandoIndiceVetorialFalha() {
+    void shouldCreateItemMainSameWhenIndexVectorFailure() {
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
         doThrow(new ExternalIntegrationException("pgvector unavailable"))
                 .when(vectorSearchService).sincronizar(any(MainItem.class));
@@ -110,7 +110,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void deveSincronizarIndiceVetorialSomenteAposCommit() {
+    void shouldSynchronizeIndexVectorOnlyAfterCommit() {
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         TransactionSynchronizationManager.initSynchronization();
@@ -131,7 +131,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void deveCriarItemMestreInativoAposPersistenciaInicial() {
+    void shouldCreateItemMainInactiveAfterPersistenceInitial() {
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         var response = service.create(new MainItemCreateDTO("Arquivo legado", null, null, null, null, false));
@@ -141,7 +141,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void deveAtualizarItemMestreComCategoria() {
+    void shouldUpdateItemMainWithCategory() {
         UUID id = UUID.randomUUID();
         UUID categoryId = UUID.randomUUID();
         MainItem item = item(id, "Antigo", null);
@@ -168,7 +168,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void deveAtualizarItemMestreRemovendoCategoria() {
+    void shouldUpdateItemMainRemovingCategory() {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", category(UUID.randomUUID(), "Eletronicos", null, true));
 
@@ -185,7 +185,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void deveImpedirCategoriaInativaNoItemMestre() {
+    void shouldPreventCategoryInactiveInItemMain() {
         UUID categoryId = UUID.randomUUID();
         Category category = category(categoryId, "Inativa", null, false);
 
@@ -199,7 +199,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void deveImpedirCategoriaInexistenteNoItemMestre() {
+    void shouldPreventCategoryNonExistentInItemMain() {
         UUID categoryId = UUID.randomUUID();
 
         when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
@@ -212,7 +212,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void deveListarResumoEInativos() {
+    void shouldListResumoAndInactive() {
         MainItem active = item(UUID.randomUUID(), "Notebook", null);
         MainItem inactive = item(UUID.randomUUID(), "Arquivo legado", null);
         inactive.setActive(false);
@@ -225,7 +225,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void deveBuscarPorNomeSomenteQuandoFiltroInformado() {
+    void shouldFindByNameOnlyWhenFilterProvided() {
         MainItem item = item(UUID.randomUUID(), "Furadeira Bosch", null);
 
         when(repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc("Furadeira")).thenReturn(List.of(item));
@@ -235,7 +235,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void deveFiltrarPorNomeECategoria() {
+    void shouldFilterByNameAndCategory() {
         UUID categoryId = UUID.randomUUID();
         Category category = category(categoryId, "Eletronicos", "eletronicos", true);
         MainItem item = item(UUID.randomUUID(), "Notebook", category);
@@ -249,7 +249,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void deveAtualizarImagemPrincipalDoItemMestre() {
+    void shouldUpdateImageMainOfItemMain() {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
         item.setImageBucket("stella-itens");
@@ -272,7 +272,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void deveAtualizarImagemPrincipalMarcandoOrigemIa() {
+    void shouldUpdateImageMainMarkingOriginIa() {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
         var file = new MockMultipartFile("file", "photo.png", "image/png", new byte[]{1, 2, 3});
@@ -289,7 +289,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void deveRemoverIndiceVetorialAoExcluirLogicamente() {
+    void shouldRemoveIndexVectorOnExcluirLogically() {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
 
@@ -303,7 +303,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void deveExcluirLogicamenteMesmoQuandoRemocaoDoIndiceVetorialFalha() {
+    void shouldExcluirLogicallySameWhenRemovalOfIndexVectorFailure() {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
 
@@ -318,7 +318,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void deveBuscarMetadadosEAbrirImagemPrincipal() {
+    void shouldFindMetadataAndOpenImageMain() {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
         item.setImageBucket("stella-itens");
@@ -339,7 +339,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void deveRejeitarMetadadosQuandoItemMestreNaoPossuiImagemPrincipal() {
+    void shouldRejectMetadataWhenItemMainNotHasImageMain() {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
 

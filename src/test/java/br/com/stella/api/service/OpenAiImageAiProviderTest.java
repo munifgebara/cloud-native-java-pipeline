@@ -43,7 +43,7 @@ class OpenAiImagemIaProviderTest {
     }
 
     @Test
-    void deveEnviarPromptParaOpenAiEConverterImagemBase64() {
+    void shouldSendPromptForOpenAiAndConvertImageBase64() {
         when(imageModel.call(any(ImagePrompt.class))).thenReturn(respostaImagem("aW1hZ2Vt"));
 
         var response = provider.generateImage(new ImageAiRequestDTO("Furadeira", "Ferramentas", "Furadeira de impacto"));
@@ -54,7 +54,7 @@ class OpenAiImagemIaProviderTest {
     }
 
     @Test
-    void deveIncluirNomeItemNoPrompt() {
+    void shouldIncludeNameItemInPrompt() {
         when(imageModel.call(any(ImagePrompt.class))).thenReturn(respostaImagem("abc123"));
 
         provider.generateImage(new ImageAiRequestDTO("Notebook", null, null));
@@ -63,7 +63,7 @@ class OpenAiImagemIaProviderTest {
     }
 
     @Test
-    void deveFalharQuandoApiKeyNaoEstaNoAmbiente() {
+    void shouldFailWhenApiKeyNotIsInEnvironment() {
         OpenAiImageAiProvider providerSemChave = new OpenAiImageAiProvider(imageModel, new MockEnvironment(), guardSemLimite());
 
         assertThatThrownBy(() -> providerSemChave.generateImage(new ImageAiRequestDTO("Furadeira", null, null)))
@@ -74,7 +74,7 @@ class OpenAiImagemIaProviderTest {
     }
 
     @Test
-    void deveTratarFalhaDeConexaoComOpenAi() {
+    void shouldHandleFailureOfConnectionWithOpenAi() {
         when(imageModel.call(any(ImagePrompt.class))).thenThrow(new RuntimeException("Could not connect to OpenAI to generate item image."));
 
         assertThatThrownBy(() -> provider.generateImage(new ImageAiRequestDTO("Furadeira", null, null)))
@@ -83,7 +83,7 @@ class OpenAiImagemIaProviderTest {
     }
 
     @Test
-    void deveRegistrarFalhaQuandoOpenAiNaoRetornaImagem() {
+    void shouldRegisterFailureWhenOpenAiNotReturnsImage() {
         when(imageModel.call(any(ImagePrompt.class))).thenReturn(new ImageResponse(List.of()));
 
         assertThatThrownBy(() -> provider.generateImage(new ImageAiRequestDTO("Furadeira", null, null)))
@@ -92,7 +92,7 @@ class OpenAiImagemIaProviderTest {
     }
 
     @Test
-    void deveBloquearGeracaoQuandoIaEstaDesabilitadaSemChamarOpenAi() {
+    void shouldBlockGenerationWhenIaIsDisabledWithoutCallOpenAi() {
         OpenAiImageAiProvider providerBloqueado = new OpenAiImageAiProvider(
                 imageModel,
                 new MockEnvironment().withProperty("OPENAI_API_KEY", "test-key"),
@@ -107,7 +107,7 @@ class OpenAiImagemIaProviderTest {
     }
 
     @Test
-    void deveBloquearGeracaoQuandoLimiteDiarioFoiAtingidoSemChamarOpenAi() {
+    void shouldBlockGenerationWhenLimitDailyWasReachedWithoutCallOpenAi() {
         OpenAiImageAiProvider providerBloqueado = new OpenAiImageAiProvider(
                 imageModel,
                 new MockEnvironment().withProperty("OPENAI_API_KEY", "test-key"),

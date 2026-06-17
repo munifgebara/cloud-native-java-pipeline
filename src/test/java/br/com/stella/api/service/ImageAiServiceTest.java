@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class ImageAiServiceTest {
 
     @Test
-    void deveNormalizarRequestEDelegarParaProvider() {
+    void shouldNormalizarRequestAndDelegateForProvider() {
         ImageAiService service = new ImageAiService(request -> {
             assertThat(request.name()).isEqualTo("Furadeira");
             assertThat(request.category()).isEqualTo("Ferramentas");
@@ -24,7 +24,7 @@ class ImageAiServiceTest {
     }
 
     @Test
-    void deveExigirNomeDoItem() {
+    void shouldRequireNameOfItem() {
         ImageAiService service = new ImageAiService(request -> null);
 
         assertThatThrownBy(() -> service.generateImage(new ImageAiRequestDTO(" ", null, null)))

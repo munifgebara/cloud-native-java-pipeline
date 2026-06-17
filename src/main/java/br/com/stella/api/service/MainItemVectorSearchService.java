@@ -108,7 +108,7 @@ public class MainItemVectorSearchService {
             return;
         }
 
-        String documento = documentFactory.criarDocumento(item);
+        String documento = documentFactory.createDocument(item);
         if (documento.isBlank()) {
             remover(item.getId());
             return;
@@ -177,7 +177,7 @@ public class MainItemVectorSearchService {
     }
 
     @Transactional
-    public int reindexarItensAtivos() {
+    public int reindexActiveItems() {
         if (!vectorSearchProperties.enabled()) {
             return 0;
         }
@@ -286,7 +286,7 @@ public class MainItemVectorSearchService {
                     item.getCategory() == null ? null : item.getCategory().getIcon(),
                     imageUrl(item),
                     arredondar(similaridades.getOrDefault(id, 0.0)),
-                    instances.stream().map(this::toInstanciaDTO).toList(),
+                    instances.stream().map(this::toInstanceDTO).toList(),
                     locaisProvaveis(instances)
             ));
         }
@@ -294,7 +294,7 @@ public class MainItemVectorSearchService {
         return response;
     }
 
-    private SemanticSearchInstanceDTO toInstanciaDTO(ItemInstance instance) {
+    private SemanticSearchInstanceDTO toInstanceDTO(ItemInstance instance) {
         StorageLocation location = instance.getCurrentLocation();
         return new SemanticSearchInstanceDTO(
                 instance.getId(),

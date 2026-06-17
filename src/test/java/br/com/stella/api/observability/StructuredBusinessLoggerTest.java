@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class StructuredBusinessLoggerTest {
 
     @Test
-    void deveAdicionarCamposEstruturadosFiltrarSensiveisERestaurarMdc() {
+    void shouldAddFieldsStructuredFilterSensitiveAndRestoreMdc() {
         Logger logger = (Logger) LoggerFactory.getLogger("structured-business-test");
         ListAppender<ILoggingEvent> appender = new ListAppender<>();
         appender.start();

@@ -50,7 +50,7 @@ class InventoryRepositoryIntegrationTest {
     private PersonRepository personRepository;
 
     @Test
-    void deveFiltrarItensMestreAtivosPorNomeECategoria() {
+    void shouldFilterItemsMainActiveByNameAndCategory() {
         Category ferramentas = category("ITG Ferramentas");
         Category livros = category("ITG Livros");
         persistir(ferramentas, livros);
@@ -67,7 +67,7 @@ class InventoryRepositoryIntegrationTest {
     }
 
     @Test
-    void deveFiltrarInstanciasAtivasPorIdentificacaoItemCategoriaEStatus() {
+    void shouldFilterInstancesActiveByIdentificationItemCategoryAndStatus() {
         Category category = category("ITG Eletronicos");
         StorageLocation location = location("ITG Laboratorio");
         MainItem notebook = mainItem("ITG Notebook Dell", category);
@@ -89,7 +89,7 @@ class InventoryRepositoryIntegrationTest {
     }
 
     @Test
-    void deveListarLocaisComMaisItensPelaQuantidadeDeInstanciasAtivas() {
+    void shouldListLocationsWithMoreItemsByQuantityOfInstancesActive() {
         Category category = category("ITG Organizacao");
         MainItem caixa = mainItem("ITG Caixa organizadora", category);
         StorageLocation deposito = location("ITG Deposito");
@@ -110,12 +110,12 @@ class InventoryRepositoryIntegrationTest {
 
         assertThat(locais).extracting("name")
                 .containsExactly("ITG Deposito", "ITG Sala");
-        assertThat(locais).extracting("quantidadeInstancias")
+        assertThat(locais).extracting("instanceCount")
                 .containsExactly(3L, 1L);
     }
 
     @Test
-    void deveOrdenarHistoricoDeMovimentacoesPorData() {
+    void shouldSortHistoryOfMovementsByData() {
         Category category = category("ITG History");
         MainItem item = mainItem("ITG Patrimonio historico", category);
         StorageLocation origem = location("ITG Origem");
@@ -140,7 +140,7 @@ class InventoryRepositoryIntegrationTest {
     }
 
     @Test
-    void deveLocalizarEmprestimoAbertoDaInstancia() {
+    void shouldLocateLoanOpenOfInstance() {
         Category category = category("ITG Emprestimos");
         MainItem item = mainItem("ITG Livro emprestavel", category);
         Person person = person("ITG Maria Silva");
@@ -162,7 +162,7 @@ class InventoryRepositoryIntegrationTest {
     }
 
     @Test
-    void deveListarRevisoesDePessoaViaEnvers() {
+    void shouldListRevisionsOfPersonViaEnvers() {
         Person person = person("ITG Ana History");
         persistir(person);
         commitAndStart();

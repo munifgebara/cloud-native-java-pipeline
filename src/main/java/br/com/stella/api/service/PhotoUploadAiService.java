@@ -24,11 +24,11 @@ public class PhotoUploadAiService {
     }
 
     public PhotoUploadSuggestionResponseDTO suggestRegistration(MultipartFile image) {
-        validarImagem(image);
+        validateImage(image);
         return provider.suggestRegistration(image);
     }
 
-    private void validarImagem(MultipartFile image) {
+    private void validateImage(MultipartFile image) {
         if (image == null || image.isEmpty()) {
             throw new IllegalArgumentException("Please send an image for analysis.");
         }

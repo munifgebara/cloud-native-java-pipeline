@@ -55,7 +55,7 @@ import static org.mockito.Mockito.when;
 class ControllerUnitTest {
 
     @Test
-    void deveDelegarEndpointsDeCategoria() {
+    void shouldDelegateEndpointsOfCategory() {
         CategoryService service = mock(CategoryService.class);
         CategoryController controller = new CategoryController(service);
         UUID id = UUID.randomUUID();
@@ -83,7 +83,7 @@ class ControllerUnitTest {
     }
 
     @Test
-    void deveDelegarEndpointsDePessoa() {
+    void shouldDelegateEndpointsOfPerson() {
         PersonService service = mock(PersonService.class);
         PersonController controller = new PersonController(service);
         UUID id = UUID.randomUUID();
@@ -111,7 +111,7 @@ class ControllerUnitTest {
     }
 
     @Test
-    void deveDelegarEndpointsDeItemMestre() {
+    void shouldDelegateEndpointsOfItemMain() {
         MainItemService service = mock(MainItemService.class);
         ImageAiService imageAiService = mock(ImageAiService.class);
         MainItemController controller = new MainItemController(service, imageAiService);
@@ -145,7 +145,7 @@ class ControllerUnitTest {
         assertThat(controller.searchSemantically("where is book").getBody()).containsExactly(resultadoSemantico);
         assertThat(controller.reindexSemanticSearch().getBody()).containsEntry("itensReindexados", 2);
         assertThat(controller.updateMainImage(id, file, true, "openai").getBody()).isEqualTo(response);
-        assertThat(controller.gerarImagemIa(imagemIaRequest).getBody()).isEqualTo(imagemIaResponse);
+        assertThat(controller.generateAiImage(imagemIaRequest).getBody()).isEqualTo(imagemIaResponse);
         assertThat(controller.update(id, null).getBody()).isEqualTo(response);
         assertThat(controller.delete(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(controller.findAllIncludingInactive().getBody()).containsExactly(resumo);
@@ -153,7 +153,7 @@ class ControllerUnitTest {
     }
 
     @Test
-    void deveDelegarEndpointsDeLocalArmazenamento() {
+    void shouldDelegateEndpointsOfLocationStorage() {
         StorageLocationService service = mock(StorageLocationService.class);
         StorageLocationController controller = new StorageLocationController(service);
         UUID id = UUID.randomUUID();
@@ -166,7 +166,7 @@ class ControllerUnitTest {
         when(service.listSummary()).thenReturn(List.of(resumo));
         when(service.findByName("dep")).thenReturn(List.of(resumo));
         when(service.updateImage(id, file)).thenReturn(response);
-        when(service.removerImagem(id)).thenReturn(response);
+        when(service.removeImage(id)).thenReturn(response);
         when(service.update(id, null)).thenReturn(response);
         when(service.listSummaryIncludingInactive()).thenReturn(List.of(resumo));
         when(service.listRevisions(id)).thenReturn(List.of());
@@ -176,7 +176,7 @@ class ControllerUnitTest {
         assertThat(controller.listar().getBody()).containsExactly(resumo);
         assertThat(controller.findByName("dep").getBody()).containsExactly(resumo);
         assertThat(controller.updateImage(id, file).getBody()).isEqualTo(response);
-        assertThat(controller.removerImagem(id).getBody()).isEqualTo(response);
+        assertThat(controller.removeImage(id).getBody()).isEqualTo(response);
         assertThat(controller.update(id, null).getBody()).isEqualTo(response);
         assertThat(controller.delete(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(controller.findAllIncludingInactive().getBody()).containsExactly(resumo);
@@ -184,7 +184,7 @@ class ControllerUnitTest {
     }
 
     @Test
-    void deveDelegarEndpointsDeInstanciaItem() {
+    void shouldDelegateEndpointsOfInstanceItem() {
         ItemInstanceService service = mock(ItemInstanceService.class);
         ItemInstanceController controller = new ItemInstanceController(service);
         UUID id = UUID.randomUUID();
@@ -195,7 +195,7 @@ class ControllerUnitTest {
 
         when(service.create(null)).thenReturn(response);
         when(service.findResponseById(id)).thenReturn(response);
-        when(service.buscarHistorico(id)).thenReturn(historico);
+        when(service.findHistory(id)).thenReturn(historico);
         when(service.listSummary()).thenReturn(List.of(resumo));
         when(service.findByIdentifier("pat")).thenReturn(List.of(resumo));
         when(service.filtrar("pat", "livro", categoryId, ItemInstanceStatus.DISPONIVEL)).thenReturn(List.of(resumo));
@@ -205,7 +205,7 @@ class ControllerUnitTest {
 
         assertThat(controller.create(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(controller.findById(id).getBody()).isEqualTo(response);
-        assertThat(controller.buscarHistorico(id).getBody()).isEqualTo(historico);
+        assertThat(controller.findHistory(id).getBody()).isEqualTo(historico);
         assertThat(controller.listar().getBody()).containsExactly(resumo);
         assertThat(controller.findByIdentifier("pat").getBody()).containsExactly(resumo);
         assertThat(controller.filtrar("pat", "livro", categoryId, ItemInstanceStatus.DISPONIVEL).getBody()).containsExactly(resumo);
@@ -216,7 +216,7 @@ class ControllerUnitTest {
     }
 
     @Test
-    void deveDelegarEndpointsOperacionais() {
+    void shouldDelegateEndpointsOperational() {
         ItemMovementService movimentacaoService = mock(ItemMovementService.class);
         ItemLoanService emprestimoService = mock(ItemLoanService.class);
         var movement = mock(ItemMovementResponseDTO.class);
@@ -239,7 +239,7 @@ class ControllerUnitTest {
     }
 
     @Test
-    void deveDelegarEndpointsDeUsuarioEPerfil() {
+    void shouldDelegateEndpointsOfUserAndProfile() {
         KeycloakUserService service = mock(KeycloakUserService.class);
         UserController controller = new UserController(service);
         Jwt jwt = jwt("user-1");
@@ -267,7 +267,7 @@ class ControllerUnitTest {
     }
 
     @Test
-    void deveMontarRespostaDeAutenticacaoDashboardHomeELogin() {
+    void shouldBuildResponseOfAuthenticationDashboardHomeAndLogin() {
         DashboardService dashboardService = mock(DashboardService.class);
         KeycloakLoginService loginService = mock(KeycloakLoginService.class);
         var resumo = mock(DashboardSummaryDTO.class);
@@ -286,7 +286,7 @@ class ControllerUnitTest {
     }
 
     @Test
-    void deveResponderImagensPublicasComHeaders() {
+    void shouldRespondImagesPublicWithHeaders() {
         MainItemService itemService = mock(MainItemService.class);
         StorageLocationService localService = mock(StorageLocationService.class);
         UUID id = UUID.randomUUID();
@@ -295,10 +295,10 @@ class ControllerUnitTest {
         when(itemService.fetchMainImageMetadata(id)).thenReturn(image);
         when(itemService.openMainImage(id)).thenReturn(new ByteArrayInputStream(new byte[]{1, 2}));
         when(localService.fetchImageMetadata(id)).thenReturn(image);
-        when(localService.abrirImagem(id)).thenReturn(new ByteArrayInputStream(new byte[]{1, 2}));
+        when(localService.openImage(id)).thenReturn(new ByteArrayInputStream(new byte[]{1, 2}));
 
         var itemResponse = new PublicMainItemImageController(itemService).fetchMainImage(id);
-        var localResponse = new PublicStorageLocationImageController(localService).buscarImagem(id);
+        var localResponse = new PublicStorageLocationImageController(localService).fetchImage(id);
 
         assertThat(itemResponse.getBody()).isInstanceOf(InputStreamResource.class);
         assertThat(itemResponse.getHeaders().getContentType().toString()).isEqualTo("image/png");

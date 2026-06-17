@@ -99,8 +99,8 @@ public class StorageLocationController extends SuperController<StorageLocationSu
      * @return {@code 200 OK} with the full DTO of the location without an image
      */
     @DeleteMapping("/{id}/image")
-    public ResponseEntity<StorageLocationResponseDTO> removerImagem(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.removerImagem(id));
+    public ResponseEntity<StorageLocationResponseDTO> removeImage(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.removeImage(id));
     }
 
     @Override

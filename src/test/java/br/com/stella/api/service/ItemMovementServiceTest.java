@@ -53,7 +53,7 @@ class MovimentacaoItemServiceTest {
     private ItemMovementService service;
 
     @Test
-    void deveRegistrarEntradaCriandoInstanciaDisponivelNoLocalDestino() {
+    void shouldRegisterInboundCreatingInstanceAvailableInLocationDestination() {
         UUID mainItemId = UUID.randomUUID();
         UUID locationId = UUID.randomUUID();
         MainItem mainItem = mainItem(mainItemId, true);
@@ -104,7 +104,7 @@ class MovimentacaoItemServiceTest {
     }
 
     @Test
-    void deveImpedirEntradaSemIdentificacaoIndividual() {
+    void shouldPreventInboundWithoutIdentificationIndividual() {
         UUID mainItemId = UUID.randomUUID();
         UUID locationId = UUID.randomUUID();
 
@@ -120,7 +120,7 @@ class MovimentacaoItemServiceTest {
     }
 
     @Test
-    void deveRegistrarSaidaAtualizandoInstanciaELocalOrigem() {
+    void shouldRegisterOutboundUpdatingInstanceAndLocationOrigin() {
         UUID instanciaId = UUID.randomUUID();
         UUID locationId = UUID.randomUUID();
         StorageLocation location = location(locationId, "Biblioteca", true);
@@ -162,7 +162,7 @@ class MovimentacaoItemServiceTest {
     }
 
     @Test
-    void deveImpedirSaidaDeInstanciaIndisponivel() {
+    void shouldPreventOutboundOfInstanceUnavailable() {
         UUID instanciaId = UUID.randomUUID();
         ItemInstance instance = instance(instanciaId, location(UUID.randomUUID(), "Biblioteca", true), ItemInstanceStatus.EMPRESTADO, true);
 
@@ -177,7 +177,7 @@ class MovimentacaoItemServiceTest {
     }
 
     @Test
-    void deveRegistrarTransferenciaAtualizandoLocalAtual() {
+    void shouldRegisterTransferUpdatingLocationCurrent() {
         UUID instanciaId = UUID.randomUUID();
         UUID origemId = UUID.randomUUID();
         UUID destinoId = UUID.randomUUID();
@@ -221,7 +221,7 @@ class MovimentacaoItemServiceTest {
     }
 
     @Test
-    void deveImpedirTransferenciaParaMesmoLocal() {
+    void shouldPreventTransferForSameLocation() {
         UUID instanciaId = UUID.randomUUID();
         UUID locationId = UUID.randomUUID();
         StorageLocation location = location(locationId, "Biblioteca", true);

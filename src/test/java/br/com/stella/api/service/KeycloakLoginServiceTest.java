@@ -38,7 +38,7 @@ class KeycloakLoginServiceTest {
     }
 
     @Test
-    void deveRealizarLoginComPasswordGrant() {
+    void shouldPerformLoginWithPasswordGrant() {
         server.expect(once(), requestTo("http://keycloak/realms/stella/protocol/openid-connect/token"))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(content().string("client_id=stella-cli&grant_type=password&username=user&password=senha123"))
@@ -61,7 +61,7 @@ class KeycloakLoginServiceTest {
     }
 
     @Test
-    void deveRejeitarRespostaVaziaDoKeycloak() {
+    void shouldRejectResponseEmptyOfKeycloak() {
         server.expect(once(), requestTo("http://keycloak/realms/stella/protocol/openid-connect/token"))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
@@ -74,7 +74,7 @@ class KeycloakLoginServiceTest {
     }
 
     @Test
-    void deveRetornarUnauthorizedQuandoCredenciaisInvalidas() {
+    void shouldReturnUnauthorizedWhenCredentialsInvalid() {
         server.expect(once(), requestTo("http://keycloak/realms/stella/protocol/openid-connect/token"))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
@@ -89,7 +89,7 @@ class KeycloakLoginServiceTest {
     }
 
     @Test
-    void deveTraduzirFalhaDeConexaoComKeycloakComoServicoIndisponivel() {
+    void shouldTranslateFailureOfConnectionWithKeycloakAsServiceUnavailable() {
         KeycloakLoginService servicoIndisponivel = new KeycloakLoginService(
                 new KeycloakProperties("http://127.0.0.1:1", "stella", "stella-cli", "master", "admin-cli", "admin", "admin", null),
                 RestClient.builder()

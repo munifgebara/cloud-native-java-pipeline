@@ -199,7 +199,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      * @return full DTO of the location without image metadata
      */
     @Transactional
-    public StorageLocationResponseDTO removerImagem(UUID id) {
+    public StorageLocationResponseDTO removeImage(UUID id) {
         StorageLocation location = findById(id);
         String bucketAnterior = location.getImageBucket();
         String objectKeyAnterior = location.getImageObjectKey();
@@ -249,7 +249,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      * @throws IllegalArgumentException if the location does not have a registered image
      */
     @Transactional(readOnly = true)
-    public InputStream abrirImagem(UUID id) {
+    public InputStream openImage(UUID id) {
         MainItemImageDTO image = fetchImageMetadata(id);
         return imageStorageService.abrir(image.bucket(), image.objectKey());
     }
