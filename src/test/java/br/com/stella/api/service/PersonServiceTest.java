@@ -40,7 +40,7 @@ class PessoaServiceTest {
         Instant criadoEm = Instant.parse("2026-06-07T10:00:00Z");
         Instant alteradoEm = Instant.parse("2026-06-07T10:30:00Z");
 
-        when(repository.existsByCpfCnpj("52998224725")).thenReturn(false);
+        when(repository.existsByTaxId("52998224725")).thenReturn(false);
         when(repository.save(any(Person.class))).thenAnswer(invocation -> {
             Person pessoa = invocation.getArgument(0);
             pessoa.setCriadoEm(criadoEm);
@@ -83,7 +83,7 @@ class PessoaServiceTest {
 
     @Test
     void deveImpedirPessoaComCpfCnpjDuplicado() {
-        when(repository.existsByCpfCnpj("52998224725")).thenReturn(true);
+        when(repository.existsByTaxId("52998224725")).thenReturn(true);
 
         assertThatThrownBy(() -> service.criar(new PersonCreateDTO(
                 "Maria Silva",
@@ -110,7 +110,7 @@ class PessoaServiceTest {
         pessoa.setId(UUID.randomUUID());
         pessoa.setName("Maria Silva");
 
-        when(repository.findByAtivoTrueAndNomeContainingIgnoreCase("Maria")).thenReturn(List.of(pessoa));
+        when(repository.findByActiveTrueAndNameContainingIgnoreCase("Maria")).thenReturn(List.of(pessoa));
 
         assertThat(service.buscarPorNome("  ")).isEmpty();
         assertThat(service.buscarPorNome(" Maria ")).hasSize(1);

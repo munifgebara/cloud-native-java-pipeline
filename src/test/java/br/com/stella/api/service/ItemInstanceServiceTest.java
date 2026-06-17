@@ -216,7 +216,7 @@ class InstanciaItemServiceTest {
     void deveImpedirExclusaoLogicaDeInstanciaComMovimentacao() {
         UUID id = UUID.randomUUID();
 
-        when(movimentacaoItemRepository.existsByInstanciaItemId(id)).thenReturn(true);
+        when(movimentacaoItemRepository.existsByItemInstanceId(id)).thenReturn(true);
 
         assertThatThrownBy(() -> service.excluirLogicamente(id))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -229,8 +229,8 @@ class InstanciaItemServiceTest {
     void deveImpedirExclusaoLogicaDeInstanciaComEmprestimo() {
         UUID id = UUID.randomUUID();
 
-        when(movimentacaoItemRepository.existsByInstanciaItemId(id)).thenReturn(false);
-        when(emprestimoItemRepository.existsByInstanciaItemId(id)).thenReturn(true);
+        when(movimentacaoItemRepository.existsByItemInstanceId(id)).thenReturn(false);
+        when(emprestimoItemRepository.existsByItemInstanceId(id)).thenReturn(true);
 
         assertThatThrownBy(() -> service.excluirLogicamente(id))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -243,7 +243,7 @@ class InstanciaItemServiceTest {
     void deveBuscarPorIdentificadorSomenteQuandoFiltroInformado() {
         ItemInstance instance = instance(UUID.randomUUID(), "NB-001", mainItem(UUID.randomUUID(), "Notebook", true));
 
-        when(repository.findByAtivoTrueAndIdentificadorContainingIgnoreCaseOrderByIdentificadorAsc("NB")).thenReturn(List.of(instance));
+        when(repository.findByActiveTrueAndIdentifierContainingIgnoreCaseOrderByIdentifierAsc("NB")).thenReturn(List.of(instance));
 
         assertThat(service.buscarPorIdentificador("  ")).isEmpty();
         assertThat(service.buscarPorIdentificador(" NB ")).hasSize(1);
@@ -273,7 +273,7 @@ class InstanciaItemServiceTest {
         ItemMovement movimentacao = movimentacao(instance, origem, destino, ItemMovementType.TRANSFERENCIA);
 
         when(repository.findById(instanciaId)).thenReturn(Optional.of(instance));
-        when(movimentacaoItemRepository.findByInstanciaItemIdOrderByDataMovimentacaoAscCriadoEmAsc(instanciaId))
+        when(movimentacaoItemRepository.findByItemInstanceIdOrderByDataMovimentacaoAscCriadoEmAsc(instanciaId))
                 .thenReturn(List.of(movimentacao));
 
         var resposta = service.buscarHistorico(instanciaId);
@@ -292,7 +292,7 @@ class InstanciaItemServiceTest {
         ItemInstance instance = instance(instanciaId, "NB-001", mainItem(UUID.randomUUID(), "Notebook", true));
 
         when(repository.findById(instanciaId)).thenReturn(Optional.of(instance));
-        when(movimentacaoItemRepository.findByInstanciaItemIdOrderByDataMovimentacaoAscCriadoEmAsc(instanciaId))
+        when(movimentacaoItemRepository.findByItemInstanceIdOrderByDataMovimentacaoAscCriadoEmAsc(instanciaId))
                 .thenReturn(List.of());
 
         var resposta = service.buscarHistorico(instanciaId);

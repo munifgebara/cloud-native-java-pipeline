@@ -28,5 +28,5 @@ public interface CategoryRepository extends SuperRepository<Category> {
      * @param nome name substring to search (partial, case-insensitive)
      * @return list of matching categories; never {@code null}, may be empty
      */
-    List<Category> findByAtivoTrueAndNomeContainingIgnoreCaseOrderByNomeAsc(String nome);
+    List<Category> findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(String name);
 }

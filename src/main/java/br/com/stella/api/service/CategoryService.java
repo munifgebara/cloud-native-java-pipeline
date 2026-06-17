@@ -111,7 +111,7 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
             return List.of();
         }
 
-        return repository.findByAtivoTrueAndNomeContainingIgnoreCaseOrderByNomeAsc(nomeTratado).stream()
+        return repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(nomeTratado).stream()
                 .map(CategoryMapper::toResumoDTO)
                 .toList();
     }

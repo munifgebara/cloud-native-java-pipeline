@@ -85,6 +85,6 @@ public class StorageLocation extends BaseEntity {
      * Loaded lazily to avoid unnecessary chained joins.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "local_parent_id")
+    @JoinColumn(name = "local_pai_id")
     private StorageLocation parent;
 }

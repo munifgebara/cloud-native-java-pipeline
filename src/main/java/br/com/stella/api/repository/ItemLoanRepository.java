@@ -22,7 +22,7 @@ public interface ItemLoanRepository extends SuperRepository<ItemLoan> {
      * @param instanciaItemId identifier of the item instance
      * @return {@code true} if at least one loan exists for this instance
      */
-    boolean existsByInstanciaItemId(UUID instanciaItemId);
+    boolean existsByItemInstanceId(UUID itemInstanceId);
 
     /**
      * Checks whether an active loan (not yet returned) exists for the given instance.
@@ -32,7 +32,7 @@ public interface ItemLoanRepository extends SuperRepository<ItemLoan> {
      * @param instanciaItemId identifier of the item instance
      * @return {@code true} if an open loan exists for this instance
      */
-    boolean existsByInstanciaItemIdAndDataDevolucaoIsNull(UUID instanciaItemId);
+    boolean existsByItemInstanceIdAndReturnDateIsNull(UUID itemInstanceId);
 
     /**
      * Finds the active loan (not yet returned) of an item instance.
@@ -41,5 +41,5 @@ public interface ItemLoanRepository extends SuperRepository<ItemLoan> {
      * @param instanciaItemId identifier of the item instance
      * @return {@link Optional} with the found active loan, or empty if there is no open loan
      */
-    Optional<ItemLoan> findByInstanciaItemIdAndDataDevolucaoIsNull(UUID instanciaItemId);
+    Optional<ItemLoan> findByItemInstanceIdAndReturnDateIsNull(UUID itemInstanceId);
 }

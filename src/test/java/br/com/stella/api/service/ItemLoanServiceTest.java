@@ -62,7 +62,7 @@ class EmprestimoItemServiceTest {
 
         when(instanciaItemRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
         when(pessoaRepository.findById(pessoaId)).thenReturn(Optional.of(pessoa));
-        when(repository.existsByInstanciaItemIdAndDataDevolucaoIsNull(instanciaId)).thenReturn(false);
+        when(repository.existsByItemInstanceIdAndReturnDateIsNull(instanciaId)).thenReturn(false);
         when(instanciaItemRepository.save(any(ItemInstance.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(repository.save(any(ItemLoan.class))).thenAnswer(invocation -> {
             ItemLoan emprestimo = invocation.getArgument(0);
@@ -120,7 +120,7 @@ class EmprestimoItemServiceTest {
 
         when(instanciaItemRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
         when(pessoaRepository.findById(pessoaId)).thenReturn(Optional.of(pessoa(pessoaId, "Maria Silva", true)));
-        when(repository.existsByInstanciaItemIdAndDataDevolucaoIsNull(instanciaId)).thenReturn(true);
+        when(repository.existsByItemInstanceIdAndReturnDateIsNull(instanciaId)).thenReturn(true);
 
         assertThatThrownBy(() -> service.registrarEmprestimo(new ItemLoanCreateDTO(instanciaId, pessoaId, null, null)))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -139,7 +139,7 @@ class EmprestimoItemServiceTest {
         StorageLocation localRetorno = location(localId, "Biblioteca");
         ItemLoan emprestimo = emprestimo(instance, pessoa);
 
-        when(repository.findByInstanciaItemIdAndDataDevolucaoIsNull(instanciaId)).thenReturn(Optional.of(emprestimo));
+        when(repository.findByItemInstanceIdAndReturnDateIsNull(instanciaId)).thenReturn(Optional.of(emprestimo));
         when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(localRetorno));
         when(instanciaItemRepository.save(any(ItemInstance.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(repository.save(any(ItemLoan.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -171,7 +171,7 @@ class EmprestimoItemServiceTest {
         UUID instanciaId = UUID.randomUUID();
         UUID localId = UUID.randomUUID();
 
-        when(repository.findByInstanciaItemIdAndDataDevolucaoIsNull(instanciaId)).thenReturn(Optional.empty());
+        when(repository.findByItemInstanceIdAndReturnDateIsNull(instanciaId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.registrarDevolucao(new ItemLoanReturnDTO(instanciaId, localId, null)))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -188,7 +188,7 @@ class EmprestimoItemServiceTest {
         ItemInstance instance = instance(instanciaId, ItemInstanceStatus.DISPONIVEL, true, null);
         ItemLoan emprestimo = emprestimo(instance, pessoa(UUID.randomUUID(), "Maria Silva", true));
 
-        when(repository.findByInstanciaItemIdAndDataDevolucaoIsNull(instanciaId)).thenReturn(Optional.of(emprestimo));
+        when(repository.findByItemInstanceIdAndReturnDateIsNull(instanciaId)).thenReturn(Optional.of(emprestimo));
         when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(location(localId, "Biblioteca")));
 
         assertThatThrownBy(() -> service.registrarDevolucao(new ItemLoanReturnDTO(instanciaId, localId, null)))

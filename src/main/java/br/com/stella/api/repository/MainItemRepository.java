@@ -24,11 +24,11 @@ public interface MainItemRepository extends SuperRepository<MainItem>, JpaSpecif
 
     List<MainItem> findByActiveTrueOrderByNameAsc();
 
-    List<MainItem> findByAtivoTrueAndNomeContainingIgnoreCaseOrderByNomeAsc(String nome);
+    List<MainItem> findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(String name);
 
-    long countByAtivoTrue();
+    long countByActiveTrue();
 
-    long countByAtivoTrueAndImagemObjectKeyIsNull();
+    long countByActiveTrueAndImagemObjectKeyIsNull();
 
     @Query("""
             select count(item)
@@ -41,15 +41,15 @@ public interface MainItemRepository extends SuperRepository<MainItem>, JpaSpecif
     @Query("""
             select new br.com.stella.api.dto.DashboardCategoriaQuantidadeDTO(
                 category.id,
-                category.nome,
+                category.name,
                 count(item)
             )
             from MainItem item
             join item.category category
             where item.active = true
               and category.active = true
-            group by category.id, category.nome
-            order by count(item) desc, category.nome asc
+            group by category.id, category.name
+            order by count(item) desc, category.name asc
             """)
     List<DashboardCategoriaQuantidadeDTO> buscarCategoriasComMaisItens(Pageable pageable);
 
@@ -69,7 +69,7 @@ public interface MainItemRepository extends SuperRepository<MainItem>, JpaSpecif
             List<Predicate> predicados = new ArrayList<>();
             predicados.add(cb.isTrue(root.get("active")));
             if (nome != null) {
-                predicados.add(cb.like(cb.lower(root.get("nome")), "%" + nome.toLowerCase() + "%"));
+                predicados.add(cb.like(cb.lower(root.get("name")), "%" + nome.toLowerCase() + "%"));
             }
             if (categoriaId != null) {
                 predicados.add(cb.equal(root.join("category").get("id"), categoriaId));

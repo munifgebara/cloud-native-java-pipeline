@@ -45,7 +45,7 @@ public class ItemMovement extends BaseEntity {
      * or {@link ItemMovementType#TRANSFERENCIA}.
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false, length = 30)
+    @Column(name = "tipo", nullable = false, length = 30)
     private ItemMovementType type;
 
     /**
@@ -88,14 +88,14 @@ public class ItemMovement extends BaseEntity {
      * Brief reason for the movement (e.g.: "Maintenance", "Equipment redistribution").
      * Up to 200 characters.
      */
-    @Column(name = "reason", length = 200)
+    @Column(name = "motivo", length = 200)
     private String reason;
 
     /**
      * Additional notes about the movement with more details or context.
      * Up to 1000 characters.
      */
-    @Column(name = "notes", length = 1000)
+    @Column(name = "observacao", length = 1000)
     private String notes;
 
     /**

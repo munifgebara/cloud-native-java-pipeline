@@ -61,7 +61,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
 
         String cpfCnpjNormalizado = normalizarCpfCnpj(dto.cpfCnpj());
 
-        if (repository.existsByCpfCnpj(cpfCnpjNormalizado)) {
+        if (repository.existsByTaxId(cpfCnpjNormalizado)) {
             throw new DuplicateRegistrationException("A person with this CPF/CNPJ is already registered.");
         }
 
@@ -156,7 +156,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
             return List.of();
         }
 
-        return repository.findByAtivoTrueAndNomeContainingIgnoreCase(nomeTratado).stream()
+        return repository.findByActiveTrueAndNameContainingIgnoreCase(nomeTratado).stream()
                 .map(PersonMapper::toResumoDTO)
                 .toList();
     }
@@ -199,7 +199,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
      */
     @Transactional(readOnly = true)
     public long contarPessoasAtivas() {
-        return repository.countByAtivoTrue();
+        return repository.countByActiveTrue();
     }
 
     private void validarCreate(PersonCreateDTO dto) {

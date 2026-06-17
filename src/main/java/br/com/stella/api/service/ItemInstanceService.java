@@ -120,7 +120,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
     @Transactional(readOnly = true)
     public ItemInstanceHistoryDTO buscarHistorico(UUID id) {
         ItemInstance instance = buscarPorId(id);
-        var movimentacoes = movimentacaoItemRepository.findByInstanciaItemIdOrderByDataMovimentacaoAscCriadoEmAsc(id).stream()
+        var movimentacoes = movimentacaoItemRepository.findByItemInstanceIdOrderByDataMovimentacaoAscCriadoEmAsc(id).stream()
                 .map(ItemMovementMapper::toResponseDTO)
                 .toList();
 
@@ -167,7 +167,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
             return List.of();
         }
 
-        return repository.findByAtivoTrueAndIdentificadorContainingIgnoreCaseOrderByIdentificadorAsc(valor).stream()
+        return repository.findByActiveTrueAndIdentifierContainingIgnoreCaseOrderByIdentifierAsc(valor).stream()
                 .map(InstanciaItemMapper::toResumoDTO)
                 .toList();
     }
@@ -236,7 +236,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
 
     @Transactional
     public void excluirLogicamente(UUID id) {
-        if (movimentacaoItemRepository.existsByInstanciaItemId(id) || emprestimoItemRepository.existsByInstanciaItemId(id)) {
+        if (movimentacaoItemRepository.existsByItemInstanceId(id) || emprestimoItemRepository.existsByItemInstanceId(id)) {
             throw new IllegalArgumentException("Instance with operational history cannot be deleted. Use the outbound operation to remove it from inventory.");
         }
         ItemInstance instance = buscarPorId(id);

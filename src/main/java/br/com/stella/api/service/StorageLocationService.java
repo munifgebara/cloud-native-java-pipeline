@@ -129,7 +129,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
             return List.of();
         }
 
-        return montarHierarquia(repository.findByAtivoTrueAndNomeContainingIgnoreCaseOrderByNomeAsc(nomeTratado));
+        return montarHierarquia(repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(nomeTratado));
     }
 
     /**

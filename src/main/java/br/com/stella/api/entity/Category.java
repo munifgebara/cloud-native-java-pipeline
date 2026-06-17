@@ -21,7 +21,7 @@ import org.hibernate.envers.Audited;
  */
 @Entity
 @Audited
-@Table(name = "category")
+@Table(name = "categoria")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -46,6 +46,6 @@ public class Category extends BaseEntity {
      * Valid values are defined by {@link CategoryIcon}.
      * Up to 50 characters.
      */
-    @Column(name = "icon", length = 50)
+    @Column(name = "icone", length = 50)
     private String icon;
 }

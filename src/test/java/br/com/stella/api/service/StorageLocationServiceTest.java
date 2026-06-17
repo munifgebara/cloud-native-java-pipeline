@@ -122,7 +122,7 @@ class LocalArmazenamentoServiceTest {
     void deveBuscarPorNomeSomenteQuandoFiltroInformado() {
         StorageLocation location = location(UUID.randomUUID(), "Deposito Central", null);
 
-        when(repository.findByAtivoTrueAndNomeContainingIgnoreCaseOrderByNomeAsc("Deposito")).thenReturn(List.of(location));
+        when(repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc("Deposito")).thenReturn(List.of(location));
 
         assertThat(service.buscarPorNome("  ")).isEmpty();
         assertThat(service.buscarPorNome(" Deposito ")).hasSize(1);

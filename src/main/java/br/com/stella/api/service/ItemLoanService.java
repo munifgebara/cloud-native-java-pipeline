@@ -76,7 +76,7 @@ public class ItemLoanService extends SuperService<ItemLoan, ItemLoanRepository> 
         if (!pessoa.isActive()) {
             throw new IllegalArgumentException("Person must be active to register a loan.");
         }
-        if (repository.existsByInstanciaItemIdAndDataDevolucaoIsNull(instance.getId())) {
+        if (repository.existsByItemInstanceIdAndReturnDateIsNull(instance.getId())) {
             throw new IllegalArgumentException("There is already an open loan for this instance.");
         }
 
@@ -105,7 +105,7 @@ public class ItemLoanService extends SuperService<ItemLoan, ItemLoanRepository> 
      */
     @Transactional
     public ItemLoanResponseDTO registrarDevolucao(ItemLoanReturnDTO dto) {
-        ItemLoan emprestimo = repository.findByInstanciaItemIdAndDataDevolucaoIsNull(dto.instanciaItemId())
+        ItemLoan emprestimo = repository.findByItemInstanceIdAndReturnDateIsNull(dto.instanciaItemId())
                 .orElseThrow(() -> new IllegalArgumentException("There is no open loan for this instance."));
         ItemInstance instance = emprestimo.getItemInstance();
         StorageLocation localRetorno = buscarLocalAtivo(dto.localRetornoId());

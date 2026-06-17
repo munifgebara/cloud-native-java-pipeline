@@ -26,23 +26,23 @@ public interface ItemInstanceRepository extends SuperRepository<ItemInstance>, J
 
     List<ItemInstance> findByActiveTrueOrderByIdentifierAscAssetTagAscSerialNumberAsc();
 
-    List<ItemInstance> findByAtivoTrueAndIdentificadorContainingIgnoreCaseOrderByIdentificadorAsc(String identificador);
+    List<ItemInstance> findByActiveTrueAndIdentifierContainingIgnoreCaseOrderByIdentifierAsc(String identifier);
 
     @Query("""
             select instance
             from ItemInstance instance
             join fetch instance.mainItem mainItem
-            left join fetch instance.localAtual
+            left join fetch instance.currentLocation
             where instance.active = true
               and mainItem.active = true
               and mainItem.id in :mainItemIds
-            order by mainItem.nome asc, instance.identificador asc, instance.patrimonio asc, instance.numeroSerie asc
+            order by mainItem.name asc, instance.identifier asc, instance.assetTag asc, instance.serialNumber asc
             """)
     List<ItemInstance> buscarAtivasPorItemMestreIds(@Param("mainItemIds") List<UUID> mainItemIds);
 
-    long countByAtivoTrue();
+    long countByActiveTrue();
 
-    long countByAtivoTrueAndStatusOperacional(ItemInstanceStatus statusOperacional);
+    long countByActiveTrueAndOperationalStatus(ItemInstanceStatus operationalStatus);
 
     /**
      * Builds a {@link Specification} to filter active instances with multiple optional criteria.
@@ -72,21 +72,21 @@ public interface ItemInstanceRepository extends SuperRepository<ItemInstance>, J
             if (identificacao != null) {
                 String padrao = "%" + identificacao.toLowerCase() + "%";
                 predicados.add(cb.or(
-                        cb.like(cb.lower(root.get("identificador")), padrao),
-                        cb.like(cb.lower(root.get("patrimonio")), padrao),
-                        cb.like(cb.lower(root.get("numeroSerie")), padrao)
+                        cb.like(cb.lower(root.get("identifier")), padrao),
+                        cb.like(cb.lower(root.get("assetTag")), padrao),
+                        cb.like(cb.lower(root.get("serialNumber")), padrao)
                 ));
             }
 
             var mainItemJoin = root.join("mainItem");
             if (mainItem != null) {
-                predicados.add(cb.like(cb.lower(mainItemJoin.get("nome")), "%" + mainItem.toLowerCase() + "%"));
+                predicados.add(cb.like(cb.lower(mainItemJoin.get("name")), "%" + mainItem.toLowerCase() + "%"));
             }
             if (categoriaId != null) {
                 predicados.add(cb.equal(mainItemJoin.join("category").get("id"), categoriaId));
             }
             if (statusOperacional != null) {
-                predicados.add(cb.equal(root.get("statusOperacional"), statusOperacional));
+                predicados.add(cb.equal(root.get("operationalStatus"), statusOperacional));
             }
 
             return cb.and(predicados.toArray(Predicate[]::new));
@@ -96,15 +96,15 @@ public interface ItemInstanceRepository extends SuperRepository<ItemInstance>, J
     @Query("""
             select new br.com.stella.api.dto.DashboardLocalQuantidadeDTO(
                 location.id,
-                location.nome,
+                location.name,
                 count(instance)
             )
             from ItemInstance instance
-            join instance.localAtual location
+            join instance.currentLocation location
             where instance.active = true
               and location.active = true
-            group by location.id, location.nome
-            order by count(instance) desc, location.nome asc
+            group by location.id, location.name
+            order by count(instance) desc, location.name asc
             """)
     List<DashboardLocalQuantidadeDTO> buscarLocaisComMaisItens(Pageable pageable);
 }

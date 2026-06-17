@@ -22,7 +22,7 @@ public interface ItemMovementRepository extends SuperRepository<ItemMovement> {
      * @param instanciaItemId identifier of the item instance
      * @return {@code true} if at least one movement exists for this instance
      */
-    boolean existsByInstanciaItemId(UUID instanciaItemId);
+    boolean existsByItemInstanceId(UUID itemInstanceId);
 
     /**
      * Returns the full movement history of an instance, ordered chronologically.
@@ -33,5 +33,5 @@ public interface ItemMovementRepository extends SuperRepository<ItemMovement> {
      * @param instanciaItemId identifier of the item instance
      * @return list of movements in ascending chronological order; never {@code null}, may be empty
      */
-    List<ItemMovement> findByInstanciaItemIdOrderByDataMovimentacaoAscCriadoEmAsc(UUID instanciaItemId);
+    List<ItemMovement> findByItemInstanceIdOrderByDataMovimentacaoAscCriadoEmAsc(UUID itemInstanceId);
 }

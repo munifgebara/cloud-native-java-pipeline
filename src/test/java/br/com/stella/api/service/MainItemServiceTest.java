@@ -228,7 +228,7 @@ class ItemMestreServiceTest {
     void deveBuscarPorNomeSomenteQuandoFiltroInformado() {
         MainItem item = item(UUID.randomUUID(), "Furadeira Bosch", null);
 
-        when(repository.findByAtivoTrueAndNomeContainingIgnoreCaseOrderByNomeAsc("Furadeira")).thenReturn(List.of(item));
+        when(repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc("Furadeira")).thenReturn(List.of(item));
 
         assertThat(service.buscarPorNome("  ")).isEmpty();
         assertThat(service.buscarPorNome(" Furadeira ")).hasSize(1);

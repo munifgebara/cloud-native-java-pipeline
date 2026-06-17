@@ -23,16 +23,16 @@ public interface PersonRepository extends SuperRepository<Person> {
      * @param cpfCnpj CPF (11 digits) or CNPJ (14 digits) without formatting
      * @return {@link Optional} with the found person, or empty if not found
      */
-    Optional<Person> findByCpfCnpj(String cpfCnpj);
+    Optional<Person> findByTaxId(String taxId);
 
     /**
      * Checks whether a person already exists with the given CPF/CNPJ.
-     * More efficient than {@link #findByCpfCnpj} when only existence needs to be checked.
+     * More efficient than {@link #findByTaxId} when only existence needs to be checked.
      *
      * @param cpfCnpj CPF or CNPJ to check
      * @return {@code true} if a person exists with this document
      */
-    boolean existsByCpfCnpj(String cpfCnpj);
+    boolean existsByTaxId(String taxId);
 
     /**
      * Finds active persons whose name contains the given substring,
@@ -41,7 +41,7 @@ public interface PersonRepository extends SuperRepository<Person> {
      * @param nome name substring to search (partial, case-insensitive)
      * @return list of matching persons; never {@code null}, may be empty
      */
-    List<Person> findByAtivoTrueAndNomeContainingIgnoreCase(String nome);
+    List<Person> findByActiveTrueAndNameContainingIgnoreCase(String name);
 
     /**
      * Returns all active persons, ordered by name in ascending order.
@@ -56,5 +56,5 @@ public interface PersonRepository extends SuperRepository<Person> {
      *
      * @return number of persons with {@code ativo = true}
      */
-    long countByAtivoTrue();
+    long countByActiveTrue();
 }

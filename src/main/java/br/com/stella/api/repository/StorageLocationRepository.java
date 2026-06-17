@@ -28,7 +28,7 @@ public interface StorageLocationRepository extends SuperRepository<StorageLocati
      * @param nome name substring to search (partial, case-insensitive)
      * @return list of matching locations; never {@code null}, may be empty
      */
-    List<StorageLocation> findByAtivoTrueAndNomeContainingIgnoreCaseOrderByNomeAsc(String nome);
+    List<StorageLocation> findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(String name);
 
     /**
      * Counts the total active storage locations in the system.
@@ -36,5 +36,5 @@ public interface StorageLocationRepository extends SuperRepository<StorageLocati
      *
      * @return number of locations with {@code ativo = true}
      */
-    long countByAtivoTrue();
+    long countByActiveTrue();
 }

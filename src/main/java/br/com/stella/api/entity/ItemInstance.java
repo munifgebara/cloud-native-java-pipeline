@@ -60,7 +60,7 @@ public class ItemInstance extends BaseEntity {
      * Alternative to {@link #assetTag} and {@link #serialNumber} for quick identification.
      * Up to 100 characters.
      */
-    @Column(name = "identifier", length = 100)
+    @Column(name = "identificador", length = 100)
     private String identifier;
 
     /**
@@ -68,7 +68,7 @@ public class ItemInstance extends BaseEntity {
      * Usually follows a sequential numbering controlled by the asset management department.
      * Up to 100 characters.
      */
-    @Column(name = "assetTag", length = 100)
+    @Column(name = "patrimonio", length = 100)
     private String assetTag;
 
     /**
@@ -92,7 +92,7 @@ public class ItemInstance extends BaseEntity {
      * (e.g.: "Screen with scratch on the side", "Power adapter missing").
      * Up to 1000 characters.
      */
-    @Column(name = "notes", length = 1000)
+    @Column(name = "observacoes", length = 1000)
     private String notes;
 
     /**

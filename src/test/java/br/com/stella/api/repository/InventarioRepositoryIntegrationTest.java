@@ -60,7 +60,7 @@ class InventarioRepositoryIntegrationTest {
         persistir(furadeira, livro);
         flushAndClear();
 
-        var itens = itemMestreRepository.findAll(MainItemRepository.filtrarAtivos("furadeira", ferramentas.getId()), Sort.by("nome"));
+        var itens = itemMestreRepository.findAll(MainItemRepository.filtrarAtivos("furadeira", ferramentas.getId()), Sort.by("name"));
 
         assertThat(itens).extracting(MainItem::getName)
                 .containsExactly("ITG Furadeira de impacto");
@@ -81,7 +81,7 @@ class InventarioRepositoryIntegrationTest {
 
         var instancias = instanciaItemRepository.findAll(
                 ItemInstanceRepository.filtrarAtivas("pat-001", "notebook", category.getId(), ItemInstanceStatus.DISPONIVEL),
-                Sort.by("identificador")
+                Sort.by("identifier")
         );
 
         assertThat(instancias).extracting(ItemInstance::getIdentifier)
@@ -130,7 +130,7 @@ class InventarioRepositoryIntegrationTest {
         persistir(maisRecente, maisAntiga);
         flushAndClear();
 
-        var historico = movimentacaoItemRepository.findByInstanciaItemIdOrderByDataMovimentacaoAscCriadoEmAsc(instance.getId());
+        var historico = movimentacaoItemRepository.findByItemInstanceIdOrderByDataMovimentacaoAscCriadoEmAsc(instance.getId());
 
         assertThat(historico).extracting(ItemMovement::getDataMovimentacao)
                 .containsExactly(
@@ -154,8 +154,8 @@ class InventarioRepositoryIntegrationTest {
         persistir(emprestimoAberto, emprestimoFechado);
         flushAndClear();
 
-        assertThat(emprestimoItemRepository.existsByInstanciaItemIdAndDataDevolucaoIsNull(instance.getId())).isTrue();
-        assertThat(emprestimoItemRepository.findByInstanciaItemIdAndDataDevolucaoIsNull(instance.getId()))
+        assertThat(emprestimoItemRepository.existsByItemInstanceIdAndReturnDateIsNull(instance.getId())).isTrue();
+        assertThat(emprestimoItemRepository.findByItemInstanceIdAndReturnDateIsNull(instance.getId()))
                 .get()
                 .extracting(ItemLoan::getReturnDate)
                 .isNull();

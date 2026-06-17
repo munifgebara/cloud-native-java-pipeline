@@ -139,7 +139,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
             return List.of();
         }
 
-        return repository.findByAtivoTrueAndNomeContainingIgnoreCaseOrderByNomeAsc(nomeTratado).stream()
+        return repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(nomeTratado).stream()
                 .map(ItemMestreMapper::toResumoDTO)
                 .toList();
     }

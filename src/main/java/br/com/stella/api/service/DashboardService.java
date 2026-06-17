@@ -52,12 +52,12 @@ public class DashboardService {
     public DashboardSummaryDTO carregarResumo() {
         return new DashboardSummaryDTO(
                 pessoaService.contarPessoasAtivas(),
-                itemMestreRepository.countByAtivoTrue(),
-                instanciaItemRepository.countByAtivoTrue(),
-                instanciaItemRepository.countByAtivoTrueAndStatusOperacional(ItemInstanceStatus.DISPONIVEL),
-                instanciaItemRepository.countByAtivoTrueAndStatusOperacional(ItemInstanceStatus.EMPRESTADO),
-                localArmazenamentoRepository.countByAtivoTrue(),
-                itemMestreRepository.countByAtivoTrueAndImagemObjectKeyIsNull(),
+                itemMestreRepository.countByActiveTrue(),
+                instanciaItemRepository.countByActiveTrue(),
+                instanciaItemRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.DISPONIVEL),
+                instanciaItemRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.EMPRESTADO),
+                localArmazenamentoRepository.countByActiveTrue(),
+                itemMestreRepository.countByActiveTrueAndImagemObjectKeyIsNull(),
                 itemMestreRepository.contarItensCadastradosPorIa(),
                 consultaVetorialMetricasService.contarConsultas(),
                 instanciaItemRepository.buscarLocaisComMaisItens(PageRequest.of(0, LIMITE_LOCAIS_COM_MAIS_ITENS)),

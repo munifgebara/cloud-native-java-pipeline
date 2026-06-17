@@ -97,7 +97,7 @@ class CategoriaServiceTest {
         category.setDescription(null);
         category.setActive(true);
 
-        when(repository.findByAtivoTrueAndNomeContainingIgnoreCaseOrderByNomeAsc("Liv")).thenReturn(List.of(category));
+        when(repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc("Liv")).thenReturn(List.of(category));
 
         assertThat(service.buscarPorNome("  ")).isEmpty();
         assertThat(service.buscarPorNome(" Liv ")).hasSize(1);

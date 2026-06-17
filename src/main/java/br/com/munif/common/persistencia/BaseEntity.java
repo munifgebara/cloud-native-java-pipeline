@@ -59,7 +59,7 @@ public abstract class BaseEntity implements Serializable {
      * Indicates whether the record is active ({@code true}) or has been logically deactivated ({@code false}).
      * Every entity starts as active. Use {@link #excluirLogicamente()} to deactivate.
      */
-    @Column(name = "active", nullable = false)
+    @Column(name = "ativo", nullable = false)
     private boolean active = true;
 
     /**

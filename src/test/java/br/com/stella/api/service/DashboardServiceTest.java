@@ -50,13 +50,13 @@ class DashboardServiceTest {
         var categorias = List.of(new DashboardCategoriaQuantidadeDTO(categoriaId, "Livros", 7));
 
         when(pessoaService.contarPessoasAtivas()).thenReturn(4L);
-        when(itemMestreRepository.countByAtivoTrue()).thenReturn(10L);
-        when(itemMestreRepository.countByAtivoTrueAndImagemObjectKeyIsNull()).thenReturn(2L);
+        when(itemMestreRepository.countByActiveTrue()).thenReturn(10L);
+        when(itemMestreRepository.countByActiveTrueAndImagemObjectKeyIsNull()).thenReturn(2L);
         when(itemMestreRepository.contarItensCadastradosPorIa()).thenReturn(3L);
-        when(instanciaItemRepository.countByAtivoTrue()).thenReturn(25L);
-        when(instanciaItemRepository.countByAtivoTrueAndStatusOperacional(ItemInstanceStatus.DISPONIVEL)).thenReturn(18L);
-        when(instanciaItemRepository.countByAtivoTrueAndStatusOperacional(ItemInstanceStatus.EMPRESTADO)).thenReturn(5L);
-        when(localArmazenamentoRepository.countByAtivoTrue()).thenReturn(3L);
+        when(instanciaItemRepository.countByActiveTrue()).thenReturn(25L);
+        when(instanciaItemRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.DISPONIVEL)).thenReturn(18L);
+        when(instanciaItemRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.EMPRESTADO)).thenReturn(5L);
+        when(localArmazenamentoRepository.countByActiveTrue()).thenReturn(3L);
         when(consultaVetorialMetricasService.contarConsultas()).thenReturn(11L);
         when(instanciaItemRepository.buscarLocaisComMaisItens(org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(locais);
         when(itemMestreRepository.buscarCategoriasComMaisItens(org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(categorias);

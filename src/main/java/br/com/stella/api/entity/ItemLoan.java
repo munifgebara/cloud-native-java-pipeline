@@ -53,7 +53,7 @@ public class ItemLoan extends BaseEntity {
      * Loaded lazily to avoid unnecessary joins.
      */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "person_id", nullable = false)
+    @JoinColumn(name = "pessoa_id", nullable = false)
     private Person person;
 
     /**
@@ -84,7 +84,7 @@ public class ItemLoan extends BaseEntity {
      * Notes about the loan (item condition at checkout, agreed terms, etc.).
      * Up to 1000 characters.
      */
-    @Column(name = "notes", length = 1000)
+    @Column(name = "observacao", length = 1000)
     private String notes;
 
     /**
