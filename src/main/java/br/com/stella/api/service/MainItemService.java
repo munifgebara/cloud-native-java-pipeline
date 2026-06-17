@@ -75,7 +75,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
         item.setCategory(findActiveCategory(dto.categoryId()));
 
         MainItem salvo = save(item);
-        if (Boolean.FALSE.equals(dto.ativa())) {
+        if (Boolean.FALSE.equals(dto.active())) {
             repository.flush();
             salvo.setActive(false);
             salvo = save(salvo);

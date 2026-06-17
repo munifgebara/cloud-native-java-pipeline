@@ -41,7 +41,7 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
     /**
      * Creates a new category from the input DTO.
      *
-     * <p>If the DTO {@code ativa} field is {@code false}, the category is created active
+     * <p>If the DTO {@code active} field is {@code false}, the category is created active
      * ({@code @PrePersist} constraint) and then deactivated in a second operation.</p>
      *
      * @param dto creation data validated by Bean Validation
@@ -54,7 +54,7 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
         normalizeFields(category);
 
         Category salva = save(category);
-        if (Boolean.FALSE.equals(dto.ativa())) {
+        if (Boolean.FALSE.equals(dto.active())) {
             repository.flush();
             salva.setActive(false);
             salva = save(salva);

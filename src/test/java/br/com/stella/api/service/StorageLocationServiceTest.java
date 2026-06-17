@@ -78,7 +78,7 @@ class LocalArmazenamentoServiceTest {
 
         var response = service.create(new StorageLocationCreateDTO("Arquivo morto", null, null, false));
 
-        assertThat(response.ativa()).isFalse();
+        assertThat(response.active()).isFalse();
         verify(repository).flush();
     }
 
@@ -115,7 +115,7 @@ class LocalArmazenamentoServiceTest {
 
         assertThat(locais).extracting("name").containsExactly("Orfao", "Removido");
         assertThat(locais).extracting("level").containsExactly(0, 0);
-        assertThat(locais.getLast().ativa()).isFalse();
+        assertThat(locais.getLast().active()).isFalse();
     }
 
     @Test
@@ -189,7 +189,7 @@ class LocalArmazenamentoServiceTest {
         assertThat(response.name()).isEqualTo("Armario");
         assertThat(response.description()).isEqualTo("Documentos");
         assertThat(response.parentId()).isEqualTo(parentId);
-        assertThat(response.ativa()).isFalse();
+        assertThat(response.active()).isFalse();
     }
 
     @Test

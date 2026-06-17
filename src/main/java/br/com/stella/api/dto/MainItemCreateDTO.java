@@ -17,7 +17,7 @@ import java.util.UUID;
  * @param notes    internal notes (maintenance history, restrictions, etc.); up to 1000 characters; optional
  * @param registrationOrigin registration origin (e.g.: {@code "MANUAL"}, {@code "IA"}); up to 50 characters; optional
  * @param categoryId    identifier of the item category; optional
- * @param ativa          indicates whether the item should be created as active; when {@code null}, defaults to {@code true}
+ * @param active          indicates whether the item should be created as active; when {@code null}, defaults to {@code true}
  */
 public record MainItemCreateDTO(
         @NotBlank(message = "Name is required.")
@@ -35,5 +35,5 @@ public record MainItemCreateDTO(
 
         UUID categoryId,
 
-        Boolean ativa
+        Boolean active
 ) {}

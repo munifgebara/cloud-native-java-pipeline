@@ -20,7 +20,7 @@ public interface PersonRepository extends SuperRepository<Person> {
      * Used to check for duplicates before registering and to authenticate
      * searches by document.
      *
-     * @param cpfCnpj CPF (11 digits) or CNPJ (14 digits) without formatting
+     * @param taxId CPF (11 digits) or CNPJ (14 digits) without formatting
      * @return {@link Optional} with the found person, or empty if not found
      */
     Optional<Person> findByTaxId(String taxId);
@@ -29,7 +29,7 @@ public interface PersonRepository extends SuperRepository<Person> {
      * Checks whether a person already exists with the given CPF/CNPJ.
      * More efficient than {@link #findByTaxId} when only existence needs to be checked.
      *
-     * @param cpfCnpj CPF or CNPJ to check
+     * @param taxId CPF or CNPJ to check
      * @return {@code true} if a person exists with this document
      */
     boolean existsByTaxId(String taxId);

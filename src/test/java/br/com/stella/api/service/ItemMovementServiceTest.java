@@ -254,14 +254,14 @@ class MovimentacaoItemServiceTest {
         return location;
     }
 
-    private ItemInstance instance(UUID id, StorageLocation location, ItemInstanceStatus status, boolean ativa) {
+    private ItemInstance instance(UUID id, StorageLocation location, ItemInstanceStatus status, boolean active) {
         ItemInstance instance = new ItemInstance();
         instance.setId(id);
         instance.setMainItem(mainItem(UUID.randomUUID(), true));
         instance.setCurrentLocation(location);
         instance.setIdentifier("LIV-001");
         instance.setOperationalStatus(status);
-        instance.setActive(ativa);
+        instance.setActive(active);
         return instance;
     }
 }

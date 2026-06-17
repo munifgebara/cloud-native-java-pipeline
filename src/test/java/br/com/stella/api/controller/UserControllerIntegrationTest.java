@@ -80,7 +80,7 @@ class UsuarioControllerIntegrationTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadGateway())
                 .andExpect(jsonPath("$.status").value(502))
-                .andExpect(jsonPath("$.erro").value("Identity service unavailable. Please try again in a moment."));
+                .andExpect(jsonPath("$.error").value("Identity service unavailable. Please try again in a moment."));
     }
 
     @Test
@@ -108,6 +108,6 @@ class UsuarioControllerIntegrationTest {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.status").value(409))
-                .andExpect(jsonPath("$.erro").value("User already exists or there is a conflict in the identity provider."));
+                .andExpect(jsonPath("$.error").value("User already exists or there is a conflict in the identity provider."));
     }
 }

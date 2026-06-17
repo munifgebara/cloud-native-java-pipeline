@@ -58,7 +58,7 @@ class CategoriaServiceTest {
 
         var response = service.create(new CategoryCreateDTO("Livros", null, null, false));
 
-        assertThat(response.ativa()).isFalse();
+        assertThat(response.active()).isFalse();
     }
 
     @Test
@@ -79,7 +79,7 @@ class CategoriaServiceTest {
         assertThat(response.name()).isEqualTo("Nova");
         assertThat(response.description()).isEqualTo("Nova description");
         assertThat(response.icon()).isEqualTo("moveis");
-        assertThat(response.ativa()).isFalse();
+        assertThat(response.active()).isFalse();
     }
 
     @Test

@@ -33,8 +33,8 @@ public final class CategoryMapper {
         category.setName(dto.name());
         category.setDescription(dto.description());
         category.setIcon(dto.icon());
-        if (dto.ativa() != null) {
-            category.setActive(dto.ativa());
+        if (dto.active() != null) {
+            category.setActive(dto.active());
         }
         return category;
     }
@@ -56,8 +56,8 @@ public final class CategoryMapper {
         entity.setName(dto.name());
         entity.setDescription(dto.description());
         entity.setIcon(dto.icon());
-        if (dto.ativa() != null) {
-            entity.setActive(dto.ativa());
+        if (dto.active() != null) {
+            entity.setActive(dto.active());
         }
     }
 

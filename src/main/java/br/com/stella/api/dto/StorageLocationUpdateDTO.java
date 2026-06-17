@@ -15,7 +15,7 @@ import java.util.UUID;
  * @param name      location name; required, up to 150 characters
  * @param description optional description; up to 500 characters; optional
  * @param parentId     identifier of the new parent location; {@code null} makes the location a root
- * @param ativa     indicates whether the location is active; optional
+ * @param active     indicates whether the location is active; optional
  */
 public record StorageLocationUpdateDTO(
         @NotBlank(message = "Name is required.")
@@ -27,5 +27,5 @@ public record StorageLocationUpdateDTO(
 
         UUID parentId,
 
-        Boolean ativa
+        Boolean active
 ) {}

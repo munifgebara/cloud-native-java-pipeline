@@ -238,11 +238,11 @@ public final class BrValidations {
      *
      * <p>The input may be formatted with a dash (e.g.: {@code "01310-100"}) or unformatted.</p>
      *
-     * @param cep CEP to validate
+     * @param zipCode CEP to validate
      * @return {@code true} if it has exactly 8 digits; {@code false} otherwise
      */
-    public static boolean validarCEP(String cep) {
-        String valor = somenteDigitos(cep);
+    public static boolean validarCEP(String zipCode) {
+        String valor = somenteDigitos(zipCode);
         return valor != null && CEP_PATTERN.matcher(valor).matches();
     }
 
@@ -335,12 +335,12 @@ public final class BrValidations {
     /**
      * Formats a CEP in the {@code NNNNN-NNN} pattern.
      *
-     * @param cep CEP with exactly 8 digits (with or without formatting)
+     * @param zipCode CEP with exactly 8 digits (with or without formatting)
      * @return formatted CEP
      * @throws IllegalArgumentException if the CEP does not have 8 digits after removing non-digits
      */
-    public static String formatarCEP(String cep) {
-        String valor = somenteDigitos(cep);
+    public static String formatarCEP(String zipCode) {
+        String valor = somenteDigitos(zipCode);
 
         if (valor == null || valor.length() != 8) {
             throw new IllegalArgumentException("ZIP code must contain 8 digits.");
@@ -421,12 +421,12 @@ public final class BrValidations {
     /**
      * Throws {@link IllegalArgumentException} if the provided CEP is invalid.
      *
-     * @param cep       CEP to validate
+     * @param zipCode       CEP to validate
      * @param fieldName field name to include in the error message
      * @throws IllegalArgumentException if the CEP is not valid
      */
-    public static void exigirCEPValido(String cep, String fieldName) {
-        if (!validarCEP(cep)) {
+    public static void exigirCEPValido(String zipCode, String fieldName) {
+        if (!validarCEP(zipCode)) {
             throw new IllegalArgumentException(fieldName + " is invalid.");
         }
     }

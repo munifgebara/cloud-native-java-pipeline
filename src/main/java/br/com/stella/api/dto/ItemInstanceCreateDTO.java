@@ -21,7 +21,7 @@ import java.util.UUID;
  * @param operationalStatus initial operational status; when {@code null}, defaults to {@code DISPONIVEL}
  * @param notes       internal notes about this instance (up to 1000 characters); optional
  * @param registrationOrigin    registration origin (e.g.: {@code "MANUAL"}, {@code "FOTO"}); up to 50 characters; optional
- * @param ativa             indicates whether the instance should be created as active; when {@code null}, defaults to {@code true}
+ * @param active             indicates whether the instance should be created as active; when {@code null}, defaults to {@code true}
  */
 public record ItemInstanceCreateDTO(
         @NotNull(message = "Main item is required.")
@@ -46,5 +46,5 @@ public record ItemInstanceCreateDTO(
         @Size(max = 50, message = "Registration origin must not exceed 50 characters.")
         String registrationOrigin,
 
-        Boolean ativa
+        Boolean active
 ) {}

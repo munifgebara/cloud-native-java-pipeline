@@ -35,8 +35,8 @@ public final class StorageLocationMapper {
         StorageLocation location = new StorageLocation();
         location.setName(dto.name());
         location.setDescription(dto.description());
-        if (dto.ativa() != null) {
-            location.setActive(dto.ativa());
+        if (dto.active() != null) {
+            location.setActive(dto.active());
         }
         return location;
     }
@@ -56,8 +56,8 @@ public final class StorageLocationMapper {
 
         entity.setName(dto.name());
         entity.setDescription(dto.description());
-        if (dto.ativa() != null) {
-            entity.setActive(dto.ativa());
+        if (dto.active() != null) {
+            entity.setActive(dto.active());
         }
     }
 

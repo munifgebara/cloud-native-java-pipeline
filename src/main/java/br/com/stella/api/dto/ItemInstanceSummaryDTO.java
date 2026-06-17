@@ -21,7 +21,7 @@ import java.util.UUID;
  * @param assetTag        asset number; may be {@code null}
  * @param serialNumber       manufacturer's serial number; may be {@code null}
  * @param operationalStatus current operational status of the instance
- * @param ativa             indicates whether the instance is active in the system
+ * @param active             indicates whether the instance is active in the system
  */
 public record ItemInstanceSummaryDTO(
         UUID id,
@@ -35,5 +35,5 @@ public record ItemInstanceSummaryDTO(
         String assetTag,
         String serialNumber,
         ItemInstanceStatus operationalStatus,
-        boolean ativa
+        boolean active
 ) {}

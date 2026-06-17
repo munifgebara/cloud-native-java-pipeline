@@ -24,7 +24,7 @@ import java.util.UUID;
  * @param operationalStatus current operational status of the instance
  * @param notes       internal notes about this instance; may be {@code null}
  * @param registrationOrigin    registration origin (e.g.: {@code "MANUAL"}, {@code "FOTO"}); may be {@code null}
- * @param ativa             indicates whether the instance is active in the system
+ * @param active             indicates whether the instance is active in the system
  */
 public record ItemInstanceResponseDTO(
         UUID id,
@@ -41,5 +41,5 @@ public record ItemInstanceResponseDTO(
         ItemInstanceStatus operationalStatus,
         String notes,
         String registrationOrigin,
-        boolean ativa
+        boolean active
 ) {}

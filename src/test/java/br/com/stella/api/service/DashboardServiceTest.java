@@ -68,12 +68,12 @@ class DashboardServiceTest {
         assertThat(resumo.instanceCount()).isEqualTo(25);
         assertThat(resumo.availableInstanceCount()).isEqualTo(18);
         assertThat(resumo.loanedInstanceCount()).isEqualTo(5);
-        assertThat(resumo.quantidadeLocais()).isEqualTo(3);
+        assertThat(resumo.locationCount()).isEqualTo(3);
         assertThat(resumo.itemsWithoutImageCount()).isEqualTo(2);
-        assertThat(resumo.quantidadeItensCadastradosPorIa()).isEqualTo(3);
+        assertThat(resumo.aiRegisteredItemCount()).isEqualTo(3);
         assertThat(resumo.vectorQueryCount()).isEqualTo(11);
-        assertThat(resumo.locaisComMaisItens()).containsExactlyElementsOf(locais);
-        assertThat(resumo.categoriasComMaisItens()).containsExactlyElementsOf(categories);
+        assertThat(resumo.topLocations()).containsExactlyElementsOf(locais);
+        assertThat(resumo.topCategories()).containsExactlyElementsOf(categories);
 
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
         verify(itemInstanceRepository).findLocationsWithMostItems(pageableCaptor.capture());

@@ -32,16 +32,16 @@ public final class PersonMapper {
 
         Person person = new Person();
         person.setName(dto.name());
-        person.setTaxId(dto.cpfCnpj());
+        person.setTaxId(dto.taxId());
         person.setPrimaryPhone(dto.primaryPhone());
         person.setSecondaryPhone(dto.secondaryPhone());
         person.setEmail(dto.email());
-        person.setZipCode(dto.cep());
-        person.setAddress(dto.endereco());
-        person.setComplement(dto.complemento());
-        person.setNeighborhood(dto.bairro());
-        person.setCity(dto.cidade());
-        person.setState(dto.uf());
+        person.setZipCode(dto.zipCode());
+        person.setAddress(dto.address());
+        person.setComplement(dto.complement());
+        person.setNeighborhood(dto.neighborhood());
+        person.setCity(dto.city());
+        person.setState(dto.state());
         return person;
     }
 
@@ -62,12 +62,12 @@ public final class PersonMapper {
         entity.setPrimaryPhone(dto.primaryPhone());
         entity.setSecondaryPhone(dto.secondaryPhone());
         entity.setEmail(dto.email());
-        entity.setZipCode(dto.cep());
-        entity.setAddress(dto.endereco());
-        entity.setComplement(dto.complemento());
-        entity.setNeighborhood(dto.bairro());
-        entity.setCity(dto.cidade());
-        entity.setState(dto.uf());
+        entity.setZipCode(dto.zipCode());
+        entity.setAddress(dto.address());
+        entity.setComplement(dto.complement());
+        entity.setNeighborhood(dto.neighborhood());
+        entity.setCity(dto.city());
+        entity.setState(dto.state());
     }
 
     /**

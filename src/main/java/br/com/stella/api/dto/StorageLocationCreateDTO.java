@@ -15,7 +15,7 @@ import java.util.UUID;
  * @param name      location name; required, up to 150 characters
  * @param description optional description of the location (capacity, item type, etc.); up to 500 characters
  * @param parentId     identifier of the parent location in the hierarchy; {@code null} indicates a root location
- * @param ativa     indicates whether the location should be created as active; when {@code null}, defaults to {@code true}
+ * @param active     indicates whether the location should be created as active; when {@code null}, defaults to {@code true}
  */
 public record StorageLocationCreateDTO(
         @NotBlank(message = "Name is required.")
@@ -27,5 +27,5 @@ public record StorageLocationCreateDTO(
 
         UUID parentId,
 
-        Boolean ativa
+        Boolean active
 ) {}

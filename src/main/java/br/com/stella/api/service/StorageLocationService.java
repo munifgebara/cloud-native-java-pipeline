@@ -69,7 +69,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
         location.setParent(findActiveParent(dto.parentId()));
 
         StorageLocation salvo = save(location);
-        if (Boolean.FALSE.equals(dto.ativa())) {
+        if (Boolean.FALSE.equals(dto.active())) {
             repository.flush();
             salvo.setActive(false);
             salvo = save(salvo);

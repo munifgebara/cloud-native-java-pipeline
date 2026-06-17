@@ -76,7 +76,7 @@ class PessoaServiceTest {
         assertThat(pessoaSalva.getNeighborhood()).isEqualTo("Bela Vista");
         assertThat(pessoaSalva.getCity()).isEqualTo("Sao Paulo");
         assertThat(pessoaSalva.getState()).isEqualTo("SP");
-        assertThat(response.cpfCnpj()).isEqualTo("52998224725");
+        assertThat(response.taxId()).isEqualTo("52998224725");
         assertThat(response.createdAt()).isEqualTo(createdAt);
         assertThat(response.updatedAt()).isEqualTo(updatedAt);
     }

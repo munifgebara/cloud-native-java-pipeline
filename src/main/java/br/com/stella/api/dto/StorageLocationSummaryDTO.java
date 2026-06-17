@@ -16,7 +16,7 @@ import java.util.UUID;
  * @param path   full path of the location in the hierarchy (e.g.: {@code "Building A > Room 101 > Cabinet 2"})
  * @param level     depth in the hierarchy: {@code 0} for root locations, {@code 1} for children, etc.
  * @param imageUrl relative URL for accessing the location image; {@code null} when no image
- * @param ativa     indicates whether the location is active in the system
+ * @param active     indicates whether the location is active in the system
  */
 public record StorageLocationSummaryDTO(
         UUID id,
@@ -27,5 +27,5 @@ public record StorageLocationSummaryDTO(
         String path,
         int level,
         String imageUrl,
-        boolean ativa
+        boolean active
 ) {}

@@ -136,7 +136,7 @@ class ItemMestreServiceTest {
 
         var response = service.create(new MainItemCreateDTO("Arquivo legado", null, null, null, null, false));
 
-        assertThat(response.ativa()).isFalse();
+        assertThat(response.active()).isFalse();
         verify(repository).flush();
     }
 
@@ -163,7 +163,7 @@ class ItemMestreServiceTest {
         assertThat(response.name()).isEqualTo("Cadeira ergonomica");
         assertThat(response.description()).isEqualTo("Cadeira de escritorio");
         assertThat(response.categoryName()).isEqualTo("Moveis");
-        assertThat(response.ativa()).isFalse();
+        assertThat(response.active()).isFalse();
         verify(vectorSearchService).synchronize(item);
     }
 
@@ -221,7 +221,7 @@ class ItemMestreServiceTest {
         when(repository.findAllIncludingInactive()).thenReturn(List.of(active, inactive));
 
         assertThat(service.listSummary()).extracting("name").containsExactly("Notebook");
-        assertThat(service.listSummaryIncludingInactive()).extracting("ativa").containsExactly(true, false);
+        assertThat(service.listSummaryIncludingInactive()).extracting("active").containsExactly(true, false);
     }
 
     @Test
@@ -359,12 +359,12 @@ class ItemMestreServiceTest {
         return item;
     }
 
-    private Category category(UUID id, String name, String icon, boolean ativa) {
+    private Category category(UUID id, String name, String icon, boolean active) {
         Category category = new Category();
         category.setId(id);
         category.setName(name);
         category.setIcon(icon);
-        category.setActive(ativa);
+        category.setActive(active);
         return category;
     }
 }

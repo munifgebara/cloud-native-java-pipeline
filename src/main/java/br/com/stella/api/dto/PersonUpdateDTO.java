@@ -16,12 +16,12 @@ import jakarta.validation.constraints.Size;
  * @param primaryPhone  primary contact phone; up to 20 characters; optional
  * @param secondaryPhone alternative phone; up to 20 characters; optional
  * @param email              email address; up to 150 characters; optional
- * @param cep                ZIP code in format {@code 99999-999} or {@code 99999999}; optional
- * @param endereco           street and number; up to 200 characters; optional
- * @param complemento        address complement; up to 100 characters; optional
- * @param bairro             neighbourhood; up to 100 characters; optional
- * @param cidade             city; up to 100 characters; optional
- * @param uf                 state abbreviation with 2 letters (e.g.: {@code "SP"}); optional
+ * @param zipCode                ZIP code in format {@code 99999-999} or {@code 99999999}; optional
+ * @param address           street and number; up to 200 characters; optional
+ * @param complement        address complement; up to 100 characters; optional
+ * @param neighborhood             neighbourhood; up to 100 characters; optional
+ * @param city             city; up to 100 characters; optional
+ * @param state                 state abbreviation with 2 letters (e.g.: {@code "SP"}); optional
  */
 public record PersonUpdateDTO(
         @NotBlank(message = "Name is required.")
@@ -39,20 +39,20 @@ public record PersonUpdateDTO(
         String email,
 
         @Pattern(regexp = "^$|^\\d{5}-?\\d{3}$", message = "ZIP code must be in the format 99999-999 or 99999999.")
-        String cep,
+        String zipCode,
 
         @Size(max = 200, message = "Address must not exceed 200 characters.")
-        String endereco,
+        String address,
 
         @Size(max = 100, message = "Complement must not exceed 100 characters.")
-        String complemento,
+        String complement,
 
         @Size(max = 100, message = "Neighbourhood must not exceed 100 characters.")
-        String bairro,
+        String neighborhood,
 
         @Size(max = 100, message = "City must not exceed 100 characters.")
-        String cidade,
+        String city,
 
         @Pattern(regexp = "^$|^[A-Za-z]{2}$", message = "State abbreviation must contain 2 letters.")
-        String uf
+        String state
 ) {}
