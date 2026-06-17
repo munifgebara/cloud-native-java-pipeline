@@ -152,7 +152,7 @@ class InstanciaItemServiceTest {
         assertThat(response.identifier()).isEqualTo("NB-002");
         assertThat(response.serialNumber()).isEqualTo("SN-999");
         assertThat(response.operationalStatus()).isEqualTo(ItemInstanceStatus.EM_MOVIMENTACAO);
-        assertThat(response.ativa()).isFalse();
+        assertThat(response.active()).isFalse();
     }
 
     @Test

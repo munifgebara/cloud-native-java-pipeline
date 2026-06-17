@@ -22,8 +22,8 @@ public final class MainItemMapper {
         item.setDescription(dto.description());
         item.setNotes(dto.notes());
         item.setRegistrationOrigin(dto.registrationOrigin());
-        if (dto.ativa() != null) {
-            item.setActive(dto.ativa());
+        if (dto.active() != null) {
+            item.setActive(dto.active());
         }
         return item;
     }
@@ -37,8 +37,8 @@ public final class MainItemMapper {
         entity.setDescription(dto.description());
         entity.setNotes(dto.notes());
         entity.setRegistrationOrigin(dto.registrationOrigin());
-        if (dto.ativa() != null) {
-            entity.setActive(dto.ativa());
+        if (dto.active() != null) {
+            entity.setActive(dto.active());
         }
     }
 

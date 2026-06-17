@@ -57,7 +57,7 @@ class InventoryMapperTest {
 
         assertThat(response.name()).isEqualTo("Maria Silva");
         assertThat(response.email()).isEqualTo("maria.silva@example.location");
-        assertThat(response.endereco()).isEqualTo("Rua B");
+        assertThat(response.address()).isEqualTo("Rua B");
         assertThat(resumo.id()).isEqualTo(person.getId());
         assertThat(resumo.name()).isEqualTo("Maria Silva");
     }
@@ -91,7 +91,7 @@ class InventoryMapperTest {
 
         assertThat(response.name()).isEqualTo("Biblioteca");
         assertThat(response.icon()).isEqualTo("book");
-        assertThat(response.ativa()).isTrue();
+        assertThat(response.active()).isTrue();
         assertThat(resumo.description()).isEqualTo("Livros fisicos");
     }
 

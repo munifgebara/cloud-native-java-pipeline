@@ -27,8 +27,8 @@ public final class ItemInstanceMapper {
         instance.setOperationalStatus(statusOrDefault(dto.operationalStatus()));
         instance.setNotes(dto.notes());
         instance.setRegistrationOrigin(dto.registrationOrigin());
-        if (dto.ativa() != null) {
-            instance.setActive(dto.ativa());
+        if (dto.active() != null) {
+            instance.setActive(dto.active());
         }
         return instance;
     }
@@ -44,8 +44,8 @@ public final class ItemInstanceMapper {
         entity.setOperationalStatus(statusOrDefault(dto.operationalStatus()));
         entity.setNotes(dto.notes());
         entity.setRegistrationOrigin(dto.registrationOrigin());
-        if (dto.ativa() != null) {
-            entity.setActive(dto.ativa());
+        if (dto.active() != null) {
+            entity.setActive(dto.active());
         }
     }
 

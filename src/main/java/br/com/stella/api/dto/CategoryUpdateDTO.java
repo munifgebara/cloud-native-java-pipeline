@@ -13,7 +13,7 @@ import jakarta.validation.constraints.Size;
  * @param name      category name; required, up to 150 characters
  * @param description explanatory text about the category scope; up to 500 characters; optional
  * @param icon     visual icon key (e.g.: {@code "ferramentas"}); up to 50 characters; optional
- * @param ativa     indicates whether the category is active; optional
+ * @param active     indicates whether the category is active; optional
  */
 public record CategoryUpdateDTO(
         @NotBlank(message = "Name is required.")
@@ -26,5 +26,5 @@ public record CategoryUpdateDTO(
         @Size(max = 50, message = "Icon must not exceed 50 characters.")
         String icon,
 
-        Boolean ativa
+        Boolean active
 ) {}

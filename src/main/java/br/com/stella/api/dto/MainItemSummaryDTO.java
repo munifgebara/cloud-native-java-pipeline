@@ -15,7 +15,7 @@ import java.util.UUID;
  * @param categoryName  category name (denormalized); may be {@code null}
  * @param categoryIcon category icon key; may be {@code null}
  * @param imageUrl      relative URL for accessing the item image; {@code null} when no image
- * @param ativa          indicates whether the item is active in the system
+ * @param active          indicates whether the item is active in the system
  */
 public record MainItemSummaryDTO(
         UUID id,
@@ -25,5 +25,5 @@ public record MainItemSummaryDTO(
         String categoryName,
         String categoryIcon,
         String imageUrl,
-        boolean ativa
+        boolean active
 ) {}

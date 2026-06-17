@@ -199,22 +199,22 @@ class EmprestimoItemServiceTest {
         verify(repository, never()).save(any(ItemLoan.class));
     }
 
-    private ItemInstance instance(UUID id, ItemInstanceStatus status, boolean ativa, StorageLocation location) {
+    private ItemInstance instance(UUID id, ItemInstanceStatus status, boolean active, StorageLocation location) {
         ItemInstance instance = new ItemInstance();
         instance.setId(id);
         instance.setMainItem(new MainItem());
         instance.setIdentifier("LIV-001");
         instance.setOperationalStatus(status);
-        instance.setActive(ativa);
+        instance.setActive(active);
         instance.setCurrentLocation(location);
         return instance;
     }
 
-    private Person person(UUID id, String name, boolean ativa) {
+    private Person person(UUID id, String name, boolean active) {
         Person person = new Person();
         person.setId(id);
         person.setName(name);
-        person.setActive(ativa);
+        person.setActive(active);
         return person;
     }
 

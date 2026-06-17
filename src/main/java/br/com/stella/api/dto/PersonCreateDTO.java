@@ -9,19 +9,19 @@ import jakarta.validation.constraints.Size;
  * Creation DTO for an individual or legal entity.
  *
  * <p>All address fields are optional to support quick registrations.
- * The {@code cpfCnpj} must be unique in the system and provided with digits only.</p>
+ * The {@code taxId} must be unique in the system and provided with digits only.</p>
  *
  * @param name               full name or company name; required, up to 150 characters
- * @param cpfCnpj            CPF (11 digits) or CNPJ (14 digits) without formatting; required
+ * @param taxId            CPF (11 digits) or CNPJ (14 digits) without formatting; required
  * @param primaryPhone  primary contact phone; up to 20 characters; optional
  * @param secondaryPhone alternative phone; up to 20 characters; optional
  * @param email              email address; up to 150 characters; optional
- * @param cep                ZIP code in format {@code 99999-999} or {@code 99999999}; optional
- * @param endereco           street and number; up to 200 characters; optional
- * @param complemento        address complement (apt, suite, etc.); up to 100 characters; optional
- * @param bairro             neighbourhood; up to 100 characters; optional
- * @param cidade             city; up to 100 characters; optional
- * @param uf                 state abbreviation with 2 letters (e.g.: {@code "SP"}); optional
+ * @param zipCode                ZIP code in format {@code 99999-999} or {@code 99999999}; optional
+ * @param address           street and number; up to 200 characters; optional
+ * @param complement        address complement (apt, suite, etc.); up to 100 characters; optional
+ * @param neighborhood             neighbourhood; up to 100 characters; optional
+ * @param city             city; up to 100 characters; optional
+ * @param state                 state abbreviation with 2 letters (e.g.: {@code "SP"}); optional
  */
 public record PersonCreateDTO(
         @NotBlank(message = "Name is required.")
@@ -30,7 +30,7 @@ public record PersonCreateDTO(
 
         @NotBlank(message = "CPF/CNPJ is required.")
         @Size(min = 11, max = 18, message = "CPF/CNPJ must be between 11 and 18 characters.")
-        String cpfCnpj,
+        String taxId,
 
         @Size(max = 20, message = "Primary phone must not exceed 20 characters.")
         String primaryPhone,
@@ -43,20 +43,20 @@ public record PersonCreateDTO(
         String email,
 
         @Pattern(regexp = "^$|^\\d{5}-?\\d{3}$", message = "ZIP code must be in the format 99999-999 or 99999999.")
-        String cep,
+        String zipCode,
 
         @Size(max = 200, message = "Address must not exceed 200 characters.")
-        String endereco,
+        String address,
 
         @Size(max = 100, message = "Complement must not exceed 100 characters.")
-        String complemento,
+        String complement,
 
         @Size(max = 100, message = "Neighbourhood must not exceed 100 characters.")
-        String bairro,
+        String neighborhood,
 
         @Size(max = 100, message = "City must not exceed 100 characters.")
-        String cidade,
+        String city,
 
         @Pattern(regexp = "^$|^[A-Za-z]{2}$", message = "State abbreviation must contain 2 letters.")
-        String uf
+        String state
 ) {}

@@ -21,7 +21,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody())
                 .containsEntry("status", 400)
-                .containsEntry("erro", "CPF/CNPJ is required.")
+                .containsEntry("error", "CPF/CNPJ is required.")
                 .containsEntry("path", "/api/v0/people");
     }
 
@@ -34,7 +34,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(response.getBody())
                 .containsEntry("status", 500)
-                .containsEntry("erro", "Unexpected error while processing the request.")
+                .containsEntry("error", "Unexpected error while processing the request.")
                 .containsEntry("path", "/api/v0/dashboard");
     }
 
@@ -48,9 +48,9 @@ class GlobalExceptionHandlerTest {
 
         assertThat(body)
                 .containsEntry("status", 400)
-                .containsEntry("erro", "Invalid data.")
+                .containsEntry("error", "Invalid data.")
                 .containsEntry("path", "/api/v0/people");
-        assertThat(body).extracting("campos")
+        assertThat(body).extracting("fields")
                 .asInstanceOf(org.assertj.core.api.InstanceOfAssertFactories.map(String.class, String.class))
                 .containsEntry("name", "Name is required.");
     }
@@ -64,7 +64,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
         assertThat(response.getBody())
                 .containsEntry("status", 429)
-                .containsEntry("erro", "Daily limit for OpenAI image generation reached.")
+                .containsEntry("error", "Daily limit for OpenAI image generation reached.")
                 .containsEntry("path", "/api/v0/main-items/image-ai");
     }
 
@@ -78,7 +78,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY);
         assertThat(response.getBody())
                 .containsEntry("status", 502)
-                .containsEntry("erro", "OpenAI returned an empty response for the image.")
+                .containsEntry("error", "OpenAI returned an empty response for the image.")
                 .containsEntry("path", "/api/v0/main-items/image-ai");
     }
 
@@ -92,7 +92,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(response.getBody())
                 .containsEntry("status", 500)
-                .containsEntry("erro", "Unexpected error while processing the request.")
+                .containsEntry("error", "Unexpected error while processing the request.")
                 .containsEntry("path", "/api/v0/main-items");
     }
 }

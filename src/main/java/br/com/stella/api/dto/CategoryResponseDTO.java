@@ -12,12 +12,12 @@ import java.util.UUID;
  * @param name      category name
  * @param description descriptive text about the category scope; may be {@code null}
  * @param icon     associated visual icon key (e.g.: {@code "livros"}); may be {@code null}
- * @param ativa     indicates whether the category is active in the system
+ * @param active     indicates whether the category is active in the system
  */
 public record CategoryResponseDTO(
         UUID id,
         String name,
         String description,
         String icon,
-        boolean ativa
+        boolean active
 ) {}

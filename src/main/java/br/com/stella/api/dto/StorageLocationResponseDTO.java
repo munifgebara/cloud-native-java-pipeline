@@ -18,7 +18,7 @@ import java.util.UUID;
  * @param imageUrl          relative URL for accessing the image; {@code null} when no image
  * @param imageContentType  image MIME type (e.g.: {@code "image/jpeg"}); may be {@code null}
  * @param imageSizeBytes image size in bytes; may be {@code null}
- * @param ativa              indicates whether the location is active in the system
+ * @param active              indicates whether the location is active in the system
  */
 public record StorageLocationResponseDTO(
         UUID id,
@@ -31,5 +31,5 @@ public record StorageLocationResponseDTO(
         String imageUrl,
         String imageContentType,
         Long imageSizeBytes,
-        boolean ativa
+        boolean active
 ) {}

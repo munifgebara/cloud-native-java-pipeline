@@ -21,7 +21,7 @@ import java.util.UUID;
  * @param operationalStatus new operational status of the instance; optional
  * @param notes       internal notes (up to 1000 characters); optional
  * @param registrationOrigin    registration origin (up to 50 characters); optional
- * @param ativa             indicates whether the instance is active; optional
+ * @param active             indicates whether the instance is active; optional
  */
 public record ItemInstanceUpdateDTO(
         @NotNull(message = "Main item is required.")
@@ -46,5 +46,5 @@ public record ItemInstanceUpdateDTO(
         @Size(max = 50, message = "Registration origin must not exceed 50 characters.")
         String registrationOrigin,
 
-        Boolean ativa
+        Boolean active
 ) {}

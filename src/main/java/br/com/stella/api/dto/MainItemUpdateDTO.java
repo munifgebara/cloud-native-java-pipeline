@@ -17,7 +17,7 @@ import java.util.UUID;
  * @param notes    internal notes; up to 1000 characters; optional
  * @param registrationOrigin registration origin; up to 50 characters; optional
  * @param categoryId    category identifier; {@code null} removes the association with the category
- * @param ativa          indicates whether the item is active; optional
+ * @param active          indicates whether the item is active; optional
  */
 public record MainItemUpdateDTO(
         @NotBlank(message = "Name is required.")
@@ -35,5 +35,5 @@ public record MainItemUpdateDTO(
 
         UUID categoryId,
 
-        Boolean ativa
+        Boolean active
 ) {}

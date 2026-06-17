@@ -85,7 +85,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
         ItemInstanceRules.validateStatusLocationConsistency(instance);
 
         ItemInstance salva = save(instance);
-        if (Boolean.FALSE.equals(dto.ativa())) {
+        if (Boolean.FALSE.equals(dto.active())) {
             repository.flush();
             salva.setActive(false);
             salva = save(salva);

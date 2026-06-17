@@ -12,32 +12,32 @@ import java.util.UUID;
  *
  * @param id                 unique identifier of the person
  * @param name               full name or company name
- * @param cpfCnpj            CPF or CNPJ (digits only)
+ * @param taxId            CPF or CNPJ (digits only)
  * @param primaryPhone  primary contact phone; may be {@code null}
  * @param secondaryPhone alternative phone; may be {@code null}
  * @param email              email address; may be {@code null}
- * @param cep                ZIP code (digits only); may be {@code null}
- * @param endereco           street and number; may be {@code null}
- * @param complemento        address complement; may be {@code null}
- * @param bairro             neighbourhood; may be {@code null}
- * @param cidade             city; may be {@code null}
- * @param uf                 state abbreviation (2 letters); may be {@code null}
+ * @param zipCode                ZIP code (digits only); may be {@code null}
+ * @param address           street and number; may be {@code null}
+ * @param complement        address complement; may be {@code null}
+ * @param neighborhood             neighbourhood; may be {@code null}
+ * @param city             city; may be {@code null}
+ * @param state                 state abbreviation (2 letters); may be {@code null}
  * @param createdAt           record creation date and time (UTC)
  * @param updatedAt         date and time of the last change to the record (UTC)
  */
 public record PersonResponseDTO(
         UUID id,
         String name,
-        String cpfCnpj,
+        String taxId,
         String primaryPhone,
         String secondaryPhone,
         String email,
-        String cep,
-        String endereco,
-        String complemento,
-        String bairro,
-        String cidade,
-        String uf,
+        String zipCode,
+        String address,
+        String complement,
+        String neighborhood,
+        String city,
+        String state,
         Instant createdAt,
         Instant updatedAt
 ) {}

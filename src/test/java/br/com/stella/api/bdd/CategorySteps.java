@@ -54,6 +54,6 @@ public class CategorySteps {
 
     @Then("the registered category must be active")
     public void registeredCategoryShouldBeActive() {
-        assertThat(response.ativa()).isTrue();
+        assertThat(response.active()).isTrue();
     }
 }

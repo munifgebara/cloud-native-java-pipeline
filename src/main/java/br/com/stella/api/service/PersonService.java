@@ -59,7 +59,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
     public PersonResponseDTO create(PersonCreateDTO dto) {
         validarCreate(dto);
 
-        String cpfCnpjNormalizado = normalizeTaxId(dto.cpfCnpj());
+        String cpfCnpjNormalizado = normalizeTaxId(dto.taxId());
 
         if (repository.existsByTaxId(cpfCnpjNormalizado)) {
             throw new DuplicateRegistrationException("A person with this CPF/CNPJ is already registered.");
@@ -203,12 +203,12 @@ public class PersonService extends SuperService<Person, PersonRepository> {
     }
 
     private void validarCreate(PersonCreateDTO dto) {
-        String cpfCnpj = normalizeTaxId(dto.cpfCnpj());
+        String taxId = normalizeTaxId(dto.taxId());
 
-        if (cpfCnpj.length() == 11) {
-            BrValidations.exigirCPFValido(cpfCnpj, "CPF");
-        } else if (cpfCnpj.length() == 14) {
-            BrValidations.exigirCNPJValido(cpfCnpj, "CNPJ");
+        if (taxId.length() == 11) {
+            BrValidations.exigirCPFValido(taxId, "CPF");
+        } else if (taxId.length() == 14) {
+            BrValidations.exigirCNPJValido(taxId, "CNPJ");
         } else {
             throw new IllegalArgumentException("CPF/CNPJ must contain 11 or 14 digits.");
         }
@@ -217,8 +217,8 @@ public class PersonService extends SuperService<Person, PersonRepository> {
                 dto.primaryPhone(),
                 dto.secondaryPhone(),
                 dto.email(),
-                dto.cep(),
-                dto.uf()
+                dto.zipCode(),
+                dto.state()
         );
     }
 
@@ -227,8 +227,8 @@ public class PersonService extends SuperService<Person, PersonRepository> {
                 dto.primaryPhone(),
                 dto.secondaryPhone(),
                 dto.email(),
-                dto.cep(),
-                dto.uf()
+                dto.zipCode(),
+                dto.state()
         );
     }
 
@@ -236,8 +236,8 @@ public class PersonService extends SuperService<Person, PersonRepository> {
             String primaryPhone,
             String secondaryPhone,
             String email,
-            String cep,
-            String uf
+            String zipCode,
+            String state
     ) {
         if (BrValidations.isNotBlank(primaryPhone)) {
             BrValidations.requireValidPhone(primaryPhone, "Primary phone");
@@ -251,20 +251,20 @@ public class PersonService extends SuperService<Person, PersonRepository> {
             BrValidations.exigirEmailValido(email, "And-mail");
         }
 
-        if (BrValidations.isNotBlank(cep)) {
-            BrValidations.exigirCEPValido(cep, "CEP");
+        if (BrValidations.isNotBlank(zipCode)) {
+            BrValidations.exigirCEPValido(zipCode, "CEP");
         }
 
-        if (BrValidations.isNotBlank(uf)) {
-            String ufNormalizada = uf.trim().toUpperCase(Locale.ROOT);
+        if (BrValidations.isNotBlank(state)) {
+            String ufNormalizada = state.trim().toUpperCase(Locale.ROOT);
             if (!ufNormalizada.matches("^[A-Z]{2}$")) {
                 throw new IllegalArgumentException("Invalid state abbreviation.");
             }
         }
     }
 
-    private String normalizeTaxId(String cpfCnpj) {
-        String valor = BrValidations.somenteDigitos(cpfCnpj);
+    private String normalizeTaxId(String taxId) {
+        String valor = BrValidations.somenteDigitos(taxId);
         if (valor == null) {
             throw new IllegalArgumentException("CPF/CNPJ is required.");
         }
@@ -294,13 +294,13 @@ public class PersonService extends SuperService<Person, PersonRepository> {
         return valor == null ? null : valor.toLowerCase(Locale.ROOT);
     }
 
-    private String normalizeZipCode(String cep) {
-        String valor = BrValidations.trimToNull(cep);
+    private String normalizeZipCode(String zipCode) {
+        String valor = BrValidations.trimToNull(zipCode);
         return valor == null ? null : BrValidations.somenteDigitos(valor);
     }
 
-    private String normalizeState(String uf) {
-        String valor = BrValidations.trimToNull(uf);
+    private String normalizeState(String state) {
+        String valor = BrValidations.trimToNull(state);
         return valor == null ? null : valor.toUpperCase(Locale.ROOT);
     }
 
@@ -353,26 +353,26 @@ public class PersonService extends SuperService<Person, PersonRepository> {
             return List.of();
         }
 
-        List<String> campos = new ArrayList<>();
+        List<String> fields = new ArrayList<>();
 
-        adicionarSeAlterado(campos, "name", atual.name(), anterior.name());
-        adicionarSeAlterado(campos, "cpfCnpj", atual.cpfCnpj(), anterior.cpfCnpj());
-        adicionarSeAlterado(campos, "primaryPhone", atual.primaryPhone(), anterior.primaryPhone());
-        adicionarSeAlterado(campos, "secondaryPhone", atual.secondaryPhone(), anterior.secondaryPhone());
-        adicionarSeAlterado(campos, "email", atual.email(), anterior.email());
-        adicionarSeAlterado(campos, "cep", atual.cep(), anterior.cep());
-        adicionarSeAlterado(campos, "endereco", atual.endereco(), anterior.endereco());
-        adicionarSeAlterado(campos, "complemento", atual.complemento(), anterior.complemento());
-        adicionarSeAlterado(campos, "bairro", atual.bairro(), anterior.bairro());
-        adicionarSeAlterado(campos, "cidade", atual.cidade(), anterior.cidade());
-        adicionarSeAlterado(campos, "uf", atual.uf(), anterior.uf());
+        adicionarSeAlterado(fields, "name", atual.name(), anterior.name());
+        adicionarSeAlterado(fields, "taxId", atual.taxId(), anterior.taxId());
+        adicionarSeAlterado(fields, "primaryPhone", atual.primaryPhone(), anterior.primaryPhone());
+        adicionarSeAlterado(fields, "secondaryPhone", atual.secondaryPhone(), anterior.secondaryPhone());
+        adicionarSeAlterado(fields, "email", atual.email(), anterior.email());
+        adicionarSeAlterado(fields, "zipCode", atual.zipCode(), anterior.zipCode());
+        adicionarSeAlterado(fields, "address", atual.address(), anterior.address());
+        adicionarSeAlterado(fields, "complement", atual.complement(), anterior.complement());
+        adicionarSeAlterado(fields, "neighborhood", atual.neighborhood(), anterior.neighborhood());
+        adicionarSeAlterado(fields, "city", atual.city(), anterior.city());
+        adicionarSeAlterado(fields, "state", atual.state(), anterior.state());
 
-        return campos;
+        return fields;
     }
 
-    private void adicionarSeAlterado(List<String> campos, String campo, Object atual, Object anterior) {
+    private void adicionarSeAlterado(List<String> fields, String campo, Object atual, Object anterior) {
         if (!Objects.equals(atual, anterior)) {
-            campos.add(campo);
+            fields.add(campo);
         }
     }
 }

@@ -28,8 +28,8 @@ import java.util.Map;
  * {
  *   "timestamp": "2024-01-15T10:30:00Z",
  *   "status": 400,
- *   "codigo": "Bad Request",
- *   "erro": "Human-readable message for the user",
+ *   "code": "Bad Request",
+ *   "error": "Human-readable message for the user",
  *   "path": "/api/v0/resource"
  * }
  * </pre>
@@ -63,7 +63,7 @@ public class GlobalExceptionHandler {
         log.warn("Validation error in {} {}: {}", request.getMethod(), request.getRequestURI(), errors);
 
         Map<String, Object> body = body(HttpStatus.BAD_REQUEST, "Invalid data.", request);
-        body.put("campos", errors);
+        body.put("fields", errors);
 
         return ResponseEntity.badRequest().body(body);
     }
@@ -239,14 +239,14 @@ public class GlobalExceptionHandler {
      * @param status  HTTP status code
      * @param message error message
      * @param request HTTP request (to extract the path)
-     * @return map with fields {@code timestamp}, {@code status}, {@code codigo}, {@code erro}, and {@code path}
+     * @return map with fields {@code timestamp}, {@code status}, {@code code}, {@code error}, and {@code path}
      */
     private Map<String, Object> body(HttpStatus status, String message, HttpServletRequest request) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", Instant.now());
         body.put("status", status.value());
-        body.put("codigo", status.getReasonPhrase());
-        body.put("erro", message);
+        body.put("code", status.getReasonPhrase());
+        body.put("error", message);
         body.put("path", request.getRequestURI());
         return body;
     }
