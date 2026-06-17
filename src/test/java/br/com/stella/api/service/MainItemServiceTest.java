@@ -289,7 +289,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void shouldRemoveIndexVectorOnExcluirLogically() {
+    void shouldRemoveIndexVectorOnDeleteLogically() {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
 
@@ -303,7 +303,7 @@ class ItemMestreServiceTest {
     }
 
     @Test
-    void shouldExcluirLogicallySameWhenRemovalOfIndexVectorFailure() {
+    void shouldDeleteLogicallySameWhenRemovalOfIndexVectorFailure() {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
 

@@ -113,7 +113,7 @@ class KeycloakUsuarioServiceTest {
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withNoContent());
 
-        expectUsuarioCompleto("user-2", "novo");
+        expectFullUser("user-2", "novo");
 
         UserResponseDTO user = service.create(new UserCreateDTO(
                 "novo",
@@ -489,7 +489,7 @@ class KeycloakUsuarioServiceTest {
         server.verify();
     }
 
-    private void expectUsuarioCompleto(String id, String username) {
+    private void expectFullUser(String id, String username) {
         expectAdminToken();
         server.expect(once(), requestTo("http://keycloak/admin/realms/stella/users/" + id))
                 .andExpect(method(HttpMethod.GET))

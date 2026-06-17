@@ -44,7 +44,7 @@ class OpenAiImagemIaProviderTest {
 
     @Test
     void shouldSendPromptForOpenAiAndConvertImageBase64() {
-        when(imageModel.call(any(ImagePrompt.class))).thenReturn(respostaImagem("aW1hZ2Vt"));
+        when(imageModel.call(any(ImagePrompt.class))).thenReturn(imageResponse("aW1hZ2Vt"));
 
         var response = provider.generateImage(new ImageAiRequestDTO("Furadeira", "Ferramentas", "Furadeira de impacto"));
 
@@ -55,7 +55,7 @@ class OpenAiImagemIaProviderTest {
 
     @Test
     void shouldIncludeNameItemInPrompt() {
-        when(imageModel.call(any(ImagePrompt.class))).thenReturn(respostaImagem("abc123"));
+        when(imageModel.call(any(ImagePrompt.class))).thenReturn(imageResponse("abc123"));
 
         provider.generateImage(new ImageAiRequestDTO("Notebook", null, null));
 
@@ -121,7 +121,7 @@ class OpenAiImagemIaProviderTest {
         verify(imageModel, never()).call(any(ImagePrompt.class));
     }
 
-    private ImageResponse respostaImagem(String base64) {
+    private ImageResponse imageResponse(String base64) {
         return new ImageResponse(List.of(new ImageGeneration(new Image(null, base64))));
     }
 
