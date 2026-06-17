@@ -56,7 +56,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
      * @throws DuplicateRegistrationException if a person with the same CPF/CNPJ already exists
      */
     @Transactional
-    public PersonResponseDTO criar(PersonCreateDTO dto) {
+    public PersonResponseDTO create(PersonCreateDTO dto) {
         validarCreate(dto);
 
         String cpfCnpjNormalizado = normalizarCpfCnpj(dto.cpfCnpj());
@@ -69,7 +69,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
         normalizarCampos(pessoa);
         pessoa.setTaxId(cpfCnpjNormalizado);
 
-        Person salva = salvar(pessoa);
+        Person salva = save(pessoa);
         return PersonMapper.toResponseDTO(salva);
     }
 
@@ -81,8 +81,8 @@ public class PersonService extends SuperService<Person, PersonRepository> {
      * @throws jakarta.persistence.EntityNotFoundException if the person does not exist
      */
     @Transactional(readOnly = true)
-    public PersonResponseDTO buscarResponsePorId(UUID id) {
-        return PersonMapper.toResponseDTO(buscarPorId(id));
+    public PersonResponseDTO findResponseById(UUID id) {
+        return PersonMapper.toResponseDTO(findById(id));
     }
 
     /**
@@ -91,7 +91,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
      * @return list of summary DTOs of active persons
      */
     @Transactional(readOnly = true)
-    public List<PersonSummaryDTO> listarResumo() {
+    public List<PersonSummaryDTO> listSummary() {
         return repository.findByActiveTrueOrderByNameAsc().stream()
                 .map(PersonMapper::toResumoDTO)
                 .toList();
@@ -103,7 +103,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
      * @return list of summary DTOs of all persons
      */
     @Transactional(readOnly = true)
-    public List<PersonSummaryDTO> listarResumoIncluindoInativos() {
+    public List<PersonSummaryDTO> listSummaryIncludingInactive() {
         return findAllIncludingInactive().stream()
                 .map(PersonMapper::toResumoDTO)
                 .toList();
@@ -121,14 +121,14 @@ public class PersonService extends SuperService<Person, PersonRepository> {
      * @throws IllegalArgumentException if phone, email, ZIP code or state abbreviation are invalid
      */
     @Transactional
-    public PersonResponseDTO atualizar(UUID id, PersonUpdateDTO dto) {
+    public PersonResponseDTO update(UUID id, PersonUpdateDTO dto) {
         validarUpdate(dto);
 
-        Person pessoa = buscarPorId(id);
+        Person pessoa = findById(id);
         PersonMapper.updateEntity(pessoa, dto);
         normalizarCampos(pessoa);
 
-        Person salva = salvar(pessoa);
+        Person salva = save(pessoa);
         return PersonMapper.toResponseDTO(salva);
     }
 
@@ -139,8 +139,8 @@ public class PersonService extends SuperService<Person, PersonRepository> {
      * @throws jakarta.persistence.EntityNotFoundException if the person does not exist
      */
     @Transactional
-    public void excluirLogicamente(UUID id) {
-        excluir(id);
+    public void deleteLogically(UUID id) {
+        delete(id);
     }
 
     /**
@@ -150,7 +150,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
      * @return list of summary DTOs of the found persons
      */
     @Transactional(readOnly = true)
-    public List<PersonSummaryDTO> buscarPorNome(String nome) {
+    public List<PersonSummaryDTO> findByName(String nome) {
         String nomeTratado = BrValidations.trimToNull(nome);
         if (nomeTratado == null) {
             return List.of();
@@ -174,8 +174,8 @@ public class PersonService extends SuperService<Person, PersonRepository> {
      */
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
-    public List<PersonRevisionDTO> listarRevisoes(UUID id) {
-        buscarPorId(id);
+    public List<PersonRevisionDTO> listRevisions(UUID id) {
+        findById(id);
 
         AuditReader auditReader = AuditReaderFactory.get(entityManager);
 

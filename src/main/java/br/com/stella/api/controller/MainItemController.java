@@ -60,20 +60,20 @@ public class MainItemController extends SuperController<MainItemSummaryDTO, Main
 
     @Override
     @PostMapping
-    public ResponseEntity<MainItemResponseDTO> criar(@RequestBody @Valid MainItemCreateDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.criar(dto));
+    public ResponseEntity<MainItemResponseDTO> create(@RequestBody @Valid MainItemCreateDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
 
     @Override
     @GetMapping("/{id}")
-    public ResponseEntity<MainItemResponseDTO> buscarPorId(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.buscarResponsePorId(id));
+    public ResponseEntity<MainItemResponseDTO> findById(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.findResponseById(id));
     }
 
     @Override
     @GetMapping
     public ResponseEntity<List<MainItemSummaryDTO>> listar() {
-        return ResponseEntity.ok(service.listarResumo());
+        return ResponseEntity.ok(service.listSummary());
     }
 
     /**
@@ -82,9 +82,9 @@ public class MainItemController extends SuperController<MainItemSummaryDTO, Main
      * @param nome substring to search in the main item name
      * @return {@code 200 OK} with the list of found items
      */
-    @GetMapping("/buscar")
-    public ResponseEntity<List<MainItemSummaryDTO>> buscarPorNome(@RequestParam String nome) {
-        return ResponseEntity.ok(service.buscarPorNome(nome));
+    @GetMapping("/search")
+    public ResponseEntity<List<MainItemSummaryDTO>> findByName(@RequestParam String nome) {
+        return ResponseEntity.ok(service.findByName(nome));
     }
 
     /**
@@ -150,31 +150,31 @@ public class MainItemController extends SuperController<MainItemSummaryDTO, Main
      */
     @PostMapping("/imagem-ia")
     public ResponseEntity<ImageAiResponseDTO> gerarImagemIa(@RequestBody @Valid ImageAiRequestDTO dto) {
-        return ResponseEntity.ok(imagemIaService.gerarImagem(dto));
+        return ResponseEntity.ok(imagemIaService.generateImage(dto));
     }
 
     @Override
     @PutMapping("/{id}")
-    public ResponseEntity<MainItemResponseDTO> atualizar(@PathVariable UUID id, @RequestBody @Valid MainItemUpdateDTO dto) {
-        return ResponseEntity.ok(service.atualizar(id, dto));
+    public ResponseEntity<MainItemResponseDTO> update(@PathVariable UUID id, @RequestBody @Valid MainItemUpdateDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     @Override
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable UUID id) {
-        service.excluirLogicamente(id);
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        service.deleteLogically(id);
         return ResponseEntity.noContent().build();
     }
 
     @Override
     @GetMapping("/todos")
     public ResponseEntity<List<MainItemSummaryDTO>> findAllIncludingInactive() {
-        return ResponseEntity.ok(service.listarResumoIncluindoInativos());
+        return ResponseEntity.ok(service.listSummaryIncludingInactive());
     }
 
     @Override
     @GetMapping("/{id}/revisoes")
-    public ResponseEntity<List<RevisionDTO<MainItem>>> listarVersoesAnteriores(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.listarRevisoes(id));
+    public ResponseEntity<List<RevisionDTO<MainItem>>> listPreviousVersions(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.listRevisions(id));
     }
 }

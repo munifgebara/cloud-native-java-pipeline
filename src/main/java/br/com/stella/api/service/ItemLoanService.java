@@ -61,7 +61,7 @@ public class ItemLoanService extends SuperService<ItemLoan, ItemLoanRepository> 
      *                                  is not available, or if there is already an open loan
      */
     @Transactional
-    public ItemLoanResponseDTO registrarEmprestimo(ItemLoanCreateDTO dto) {
+    public ItemLoanResponseDTO registerLoan(ItemLoanCreateDTO dto) {
         ItemInstance instance = instanciaItemRepository.findById(dto.instanciaItemId())
                 .orElseThrow(() -> new IllegalArgumentException("Instance not found."));
         Person pessoa = pessoaRepository.findById(dto.pessoaId())
@@ -90,7 +90,7 @@ public class ItemLoanService extends SuperService<ItemLoan, ItemLoanRepository> 
         emprestimo.setExpectedReturnDate(dto.previsaoDevolucao());
         emprestimo.setNotes(BrValidations.trimToNull(dto.observacao()));
 
-        return ItemLoanMapper.toResponseDTO(salvar(emprestimo));
+        return ItemLoanMapper.toResponseDTO(save(emprestimo));
     }
 
     /**
@@ -104,11 +104,11 @@ public class ItemLoanService extends SuperService<ItemLoan, ItemLoanRepository> 
      *                                  location does not exist or is inactive
      */
     @Transactional
-    public ItemLoanResponseDTO registrarDevolucao(ItemLoanReturnDTO dto) {
+    public ItemLoanResponseDTO registerReturn(ItemLoanReturnDTO dto) {
         ItemLoan emprestimo = repository.findByItemInstanceIdAndReturnDateIsNull(dto.instanciaItemId())
                 .orElseThrow(() -> new IllegalArgumentException("There is no open loan for this instance."));
         ItemInstance instance = emprestimo.getItemInstance();
-        StorageLocation localRetorno = buscarLocalAtivo(dto.localRetornoId());
+        StorageLocation localRetorno = findActiveLocation(dto.localRetornoId());
 
         ItemInstanceRules.exigirEmprestada(instance, "Instance must be loaned to register a return.");
 
@@ -122,10 +122,10 @@ public class ItemLoanService extends SuperService<ItemLoan, ItemLoanRepository> 
         instance.setOperationalStatus(ItemInstanceStatus.DISPONIVEL);
         instanciaItemRepository.save(instance);
 
-        return ItemLoanMapper.toResponseDTO(salvar(emprestimo));
+        return ItemLoanMapper.toResponseDTO(save(emprestimo));
     }
 
-    private StorageLocation buscarLocalAtivo(java.util.UUID localId) {
+    private StorageLocation findActiveLocation(java.util.UUID localId) {
         StorageLocation location = localArmazenamentoRepository.findById(localId)
                 .orElseThrow(() -> new IllegalArgumentException("Return location not found."));
         if (!location.isActive()) {

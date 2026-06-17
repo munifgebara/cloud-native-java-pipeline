@@ -115,7 +115,7 @@ class KeycloakUsuarioServiceTest {
 
         expectUsuarioCompleto("user-2", "novo");
 
-        UserResponseDTO usuario = service.criar(new UserCreateDTO(
+        UserResponseDTO usuario = service.create(new UserCreateDTO(
                 "novo",
                 "Novo",
                 "User",
@@ -157,7 +157,7 @@ class KeycloakUsuarioServiceTest {
                 .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer admin-token"))
                 .andRespond(withStatus(HttpStatus.CONFLICT));
 
-        assertThatThrownBy(() -> service.criar(new UserCreateDTO(
+        assertThatThrownBy(() -> service.create(new UserCreateDTO(
                 "existente",
                 "User",
                 "Existente",
@@ -258,7 +258,7 @@ class KeycloakUsuarioServiceTest {
                         [{"id": "role-usuario", "name": "usuario"}]
                         """, MediaType.APPLICATION_JSON));
 
-        UserResponseDTO usuario = service.buscarPorId("user-3");
+        UserResponseDTO usuario = service.findById("user-3");
 
         assertThat(usuario.username()).isEqualTo("usuario3");
         assertThat(usuario.roles()).containsExactly("usuario");
@@ -346,7 +346,7 @@ class KeycloakUsuarioServiceTest {
                         ]
                         """, MediaType.APPLICATION_JSON));
 
-        UserResponseDTO usuario = service.atualizar("user-4", new UserUpdateDTO(
+        UserResponseDTO usuario = service.update("user-4", new UserUpdateDTO(
                 " Name ",
                 " Atualizado ",
                 " ",
@@ -431,7 +431,7 @@ class KeycloakUsuarioServiceTest {
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withStatus(HttpStatus.NOT_FOUND));
 
-        assertThatThrownBy(() -> service.buscarPorId("desconhecido"))
+        assertThatThrownBy(() -> service.findById("desconhecido"))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("User not found.");
 
@@ -474,7 +474,7 @@ class KeycloakUsuarioServiceTest {
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withStatus(HttpStatus.CREATED));
 
-        assertThatThrownBy(() -> service.criar(new UserCreateDTO(
+        assertThatThrownBy(() -> service.create(new UserCreateDTO(
                 "sem-location",
                 "Without",
                 "Location",

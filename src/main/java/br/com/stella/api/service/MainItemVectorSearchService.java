@@ -207,7 +207,7 @@ public class MainItemVectorSearchService {
     }
 
     @Transactional(readOnly = true)
-    public List<SemanticSearchItemDTO> buscar(String consulta) {
+    public List<SemanticSearchItemDTO> search(String consulta) {
         String texto = BrValidations.trimToNull(consulta);
         if (!vectorSearchProperties.enabled() || texto == null) {
             return List.of();
@@ -233,7 +233,7 @@ public class MainItemVectorSearchService {
                     .filter(resultado -> resultado.similaridade() >= vectorSearchProperties.minSimilarity())
                     .toList();
 
-            consultaVetorialMetricasService.registrarConsulta(texto, resultados.size());
+            consultaVetorialMetricasService.recordQuery(texto, resultados.size());
             StructuredBusinessLogger.info(log, "vector-search", "semantic-query", StructuredBusinessLogger.fields(
                     "query_text", truncate(texto, 200),
                     "results_count", resultados.size(),
@@ -247,7 +247,7 @@ public class MainItemVectorSearchService {
                 return List.of();
             }
 
-            return montarResposta(resultados);
+            return buildResponse(resultados);
         } catch (RuntimeException ex) {
             StructuredBusinessLogger.error(log, "vector-search", "semantic-query", StructuredBusinessLogger.fields(
                     "query_text", truncate(texto, 200),
@@ -260,14 +260,14 @@ public class MainItemVectorSearchService {
         }
     }
 
-    private List<SemanticSearchItemDTO> montarResposta(List<ResultadoVetorial> resultados) {
+    private List<SemanticSearchItemDTO> buildResponse(List<ResultadoVetorial> resultados) {
         List<UUID> ids = resultados.stream().map(ResultadoVetorial::itemMestreId).toList();
         Map<UUID, Double> similaridades = resultados.stream()
                 .collect(Collectors.toMap(ResultadoVetorial::itemMestreId, ResultadoVetorial::similaridade));
 
-        Map<UUID, MainItem> itensPorId = itemMestreRepository.buscarComCategoriaPorIds(ids).stream()
+        Map<UUID, MainItem> itensPorId = itemMestreRepository.findWithCategoryByIds(ids).stream()
                 .collect(Collectors.toMap(MainItem::getId, item -> item));
-        Map<UUID, List<ItemInstance>> instanciasPorItem = instanciaItemRepository.buscarAtivasPorItemMestreIds(ids).stream()
+        Map<UUID, List<ItemInstance>> instanciasPorItem = instanciaItemRepository.findActiveByMainItemIds(ids).stream()
                 .collect(Collectors.groupingBy(instance -> instance.getMainItem().getId()));
 
         List<SemanticSearchItemDTO> resposta = new ArrayList<>();

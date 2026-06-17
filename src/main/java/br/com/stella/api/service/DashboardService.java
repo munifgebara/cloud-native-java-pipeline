@@ -58,10 +58,10 @@ public class DashboardService {
                 instanciaItemRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.EMPRESTADO),
                 localArmazenamentoRepository.countByActiveTrue(),
                 itemMestreRepository.countByActiveTrueAndImageObjectKeyIsNull(),
-                itemMestreRepository.contarItensCadastradosPorIa(),
+                itemMestreRepository.countItemsRegisteredByAi(),
                 consultaVetorialMetricasService.contarConsultas(),
-                instanciaItemRepository.buscarLocaisComMaisItens(PageRequest.of(0, LIMITE_LOCAIS_COM_MAIS_ITENS)),
-                itemMestreRepository.buscarCategoriasComMaisItens(PageRequest.of(0, LIMITE_CATEGORIAS_COM_MAIS_ITENS))
+                instanciaItemRepository.findLocationsWithMostItems(PageRequest.of(0, LIMITE_LOCAIS_COM_MAIS_ITENS)),
+                itemMestreRepository.findCategoriesWithMostItems(PageRequest.of(0, LIMITE_CATEGORIAS_COM_MAIS_ITENS))
         );
     }
 }

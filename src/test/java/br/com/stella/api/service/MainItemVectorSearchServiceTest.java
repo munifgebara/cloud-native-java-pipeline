@@ -138,10 +138,10 @@ class ItemMestreVectorSearchServiceTest {
             when(rs.getDouble("similaridade")).thenReturn(0.87654);
             return List.of(mapper.mapRow(rs, 0));
         });
-        when(itemMestreRepository.buscarComCategoriaPorIds(List.of(itemId))).thenReturn(List.of(item));
-        when(instanciaItemRepository.buscarAtivasPorItemMestreIds(List.of(itemId))).thenReturn(List.of(instance));
+        when(itemMestreRepository.findWithCategoryByIds(List.of(itemId))).thenReturn(List.of(item));
+        when(instanciaItemRepository.findActiveByMainItemIds(List.of(itemId))).thenReturn(List.of(instance));
 
-        var resultado = service(true).buscar(" onde encontro placa de computador ");
+        var resultado = service(true).search(" onde encontro placa de computador ");
 
         assertThat(resultado).hasSize(1);
         assertThat(resultado.getFirst().nome()).isEqualTo("Video card");
@@ -149,12 +149,12 @@ class ItemMestreVectorSearchServiceTest {
         assertThat(resultado.getFirst().imagemUrl()).isEqualTo("/api/public/itens-mestre/%s/imagem-principal".formatted(itemId));
         assertThat(resultado.getFirst().instancias()).extracting("identificador").containsExactly("GPU 1");
         assertThat(resultado.getFirst().locaisProvaveis()).extracting("nome").containsExactly("Caixa A");
-        verify(consultaVetorialMetricasService).registrarConsulta("onde encontro placa de computador", 1);
+        verify(consultaVetorialMetricasService).recordQuery("onde encontro placa de computador", 1);
     }
 
     @Test
     void deveRetornarListaVaziaQuandoBuscaVetorialEstaDesabilitada() {
-        var resultado = service(false).buscar("placa de video");
+        var resultado = service(false).search("placa de video");
 
         assertThat(resultado).isEmpty();
         verifyNoInteractions(embeddingProvider);
@@ -167,10 +167,10 @@ class ItemMestreVectorSearchServiceTest {
         when(embeddingProvider.gerarEmbedding("placa de video")).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any())).thenReturn(List.of());
 
-        var resultado = service(true).buscar("placa de video");
+        var resultado = service(true).search("placa de video");
 
         assertThat(resultado).isEmpty();
-        verify(consultaVetorialMetricasService).registrarConsulta("placa de video", 0);
+        verify(consultaVetorialMetricasService).recordQuery("placa de video", 0);
     }
 
     @Test
@@ -180,7 +180,7 @@ class ItemMestreVectorSearchServiceTest {
         when(embeddingProvider.gerarEmbedding(consultaLonga.trim())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any())).thenThrow(falha);
 
-        assertThatThrownBy(() -> service(true).buscar(consultaLonga))
+        assertThatThrownBy(() -> service(true).search(consultaLonga))
                 .isSameAs(falha);
     }
 

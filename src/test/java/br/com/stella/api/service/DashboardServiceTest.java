@@ -52,14 +52,14 @@ class DashboardServiceTest {
         when(pessoaService.contarPessoasAtivas()).thenReturn(4L);
         when(itemMestreRepository.countByActiveTrue()).thenReturn(10L);
         when(itemMestreRepository.countByActiveTrueAndImageObjectKeyIsNull()).thenReturn(2L);
-        when(itemMestreRepository.contarItensCadastradosPorIa()).thenReturn(3L);
+        when(itemMestreRepository.countItemsRegisteredByAi()).thenReturn(3L);
         when(instanciaItemRepository.countByActiveTrue()).thenReturn(25L);
         when(instanciaItemRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.DISPONIVEL)).thenReturn(18L);
         when(instanciaItemRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.EMPRESTADO)).thenReturn(5L);
         when(localArmazenamentoRepository.countByActiveTrue()).thenReturn(3L);
         when(consultaVetorialMetricasService.contarConsultas()).thenReturn(11L);
-        when(instanciaItemRepository.buscarLocaisComMaisItens(org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(locais);
-        when(itemMestreRepository.buscarCategoriasComMaisItens(org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(categorias);
+        when(instanciaItemRepository.findLocationsWithMostItems(org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(locais);
+        when(itemMestreRepository.findCategoriesWithMostItems(org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(categorias);
 
         var resumo = service.carregarResumo();
 
@@ -76,9 +76,9 @@ class DashboardServiceTest {
         assertThat(resumo.categoriasComMaisItens()).containsExactlyElementsOf(categorias);
 
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-        verify(instanciaItemRepository).buscarLocaisComMaisItens(pageableCaptor.capture());
+        verify(instanciaItemRepository).findLocationsWithMostItems(pageableCaptor.capture());
         assertThat(pageableCaptor.getValue().getPageSize()).isEqualTo(5);
-        verify(itemMestreRepository).buscarCategoriasComMaisItens(pageableCaptor.capture());
+        verify(itemMestreRepository).findCategoriesWithMostItems(pageableCaptor.capture());
         assertThat(pageableCaptor.getValue().getPageSize()).isEqualTo(5);
     }
 }

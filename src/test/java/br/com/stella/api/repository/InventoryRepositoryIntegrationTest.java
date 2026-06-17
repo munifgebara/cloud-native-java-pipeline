@@ -60,7 +60,7 @@ class InventoryRepositoryIntegrationTest {
         persistir(furadeira, livro);
         flushAndClear();
 
-        var itens = itemMestreRepository.findAll(MainItemRepository.filtrarAtivos("furadeira", ferramentas.getId()), Sort.by("name"));
+        var itens = itemMestreRepository.findAll(MainItemRepository.filterActive("furadeira", ferramentas.getId()), Sort.by("name"));
 
         assertThat(itens).extracting(MainItem::getName)
                 .containsExactly("ITG Furadeira de impacto");
@@ -80,7 +80,7 @@ class InventoryRepositoryIntegrationTest {
         flushAndClear();
 
         var instancias = instanciaItemRepository.findAll(
-                ItemInstanceRepository.filtrarAtivas("pat-001", "notebook", category.getId(), ItemInstanceStatus.DISPONIVEL),
+                ItemInstanceRepository.filterActive("pat-001", "notebook", category.getId(), ItemInstanceStatus.DISPONIVEL),
                 Sort.by("identifier")
         );
 
@@ -104,7 +104,7 @@ class InventoryRepositoryIntegrationTest {
         );
         flushAndClear();
 
-        var locais = instanciaItemRepository.buscarLocaisComMaisItens(PageRequest.of(0, 20)).stream()
+        var locais = instanciaItemRepository.findLocationsWithMostItems(PageRequest.of(0, 20)).stream()
                 .filter(location -> location.nome().startsWith("ITG "))
                 .toList();
 
@@ -173,7 +173,7 @@ class InventoryRepositoryIntegrationTest {
 
         PersonService service = new PersonService(pessoaRepository, entityManager);
 
-        var revisoes = service.listarRevisoes(pessoa.getId());
+        var revisoes = service.listRevisions(pessoa.getId());
 
         assertThat(revisoes).hasSize(2);
         assertThat(revisoes).extracting("tipo")

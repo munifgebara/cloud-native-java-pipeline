@@ -71,7 +71,7 @@ class InstanciaItemServiceTest {
         when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(location));
         when(repository.save(any(ItemInstance.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.criar(new ItemInstanceCreateDTO(
+        var resposta = service.create(new ItemInstanceCreateDTO(
                 itemMestreId,
                 localId,
                 "  NB-001  ",
@@ -103,7 +103,7 @@ class InstanciaItemServiceTest {
     void deveImpedirInstanciaSemIdentificacaoIndividual() {
         UUID itemMestreId = UUID.randomUUID();
 
-        assertThatThrownBy(() -> service.criar(new ItemInstanceCreateDTO(itemMestreId, null, " ", null, null, null, null, null, true)))
+        assertThatThrownBy(() -> service.create(new ItemInstanceCreateDTO(itemMestreId, null, " ", null, null, null, null, null, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("identifier");
 
@@ -118,7 +118,7 @@ class InstanciaItemServiceTest {
 
         when(itemMestreRepository.findById(itemMestreId)).thenReturn(Optional.of(mainItem));
 
-        assertThatThrownBy(() -> service.criar(new ItemInstanceCreateDTO(itemMestreId, null, "NB-001", null, null, null, null, null, true)))
+        assertThatThrownBy(() -> service.create(new ItemInstanceCreateDTO(itemMestreId, null, "NB-001", null, null, null, null, null, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Main item must be active");
 
@@ -136,7 +136,7 @@ class InstanciaItemServiceTest {
         when(itemMestreRepository.findById(itemMestreId)).thenReturn(Optional.of(mainItem));
         when(repository.save(any(ItemInstance.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.atualizar(id, new ItemInstanceUpdateDTO(
+        var resposta = service.update(id, new ItemInstanceUpdateDTO(
                 itemMestreId,
                 null,
                 " NB-002 ",
@@ -165,7 +165,7 @@ class InstanciaItemServiceTest {
         when(repository.findById(id)).thenReturn(Optional.of(instance));
         when(itemMestreRepository.findById(itemMestreId)).thenReturn(Optional.of(mainItem));
 
-        assertThatThrownBy(() -> service.atualizar(id, new ItemInstanceUpdateDTO(
+        assertThatThrownBy(() -> service.update(id, new ItemInstanceUpdateDTO(
                 itemMestreId,
                 null,
                 "NB-001",
@@ -195,7 +195,7 @@ class InstanciaItemServiceTest {
         when(itemMestreRepository.findById(itemMestreId)).thenReturn(Optional.of(mainItem));
         when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(location));
 
-        assertThatThrownBy(() -> service.atualizar(id, new ItemInstanceUpdateDTO(
+        assertThatThrownBy(() -> service.update(id, new ItemInstanceUpdateDTO(
                 itemMestreId,
                 localId,
                 "NB-001",
@@ -218,7 +218,7 @@ class InstanciaItemServiceTest {
 
         when(movimentacaoItemRepository.existsByItemInstanceId(id)).thenReturn(true);
 
-        assertThatThrownBy(() -> service.excluirLogicamente(id))
+        assertThatThrownBy(() -> service.deleteLogically(id))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("operational history");
 
@@ -232,7 +232,7 @@ class InstanciaItemServiceTest {
         when(movimentacaoItemRepository.existsByItemInstanceId(id)).thenReturn(false);
         when(emprestimoItemRepository.existsByItemInstanceId(id)).thenReturn(true);
 
-        assertThatThrownBy(() -> service.excluirLogicamente(id))
+        assertThatThrownBy(() -> service.deleteLogically(id))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("operational history");
 
@@ -245,8 +245,8 @@ class InstanciaItemServiceTest {
 
         when(repository.findByActiveTrueAndIdentifierContainingIgnoreCaseOrderByIdentifierAsc("NB")).thenReturn(List.of(instance));
 
-        assertThat(service.buscarPorIdentificador("  ")).isEmpty();
-        assertThat(service.buscarPorIdentificador(" NB ")).hasSize(1);
+        assertThat(service.findByIdentifier("  ")).isEmpty();
+        assertThat(service.findByIdentifier(" NB ")).hasSize(1);
     }
 
     @Test

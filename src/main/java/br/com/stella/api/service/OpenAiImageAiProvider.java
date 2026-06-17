@@ -31,7 +31,7 @@ public class OpenAiImageAiProvider implements ImageAiProvider {
     }
 
     @Override
-    public ImageAiResponseDTO gerarImagem(ImageAiRequestDTO request) {
+    public ImageAiResponseDTO generateImage(ImageAiRequestDTO request) {
         aiUsageGuard.assertEnabled(AiOperation.IMAGE_GENERATION);
         String apiKey = environment.getProperty("OPENAI_API_KEY");
         if (apiKey == null || apiKey.isBlank()) {

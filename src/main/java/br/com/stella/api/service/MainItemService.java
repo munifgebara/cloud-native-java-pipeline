@@ -69,16 +69,16 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      * @throws IllegalArgumentException if the provided category does not exist or is inactive
      */
     @Transactional
-    public MainItemResponseDTO criar(MainItemCreateDTO dto) {
+    public MainItemResponseDTO create(MainItemCreateDTO dto) {
         MainItem item = MainItemMapper.toEntity(dto);
         normalizarCampos(item);
         item.setCategory(buscarCategoriaAtiva(dto.categoriaId()));
 
-        MainItem salvo = salvar(item);
+        MainItem salvo = save(item);
         if (Boolean.FALSE.equals(dto.ativa())) {
             repository.flush();
             salvo.setActive(false);
-            salvo = salvar(salvo);
+            salvo = save(salvo);
         }
         sincronizarIndiceVetorialSilenciosamente(salvo, "item-index-sync-after-create");
         StructuredBusinessLogger.info(log, "inventory", "item-created", StructuredBusinessLogger.fields(
@@ -98,8 +98,8 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      * @throws jakarta.persistence.EntityNotFoundException if the item does not exist
      */
     @Transactional(readOnly = true)
-    public MainItemResponseDTO buscarResponsePorId(UUID id) {
-        return MainItemMapper.toResponseDTO(buscarPorId(id));
+    public MainItemResponseDTO findResponseById(UUID id) {
+        return MainItemMapper.toResponseDTO(findById(id));
     }
 
     /**
@@ -108,7 +108,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      * @return list of summary DTOs of active items
      */
     @Transactional(readOnly = true)
-    public List<MainItemSummaryDTO> listarResumo() {
+    public List<MainItemSummaryDTO> listSummary() {
         return repository.findByActiveTrueOrderByNameAsc().stream()
                 .map(MainItemMapper::toResumoDTO)
                 .toList();
@@ -120,7 +120,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      * @return list of summary DTOs of all items
      */
     @Transactional(readOnly = true)
-    public List<MainItemSummaryDTO> listarResumoIncluindoInativos() {
+    public List<MainItemSummaryDTO> listSummaryIncludingInactive() {
         return findAllIncludingInactive().stream()
                 .map(MainItemMapper::toResumoDTO)
                 .toList();
@@ -133,7 +133,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      * @return list of summary DTOs of the found items
      */
     @Transactional(readOnly = true)
-    public List<MainItemSummaryDTO> buscarPorNome(String nome) {
+    public List<MainItemSummaryDTO> findByName(String nome) {
         String nomeTratado = BrValidations.trimToNull(nome);
         if (nomeTratado == null) {
             return List.of();
@@ -155,7 +155,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
     @Transactional(readOnly = true)
     public List<MainItemSummaryDTO> filtrar(String nome, UUID categoriaId) {
         return repository.findAll(
-                        MainItemRepository.filtrarAtivos(BrValidations.trimToNull(nome), categoriaId),
+                        MainItemRepository.filterActive(BrValidations.trimToNull(nome), categoriaId),
                         Sort.by("nome").ascending()
                 ).stream()
                 .map(MainItemMapper::toResumoDTO)
@@ -172,15 +172,15 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      * @throws IllegalArgumentException if the provided category does not exist or is inactive
      */
     @Transactional
-    public MainItemResponseDTO atualizar(UUID id, MainItemUpdateDTO dto) {
-        MainItem item = buscarPorId(id);
+    public MainItemResponseDTO update(UUID id, MainItemUpdateDTO dto) {
+        MainItem item = findById(id);
         Category category = buscarCategoriaAtiva(dto.categoriaId());
 
         MainItemMapper.updateEntity(item, dto);
         normalizarCampos(item);
         item.setCategory(category);
 
-        MainItem salvo = salvar(item);
+        MainItem salvo = save(item);
         sincronizarIndiceVetorialSilenciosamente(salvo, "item-index-sync-after-update");
         StructuredBusinessLogger.info(log, "inventory", "item-updated", StructuredBusinessLogger.fields(
                 "item_id", salvo.getId(),
@@ -218,7 +218,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      */
     @Transactional
     public MainItemResponseDTO atualizarImagemPrincipal(UUID id, MultipartFile arquivo, boolean generatedByAi, String provider) {
-        MainItem item = buscarPorId(id);
+        MainItem item = findById(id);
         String bucketAnterior = item.getImageBucket();
         String objectKeyAnterior = item.getImageObjectKey();
 
@@ -230,7 +230,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
         item.setImageGeneratedByAi(generatedByAi);
         item.setImageProvider(generatedByAi ? BrValidations.trimToNull(provider) : null);
 
-        MainItem salvo = salvar(item);
+        MainItem salvo = save(item);
         sincronizarIndiceVetorialSilenciosamente(salvo, "item-index-sync-after-image-update");
         imagemStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
         StructuredBusinessLogger.info(log, "inventory", "item-image-updated", StructuredBusinessLogger.fields(
@@ -254,7 +254,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      */
     @Transactional(readOnly = true)
     public MainItemImageDTO buscarMetadadosImagemPrincipal(UUID id) {
-        MainItem item = buscarPorId(id);
+        MainItem item = findById(id);
         if (item.getImageObjectKey() == null) {
             throw new IllegalArgumentException("Main item does not have a main image.");
         }
@@ -287,9 +287,9 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      * @throws jakarta.persistence.EntityNotFoundException if the item does not exist
      */
     @Transactional
-    public void excluirLogicamente(UUID id) {
-        MainItem item = buscarPorId(id);
-        excluir(id);
+    public void deleteLogically(UUID id) {
+        MainItem item = findById(id);
+        delete(id);
         removerIndiceVetorialSilenciosamente(id, item.getName());
         StructuredBusinessLogger.info(log, "inventory", "item-deactivated", StructuredBusinessLogger.fields(
                 "item_id", id,
@@ -306,7 +306,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      */
     @Transactional(readOnly = true)
     public List<SemanticSearchItemDTO> buscarSemanticamente(String consulta) {
-        return vectorSearchService.buscar(consulta);
+        return vectorSearchService.search(consulta);
     }
 
     /**
@@ -327,8 +327,8 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      * @return list of revisions in chronological order; empty list if there is no history
      */
     @Transactional(readOnly = true)
-    public List<RevisionDTO<MainItem>> listarRevisoes(UUID id) {
-        return listarVersoesAnteriores(id);
+    public List<RevisionDTO<MainItem>> listRevisions(UUID id) {
+        return listPreviousVersions(id);
     }
 
     private Category buscarCategoriaAtiva(UUID categoriaId) {

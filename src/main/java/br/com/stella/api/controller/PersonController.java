@@ -39,20 +39,20 @@ public class PersonController extends SuperController<PersonSummaryDTO, PersonRe
 
     @Override
     @PostMapping
-    public ResponseEntity<PersonResponseDTO> criar(@RequestBody @Valid PersonCreateDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.criar(dto));
+    public ResponseEntity<PersonResponseDTO> create(@RequestBody @Valid PersonCreateDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
 
     @Override
     @GetMapping("/{id}")
-    public ResponseEntity<PersonResponseDTO> buscarPorId(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.buscarResponsePorId(id));
+    public ResponseEntity<PersonResponseDTO> findById(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.findResponseById(id));
     }
 
     @Override
     @GetMapping
     public ResponseEntity<List<PersonSummaryDTO>> listar() {
-        return ResponseEntity.ok(service.listarResumo());
+        return ResponseEntity.ok(service.listSummary());
     }
 
     /**
@@ -61,33 +61,33 @@ public class PersonController extends SuperController<PersonSummaryDTO, PersonRe
      * @param nome substring to search in the person's name
      * @return {@code 200 OK} with the list of found persons
      */
-    @GetMapping("/buscar")
-    public ResponseEntity<List<PersonSummaryDTO>> buscarPorNome(@RequestParam String nome) {
-        return ResponseEntity.ok(service.buscarPorNome(nome));
+    @GetMapping("/search")
+    public ResponseEntity<List<PersonSummaryDTO>> findByName(@RequestParam String nome) {
+        return ResponseEntity.ok(service.findByName(nome));
     }
 
     @Override
     @PutMapping("/{id}")
-    public ResponseEntity<PersonResponseDTO> atualizar(@PathVariable UUID id, @RequestBody @Valid PersonUpdateDTO dto) {
-        return ResponseEntity.ok(service.atualizar(id, dto));
+    public ResponseEntity<PersonResponseDTO> update(@PathVariable UUID id, @RequestBody @Valid PersonUpdateDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     @Override
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable UUID id) {
-        service.excluirLogicamente(id);
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        service.deleteLogically(id);
         return ResponseEntity.noContent().build();
     }
 
     @Override
     @GetMapping("/todos")
     public ResponseEntity<List<PersonSummaryDTO>> findAllIncludingInactive() {
-        return ResponseEntity.ok(service.listarResumoIncluindoInativos());
+        return ResponseEntity.ok(service.listSummaryIncludingInactive());
     }
 
     @Override
     @GetMapping("/{id}/revisoes")
-    public ResponseEntity<List<PersonRevisionDTO>> listarVersoesAnteriores(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.listarRevisoes(id));
+    public ResponseEntity<List<PersonRevisionDTO>> listPreviousVersions(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.listRevisions(id));
     }
 }

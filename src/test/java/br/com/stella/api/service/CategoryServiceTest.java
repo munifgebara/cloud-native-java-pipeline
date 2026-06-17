@@ -38,7 +38,7 @@ class CategoriaServiceTest {
     void deveCriarCategoriaNormalizandoCampos() {
         when(repository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.criar(new CategoryCreateDTO("  Eletronicos  ", "  Items eletronicos  ", " eletronicos ", true));
+        var resposta = service.create(new CategoryCreateDTO("  Eletronicos  ", "  Items eletronicos  ", " eletronicos ", true));
 
         ArgumentCaptor<Category> captor = ArgumentCaptor.forClass(Category.class);
         verify(repository).save(captor.capture());
@@ -56,7 +56,7 @@ class CategoriaServiceTest {
     void devePermitirCriarCategoriaInativa() {
         when(repository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.criar(new CategoryCreateDTO("Livros", null, null, false));
+        var resposta = service.create(new CategoryCreateDTO("Livros", null, null, false));
 
         assertThat(resposta.ativa()).isFalse();
     }
@@ -74,7 +74,7 @@ class CategoriaServiceTest {
         when(repository.findById(id)).thenReturn(Optional.of(category));
         when(repository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.atualizar(id, new CategoryUpdateDTO("  Nova  ", "  Nova descricao  ", " moveis ", false));
+        var resposta = service.update(id, new CategoryUpdateDTO("  Nova  ", "  Nova descricao  ", " moveis ", false));
 
         assertThat(resposta.nome()).isEqualTo("Nova");
         assertThat(resposta.descricao()).isEqualTo("Nova descricao");
@@ -84,7 +84,7 @@ class CategoriaServiceTest {
 
     @Test
     void deveRejeitarIconeForaDaListaControlada() {
-        assertThatThrownBy(() -> service.criar(new CategoryCreateDTO("Livros", null, "classe-css-livre", true)))
+        assertThatThrownBy(() -> service.create(new CategoryCreateDTO("Livros", null, "classe-css-livre", true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Invalid category icon");
     }
@@ -99,7 +99,7 @@ class CategoriaServiceTest {
 
         when(repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc("Liv")).thenReturn(List.of(category));
 
-        assertThat(service.buscarPorNome("  ")).isEmpty();
-        assertThat(service.buscarPorNome(" Liv ")).hasSize(1);
+        assertThat(service.findByName("  ")).isEmpty();
+        assertThat(service.findByName(" Liv ")).hasSize(1);
     }
 }

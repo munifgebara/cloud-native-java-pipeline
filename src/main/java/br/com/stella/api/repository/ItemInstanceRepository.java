@@ -38,7 +38,7 @@ public interface ItemInstanceRepository extends SuperRepository<ItemInstance>, J
               and mainItem.id in :mainItemIds
             order by mainItem.name asc, instance.identifier asc, instance.assetTag asc, instance.serialNumber asc
             """)
-    List<ItemInstance> buscarAtivasPorItemMestreIds(@Param("mainItemIds") List<UUID> mainItemIds);
+    List<ItemInstance> findActiveByMainItemIds(@Param("mainItemIds") List<UUID> mainItemIds);
 
     long countByActiveTrue();
 
@@ -59,7 +59,7 @@ public interface ItemInstanceRepository extends SuperRepository<ItemInstance>, J
      * @param statusOperacional operational status of the instance; {@code null} ignores the filter
      * @return specification combining the given filters with {@code AND}
      */
-    static Specification<ItemInstance> filtrarAtivas(
+    static Specification<ItemInstance> filterActive(
             String identificacao,
             String mainItem,
             UUID categoriaId,
@@ -106,5 +106,5 @@ public interface ItemInstanceRepository extends SuperRepository<ItemInstance>, J
             group by location.id, location.name
             order by count(instance) desc, location.name asc
             """)
-    List<DashboardLocationQuantityDTO> buscarLocaisComMaisItens(Pageable pageable);
+    List<DashboardLocationQuantityDTO> findLocationsWithMostItems(Pageable pageable);
 }

@@ -62,7 +62,7 @@ class ItemMestreServiceTest {
         when(categoriaRepository.findById(categoriaId)).thenReturn(Optional.of(category));
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.criar(new MainItemCreateDTO(
+        var resposta = service.create(new MainItemCreateDTO(
                 "  Notebook Dell Latitude 5440  ",
                 "  Notebook corporativo  ",
                 "  Prepared for future instances  ",
@@ -89,7 +89,7 @@ class ItemMestreServiceTest {
     void deveCriarItemMestreSemCategoria() {
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.criar(new MainItemCreateDTO("Cadeira ergonomica", null, null, null, null, true));
+        var resposta = service.create(new MainItemCreateDTO("Cadeira ergonomica", null, null, null, null, true));
 
         assertThat(resposta.nome()).isEqualTo("Cadeira ergonomica");
         assertThat(resposta.categoriaId()).isNull();
@@ -102,7 +102,7 @@ class ItemMestreServiceTest {
         doThrow(new ExternalIntegrationException("pgvector unavailable"))
                 .when(vectorSearchService).sincronizar(any(MainItem.class));
 
-        var resposta = service.criar(new MainItemCreateDTO("Cadeira ergonomica", null, null, null, null, true));
+        var resposta = service.create(new MainItemCreateDTO("Cadeira ergonomica", null, null, null, null, true));
 
         assertThat(resposta.nome()).isEqualTo("Cadeira ergonomica");
         verify(repository).save(any(MainItem.class));
@@ -115,7 +115,7 @@ class ItemMestreServiceTest {
 
         TransactionSynchronizationManager.initSynchronization();
         try {
-            service.criar(new MainItemCreateDTO("Cadeira ergonomica", null, null, null, null, true));
+            service.create(new MainItemCreateDTO("Cadeira ergonomica", null, null, null, null, true));
 
             verify(vectorSearchService, never()).sincronizar(any(MainItem.class));
 
@@ -134,7 +134,7 @@ class ItemMestreServiceTest {
     void deveCriarItemMestreInativoAposPersistenciaInicial() {
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.criar(new MainItemCreateDTO("Arquivo legado", null, null, null, null, false));
+        var resposta = service.create(new MainItemCreateDTO("Arquivo legado", null, null, null, null, false));
 
         assertThat(resposta.ativa()).isFalse();
         verify(repository).flush();
@@ -151,7 +151,7 @@ class ItemMestreServiceTest {
         when(categoriaRepository.findById(categoriaId)).thenReturn(Optional.of(category));
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.atualizar(id, new MainItemUpdateDTO(
+        var resposta = service.update(id, new MainItemUpdateDTO(
                 "  Cadeira ergonomica  ",
                 "  Cadeira de escritorio  ",
                 null,
@@ -175,7 +175,7 @@ class ItemMestreServiceTest {
         when(repository.findById(id)).thenReturn(Optional.of(item));
         when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.atualizar(id, new MainItemUpdateDTO(" Notebook ", " ", " Observacao ", null, null, true));
+        var resposta = service.update(id, new MainItemUpdateDTO(" Notebook ", " ", " Observacao ", null, null, true));
 
         assertThat(resposta.nome()).isEqualTo("Notebook");
         assertThat(resposta.descricao()).isNull();
@@ -191,7 +191,7 @@ class ItemMestreServiceTest {
 
         when(categoriaRepository.findById(categoriaId)).thenReturn(Optional.of(category));
 
-        assertThatThrownBy(() -> service.criar(new MainItemCreateDTO("Furadeira", null, null, null, categoriaId, true)))
+        assertThatThrownBy(() -> service.create(new MainItemCreateDTO("Furadeira", null, null, null, categoriaId, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Category must be active");
 
@@ -204,7 +204,7 @@ class ItemMestreServiceTest {
 
         when(categoriaRepository.findById(categoriaId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.criar(new MainItemCreateDTO("Furadeira", null, null, null, categoriaId, true)))
+        assertThatThrownBy(() -> service.create(new MainItemCreateDTO("Furadeira", null, null, null, categoriaId, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Category not found.");
 
@@ -220,8 +220,8 @@ class ItemMestreServiceTest {
         when(repository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(ativo));
         when(repository.findAllIncludingInactive()).thenReturn(List.of(ativo, inativo));
 
-        assertThat(service.listarResumo()).extracting("nome").containsExactly("Notebook");
-        assertThat(service.listarResumoIncluindoInativos()).extracting("ativa").containsExactly(true, false);
+        assertThat(service.listSummary()).extracting("nome").containsExactly("Notebook");
+        assertThat(service.listSummaryIncludingInactive()).extracting("ativa").containsExactly(true, false);
     }
 
     @Test
@@ -230,8 +230,8 @@ class ItemMestreServiceTest {
 
         when(repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc("Furadeira")).thenReturn(List.of(item));
 
-        assertThat(service.buscarPorNome("  ")).isEmpty();
-        assertThat(service.buscarPorNome(" Furadeira ")).hasSize(1);
+        assertThat(service.findByName("  ")).isEmpty();
+        assertThat(service.findByName(" Furadeira ")).hasSize(1);
     }
 
     @Test
@@ -296,7 +296,7 @@ class ItemMestreServiceTest {
         when(repository.findById(id)).thenReturn(Optional.of(item));
         when(repository.save(item)).thenReturn(item);
 
-        service.excluirLogicamente(id);
+        service.deleteLogically(id);
 
         assertThat(item.isActive()).isFalse();
         verify(vectorSearchService).remover(id);
@@ -311,7 +311,7 @@ class ItemMestreServiceTest {
         when(repository.save(item)).thenReturn(item);
         doThrow(new ExternalIntegrationException("pgvector unavailable")).when(vectorSearchService).remover(id);
 
-        service.excluirLogicamente(id);
+        service.deleteLogically(id);
 
         assertThat(item.isActive()).isFalse();
         verify(vectorSearchService).remover(id);

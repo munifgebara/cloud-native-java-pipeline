@@ -28,7 +28,7 @@ import java.util.UUID;
  * <p>In entity is physically removed from the database.
  * The {@code active} field is used to indicate whether the record is in use
  * ({@code true}) or has been deactivated ({@code false}).
- * To deactivate, call {@link #excluirLogicamente()}.</p>
+ * To deactivate, call {@link #deleteLogically()}.</p>
  *
  * <h2>Concurrency control</h2>
  * <p>The {@code version} field implements the JPA {@code @Version} mechanism,
@@ -57,7 +57,7 @@ public abstract class BaseEntity implements Serializable {
 
     /**
      * Indicates whether the record is active ({@code true}) or has been logically deactivated ({@code false}).
-     * Every entity starts as active. Use {@link #excluirLogicamente()} to deactivate.
+     * Every entity starts as active. Use {@link #deleteLogically()} to deactivate.
      */
     @Column(name = "ativo", nullable = false)
     private boolean active = true;
@@ -134,7 +134,7 @@ public abstract class BaseEntity implements Serializable {
      *
      * @return {@code true} if the record is new; {@code false} if it already exists in the database.
      */
-    public boolean isNova() {
+    public boolean isNew() {
         return this.id == null;
     }
 
@@ -143,14 +143,14 @@ public abstract class BaseEntity implements Serializable {
      * The record remains in the database and can be retrieved by queries
      * that include inactive records, but does not appear in standard listings.
      */
-    public void excluirLogicamente() {
+    public void deleteLogically() {
         this.active = false;
     }
 
     /**
      * Reactivates a previously deactivated record, setting {@code active = true}.
      */
-    public void reativar() {
+    public void reactivate() {
         this.active = true;
     }
 }

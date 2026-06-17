@@ -85,7 +85,7 @@ class UsuarioControllerIntegrationTest {
 
     @Test
     void deveTraduzirConflitoDoKeycloakNoCadastroSemErroInterno() throws Exception {
-        when(usuarioService.criar(any(UserCreateDTO.class))).thenThrow(new IdentityException(
+        when(usuarioService.create(any(UserCreateDTO.class))).thenThrow(new IdentityException(
                 HttpStatus.CONFLICT,
                 "User already exists or there is a conflict in the identity provider.",
                 null

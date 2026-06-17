@@ -46,7 +46,7 @@ class OpenAiImagemIaProviderTest {
     void deveEnviarPromptParaOpenAiEConverterImagemBase64() {
         when(imageModel.call(any(ImagePrompt.class))).thenReturn(respostaImagem("aW1hZ2Vt"));
 
-        var response = provider.gerarImagem(new ImageAiRequestDTO("Furadeira", "Ferramentas", "Furadeira de impacto"));
+        var response = provider.generateImage(new ImageAiRequestDTO("Furadeira", "Ferramentas", "Furadeira de impacto"));
 
         assertThat(response.dataUrl()).isEqualTo("data:image/png;base64,aW1hZ2Vt");
         assertThat(response.contentType()).isEqualTo("image/png");
@@ -57,7 +57,7 @@ class OpenAiImagemIaProviderTest {
     void deveIncluirNomeItemNoPrompt() {
         when(imageModel.call(any(ImagePrompt.class))).thenReturn(respostaImagem("abc123"));
 
-        provider.gerarImagem(new ImageAiRequestDTO("Notebook", null, null));
+        provider.generateImage(new ImageAiRequestDTO("Notebook", null, null));
 
         verify(imageModel).call(any(ImagePrompt.class));
     }
@@ -66,7 +66,7 @@ class OpenAiImagemIaProviderTest {
     void deveFalharQuandoApiKeyNaoEstaNoAmbiente() {
         OpenAiImageAiProvider providerSemChave = new OpenAiImageAiProvider(imageModel, new MockEnvironment(), guardSemLimite());
 
-        assertThatThrownBy(() -> providerSemChave.gerarImagem(new ImageAiRequestDTO("Furadeira", null, null)))
+        assertThatThrownBy(() -> providerSemChave.generateImage(new ImageAiRequestDTO("Furadeira", null, null)))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("OPENAI_API_KEY not configured in the environment.");
 
@@ -77,7 +77,7 @@ class OpenAiImagemIaProviderTest {
     void deveTratarFalhaDeConexaoComOpenAi() {
         when(imageModel.call(any(ImagePrompt.class))).thenThrow(new RuntimeException("Could not connect to OpenAI to generate item image."));
 
-        assertThatThrownBy(() -> provider.gerarImagem(new ImageAiRequestDTO("Furadeira", null, null)))
+        assertThatThrownBy(() -> provider.generateImage(new ImageAiRequestDTO("Furadeira", null, null)))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("OpenAI");
     }
@@ -86,7 +86,7 @@ class OpenAiImagemIaProviderTest {
     void deveRegistrarFalhaQuandoOpenAiNaoRetornaImagem() {
         when(imageModel.call(any(ImagePrompt.class))).thenReturn(new ImageResponse(List.of()));
 
-        assertThatThrownBy(() -> provider.gerarImagem(new ImageAiRequestDTO("Furadeira", null, null)))
+        assertThatThrownBy(() -> provider.generateImage(new ImageAiRequestDTO("Furadeira", null, null)))
                 .isInstanceOf(ExternalIntegrationException.class)
                 .hasMessage("OpenAI returned an empty response for the image.");
     }
@@ -99,7 +99,7 @@ class OpenAiImagemIaProviderTest {
                 new AiUsageGuard(new AiProperties(false), new OpenAiLimitsProperties(null, null, null))
         );
 
-        assertThatThrownBy(() -> providerBloqueado.gerarImagem(new ImageAiRequestDTO("Furadeira", null, null)))
+        assertThatThrownBy(() -> providerBloqueado.generateImage(new ImageAiRequestDTO("Furadeira", null, null)))
                 .isInstanceOf(AiUsageLimitException.class)
                 .hasMessage("AI features are disabled in this environment.");
 
@@ -114,7 +114,7 @@ class OpenAiImagemIaProviderTest {
                 new AiUsageGuard(new AiProperties(true), new OpenAiLimitsProperties(null, 0, null))
         );
 
-        assertThatThrownBy(() -> providerBloqueado.gerarImagem(new ImageAiRequestDTO("Furadeira", null, null)))
+        assertThatThrownBy(() -> providerBloqueado.generateImage(new ImageAiRequestDTO("Furadeira", null, null)))
                 .isInstanceOf(AiUsageLimitException.class)
                 .hasMessage("Daily limit for OpenAI image generation reached.");
 

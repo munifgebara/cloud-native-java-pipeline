@@ -49,15 +49,15 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
      * @throws IllegalArgumentException if the provided icon is invalid
      */
     @Transactional
-    public CategoryResponseDTO criar(CategoryCreateDTO dto) {
+    public CategoryResponseDTO create(CategoryCreateDTO dto) {
         Category category = CategoryMapper.toEntity(dto);
         normalizarCampos(category);
 
-        Category salva = salvar(category);
+        Category salva = save(category);
         if (Boolean.FALSE.equals(dto.ativa())) {
             repository.flush();
             salva.setActive(false);
-            salva = salvar(salva);
+            salva = save(salva);
         }
         return CategoryMapper.toResponseDTO(salva);
     }
@@ -70,8 +70,8 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
      * @throws jakarta.persistence.EntityNotFoundException if the category does not exist
      */
     @Transactional(readOnly = true)
-    public CategoryResponseDTO buscarResponsePorId(UUID id) {
-        return CategoryMapper.toResponseDTO(buscarPorId(id));
+    public CategoryResponseDTO findResponseById(UUID id) {
+        return CategoryMapper.toResponseDTO(findById(id));
     }
 
     /**
@@ -80,7 +80,7 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
      * @return list of summary DTOs of active categories
      */
     @Transactional(readOnly = true)
-    public List<CategorySummaryDTO> listarResumo() {
+    public List<CategorySummaryDTO> listSummary() {
         return repository.findByActiveTrueOrderByNameAsc().stream()
                 .map(CategoryMapper::toResumoDTO)
                 .toList();
@@ -92,7 +92,7 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
      * @return list of summary DTOs of all categories
      */
     @Transactional(readOnly = true)
-    public List<CategorySummaryDTO> listarResumoIncluindoInativos() {
+    public List<CategorySummaryDTO> listSummaryIncludingInactive() {
         return findAllIncludingInactive().stream()
                 .map(CategoryMapper::toResumoDTO)
                 .toList();
@@ -105,7 +105,7 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
      * @return list of summary DTOs of the found categories
      */
     @Transactional(readOnly = true)
-    public List<CategorySummaryDTO> buscarPorNome(String nome) {
+    public List<CategorySummaryDTO> findByName(String nome) {
         String nomeTratado = BrValidations.trimToNull(nome);
         if (nomeTratado == null) {
             return List.of();
@@ -126,12 +126,12 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
      * @throws IllegalArgumentException if the provided icon is invalid
      */
     @Transactional
-    public CategoryResponseDTO atualizar(UUID id, CategoryUpdateDTO dto) {
-        Category category = buscarPorId(id);
+    public CategoryResponseDTO update(UUID id, CategoryUpdateDTO dto) {
+        Category category = findById(id);
         CategoryMapper.updateEntity(category, dto);
         normalizarCampos(category);
 
-        Category salva = salvar(category);
+        Category salva = save(category);
         return CategoryMapper.toResponseDTO(salva);
     }
 
@@ -142,8 +142,8 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
      * @throws jakarta.persistence.EntityNotFoundException if the category does not exist
      */
     @Transactional
-    public void excluirLogicamente(UUID id) {
-        excluir(id);
+    public void deleteLogically(UUID id) {
+        delete(id);
     }
 
     /**
@@ -153,8 +153,8 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
      * @return list of revisions in chronological order; empty list if there is no history
      */
     @Transactional(readOnly = true)
-    public List<RevisionDTO<Category>> listarRevisoes(UUID id) {
-        return listarVersoesAnteriores(id);
+    public List<RevisionDTO<Category>> listRevisions(UUID id) {
+        return listPreviousVersions(id);
     }
 
     private void normalizarCampos(Category category) {

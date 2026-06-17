@@ -68,8 +68,8 @@ public class UserController {
      */
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<UserResponseDTO> buscarPorId(@PathVariable String id) {
-        return ResponseEntity.ok(service.buscarPorId(id));
+    public ResponseEntity<UserResponseDTO> findById(@PathVariable String id) {
+        return ResponseEntity.ok(service.findById(id));
     }
 
     /**
@@ -80,8 +80,8 @@ public class UserController {
      */
     @PostMapping
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<UserResponseDTO> criar(@RequestBody @Valid UserCreateDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.criar(dto));
+    public ResponseEntity<UserResponseDTO> create(@RequestBody @Valid UserCreateDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
 
     /**
@@ -93,8 +93,8 @@ public class UserController {
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<UserResponseDTO> atualizar(@PathVariable String id, @RequestBody @Valid UserUpdateDTO dto) {
-        return ResponseEntity.ok(service.atualizar(id, dto));
+    public ResponseEntity<UserResponseDTO> update(@PathVariable String id, @RequestBody @Valid UserUpdateDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     /**

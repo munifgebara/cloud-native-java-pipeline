@@ -43,8 +43,8 @@ public class ItemLoanController {
      * @return {@code 201 Created} with the recorded loan data
      */
     @PostMapping
-    public ResponseEntity<ItemLoanResponseDTO> registrarEmprestimo(@RequestBody @Valid ItemLoanCreateDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.registrarEmprestimo(dto));
+    public ResponseEntity<ItemLoanResponseDTO> registerLoan(@RequestBody @Valid ItemLoanCreateDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.registerLoan(dto));
     }
 
     /**
@@ -54,7 +54,7 @@ public class ItemLoanController {
      * @return {@code 201 Created} with the closed loan data
      */
     @PostMapping("/devolucao")
-    public ResponseEntity<ItemLoanResponseDTO> registrarDevolucao(@RequestBody @Valid ItemLoanReturnDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.registrarDevolucao(dto));
+    public ResponseEntity<ItemLoanResponseDTO> registerReturn(@RequestBody @Valid ItemLoanReturnDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.registerReturn(dto));
     }
 }

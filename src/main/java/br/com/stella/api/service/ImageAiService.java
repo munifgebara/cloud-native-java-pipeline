@@ -14,13 +14,13 @@ public class ImageAiService {
         this.provider = provider;
     }
 
-    public ImageAiResponseDTO gerarImagem(ImageAiRequestDTO request) {
+    public ImageAiResponseDTO generateImage(ImageAiRequestDTO request) {
         String nome = BrValidations.trimToNull(request.nome());
         if (nome == null) {
             throw new IllegalArgumentException("Provide the item name to generate the image.");
         }
 
-        return provider.gerarImagem(new ImageAiRequestDTO(
+        return provider.generateImage(new ImageAiRequestDTO(
                 nome,
                 BrValidations.trimToNull(request.category()),
                 BrValidations.trimToNull(request.descricao())

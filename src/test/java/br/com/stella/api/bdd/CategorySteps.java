@@ -39,7 +39,7 @@ public class CategorySteps {
 
     @When("the category is saved")
     public void aCategoriaForSalva() {
-        response = service.criar(request);
+        response = service.create(request);
     }
 
     @Then("the registered category must be named {string}")

@@ -44,7 +44,7 @@ class LocalArmazenamentoServiceTest {
     void deveCriarLocalRaizNormalizandoCampos() {
         when(repository.save(any(StorageLocation.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.criar(new StorageLocationCreateDTO("  Casa  ", "  Local principal  ", null, true));
+        var resposta = service.create(new StorageLocationCreateDTO("  Casa  ", "  Local principal  ", null, true));
 
         ArgumentCaptor<StorageLocation> captor = ArgumentCaptor.forClass(StorageLocation.class);
         verify(repository).save(captor.capture());
@@ -64,7 +64,7 @@ class LocalArmazenamentoServiceTest {
         when(repository.findById(paiId)).thenReturn(Optional.of(pai));
         when(repository.save(any(StorageLocation.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        service.criar(new StorageLocationCreateDTO("Armario 1", null, paiId, true));
+        service.create(new StorageLocationCreateDTO("Armario 1", null, paiId, true));
 
         ArgumentCaptor<StorageLocation> captor = ArgumentCaptor.forClass(StorageLocation.class);
         verify(repository).save(captor.capture());
@@ -76,7 +76,7 @@ class LocalArmazenamentoServiceTest {
     void deveCriarLocalInativoAposPersistenciaInicial() {
         when(repository.save(any(StorageLocation.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.criar(new StorageLocationCreateDTO("Arquivo morto", null, null, false));
+        var resposta = service.create(new StorageLocationCreateDTO("Arquivo morto", null, null, false));
 
         assertThat(resposta.ativa()).isFalse();
         verify(repository).flush();
@@ -91,7 +91,7 @@ class LocalArmazenamentoServiceTest {
 
         when(repository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(deposito, gaveta, escritorio, casa));
 
-        var locais = service.listarResumo();
+        var locais = service.listSummary();
 
         assertThat(locais).extracting("nome").containsExactly("Casa", "Escritorio", "Gaveta 2", "Deposito");
         assertThat(locais).extracting("caminho").containsExactly(
@@ -111,7 +111,7 @@ class LocalArmazenamentoServiceTest {
 
         when(repository.findAllIncludingInactive()).thenReturn(List.of(orfao, removido));
 
-        var locais = service.listarResumoIncluindoInativos();
+        var locais = service.listSummaryIncludingInactive();
 
         assertThat(locais).extracting("nome").containsExactly("Orfao", "Removido");
         assertThat(locais).extracting("nivel").containsExactly(0, 0);
@@ -124,8 +124,8 @@ class LocalArmazenamentoServiceTest {
 
         when(repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc("Deposito")).thenReturn(List.of(location));
 
-        assertThat(service.buscarPorNome("  ")).isEmpty();
-        assertThat(service.buscarPorNome(" Deposito ")).hasSize(1);
+        assertThat(service.findByName("  ")).isEmpty();
+        assertThat(service.findByName(" Deposito ")).hasSize(1);
     }
 
     @Test
@@ -135,7 +135,7 @@ class LocalArmazenamentoServiceTest {
 
         when(repository.findById(id)).thenReturn(Optional.of(location));
 
-        assertThatThrownBy(() -> service.atualizar(id, new StorageLocationUpdateDTO("Casa", null, id, true)))
+        assertThatThrownBy(() -> service.update(id, new StorageLocationUpdateDTO("Casa", null, id, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("own parent");
     }
@@ -153,7 +153,7 @@ class LocalArmazenamentoServiceTest {
         when(repository.findById(casaId)).thenReturn(Optional.of(casa));
         when(repository.findById(gavetaId)).thenReturn(Optional.of(gaveta));
 
-        assertThatThrownBy(() -> service.atualizar(casaId, new StorageLocationUpdateDTO("Casa", null, gavetaId, true)))
+        assertThatThrownBy(() -> service.update(casaId, new StorageLocationUpdateDTO("Casa", null, gavetaId, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("descendant");
     }
@@ -166,7 +166,7 @@ class LocalArmazenamentoServiceTest {
 
         when(repository.findById(paiId)).thenReturn(Optional.of(pai));
 
-        assertThatThrownBy(() -> service.criar(new StorageLocationCreateDTO("Caixa", null, paiId, true)))
+        assertThatThrownBy(() -> service.create(new StorageLocationCreateDTO("Caixa", null, paiId, true)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Parent location must be active.");
 
@@ -184,7 +184,7 @@ class LocalArmazenamentoServiceTest {
         when(repository.findById(paiId)).thenReturn(Optional.of(pai));
         when(repository.save(any(StorageLocation.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.atualizar(id, new StorageLocationUpdateDTO("  Armario  ", "  Documentos  ", paiId, false));
+        var resposta = service.update(id, new StorageLocationUpdateDTO("  Armario  ", "  Documentos  ", paiId, false));
 
         assertThat(resposta.nome()).isEqualTo("Armario");
         assertThat(resposta.descricao()).isEqualTo("Documentos");
@@ -206,7 +206,7 @@ class LocalArmazenamentoServiceTest {
         when(imagemStorageService.armazenarLocal(id, arquivo)).thenReturn(imagem);
         when(repository.save(any(StorageLocation.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.atualizarImagem(id, arquivo);
+        var resposta = service.updateImage(id, arquivo);
 
         assertThat(resposta.imagemUrl()).isEqualTo("/api/public/locais/%s/imagem".formatted(id));
         assertThat(location.getImageBucket()).isEqualTo("bucket-novo");

@@ -72,7 +72,7 @@ class MovimentacaoItemServiceTest {
             return movimentacao;
         });
 
-        var resposta = service.registrarEntrada(new ItemInputMovementCreateDTO(
+        var resposta = service.registerInbound(new ItemInputMovementCreateDTO(
                 itemMestreId,
                 localId,
                 "  LIV-001  ",
@@ -111,7 +111,7 @@ class MovimentacaoItemServiceTest {
         when(itemMestreRepository.findById(itemMestreId)).thenReturn(Optional.of(mainItem(itemMestreId, true)));
         when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(location(localId, "Biblioteca", true)));
 
-        assertThatThrownBy(() -> service.registrarEntrada(new ItemInputMovementCreateDTO(itemMestreId, localId, " ", null, null, null)))
+        assertThatThrownBy(() -> service.registerInbound(new ItemInputMovementCreateDTO(itemMestreId, localId, " ", null, null, null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("identifier");
 
@@ -134,7 +134,7 @@ class MovimentacaoItemServiceTest {
             return movimentacao;
         });
 
-        var resposta = service.registrarSaida(new ItemOutputMovementCreateDTO(
+        var resposta = service.registerOutbound(new ItemOutputMovementCreateDTO(
                 instanciaId,
                 "  Maintenance withdrawal  ",
                 "  Equipment sent to the technician  "
@@ -168,7 +168,7 @@ class MovimentacaoItemServiceTest {
 
         when(instanciaItemRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
 
-        assertThatThrownBy(() -> service.registrarSaida(new ItemOutputMovementCreateDTO(instanciaId, "Retirada", null)))
+        assertThatThrownBy(() -> service.registerOutbound(new ItemOutputMovementCreateDTO(instanciaId, "Retirada", null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("available instances");
 
@@ -194,7 +194,7 @@ class MovimentacaoItemServiceTest {
             return movimentacao;
         });
 
-        var resposta = service.registrarTransferencia(new ItemTransferMovementCreateDTO(
+        var resposta = service.registerTransfer(new ItemTransferMovementCreateDTO(
                 instanciaId,
                 destinoId,
                 "  Transfer for conference  "
@@ -230,7 +230,7 @@ class MovimentacaoItemServiceTest {
         when(instanciaItemRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
         when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(location));
 
-        assertThatThrownBy(() -> service.registrarTransferencia(new ItemTransferMovementCreateDTO(instanciaId, localId, null)))
+        assertThatThrownBy(() -> service.registerTransfer(new ItemTransferMovementCreateDTO(instanciaId, localId, null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("different");
 

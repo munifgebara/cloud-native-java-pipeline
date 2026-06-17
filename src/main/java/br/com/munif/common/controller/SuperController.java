@@ -36,7 +36,7 @@ public abstract class SuperController<RESUMO, RESPONSE, CREATE, UPDATE, ENTITY> 
      * @param dto creation data validated by Bean Validation
      * @return {@code 201 Created} with the full DTO of the created record
      */
-    public abstract ResponseEntity<RESPONSE> criar(CREATE dto);
+    public abstract ResponseEntity<RESPONSE> create(CREATE dto);
 
     /**
      * Returns the full data of a record by its identifier.
@@ -44,7 +44,7 @@ public abstract class SuperController<RESUMO, RESPONSE, CREATE, UPDATE, ENTITY> 
      * @param id UUID identifier of the record
      * @return {@code 200 OK} with the full DTO; {@code 404 Not Found} if it does not exist
      */
-    public abstract ResponseEntity<RESPONSE> buscarPorId(UUID id);
+    public abstract ResponseEntity<RESPONSE> findById(UUID id);
 
     /**
      * Returns the summary listing of all active records.
@@ -60,7 +60,7 @@ public abstract class SuperController<RESUMO, RESPONSE, CREATE, UPDATE, ENTITY> 
      * @param dto update data validated by Bean Validation
      * @return {@code 200 OK} with the updated full DTO; {@code 404} if it does not exist
      */
-    public abstract ResponseEntity<RESPONSE> atualizar(UUID id, UPDATE dto);
+    public abstract ResponseEntity<RESPONSE> update(UUID id, UPDATE dto);
 
     /**
      * Performs the soft deletion of a record (sets {@code ativo = false}).
@@ -68,7 +68,7 @@ public abstract class SuperController<RESUMO, RESPONSE, CREATE, UPDATE, ENTITY> 
      * @param id UUID identifier of the record to deactivate
      * @return {@code 204 In Content} after deactivation; {@code 404} if it does not exist
      */
-    public abstract ResponseEntity<Void> excluir(UUID id);
+    public abstract ResponseEntity<Void> delete(UUID id);
 
     /**
      * Returns all records, including logically deactivated ones.
@@ -85,5 +85,5 @@ public abstract class SuperController<RESUMO, RESPONSE, CREATE, UPDATE, ENTITY> 
      * @return {@code 200 OK} with the list of revisions in chronological order;
      *         empty list if there is no history
      */
-    public abstract ResponseEntity<? extends List<?>> listarVersoesAnteriores(UUID id);
+    public abstract ResponseEntity<? extends List<?>> listPreviousVersions(UUID id);
 }

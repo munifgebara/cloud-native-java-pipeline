@@ -36,7 +36,7 @@ public interface MainItemRepository extends SuperRepository<MainItem>, JpaSpecif
             where item.active = true
               and (item.registrationOrigin = 'CADASTRO_IA_FOTO' or item.imageGeneratedByAi = true)
             """)
-    long contarItensCadastradosPorIa();
+    long countItemsRegisteredByAi();
 
     @Query("""
             select new br.com.stella.api.dto.DashboardCategoryQuantityDTO(
@@ -51,7 +51,7 @@ public interface MainItemRepository extends SuperRepository<MainItem>, JpaSpecif
             group by category.id, category.name
             order by count(item) desc, category.name asc
             """)
-    List<DashboardCategoryQuantityDTO> buscarCategoriasComMaisItens(Pageable pageable);
+    List<DashboardCategoryQuantityDTO> findCategoriesWithMostItems(Pageable pageable);
 
     /**
      * Builds a {@link Specification} to filter active main items with optional criteria.
@@ -64,7 +64,7 @@ public interface MainItemRepository extends SuperRepository<MainItem>, JpaSpecif
      * @param categoriaId UUID of the category; {@code null} ignores the filter
      * @return specification combining the given filters with {@code AND}
      */
-    static Specification<MainItem> filtrarAtivos(String nome, UUID categoriaId) {
+    static Specification<MainItem> filterActive(String nome, UUID categoriaId) {
         return (root, query, cb) -> {
             List<Predicate> predicados = new ArrayList<>();
             predicados.add(cb.isTrue(root.get("active")));
@@ -84,5 +84,5 @@ public interface MainItemRepository extends SuperRepository<MainItem>, JpaSpecif
             left join fetch item.category
             where item.id in :ids
             """)
-    List<MainItem> buscarComCategoriaPorIds(@Param("ids") List<UUID> ids);
+    List<MainItem> findWithCategoryByIds(@Param("ids") List<UUID> ids);
 }

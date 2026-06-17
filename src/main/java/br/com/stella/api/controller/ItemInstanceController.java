@@ -53,14 +53,14 @@ public class ItemInstanceController extends SuperController<ItemInstanceSummaryD
 
     @Override
     @PostMapping
-    public ResponseEntity<ItemInstanceResponseDTO> criar(@RequestBody @Valid ItemInstanceCreateDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.criar(dto));
+    public ResponseEntity<ItemInstanceResponseDTO> create(@RequestBody @Valid ItemInstanceCreateDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
 
     @Override
     @GetMapping("/{id}")
-    public ResponseEntity<ItemInstanceResponseDTO> buscarPorId(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.buscarResponsePorId(id));
+    public ResponseEntity<ItemInstanceResponseDTO> findById(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.findResponseById(id));
     }
 
     /**
@@ -77,7 +77,7 @@ public class ItemInstanceController extends SuperController<ItemInstanceSummaryD
     @Override
     @GetMapping
     public ResponseEntity<List<ItemInstanceSummaryDTO>> listar() {
-        return ResponseEntity.ok(service.listarResumo());
+        return ResponseEntity.ok(service.listSummary());
     }
 
     /**
@@ -86,9 +86,9 @@ public class ItemInstanceController extends SuperController<ItemInstanceSummaryD
      * @param identificador text to search in the {@code identificador} field
      * @return {@code 200 OK} with the list of found instances
      */
-    @GetMapping("/buscar")
-    public ResponseEntity<List<ItemInstanceSummaryDTO>> buscarPorIdentificador(@RequestParam String identificador) {
-        return ResponseEntity.ok(service.buscarPorIdentificador(identificador));
+    @GetMapping("/search")
+    public ResponseEntity<List<ItemInstanceSummaryDTO>> findByIdentifier(@RequestParam String identificador) {
+        return ResponseEntity.ok(service.findByIdentifier(identificador));
     }
 
     /**
@@ -113,26 +113,26 @@ public class ItemInstanceController extends SuperController<ItemInstanceSummaryD
 
     @Override
     @PutMapping("/{id}")
-    public ResponseEntity<ItemInstanceResponseDTO> atualizar(@PathVariable UUID id, @RequestBody @Valid ItemInstanceUpdateDTO dto) {
-        return ResponseEntity.ok(service.atualizar(id, dto));
+    public ResponseEntity<ItemInstanceResponseDTO> update(@PathVariable UUID id, @RequestBody @Valid ItemInstanceUpdateDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     @Override
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable UUID id) {
-        service.excluirLogicamente(id);
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        service.deleteLogically(id);
         return ResponseEntity.noContent().build();
     }
 
     @Override
     @GetMapping("/todos")
     public ResponseEntity<List<ItemInstanceSummaryDTO>> findAllIncludingInactive() {
-        return ResponseEntity.ok(service.listarResumoIncluindoInativos());
+        return ResponseEntity.ok(service.listSummaryIncludingInactive());
     }
 
     @Override
     @GetMapping("/{id}/revisoes")
-    public ResponseEntity<List<RevisionDTO<ItemInstance>>> listarVersoesAnteriores(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.listarRevisoes(id));
+    public ResponseEntity<List<RevisionDTO<ItemInstance>>> listPreviousVersions(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.listRevisions(id));
     }
 }

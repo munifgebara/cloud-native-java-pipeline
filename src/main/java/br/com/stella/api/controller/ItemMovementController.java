@@ -45,8 +45,8 @@ public class ItemMovementController {
      * @return {@code 201 Created} with the recorded movement data
      */
     @PostMapping("/entrada")
-    public ResponseEntity<ItemMovementResponseDTO> registrarEntrada(@RequestBody @Valid ItemInputMovementCreateDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.registrarEntrada(dto));
+    public ResponseEntity<ItemMovementResponseDTO> registerInbound(@RequestBody @Valid ItemInputMovementCreateDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.registerInbound(dto));
     }
 
     /**
@@ -56,8 +56,8 @@ public class ItemMovementController {
      * @return {@code 201 Created} with the recorded movement data
      */
     @PostMapping("/saida")
-    public ResponseEntity<ItemMovementResponseDTO> registrarSaida(@RequestBody @Valid ItemOutputMovementCreateDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.registrarSaida(dto));
+    public ResponseEntity<ItemMovementResponseDTO> registerOutbound(@RequestBody @Valid ItemOutputMovementCreateDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.registerOutbound(dto));
     }
 
     /**
@@ -67,7 +67,7 @@ public class ItemMovementController {
      * @return {@code 201 Created} with the recorded movement data
      */
     @PostMapping("/transferencia")
-    public ResponseEntity<ItemMovementResponseDTO> registrarTransferencia(@RequestBody @Valid ItemTransferMovementCreateDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.registrarTransferencia(dto));
+    public ResponseEntity<ItemMovementResponseDTO> registerTransfer(@RequestBody @Valid ItemTransferMovementCreateDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.registerTransfer(dto));
     }
 }

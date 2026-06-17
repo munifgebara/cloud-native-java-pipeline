@@ -52,11 +52,11 @@ public class KeycloakUserService {
                 .toList();
     }
 
-    public UserResponseDTO buscarPorId(String id) {
-        return toUsuarioResponse(buscarUsuarioMap(id), listarRolesDoUsuario(id));
+    public UserResponseDTO findById(String id) {
+        return toUsuarioResponse(fetchUserMap(id), listarRolesDoUsuario(id));
     }
 
-    public UserResponseDTO criar(UserCreateDTO dto) {
+    public UserResponseDTO create(UserCreateDTO dto) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("username", dto.username().trim());
         payload.put("firstName", trimToNull(dto.firstName()));
@@ -79,12 +79,12 @@ public class KeycloakUserService {
                 .toBodilessEntity());
 
         String id = extrairIdCriado(response.getHeaders().getLocation());
-        atualizarRoles(id, dto.roles());
-        return buscarPorId(id);
+        updateRoles(id, dto.roles());
+        return findById(id);
     }
 
-    public UserResponseDTO atualizar(String id, UserUpdateDTO dto) {
-        Map<String, Object> usuario = buscarUsuarioMap(id);
+    public UserResponseDTO update(String id, UserUpdateDTO dto) {
+        Map<String, Object> usuario = fetchUserMap(id);
         usuario.put("firstName", trimToNull(dto.firstName()));
         usuario.put("lastName", trimToNull(dto.lastName()));
         usuario.put("email", trimToNull(dto.email()));
@@ -94,12 +94,12 @@ public class KeycloakUserService {
         }
 
         put("/users/" + id, usuario);
-        atualizarRoles(id, dto.roles());
-        return buscarPorId(id);
+        updateRoles(id, dto.roles());
+        return findById(id);
     }
 
     public void alterarStatus(String id, boolean enabled) {
-        Map<String, Object> usuario = buscarUsuarioMap(id);
+        Map<String, Object> usuario = fetchUserMap(id);
         usuario.put("enabled", enabled);
         put("/users/" + id, usuario);
     }
@@ -121,12 +121,12 @@ public class KeycloakUserService {
     }
 
     public MeuPerfilResponseDTO atualizarMeuPerfil(Jwt jwt, MeuPerfilUpdateDTO dto) {
-        Map<String, Object> usuario = buscarUsuarioMap(jwt.getSubject());
+        Map<String, Object> usuario = fetchUserMap(jwt.getSubject());
         usuario.put("firstName", trimToNull(dto.firstName()));
         usuario.put("lastName", trimToNull(dto.lastName()));
         usuario.put("email", trimToNull(dto.email()));
         put("/users/" + jwt.getSubject(), usuario);
-        return toMeuPerfil(buscarPorId(jwt.getSubject()));
+        return toMeuPerfil(findById(jwt.getSubject()));
     }
 
     public void alterarMinhaSenha(Jwt jwt, AlterarSenhaDTO dto) {
@@ -164,7 +164,7 @@ public class KeycloakUserService {
         put("/users/" + id + "/reset-password", payload);
     }
 
-    private void atualizarRoles(String id, List<String> roles) {
+    private void updateRoles(String id, List<String> roles) {
         if (roles == null) {
             return;
         }
@@ -214,7 +214,7 @@ public class KeycloakUserService {
                 .toList();
     }
 
-    private Map<String, Object> buscarUsuarioMap(String id) {
+    private Map<String, Object> fetchUserMap(String id) {
         try {
             return getMap("/users/" + id);
         } catch (IdentityException ex) {

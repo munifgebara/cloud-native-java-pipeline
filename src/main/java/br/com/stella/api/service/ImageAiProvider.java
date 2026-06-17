@@ -5,5 +5,5 @@ import br.com.stella.api.dto.ImageAiResponseDTO;
 
 public interface ImageAiProvider {
 
-    ImageAiResponseDTO gerarImagem(ImageAiRequestDTO request);
+    ImageAiResponseDTO generateImage(ImageAiRequestDTO request);
 }

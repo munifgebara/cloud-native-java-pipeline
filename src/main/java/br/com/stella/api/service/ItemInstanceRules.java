@@ -33,7 +33,7 @@ final class ItemInstanceRules {
      * @param instance instance to validate
      * @throws IllegalArgumentException if the status and location are incompatible
      */
-    static void validarCoerenciaStatusLocal(ItemInstance instance) {
+    static void validateStatusLocationConsistency(ItemInstance instance) {
         ItemInstanceStatus status = instance.getOperationalStatus();
 
         if (status == ItemInstanceStatus.DISPONIVEL && instance.getCurrentLocation() == null) {

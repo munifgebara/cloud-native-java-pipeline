@@ -70,7 +70,7 @@ class EmprestimoItemServiceTest {
             return emprestimo;
         });
 
-        var resposta = service.registrarEmprestimo(new ItemLoanCreateDTO(
+        var resposta = service.registerLoan(new ItemLoanCreateDTO(
                 instanciaId,
                 pessoaId,
                 previsao,
@@ -104,7 +104,7 @@ class EmprestimoItemServiceTest {
         when(instanciaItemRepository.findById(instanciaId)).thenReturn(Optional.of(instance));
         when(pessoaRepository.findById(pessoaId)).thenReturn(Optional.of(pessoa(pessoaId, "Maria Silva", true)));
 
-        assertThatThrownBy(() -> service.registrarEmprestimo(new ItemLoanCreateDTO(instanciaId, pessoaId, null, null)))
+        assertThatThrownBy(() -> service.registerLoan(new ItemLoanCreateDTO(instanciaId, pessoaId, null, null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("available instances can be loaned");
 
@@ -122,7 +122,7 @@ class EmprestimoItemServiceTest {
         when(pessoaRepository.findById(pessoaId)).thenReturn(Optional.of(pessoa(pessoaId, "Maria Silva", true)));
         when(repository.existsByItemInstanceIdAndReturnDateIsNull(instanciaId)).thenReturn(true);
 
-        assertThatThrownBy(() -> service.registrarEmprestimo(new ItemLoanCreateDTO(instanciaId, pessoaId, null, null)))
+        assertThatThrownBy(() -> service.registerLoan(new ItemLoanCreateDTO(instanciaId, pessoaId, null, null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("open loan for this instance");
 
@@ -144,7 +144,7 @@ class EmprestimoItemServiceTest {
         when(instanciaItemRepository.save(any(ItemInstance.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(repository.save(any(ItemLoan.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var resposta = service.registrarDevolucao(new ItemLoanReturnDTO(
+        var resposta = service.registerReturn(new ItemLoanReturnDTO(
                 instanciaId,
                 localId,
                 "  Devolvido sem avarias  "
@@ -173,7 +173,7 @@ class EmprestimoItemServiceTest {
 
         when(repository.findByItemInstanceIdAndReturnDateIsNull(instanciaId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.registrarDevolucao(new ItemLoanReturnDTO(instanciaId, localId, null)))
+        assertThatThrownBy(() -> service.registerReturn(new ItemLoanReturnDTO(instanciaId, localId, null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("open loan for this instance");
 
@@ -191,7 +191,7 @@ class EmprestimoItemServiceTest {
         when(repository.findByItemInstanceIdAndReturnDateIsNull(instanciaId)).thenReturn(Optional.of(emprestimo));
         when(localArmazenamentoRepository.findById(localId)).thenReturn(Optional.of(location(localId, "Biblioteca")));
 
-        assertThatThrownBy(() -> service.registrarDevolucao(new ItemLoanReturnDTO(instanciaId, localId, null)))
+        assertThatThrownBy(() -> service.registerReturn(new ItemLoanReturnDTO(instanciaId, localId, null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("must be loaned");
 

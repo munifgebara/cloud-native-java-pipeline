@@ -50,20 +50,20 @@ public class CategoryController extends SuperController<CategorySummaryDTO, Cate
 
     @Override
     @PostMapping
-    public ResponseEntity<CategoryResponseDTO> criar(@RequestBody @Valid CategoryCreateDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.criar(dto));
+    public ResponseEntity<CategoryResponseDTO> create(@RequestBody @Valid CategoryCreateDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
 
     @Override
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponseDTO> buscarPorId(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.buscarResponsePorId(id));
+    public ResponseEntity<CategoryResponseDTO> findById(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.findResponseById(id));
     }
 
     @Override
     @GetMapping
     public ResponseEntity<List<CategorySummaryDTO>> listar() {
-        return ResponseEntity.ok(service.listarResumo());
+        return ResponseEntity.ok(service.listSummary());
     }
 
     /**
@@ -72,33 +72,33 @@ public class CategoryController extends SuperController<CategorySummaryDTO, Cate
      * @param nome substring to search in the category name
      * @return {@code 200 OK} with the list of found categories
      */
-    @GetMapping("/buscar")
-    public ResponseEntity<List<CategorySummaryDTO>> buscarPorNome(@RequestParam String nome) {
-        return ResponseEntity.ok(service.buscarPorNome(nome));
+    @GetMapping("/search")
+    public ResponseEntity<List<CategorySummaryDTO>> findByName(@RequestParam String nome) {
+        return ResponseEntity.ok(service.findByName(nome));
     }
 
     @Override
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryResponseDTO> atualizar(@PathVariable UUID id, @RequestBody @Valid CategoryUpdateDTO dto) {
-        return ResponseEntity.ok(service.atualizar(id, dto));
+    public ResponseEntity<CategoryResponseDTO> update(@PathVariable UUID id, @RequestBody @Valid CategoryUpdateDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     @Override
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable UUID id) {
-        service.excluirLogicamente(id);
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        service.deleteLogically(id);
         return ResponseEntity.noContent().build();
     }
 
     @Override
     @GetMapping("/todos")
     public ResponseEntity<List<CategorySummaryDTO>> findAllIncludingInactive() {
-        return ResponseEntity.ok(service.listarResumoIncluindoInativos());
+        return ResponseEntity.ok(service.listSummaryIncludingInactive());
     }
 
     @Override
     @GetMapping("/{id}/revisoes")
-    public ResponseEntity<List<RevisionDTO<Category>>> listarVersoesAnteriores(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.listarRevisoes(id));
+    public ResponseEntity<List<RevisionDTO<Category>>> listPreviousVersions(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.listRevisions(id));
     }
 }

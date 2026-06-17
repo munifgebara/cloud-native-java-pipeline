@@ -63,16 +63,16 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      * @throws IllegalArgumentException if the provided parent location does not exist or is inactive
      */
     @Transactional
-    public StorageLocationResponseDTO criar(StorageLocationCreateDTO dto) {
+    public StorageLocationResponseDTO create(StorageLocationCreateDTO dto) {
         StorageLocation location = StorageLocationMapper.toEntity(dto);
         normalizarCampos(location);
         location.setParent(buscarPaiAtivo(dto.paiId()));
 
-        StorageLocation salvo = salvar(location);
+        StorageLocation salvo = save(location);
         if (Boolean.FALSE.equals(dto.ativa())) {
             repository.flush();
             salvo.setActive(false);
-            salvo = salvar(salvo);
+            salvo = save(salvo);
         }
         StructuredBusinessLogger.info(log, "inventory", "location-created", StructuredBusinessLogger.fields(
                 "location_id", salvo.getId(),
@@ -91,8 +91,8 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      * @throws jakarta.persistence.EntityNotFoundException if the location does not exist
      */
     @Transactional(readOnly = true)
-    public StorageLocationResponseDTO buscarResponsePorId(UUID id) {
-        return StorageLocationMapper.toResponseDTO(buscarPorId(id));
+    public StorageLocationResponseDTO findResponseById(UUID id) {
+        return StorageLocationMapper.toResponseDTO(findById(id));
     }
 
     /**
@@ -101,8 +101,8 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      * @return list of summary DTOs of active locations
      */
     @Transactional(readOnly = true)
-    public List<StorageLocationSummaryDTO> listarResumo() {
-        return montarHierarquia(repository.findByActiveTrueOrderByNameAsc());
+    public List<StorageLocationSummaryDTO> listSummary() {
+        return buildHierarchy(repository.findByActiveTrueOrderByNameAsc());
     }
 
     /**
@@ -111,8 +111,8 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      * @return list of summary DTOs of all locations
      */
     @Transactional(readOnly = true)
-    public List<StorageLocationSummaryDTO> listarResumoIncluindoInativos() {
-        return montarHierarquia(findAllIncludingInactive());
+    public List<StorageLocationSummaryDTO> listSummaryIncludingInactive() {
+        return buildHierarchy(findAllIncludingInactive());
     }
 
     /**
@@ -123,13 +123,13 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      * @return list of summary DTOs of the found locations
      */
     @Transactional(readOnly = true)
-    public List<StorageLocationSummaryDTO> buscarPorNome(String nome) {
+    public List<StorageLocationSummaryDTO> findByName(String nome) {
         String nomeTratado = BrValidations.trimToNull(nome);
         if (nomeTratado == null) {
             return List.of();
         }
 
-        return montarHierarquia(repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(nomeTratado));
+        return buildHierarchy(repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(nomeTratado));
     }
 
     /**
@@ -142,8 +142,8 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      *                                  or is a descendant of the location being updated
      */
     @Transactional
-    public StorageLocationResponseDTO atualizar(UUID id, StorageLocationUpdateDTO dto) {
-        StorageLocation location = buscarPorId(id);
+    public StorageLocationResponseDTO update(UUID id, StorageLocationUpdateDTO dto) {
+        StorageLocation location = findById(id);
         StorageLocation pai = buscarPaiAtivo(dto.paiId());
         validarHierarquia(location, pai);
 
@@ -151,7 +151,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
         normalizarCampos(location);
         location.setParent(pai);
 
-        StorageLocation salvo = salvar(location);
+        StorageLocation salvo = save(location);
         StructuredBusinessLogger.info(log, "inventory", "location-updated", StructuredBusinessLogger.fields(
                 "location_id", salvo.getId(),
                 "location_name", salvo.getName(),
@@ -169,8 +169,8 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      * @return full DTO of the location with the new image metadata
      */
     @Transactional
-    public StorageLocationResponseDTO atualizarImagem(UUID id, MultipartFile arquivo) {
-        StorageLocation location = buscarPorId(id);
+    public StorageLocationResponseDTO updateImage(UUID id, MultipartFile arquivo) {
+        StorageLocation location = findById(id);
         String bucketAnterior = location.getImageBucket();
         String objectKeyAnterior = location.getImageObjectKey();
 
@@ -180,7 +180,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
         location.setImageContentType(imagem.contentType());
         location.setImageSizeBytes(imagem.tamanhoBytes());
 
-        StorageLocation salvo = salvar(location);
+        StorageLocation salvo = save(location);
         imagemStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
         StructuredBusinessLogger.info(log, "inventory", "location-image-updated", StructuredBusinessLogger.fields(
                 "location_id", salvo.getId(),
@@ -200,7 +200,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      */
     @Transactional
     public StorageLocationResponseDTO removerImagem(UUID id) {
-        StorageLocation location = buscarPorId(id);
+        StorageLocation location = findById(id);
         String bucketAnterior = location.getImageBucket();
         String objectKeyAnterior = location.getImageObjectKey();
 
@@ -209,7 +209,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
         location.setImageContentType(null);
         location.setImageSizeBytes(null);
 
-        StorageLocation salvo = salvar(location);
+        StorageLocation salvo = save(location);
         imagemStorageService.removerSilenciosamente(bucketAnterior, objectKeyAnterior);
         StructuredBusinessLogger.info(log, "inventory", "location-image-removed", StructuredBusinessLogger.fields(
                 "location_id", salvo.getId(),
@@ -228,7 +228,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      */
     @Transactional(readOnly = true)
     public MainItemImageDTO buscarMetadadosImagem(UUID id) {
-        StorageLocation location = buscarPorId(id);
+        StorageLocation location = findById(id);
         if (location.getImageObjectKey() == null) {
             throw new IllegalArgumentException("Location does not have an image.");
         }
@@ -261,9 +261,9 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      * @throws jakarta.persistence.EntityNotFoundException if the location does not exist
      */
     @Transactional
-    public void excluirLogicamente(UUID id) {
-        StorageLocation location = buscarPorId(id);
-        excluir(id);
+    public void deleteLogically(UUID id) {
+        StorageLocation location = findById(id);
+        delete(id);
         StructuredBusinessLogger.info(log, "inventory", "location-deactivated", StructuredBusinessLogger.fields(
                 "location_id", id,
                 "location_name", location.getName(),
@@ -278,11 +278,11 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      * @return list of revisions in chronological order; empty list if there is no history
      */
     @Transactional(readOnly = true)
-    public List<RevisionDTO<StorageLocation>> listarRevisoes(UUID id) {
-        return listarVersoesAnteriores(id);
+    public List<RevisionDTO<StorageLocation>> listRevisions(UUID id) {
+        return listPreviousVersions(id);
     }
 
-    private List<StorageLocationSummaryDTO> montarHierarquia(List<StorageLocation> locais) {
+    private List<StorageLocationSummaryDTO> buildHierarchy(List<StorageLocation> locais) {
         Map<UUID, List<StorageLocation>> filhosPorPai = locais.stream()
                 .filter(location -> location.getParent() != null)
                 .collect(Collectors.groupingBy(location -> location.getParent().getId()));
@@ -323,7 +323,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
             return null;
         }
 
-        StorageLocation pai = buscarPorId(paiId);
+        StorageLocation pai = findById(paiId);
         if (!pai.isActive()) {
             throw new IllegalArgumentException("Parent location must be active.");
         }

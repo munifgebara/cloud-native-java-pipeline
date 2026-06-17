@@ -62,24 +62,24 @@ class ControllerUnitTest {
         var response = new CategoryResponseDTO(id, "Livros", null, "book", true);
         var resumo = new CategorySummaryDTO(id, "Livros", null, "book", true);
 
-        when(service.criar(null)).thenReturn(response);
-        when(service.buscarResponsePorId(id)).thenReturn(response);
-        when(service.listarResumo()).thenReturn(List.of(resumo));
-        when(service.buscarPorNome("liv")).thenReturn(List.of(resumo));
-        when(service.atualizar(eq(id), any())).thenReturn(response);
-        when(service.listarResumoIncluindoInativos()).thenReturn(List.of(resumo));
-        when(service.listarRevisoes(id)).thenReturn(List.of());
+        when(service.create(null)).thenReturn(response);
+        when(service.findResponseById(id)).thenReturn(response);
+        when(service.listSummary()).thenReturn(List.of(resumo));
+        when(service.findByName("liv")).thenReturn(List.of(resumo));
+        when(service.update(eq(id), any())).thenReturn(response);
+        when(service.listSummaryIncludingInactive()).thenReturn(List.of(resumo));
+        when(service.listRevisions(id)).thenReturn(List.of());
 
-        assertThat(controller.criar(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(controller.buscarPorId(id).getBody()).isEqualTo(response);
+        assertThat(controller.create(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(controller.findById(id).getBody()).isEqualTo(response);
         assertThat(controller.listar().getBody()).containsExactly(resumo);
-        assertThat(controller.buscarPorNome("liv").getBody()).containsExactly(resumo);
-        assertThat(controller.atualizar(id, null).getBody()).isEqualTo(response);
-        assertThat(controller.excluir(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(controller.findByName("liv").getBody()).containsExactly(resumo);
+        assertThat(controller.update(id, null).getBody()).isEqualTo(response);
+        assertThat(controller.delete(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(controller.findAllIncludingInactive().getBody()).containsExactly(resumo);
-        assertThat(controller.listarVersoesAnteriores(id).getBody()).isEmpty();
+        assertThat(controller.listPreviousVersions(id).getBody()).isEmpty();
 
-        verify(service).excluirLogicamente(id);
+        verify(service).deleteLogically(id);
     }
 
     @Test
@@ -90,24 +90,24 @@ class ControllerUnitTest {
         var response = mock(PersonResponseDTO.class);
         var resumo = mock(PersonSummaryDTO.class);
 
-        when(service.criar(null)).thenReturn(response);
-        when(service.buscarResponsePorId(id)).thenReturn(response);
-        when(service.listarResumo()).thenReturn(List.of(resumo));
-        when(service.buscarPorNome("ana")).thenReturn(List.of(resumo));
-        when(service.atualizar(id, null)).thenReturn(response);
-        when(service.listarResumoIncluindoInativos()).thenReturn(List.of(resumo));
-        when(service.listarRevisoes(id)).thenReturn(List.of());
+        when(service.create(null)).thenReturn(response);
+        when(service.findResponseById(id)).thenReturn(response);
+        when(service.listSummary()).thenReturn(List.of(resumo));
+        when(service.findByName("ana")).thenReturn(List.of(resumo));
+        when(service.update(id, null)).thenReturn(response);
+        when(service.listSummaryIncludingInactive()).thenReturn(List.of(resumo));
+        when(service.listRevisions(id)).thenReturn(List.of());
 
-        assertThat(controller.criar(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(controller.buscarPorId(id).getBody()).isEqualTo(response);
+        assertThat(controller.create(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(controller.findById(id).getBody()).isEqualTo(response);
         assertThat(controller.listar().getBody()).containsExactly(resumo);
-        assertThat(controller.buscarPorNome("ana").getBody()).containsExactly(resumo);
-        assertThat(controller.atualizar(id, null).getBody()).isEqualTo(response);
-        assertThat(controller.excluir(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(controller.findByName("ana").getBody()).containsExactly(resumo);
+        assertThat(controller.update(id, null).getBody()).isEqualTo(response);
+        assertThat(controller.delete(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(controller.findAllIncludingInactive().getBody()).containsExactly(resumo);
-        assertThat(controller.listarVersoesAnteriores(id).getBody()).isEmpty();
+        assertThat(controller.listPreviousVersions(id).getBody()).isEmpty();
 
-        verify(service).excluirLogicamente(id);
+        verify(service).deleteLogically(id);
     }
 
     @Test
@@ -124,32 +124,32 @@ class ControllerUnitTest {
         var imagemIaRequest = new ImageAiRequestDTO("Livro", "Livros", "Capa azul");
         var imagemIaResponse = new ImageAiResponseDTO("data:image/png;base64,abc", "image/png", "openai");
 
-        when(service.criar(null)).thenReturn(response);
-        when(service.buscarResponsePorId(id)).thenReturn(response);
-        when(service.listarResumo()).thenReturn(List.of(resumo));
-        when(service.buscarPorNome("livro")).thenReturn(List.of(resumo));
+        when(service.create(null)).thenReturn(response);
+        when(service.findResponseById(id)).thenReturn(response);
+        when(service.listSummary()).thenReturn(List.of(resumo));
+        when(service.findByName("livro")).thenReturn(List.of(resumo));
         when(service.filtrar("livro", categoriaId)).thenReturn(List.of(resumo));
         when(service.buscarSemanticamente("where is book")).thenReturn(List.of(resultadoSemantico));
         when(service.reindexarBuscaSemantica()).thenReturn(2);
         when(service.atualizarImagemPrincipal(id, arquivo, true, "openai")).thenReturn(response);
-        when(imagemIaService.gerarImagem(imagemIaRequest)).thenReturn(imagemIaResponse);
-        when(service.atualizar(id, null)).thenReturn(response);
-        when(service.listarResumoIncluindoInativos()).thenReturn(List.of(resumo));
-        when(service.listarRevisoes(id)).thenReturn(List.of());
+        when(imagemIaService.generateImage(imagemIaRequest)).thenReturn(imagemIaResponse);
+        when(service.update(id, null)).thenReturn(response);
+        when(service.listSummaryIncludingInactive()).thenReturn(List.of(resumo));
+        when(service.listRevisions(id)).thenReturn(List.of());
 
-        assertThat(controller.criar(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(controller.buscarPorId(id).getBody()).isEqualTo(response);
+        assertThat(controller.create(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(controller.findById(id).getBody()).isEqualTo(response);
         assertThat(controller.listar().getBody()).containsExactly(resumo);
-        assertThat(controller.buscarPorNome("livro").getBody()).containsExactly(resumo);
+        assertThat(controller.findByName("livro").getBody()).containsExactly(resumo);
         assertThat(controller.filtrar("livro", categoriaId).getBody()).containsExactly(resumo);
         assertThat(controller.buscarSemanticamente("where is book").getBody()).containsExactly(resultadoSemantico);
         assertThat(controller.reindexarBuscaSemantica().getBody()).containsEntry("itensReindexados", 2);
         assertThat(controller.atualizarImagemPrincipal(id, arquivo, true, "openai").getBody()).isEqualTo(response);
         assertThat(controller.gerarImagemIa(imagemIaRequest).getBody()).isEqualTo(imagemIaResponse);
-        assertThat(controller.atualizar(id, null).getBody()).isEqualTo(response);
-        assertThat(controller.excluir(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(controller.update(id, null).getBody()).isEqualTo(response);
+        assertThat(controller.delete(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(controller.findAllIncludingInactive().getBody()).containsExactly(resumo);
-        assertThat(controller.listarVersoesAnteriores(id).getBody()).isEmpty();
+        assertThat(controller.listPreviousVersions(id).getBody()).isEmpty();
     }
 
     @Test
@@ -161,26 +161,26 @@ class ControllerUnitTest {
         var resumo = mock(StorageLocationSummaryDTO.class);
         var arquivo = new MockMultipartFile("arquivo", "foto.png", "image/png", new byte[]{1});
 
-        when(service.criar(null)).thenReturn(response);
-        when(service.buscarResponsePorId(id)).thenReturn(response);
-        when(service.listarResumo()).thenReturn(List.of(resumo));
-        when(service.buscarPorNome("dep")).thenReturn(List.of(resumo));
-        when(service.atualizarImagem(id, arquivo)).thenReturn(response);
+        when(service.create(null)).thenReturn(response);
+        when(service.findResponseById(id)).thenReturn(response);
+        when(service.listSummary()).thenReturn(List.of(resumo));
+        when(service.findByName("dep")).thenReturn(List.of(resumo));
+        when(service.updateImage(id, arquivo)).thenReturn(response);
         when(service.removerImagem(id)).thenReturn(response);
-        when(service.atualizar(id, null)).thenReturn(response);
-        when(service.listarResumoIncluindoInativos()).thenReturn(List.of(resumo));
-        when(service.listarRevisoes(id)).thenReturn(List.of());
+        when(service.update(id, null)).thenReturn(response);
+        when(service.listSummaryIncludingInactive()).thenReturn(List.of(resumo));
+        when(service.listRevisions(id)).thenReturn(List.of());
 
-        assertThat(controller.criar(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(controller.buscarPorId(id).getBody()).isEqualTo(response);
+        assertThat(controller.create(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(controller.findById(id).getBody()).isEqualTo(response);
         assertThat(controller.listar().getBody()).containsExactly(resumo);
-        assertThat(controller.buscarPorNome("dep").getBody()).containsExactly(resumo);
-        assertThat(controller.atualizarImagem(id, arquivo).getBody()).isEqualTo(response);
+        assertThat(controller.findByName("dep").getBody()).containsExactly(resumo);
+        assertThat(controller.updateImage(id, arquivo).getBody()).isEqualTo(response);
         assertThat(controller.removerImagem(id).getBody()).isEqualTo(response);
-        assertThat(controller.atualizar(id, null).getBody()).isEqualTo(response);
-        assertThat(controller.excluir(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(controller.update(id, null).getBody()).isEqualTo(response);
+        assertThat(controller.delete(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(controller.findAllIncludingInactive().getBody()).containsExactly(resumo);
-        assertThat(controller.listarVersoesAnteriores(id).getBody()).isEmpty();
+        assertThat(controller.listPreviousVersions(id).getBody()).isEmpty();
     }
 
     @Test
@@ -193,26 +193,26 @@ class ControllerUnitTest {
         var resumo = mock(ItemInstanceSummaryDTO.class);
         var historico = mock(ItemInstanceHistoryDTO.class);
 
-        when(service.criar(null)).thenReturn(response);
-        when(service.buscarResponsePorId(id)).thenReturn(response);
+        when(service.create(null)).thenReturn(response);
+        when(service.findResponseById(id)).thenReturn(response);
         when(service.buscarHistorico(id)).thenReturn(historico);
-        when(service.listarResumo()).thenReturn(List.of(resumo));
-        when(service.buscarPorIdentificador("pat")).thenReturn(List.of(resumo));
+        when(service.listSummary()).thenReturn(List.of(resumo));
+        when(service.findByIdentifier("pat")).thenReturn(List.of(resumo));
         when(service.filtrar("pat", "livro", categoriaId, ItemInstanceStatus.DISPONIVEL)).thenReturn(List.of(resumo));
-        when(service.atualizar(id, null)).thenReturn(response);
-        when(service.listarResumoIncluindoInativos()).thenReturn(List.of(resumo));
-        when(service.listarRevisoes(id)).thenReturn(List.of());
+        when(service.update(id, null)).thenReturn(response);
+        when(service.listSummaryIncludingInactive()).thenReturn(List.of(resumo));
+        when(service.listRevisions(id)).thenReturn(List.of());
 
-        assertThat(controller.criar(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(controller.buscarPorId(id).getBody()).isEqualTo(response);
+        assertThat(controller.create(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(controller.findById(id).getBody()).isEqualTo(response);
         assertThat(controller.buscarHistorico(id).getBody()).isEqualTo(historico);
         assertThat(controller.listar().getBody()).containsExactly(resumo);
-        assertThat(controller.buscarPorIdentificador("pat").getBody()).containsExactly(resumo);
+        assertThat(controller.findByIdentifier("pat").getBody()).containsExactly(resumo);
         assertThat(controller.filtrar("pat", "livro", categoriaId, ItemInstanceStatus.DISPONIVEL).getBody()).containsExactly(resumo);
-        assertThat(controller.atualizar(id, null).getBody()).isEqualTo(response);
-        assertThat(controller.excluir(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(controller.update(id, null).getBody()).isEqualTo(response);
+        assertThat(controller.delete(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(controller.findAllIncludingInactive().getBody()).containsExactly(resumo);
-        assertThat(controller.listarVersoesAnteriores(id).getBody()).isEmpty();
+        assertThat(controller.listPreviousVersions(id).getBody()).isEmpty();
     }
 
     @Test
@@ -222,20 +222,20 @@ class ControllerUnitTest {
         var movimentacao = mock(ItemMovementResponseDTO.class);
         var emprestimo = mock(ItemLoanResponseDTO.class);
 
-        when(movimentacaoService.registrarEntrada(null)).thenReturn(movimentacao);
-        when(movimentacaoService.registrarSaida(null)).thenReturn(movimentacao);
-        when(movimentacaoService.registrarTransferencia(null)).thenReturn(movimentacao);
-        when(emprestimoService.registrarEmprestimo(null)).thenReturn(emprestimo);
-        when(emprestimoService.registrarDevolucao(null)).thenReturn(emprestimo);
+        when(movimentacaoService.registerInbound(null)).thenReturn(movimentacao);
+        when(movimentacaoService.registerOutbound(null)).thenReturn(movimentacao);
+        when(movimentacaoService.registerTransfer(null)).thenReturn(movimentacao);
+        when(emprestimoService.registerLoan(null)).thenReturn(emprestimo);
+        when(emprestimoService.registerReturn(null)).thenReturn(emprestimo);
 
         ItemMovementController movimentacoes = new ItemMovementController(movimentacaoService);
         ItemLoanController emprestimos = new ItemLoanController(emprestimoService);
 
-        assertThat(movimentacoes.registrarEntrada(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(movimentacoes.registrarSaida(null).getBody()).isEqualTo(movimentacao);
-        assertThat(movimentacoes.registrarTransferencia(null).getBody()).isEqualTo(movimentacao);
-        assertThat(emprestimos.registrarEmprestimo(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(emprestimos.registrarDevolucao(null).getBody()).isEqualTo(emprestimo);
+        assertThat(movimentacoes.registerInbound(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(movimentacoes.registerOutbound(null).getBody()).isEqualTo(movimentacao);
+        assertThat(movimentacoes.registerTransfer(null).getBody()).isEqualTo(movimentacao);
+        assertThat(emprestimos.registerLoan(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(emprestimos.registerReturn(null).getBody()).isEqualTo(emprestimo);
     }
 
     @Test
@@ -247,16 +247,16 @@ class ControllerUnitTest {
         var perfil = mock(MeuPerfilResponseDTO.class);
 
         when(service.listar()).thenReturn(List.of(usuario));
-        when(service.buscarPorId("user-1")).thenReturn(usuario);
-        when(service.criar(null)).thenReturn(usuario);
-        when(service.atualizar("user-1", null)).thenReturn(usuario);
+        when(service.findById("user-1")).thenReturn(usuario);
+        when(service.create(null)).thenReturn(usuario);
+        when(service.update("user-1", null)).thenReturn(usuario);
         when(service.meuPerfil(jwt)).thenReturn(perfil);
         when(service.atualizarMeuPerfil(jwt, null)).thenReturn(perfil);
 
         assertThat(controller.listar().getBody()).containsExactly(usuario);
-        assertThat(controller.buscarPorId("user-1").getBody()).isEqualTo(usuario);
-        assertThat(controller.criar(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(controller.atualizar("user-1", null).getBody()).isEqualTo(usuario);
+        assertThat(controller.findById("user-1").getBody()).isEqualTo(usuario);
+        assertThat(controller.create(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(controller.update("user-1", null).getBody()).isEqualTo(usuario);
         assertThat(controller.alterarStatus("user-1", Map.of("enabled", true)).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(controller.meuPerfil(jwt).getBody()).isEqualTo(perfil);
         assertThat(controller.atualizarMeuPerfil(jwt, null).getBody()).isEqualTo(perfil);

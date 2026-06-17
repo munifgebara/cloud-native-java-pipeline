@@ -52,20 +52,20 @@ public class StorageLocationController extends SuperController<StorageLocationSu
 
     @Override
     @PostMapping
-    public ResponseEntity<StorageLocationResponseDTO> criar(@RequestBody @Valid StorageLocationCreateDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.criar(dto));
+    public ResponseEntity<StorageLocationResponseDTO> create(@RequestBody @Valid StorageLocationCreateDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
 
     @Override
     @GetMapping("/{id}")
-    public ResponseEntity<StorageLocationResponseDTO> buscarPorId(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.buscarResponsePorId(id));
+    public ResponseEntity<StorageLocationResponseDTO> findById(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.findResponseById(id));
     }
 
     @Override
     @GetMapping
     public ResponseEntity<List<StorageLocationSummaryDTO>> listar() {
-        return ResponseEntity.ok(service.listarResumo());
+        return ResponseEntity.ok(service.listSummary());
     }
 
     /**
@@ -75,9 +75,9 @@ public class StorageLocationController extends SuperController<StorageLocationSu
      * @param nome substring to search in the location name
      * @return {@code 200 OK} with the list of found locations
      */
-    @GetMapping("/buscar")
-    public ResponseEntity<List<StorageLocationSummaryDTO>> buscarPorNome(@RequestParam String nome) {
-        return ResponseEntity.ok(service.buscarPorNome(nome));
+    @GetMapping("/search")
+    public ResponseEntity<List<StorageLocationSummaryDTO>> findByName(@RequestParam String nome) {
+        return ResponseEntity.ok(service.findByName(nome));
     }
 
     /**
@@ -88,8 +88,8 @@ public class StorageLocationController extends SuperController<StorageLocationSu
      * @return {@code 200 OK} with the full DTO of the updated location
      */
     @PostMapping(value = "/{id}/imagem", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<StorageLocationResponseDTO> atualizarImagem(@PathVariable UUID id, @RequestParam("arquivo") MultipartFile arquivo) {
-        return ResponseEntity.ok(service.atualizarImagem(id, arquivo));
+    public ResponseEntity<StorageLocationResponseDTO> updateImage(@PathVariable UUID id, @RequestParam("arquivo") MultipartFile arquivo) {
+        return ResponseEntity.ok(service.updateImage(id, arquivo));
     }
 
     /**
@@ -105,26 +105,26 @@ public class StorageLocationController extends SuperController<StorageLocationSu
 
     @Override
     @PutMapping("/{id}")
-    public ResponseEntity<StorageLocationResponseDTO> atualizar(@PathVariable UUID id, @RequestBody @Valid StorageLocationUpdateDTO dto) {
-        return ResponseEntity.ok(service.atualizar(id, dto));
+    public ResponseEntity<StorageLocationResponseDTO> update(@PathVariable UUID id, @RequestBody @Valid StorageLocationUpdateDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     @Override
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable UUID id) {
-        service.excluirLogicamente(id);
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        service.deleteLogically(id);
         return ResponseEntity.noContent().build();
     }
 
     @Override
     @GetMapping("/todos")
     public ResponseEntity<List<StorageLocationSummaryDTO>> findAllIncludingInactive() {
-        return ResponseEntity.ok(service.listarResumoIncluindoInativos());
+        return ResponseEntity.ok(service.listSummaryIncludingInactive());
     }
 
     @Override
     @GetMapping("/{id}/revisoes")
-    public ResponseEntity<List<RevisionDTO<StorageLocation>>> listarVersoesAnteriores(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.listarRevisoes(id));
+    public ResponseEntity<List<RevisionDTO<StorageLocation>>> listPreviousVersions(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.listRevisions(id));
     }
 }

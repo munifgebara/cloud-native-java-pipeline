@@ -22,7 +22,7 @@ public class VectorSearchMetricsService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void registrarConsulta(String consulta, int quantidadeResultados) {
+    public void recordQuery(String consulta, int quantidadeResultados) {
         jdbcTemplate.update(
                 INSERT_SQL,
                 UUID.randomUUID(),

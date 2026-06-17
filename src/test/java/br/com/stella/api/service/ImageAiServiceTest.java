@@ -18,7 +18,7 @@ class ImageAiServiceTest {
             return new ImageAiResponseDTO("data:image/png;base64,abc", "image/png", "openai");
         });
 
-        var response = service.gerarImagem(new ImageAiRequestDTO(" Furadeira ", " Ferramentas ", " "));
+        var response = service.generateImage(new ImageAiRequestDTO(" Furadeira ", " Ferramentas ", " "));
 
         assertThat(response.provider()).isEqualTo("openai");
     }
@@ -27,7 +27,7 @@ class ImageAiServiceTest {
     void deveExigirNomeDoItem() {
         ImageAiService service = new ImageAiService(request -> null);
 
-        assertThatThrownBy(() -> service.gerarImagem(new ImageAiRequestDTO(" ", null, null)))
+        assertThatThrownBy(() -> service.generateImage(new ImageAiRequestDTO(" ", null, null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Provide the item name to generate the image.");
     }

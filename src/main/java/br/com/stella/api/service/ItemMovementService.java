@@ -66,17 +66,17 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
      *                                  or if no identifier is provided
      */
     @Transactional
-    public ItemMovementResponseDTO registrarEntrada(ItemInputMovementCreateDTO dto) {
+    public ItemMovementResponseDTO registerInbound(ItemInputMovementCreateDTO dto) {
         ItemInstance instance = new ItemInstance();
-        instance.setMainItem(buscarItemMestreAtivo(dto.itemMestreId()));
-        instance.setCurrentLocation(buscarLocalAtivo(dto.localDestinoId()));
+        instance.setMainItem(findActiveMainItem(dto.itemMestreId()));
+        instance.setCurrentLocation(findActiveLocation(dto.localDestinoId()));
         instance.setIdentifier(BrValidations.trimToNull(dto.identificador()));
         instance.setAssetTag(BrValidations.trimToNull(dto.patrimonio()));
         instance.setSerialNumber(BrValidations.trimToNull(dto.numeroSerie()));
         instance.setNotes(BrValidations.trimToNull(dto.observacao()));
         instance.setOperationalStatus(ItemInstanceStatus.DISPONIVEL);
 
-        validarIdentificacao(instance);
+        validateIdentification(instance);
 
         ItemInstance instanciaSalva = instanciaItemRepository.save(instance);
 
@@ -86,7 +86,7 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
         movimentacao.setDestinationLocation(instanciaSalva.getCurrentLocation());
         movimentacao.setNotes(BrValidations.trimToNull(dto.observacao()));
 
-        return ItemMovementMapper.toResponseDTO(salvar(movimentacao));
+        return ItemMovementMapper.toResponseDTO(save(movimentacao));
     }
 
     /**
@@ -99,7 +99,7 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
      *                                  has no current location, or if the reason is omitted
      */
     @Transactional
-    public ItemMovementResponseDTO registrarSaida(ItemOutputMovementCreateDTO dto) {
+    public ItemMovementResponseDTO registerOutbound(ItemOutputMovementCreateDTO dto) {
         ItemInstance instance = instanciaItemRepository.findById(dto.instanciaItemId())
                 .orElseThrow(() -> new IllegalArgumentException("Instance not found."));
         ItemInstanceRules.exigirDisponivelComLocal(
@@ -126,7 +126,7 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
         movimentacao.setReason(motivo);
         movimentacao.setNotes(BrValidations.trimToNull(dto.observacao()));
 
-        return ItemMovementMapper.toResponseDTO(salvar(movimentacao));
+        return ItemMovementMapper.toResponseDTO(save(movimentacao));
     }
 
     /**
@@ -140,7 +140,7 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
      *                                  the destination location is the same as the current location
      */
     @Transactional
-    public ItemMovementResponseDTO registrarTransferencia(ItemTransferMovementCreateDTO dto) {
+    public ItemMovementResponseDTO registerTransfer(ItemTransferMovementCreateDTO dto) {
         ItemInstance instance = instanciaItemRepository.findById(dto.instanciaItemId())
                 .orElseThrow(() -> new IllegalArgumentException("Instance not found."));
         ItemInstanceRules.exigirDisponivelComLocal(
@@ -151,7 +151,7 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
         );
 
         StorageLocation localOrigem = instance.getCurrentLocation();
-        StorageLocation localDestino = buscarLocalAtivo(dto.localDestinoId());
+        StorageLocation localDestino = findActiveLocation(dto.localDestinoId());
         if (localOrigem.getId().equals(localDestino.getId())) {
             throw new IllegalArgumentException("Destination location must be different from the current location.");
         }
@@ -167,10 +167,10 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
         movimentacao.setDestinationLocation(localDestino);
         movimentacao.setNotes(BrValidations.trimToNull(dto.observacao()));
 
-        return ItemMovementMapper.toResponseDTO(salvar(movimentacao));
+        return ItemMovementMapper.toResponseDTO(save(movimentacao));
     }
 
-    private MainItem buscarItemMestreAtivo(UUID itemMestreId) {
+    private MainItem findActiveMainItem(UUID itemMestreId) {
         MainItem mainItem = itemMestreRepository.findById(itemMestreId)
                 .orElseThrow(() -> new IllegalArgumentException("Main item not found."));
         if (!mainItem.isActive()) {
@@ -179,7 +179,7 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
         return mainItem;
     }
 
-    private StorageLocation buscarLocalAtivo(UUID localId) {
+    private StorageLocation findActiveLocation(UUID localId) {
         StorageLocation location = localArmazenamentoRepository.findById(localId)
                 .orElseThrow(() -> new IllegalArgumentException("Destination location not found."));
         if (!location.isActive()) {
@@ -188,7 +188,7 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
         return location;
     }
 
-    private void validarIdentificacao(ItemInstance instance) {
+    private void validateIdentification(ItemInstance instance) {
         if (instance.getIdentifier() == null && instance.getAssetTag() == null && instance.getSerialNumber() == null) {
             throw new IllegalArgumentException("Provide identifier, asset number or serial number for the instance.");
         }

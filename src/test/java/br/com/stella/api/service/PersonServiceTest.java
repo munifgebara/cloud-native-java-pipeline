@@ -48,7 +48,7 @@ class PessoaServiceTest {
             return pessoa;
         });
 
-        var resposta = service.criar(new PersonCreateDTO(
+        var resposta = service.create(new PersonCreateDTO(
                 "  Maria Silva  ",
                 "529.982.247-25",
                 " (11) 99999-9999 ",
@@ -85,7 +85,7 @@ class PessoaServiceTest {
     void deveImpedirPessoaComCpfCnpjDuplicado() {
         when(repository.existsByTaxId("52998224725")).thenReturn(true);
 
-        assertThatThrownBy(() -> service.criar(new PersonCreateDTO(
+        assertThatThrownBy(() -> service.create(new PersonCreateDTO(
                 "Maria Silva",
                 "529.982.247-25",
                 null,
@@ -112,7 +112,7 @@ class PessoaServiceTest {
 
         when(repository.findByActiveTrueAndNameContainingIgnoreCase("Maria")).thenReturn(List.of(pessoa));
 
-        assertThat(service.buscarPorNome("  ")).isEmpty();
-        assertThat(service.buscarPorNome(" Maria ")).hasSize(1);
+        assertThat(service.findByName("  ")).isEmpty();
+        assertThat(service.findByName(" Maria ")).hasSize(1);
     }
 }
