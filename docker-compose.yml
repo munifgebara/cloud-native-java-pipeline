@@ -2,7 +2,7 @@ name: stella
 
 services:
   postgres:
-    image: postgres:17.9-alpine
+    image: pgvector/pgvector:pg17
     container_name: stella-postgres
     environment:
       POSTGRES_USER: ${STELLA_POSTGRES_SUPERUSER:-postgres}

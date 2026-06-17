@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -192,6 +194,33 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<Map<String, Object>> handleInvalidRequest(Exception ex, HttpServletRequest request) {
         return response(HttpStatus.BAD_REQUEST, "Invalid request. Please check the submitted data.", ex, request, false);
+    }
+
+    /**
+     * Handles authorization denials (e.g., a method protected by {@code @PreAuthorize}).
+     * Returns {@code 403 Forbidden} instead of letting the denial fall through to the
+     * generic handler as a {@code 500}.
+     *
+     * @param ex      access denied exception (includes {@code AuthorizationDeniedException})
+     * @param request request that originated the error
+     * @return 403 response
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+        return response(HttpStatus.FORBIDDEN, "Access denied: insufficient permissions for this operation.", ex, request, false);
+    }
+
+    /**
+     * Handles requests to routes that do not exist.
+     * Returns {@code 404 Not Found} instead of a {@code 500}.
+     *
+     * @param ex      exception indicating no resource/route matched the request
+     * @param request request that originated the error
+     * @return 404 response
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNoResourceFound(NoResourceFoundException ex, HttpServletRequest request) {
+        return response(HttpStatus.NOT_FOUND, "Resource not found.", ex, request, false);
     }
 
     /**
