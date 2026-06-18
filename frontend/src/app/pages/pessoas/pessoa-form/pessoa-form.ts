@@ -9,7 +9,7 @@ import { catchError, debounceTime, distinctUntilChanged, filter, map, of, switch
 import { CepService } from '../../../core/cep/cep';
 import { mensagemErroHttp } from '../../../core/http-error';
 import { I18nService, TranslatePipe, TranslationKey } from '../../../core/i18n/i18n';
-import { PessoaResponse, PessoaRevisao, PessoaService } from '../../../core/pessoa/pessoa';
+import { PersonResponse, PersonRevisao, PersonService } from '../../../core/pessoa/pessoa';
 import {
   somenteDigitos,
   validarCep,
@@ -46,14 +46,14 @@ function cepValidator(control: AbstractControl): ValidationErrors | null {
   templateUrl: './pessoa-form.html',
   styleUrl: './pessoa-form.css',
 })
-export class PessoaFormComponent implements OnInit {
+export class PersonFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly cepService = inject(CepService);
   private readonly i18n = inject(I18nService);
-  private readonly pessoaService = inject(PessoaService);
+  private readonly pessoaService = inject(PersonService);
 
   id = signal<string | null>(null);
   loading = signal(false);
@@ -61,8 +61,8 @@ export class PessoaFormComponent implements OnInit {
   errorMessage = signal('');
   cepMessage = signal('');
   buscandoCep = signal(false);
-  pessoa = signal<PessoaResponse | null>(null);
-  revisoes = signal<PessoaRevisao[]>([]);
+  pessoa = signal<PersonResponse | null>(null);
+  revisoes = signal<PersonRevisao[]>([]);
   carregandoRevisoes = signal(false);
   revisoesError = signal('');
   private ultimoCepConsultado: string | null = null;
@@ -128,7 +128,7 @@ export class PessoaFormComponent implements OnInit {
     });
   }
 
-  salvar(): void {
+  save(): void {
     this.errorMessage.set('');
     this.form.markAllAsTouched();
 
@@ -155,7 +155,7 @@ export class PessoaFormComponent implements OnInit {
         uf: this.upperOrNull(valor.uf),
       };
 
-      this.pessoaService.atualizar(this.id()!, payload).subscribe({
+      this.pessoaService.update(this.id()!, payload).subscribe({
         next: () => {
           this.salvando.set(false);
           this.router.navigate(['/pessoas']);
@@ -211,11 +211,11 @@ export class PessoaFormComponent implements OnInit {
     }).format(new Date(value));
   }
 
-  rotuloTipoRevisao(type: PessoaRevisao['type']): string {
+  rotuloTipoRevisao(type: PersonRevisao['type']): string {
     return this.i18n.translate(`people.audit.type.${type}` as TranslationKey);
   }
 
-  campoAlterado(revisao: PessoaRevisao, campo: string): boolean {
+  campoAlterado(revisao: PersonRevisao, campo: string): boolean {
     return revisao.changedFields.includes(campo);
   }
 

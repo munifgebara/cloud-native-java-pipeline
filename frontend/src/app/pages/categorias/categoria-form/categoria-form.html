@@ -40,7 +40,7 @@
               [outlined]="form.controls.icone.value !== null"
               [label]="'categories.icons.none' | translate"
               icon="pi pi-ban"
-              (click)="selecionarIcone(null)">
+              (click)="selecionarIcon(null)">
             </button>
 
             @for (icone of icones; track icone.key) {
@@ -51,7 +51,7 @@
                 [outlined]="form.controls.icone.value !== icone.key"
                 [label]="icone.labelKey | translate"
                 [icon]="icone.iconClass"
-                (click)="selecionarIcone(icone.key)">
+                (click)="selecionarIcon(icone.key)">
               </button>
             }
           </div>
@@ -70,7 +70,7 @@
             type="button"
             [label]="'common.save' | translate"
             icon="pi pi-save"
-            (click)="salvar()"
+            (click)="save()"
             [loading]="salvando()">
           </button>
         </div>

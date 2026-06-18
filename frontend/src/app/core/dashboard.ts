@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-export interface DashboardResumo {
+export interface DashboardSummary {
   peopleCount: number;
   mainItemCount: number;
   instanceCount: number;
@@ -14,7 +14,7 @@ export interface DashboardResumo {
   quantidadeItensCadastradosPorIa: number;
   quantidadeConsultasVetoriais: number;
   locaisComMaisItens: DashboardLocalQuantidade[];
-  categoriasComMaisItens: DashboardCategoriaQuantidade[];
+  categoriasComMaisItens: DashboardCategoryQuantidade[];
 }
 
 export interface DashboardLocalQuantidade {
@@ -23,7 +23,7 @@ export interface DashboardLocalQuantidade {
   instanceCount: number;
 }
 
-export interface DashboardCategoriaQuantidade {
+export interface DashboardCategoryQuantidade {
   id: string;
   name: string;
   quantidadeItens: number;
@@ -36,7 +36,7 @@ export class DashboardService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/dashboard`;
 
-  carregarResumo(): Observable<DashboardResumo> {
-    return this.http.get<DashboardResumo>(`${this.baseUrl}/summary`);
+  carregarSummary(): Observable<DashboardSummary> {
+    return this.http.get<DashboardSummary>(`${this.baseUrl}/summary`);
   }
 }

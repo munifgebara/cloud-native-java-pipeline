@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
-import { MeuPerfil, UsuarioService } from '../../core/usuario/usuario';
+import { MeuPerfil, UserService } from '../../core/usuario/usuario';
 import { mensagemErroHttp } from '../../core/http-error';
 import { I18nService, TranslatePipe } from '../../core/i18n/i18n';
 
@@ -16,7 +16,7 @@ import { I18nService, TranslatePipe } from '../../core/i18n/i18n';
 })
 export class PerfilComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly usuarioService = inject(UsuarioService);
+  private readonly usuarioService = inject(UserService);
   private readonly i18n = inject(I18nService);
 
   perfil = signal<MeuPerfil | null>(null);
@@ -38,10 +38,10 @@ export class PerfilComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.carregar();
+    this.load();
   }
 
-  carregar(): void {
+  load(): void {
     this.loading.set(true);
     this.errorMessage.set('');
 

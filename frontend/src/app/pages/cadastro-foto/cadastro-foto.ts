@@ -9,12 +9,12 @@ import { TagModule } from 'primeng/tag';
 import { forkJoin, of, switchMap } from 'rxjs';
 import { IMAGE_CONTENT_TYPES, imageFileFromPaste } from '../../core/image/image-clipboard';
 import { mensagemErroHttp } from '../../core/http-error';
-import { CadastroFotoIaService, CadastroFotoItemSugestao } from '../../core/ia/cadastro-foto';
-import { CategoriaResumo, CategoriaService } from '../../core/categoria/categoria';
-import { InstanciaItemService } from '../../core/instancia-item/instancia-item';
-import { ItemMestreResponse, ItemMestreService } from '../../core/item-mestre/item-mestre';
+import { PhotoUploadAiService, PhotoUploadItemSuggestion } from '../../core/ia/cadastro-foto';
+import { CategorySummary, CategoryService } from '../../core/categoria/categoria';
+import { ItemInstanceService } from '../../core/instancia-item/instancia-item';
+import { MainItemResponse, MainItemService } from '../../core/item-mestre/item-mestre';
 import { I18nService, TranslatePipe } from '../../core/i18n/i18n';
-import { LocalResumo, LocalService } from '../../core/local/local';
+import { LocationSummary, LocationService } from '../../core/local/local';
 import { StellaAiPanelComponent } from '../../shared/design-system/stella-ai-panel/stella-ai-panel';
 import { StellaEmptyStateComponent } from '../../shared/design-system/stella-empty-state/stella-empty-state';
 import { StellaPageHeaderComponent } from '../../shared/design-system/stella-page-header/stella-page-header';
@@ -73,20 +73,20 @@ type ItemRevisao = {
   templateUrl: './cadastro-foto.html',
   styleUrl: './cadastro-foto.css',
 })
-export class CadastroFotoComponent implements OnInit {
-  private readonly iaService = inject(CadastroFotoIaService);
-  private readonly categoriaService = inject(CategoriaService);
-  private readonly localService = inject(LocalService);
-  private readonly itemMestreService = inject(ItemMestreService);
-  private readonly instanciaService = inject(InstanciaItemService);
+export class PhotoUploadComponent implements OnInit {
+  private readonly iaService = inject(PhotoUploadAiService);
+  private readonly categoriaService = inject(CategoryService);
+  private readonly localService = inject(LocationService);
+  private readonly itemMestreService = inject(MainItemService);
+  private readonly instanciaService = inject(ItemInstanceService);
   private readonly router = inject(Router);
   private readonly i18n = inject(I18nService);
 
   arquivo = signal<File | null>(null);
   previewUrl = signal<string | null>(null);
   itens = signal<ItemRevisao[]>([]);
-  categorias = signal<CategoriaResumo[]>([]);
-  locais = signal<LocalResumo[]>([]);
+  categorias = signal<CategorySummary[]>([]);
+  locais = signal<LocationSummary[]>([]);
   localPadraoId = '';
   analisando = signal(false);
   cadastrando = signal(false);
@@ -110,7 +110,7 @@ export class CadastroFotoComponent implements OnInit {
     const file = input.files?.[0] ?? null;
 
     if (!file) {
-      this.limparImagemSelecionada();
+      this.limparImageSelecionada();
       this.errorMessage.set('');
       this.successMessage.set('');
       return;
@@ -230,7 +230,7 @@ export class CadastroFotoComponent implements OnInit {
     return item.instancias.filter((instancia) => instancia.aprovada).length;
   }
 
-  localPadraoResumo(): string {
+  localPadraoSummary(): string {
     if (!this.localPadraoId) {
       return this.i18n.translate('photoRegistration.noDefaultLocation');
     }
@@ -251,11 +251,11 @@ export class CadastroFotoComponent implements OnInit {
       active: true,
     }).pipe(
       switchMap((salvo) => {
-        const itemComImagem$ = arquivo
-          ? this.itemMestreService.atualizarImagemPrincipal(salvo.id, arquivo)
+        const itemComImage$ = arquivo
+          ? this.itemMestreService.atualizarImagePrincipal(salvo.id, arquivo)
           : of(salvo);
 
-        return itemComImagem$.pipe(
+        return itemComImage$.pipe(
           switchMap((itemSalvo) => {
             const instancias = this.instanciasAprovadas(item, itemSalvo);
             if (!instancias.length) {
@@ -282,14 +282,14 @@ export class CadastroFotoComponent implements OnInit {
       return false;
     }
 
-    this.limparImagemSelecionada();
+    this.limparImageSelecionada();
     this.arquivo.set(file);
     this.previewUrl.set(URL.createObjectURL(file));
     this.itens.set([]);
     return true;
   }
 
-  private limparImagemSelecionada(): void {
+  private limparImageSelecionada(): void {
     if (this.previewUrl()) {
       URL.revokeObjectURL(this.previewUrl()!);
     }
@@ -299,7 +299,7 @@ export class CadastroFotoComponent implements OnInit {
     this.itens.set([]);
   }
 
-  private instanciasAprovadas(item: ItemRevisao, salvo: ItemMestreResponse) {
+  private instanciasAprovadas(item: ItemRevisao, salvo: MainItemResponse) {
     return item.instancias
       .filter((instancia) => instancia.aprovada)
       .map((instancia, index) => ({
@@ -315,7 +315,7 @@ export class CadastroFotoComponent implements OnInit {
       }));
   }
 
-  private toRevisao(item: CadastroFotoItemSugestao): ItemRevisao {
+  private toRevisao(item: PhotoUploadItemSuggestion): ItemRevisao {
     const quantidade = Math.max(1, item.quantidade ?? item.instancias?.length ?? 1);
     const instanciasFonte = item.instancias?.length ? item.instancias : Array.from({ length: quantidade }, () => ({
       identifier: null,
@@ -377,7 +377,7 @@ export class CadastroFotoComponent implements OnInit {
       item.source ? `Fonte da identificação: ${item.source}` : '',
       item.identificationVerified != null ? `Identificação verificada: ${item.identificationVerified ? 'sim' : 'não'}` : '',
       item.condition ? `Estado sugerido: ${item.condition}` : '',
-      item.categoriaSugerida ? `Categoria sugerida pela IA: ${item.categoriaSugerida}` : '',
+      item.categoriaSugerida ? `Category sugerida pela IA: ${item.categoriaSugerida}` : '',
     ]);
   }
 

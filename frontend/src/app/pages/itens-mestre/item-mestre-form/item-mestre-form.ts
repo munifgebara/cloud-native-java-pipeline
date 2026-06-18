@@ -9,12 +9,12 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { DialogModule } from 'primeng/dialog';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { CategoriaResumo, CategoriaService } from '../../../core/categoria/categoria';
+import { CategorySummary, CategoryService } from '../../../core/categoria/categoria';
 import { IMAGE_CONTENT_TYPES, imageFileFromPaste } from '../../../core/image/image-clipboard';
 import { mensagemErroHttp } from '../../../core/http-error';
-import { ItemMestreService } from '../../../core/item-mestre/item-mestre';
-import { InstanciaItemResumo, InstanciaItemService, StatusOperacionalInstancia } from '../../../core/instancia-item/instancia-item';
-import { LocalResumo, LocalService } from '../../../core/local/local';
+import { MainItemService } from '../../../core/item-mestre/item-mestre';
+import { ItemInstanceSummary, ItemInstanceService, StatusOperacionalInstancia } from '../../../core/instancia-item/instancia-item';
+import { LocationSummary, LocationService } from '../../../core/local/local';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
@@ -26,18 +26,18 @@ const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
   templateUrl: './item-mestre-form.html',
   styleUrl: './item-mestre-form.css',
 })
-export class ItemMestreFormComponent implements OnInit {
+export class MainItemFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly i18n = inject(I18nService);
-  private readonly itemMestreService = inject(ItemMestreService);
-  private readonly categoriaService = inject(CategoriaService);
-  private readonly instanciaItemService = inject(InstanciaItemService);
-  private readonly localService = inject(LocalService);
+  private readonly itemMestreService = inject(MainItemService);
+  private readonly categoriaService = inject(CategoryService);
+  private readonly instanciaItemService = inject(ItemInstanceService);
+  private readonly localService = inject(LocationService);
 
   id = signal<string | null>(null);
-  categorias = signal<CategoriaResumo[]>([]);
+  categorias = signal<CategorySummary[]>([]);
   loading = signal(false);
   salvando = signal(false);
   errorMessage = signal('');
@@ -48,12 +48,12 @@ export class ItemMestreFormComponent implements OnInit {
   imagemSelecionadaProvider = signal<string | null>(null);
   imagemIaPreviewUrl = signal<string | null>(null);
   imagemIaProvider = signal<string | null>(null);
-  gerandoImagemIa = signal(false);
+  gerandoImageIa = signal(false);
 
   // Instâncias do item
-  instancias = signal<InstanciaItemResumo[]>([]);
+  instancias = signal<ItemInstanceSummary[]>([]);
   carregandoInstancias = signal(false);
-  locais = signal<LocalResumo[]>([]);
+  locais = signal<LocationSummary[]>([]);
   dialogInstancia = signal(false);
   salvandoInstancia = signal(false);
   instanciaError = signal('');
@@ -76,7 +76,7 @@ export class ItemMestreFormComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     this.id.set(id);
-    this.carregarCategorias();
+    this.carregarCategories();
 
     if (!id) {
       return;
@@ -106,7 +106,7 @@ export class ItemMestreFormComponent implements OnInit {
     this.carregarLocais();
   }
 
-  salvar(): void {
+  save(): void {
     this.errorMessage.set('');
     this.form.markAllAsTouched();
 
@@ -127,8 +127,8 @@ export class ItemMestreFormComponent implements OnInit {
     };
 
     if (this.edicao()) {
-      this.itemMestreService.atualizar(this.id()!, payload).subscribe({
-        next: (item) => this.enviarImagemSeNecessario(item.id),
+      this.itemMestreService.update(this.id()!, payload).subscribe({
+        next: (item) => this.enviarImageSeNecessario(item.id),
         error: (err) => {
           this.salvando.set(false);
           this.errorMessage.set(this.extractError(err, this.i18n.translate('masterItems.form.updateError')));
@@ -139,7 +139,7 @@ export class ItemMestreFormComponent implements OnInit {
     }
 
     this.itemMestreService.criar(payload).subscribe({
-      next: (item) => this.enviarImagemSeNecessario(item.id),
+      next: (item) => this.enviarImageSeNecessario(item.id),
       error: (err) => {
         this.salvando.set(false);
         this.errorMessage.set(this.extractError(err, this.i18n.translate('masterItems.form.createError')));
@@ -203,7 +203,7 @@ export class ItemMestreFormComponent implements OnInit {
     });
   }
 
-  instanciaLabel(instancia: InstanciaItemResumo): string {
+  instanciaLabel(instancia: ItemInstanceSummary): string {
     return instancia.identifier || instancia.assetTag || instancia.serialNumber || '-';
   }
 
@@ -218,13 +218,13 @@ export class ItemMestreFormComponent implements OnInit {
     return map[status];
   }
 
-  locaisAtivos(): LocalResumo[] {
+  locaisAtivos(): LocationSummary[] {
     return this.locais().filter(l => l.active);
   }
 
-  // ── Imagem ──────────────────────────────────────────────────────────────────
+  // ── Image ──────────────────────────────────────────────────────────────────
 
-  selecionarImagem(event: Event): void {
+  selecionarImage(event: Event): void {
     this.errorMessage.set('');
     const input = event.target as HTMLInputElement;
     const arquivo = input.files?.[0] ?? null;
@@ -237,13 +237,13 @@ export class ItemMestreFormComponent implements OnInit {
       return;
     }
 
-    if (!this.aplicarImagemSelecionada(arquivo)) {
+    if (!this.aplicarImageSelecionada(arquivo)) {
       input.value = '';
       return;
     }
   }
 
-  colarImagem(event: ClipboardEvent): void {
+  colarImage(event: ClipboardEvent): void {
     this.errorMessage.set('');
     const result = imageFileFromPaste(event, MAX_IMAGE_SIZE_BYTES);
 
@@ -258,10 +258,10 @@ export class ItemMestreFormComponent implements OnInit {
       return;
     }
 
-    this.aplicarImagemSelecionada(result.file);
+    this.aplicarImageSelecionada(result.file);
   }
 
-  private aplicarImagemSelecionada(arquivo: File): boolean {
+  private aplicarImageSelecionada(arquivo: File): boolean {
     if (!IMAGE_CONTENT_TYPES.includes(arquivo.type as (typeof IMAGE_CONTENT_TYPES)[number])) {
       this.errorMessage.set(this.i18n.translate('masterItems.form.imageInvalidType'));
       return false;
@@ -280,7 +280,7 @@ export class ItemMestreFormComponent implements OnInit {
     this.imagemSelecionadaGeradaPorIa.set(false);
     this.imagemSelecionadaProvider.set(null);
     this.imagemPreviewUrl.set(URL.createObjectURL(arquivo));
-    this.limparImagemIaGerada();
+    this.limparImageIaGerada();
     return true;
   }
 
@@ -289,7 +289,7 @@ export class ItemMestreFormComponent implements OnInit {
     return !!campo && campo.invalid && (campo.touched || campo.dirty);
   }
 
-  gerarImagemIa(): void {
+  gerarImageIa(): void {
     this.errorMessage.set('');
     const valor = this.form.getRawValue();
     const name = this.nullIfBlank(valor.name);
@@ -299,8 +299,8 @@ export class ItemMestreFormComponent implements OnInit {
       return;
     }
 
-    this.gerandoImagemIa.set(true);
-    this.itemMestreService.gerarImagemIa({
+    this.gerandoImageIa.set(true);
+    this.itemMestreService.gerarImageIa({
       name,
       categoria: this.categoriaSelecionadaNome(valor.categoryId),
       description: this.nullIfBlank(valor.description),
@@ -308,16 +308,16 @@ export class ItemMestreFormComponent implements OnInit {
       next: (imagem) => {
         this.imagemIaPreviewUrl.set(imagem.dataUrl);
         this.imagemIaProvider.set(imagem.provider);
-        this.gerandoImagemIa.set(false);
+        this.gerandoImageIa.set(false);
       },
       error: (err) => {
-        this.gerandoImagemIa.set(false);
+        this.gerandoImageIa.set(false);
         this.errorMessage.set(this.extractError(err, this.i18n.translate('masterItems.form.aiImageError')));
       },
     });
   }
 
-  aceitarImagemIa(): void {
+  aceitarImageIa(): void {
     const dataUrl = this.imagemIaPreviewUrl();
     if (!dataUrl) {
       return;
@@ -328,16 +328,16 @@ export class ItemMestreFormComponent implements OnInit {
     this.imagemSelecionadaGeradaPorIa.set(true);
     this.imagemSelecionadaProvider.set(this.imagemIaProvider());
     this.imagemPreviewUrl.set(dataUrl);
-    this.limparImagemIaGerada();
+    this.limparImageIaGerada();
   }
 
-  cancelarImagemIa(): void {
-    this.limparImagemIaGerada();
+  cancelarImageIa(): void {
+    this.limparImageIaGerada();
   }
 
   // ── Privados ────────────────────────────────────────────────────────────────
 
-  private carregarCategorias(): void {
+  private carregarCategories(): void {
     this.categoriaService.listar().subscribe({
       next: (categorias) => this.categorias.set(categorias),
       error: () => this.errorMessage.set(this.i18n.translate('masterItems.form.categoryLoadError')),
@@ -367,7 +367,7 @@ export class ItemMestreFormComponent implements OnInit {
     });
   }
 
-  private enviarImagemSeNecessario(itemId: string): void {
+  private enviarImageSeNecessario(itemId: string): void {
     const imagem = this.imagemSelecionada();
 
     if (!imagem) {
@@ -376,7 +376,7 @@ export class ItemMestreFormComponent implements OnInit {
       return;
     }
 
-    this.itemMestreService.atualizarImagemPrincipal(
+    this.itemMestreService.atualizarImagePrincipal(
       itemId,
       imagem,
       this.imagemSelecionadaGeradaPorIa(),
@@ -406,7 +406,7 @@ export class ItemMestreFormComponent implements OnInit {
     return this.categorias().find((categoria) => categoria.id === categoryId)?.name ?? null;
   }
 
-  private limparImagemIaGerada(): void {
+  private limparImageIaGerada(): void {
     this.imagemIaPreviewUrl.set(null);
     this.imagemIaProvider.set(null);
   }

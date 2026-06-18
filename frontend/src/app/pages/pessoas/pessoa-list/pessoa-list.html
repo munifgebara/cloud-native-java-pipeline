@@ -12,7 +12,7 @@
       type="button"
       [label]="'common.new' | translate"
       icon="pi pi-plus"
-      (click)="novo()">
+      (click)="create()">
     </button>
   </div>
 
@@ -20,16 +20,16 @@
     <input
       pInputText
       type="text"
-      [(ngModel)]="filtroNome"
+      [(ngModel)]="nameFilter"
       [placeholder]="'people.searchByName' | translate"
-      (keyup.enter)="pesquisar()" />
+      (keyup.enter)="search()" />
 
     <button
       pButton
       type="button"
       [label]="'common.search' | translate"
       icon="pi pi-search"
-      (click)="pesquisar()">
+      (click)="search()">
     </button>
 
     <button
@@ -38,7 +38,7 @@
       severity="secondary"
       [label]="'common.clear' | translate"
       icon="pi pi-times"
-      (click)="filtroNome=''; carregar()">
+      (click)="nameFilter=''; load()">
     </button>
   </div>
 
@@ -72,7 +72,7 @@
               text
               icon="pi pi-pencil"
               [label]="'common.edit' | translate"
-              [routerLink]="['/pessoas', pessoa.id, 'editar']">
+              [routerLink]="['/pessoas', pessoa.id, 'edit']">
             </button>
 
             <button
@@ -84,7 +84,7 @@
               [label]="'people.delete' | translate"
               [loading]="deletingId() === pessoa.id"
               [disabled]="loading() || deletingId() !== null"
-              (click)="confirmarExclusao(pessoa)">
+              (click)="confirmDelete(pessoa)">
             </button>
           </div>
         </td>

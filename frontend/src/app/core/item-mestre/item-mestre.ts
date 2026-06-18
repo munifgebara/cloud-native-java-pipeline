@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
-export interface ItemMestreResumo {
+export interface MainItemSummary {
   id: string;
   name: string;
   description: string | null;
@@ -15,7 +15,7 @@ export interface ItemMestreResumo {
   active: boolean;
 }
 
-export interface ConsultaSemanticaInstancia {
+export interface SemanticSearchInstance {
   id: string;
   identifier: string | null;
   assetTag: string | null;
@@ -25,13 +25,13 @@ export interface ConsultaSemanticaInstancia {
   currentLocationName: string | null;
 }
 
-export interface ConsultaSemanticaLocal {
+export interface SemanticSearchLocation {
   id: string;
   name: string;
   quantidade: number;
 }
 
-export interface ConsultaSemanticaItem {
+export interface SemanticSearchItem {
   mainItemId: string;
   name: string;
   description: string | null;
@@ -39,11 +39,11 @@ export interface ConsultaSemanticaItem {
   categoryIcon: string | null;
   imageUrl: string | null;
   similaridade: number;
-  instancias: ConsultaSemanticaInstancia[];
-  probableLocations: ConsultaSemanticaLocal[];
+  instancias: SemanticSearchInstance[];
+  probableLocations: SemanticSearchLocation[];
 }
 
-export interface ItemMestreResponse {
+export interface MainItemResponse {
   id: string;
   name: string;
   description: string | null;
@@ -60,7 +60,7 @@ export interface ItemMestreResponse {
   active: boolean;
 }
 
-export interface ItemMestreCreateRequest {
+export interface MainItemCreateRequest {
   name: string;
   description?: string | null;
   notes?: string | null;
@@ -69,7 +69,7 @@ export interface ItemMestreCreateRequest {
   active?: boolean | null;
 }
 
-export interface ItemMestreUpdateRequest {
+export interface MainItemUpdateRequest {
   name: string;
   description?: string | null;
   notes?: string | null;
@@ -78,13 +78,13 @@ export interface ItemMestreUpdateRequest {
   active?: boolean | null;
 }
 
-export interface ImagemIaRequest {
+export interface ImageAiRequest {
   name: string;
   categoria?: string | null;
   description?: string | null;
 }
 
-export interface ImagemIaResponse {
+export interface ImageAiResponse {
   dataUrl: string;
   contentType: string;
   provider: string;
@@ -93,23 +93,23 @@ export interface ImagemIaResponse {
 @Injectable({
   providedIn: 'root',
 })
-export class ItemMestreService {
+export class MainItemService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/main-items`;
 
-  listar(): Observable<ItemMestreResumo[]> {
-    return this.http.get<ItemMestreResumo[]>(this.baseUrl).pipe(
+  listar(): Observable<MainItemSummary[]> {
+    return this.http.get<MainItemSummary[]>(this.baseUrl).pipe(
       map((itens) => itens.map((item) => this.withAbsoluteImageUrl(item)))
     );
   }
 
-  buscarPorNome(name: string): Observable<ItemMestreResumo[]> {
-    return this.http.get<ItemMestreResumo[]>(`${this.baseUrl}/search`, {
+  buscarPorNome(name: string): Observable<MainItemSummary[]> {
+    return this.http.get<MainItemSummary[]>(`${this.baseUrl}/search`, {
       params: { name },
     }).pipe(map((itens) => itens.map((item) => this.withAbsoluteImageUrl(item))));
   }
 
-  filtrar(name?: string | null, categoryId?: string | null): Observable<ItemMestreResumo[]> {
+  filtrar(name?: string | null, categoryId?: string | null): Observable<MainItemSummary[]> {
     const params: Record<string, string> = {};
     const nomeTratado = (name ?? '').trim();
 
@@ -121,40 +121,40 @@ export class ItemMestreService {
       params['categoryId'] = categoryId;
     }
 
-    return this.http.get<ItemMestreResumo[]>(`${this.baseUrl}/filter`, { params }).pipe(
+    return this.http.get<MainItemSummary[]>(`${this.baseUrl}/filter`, { params }).pipe(
       map((itens) => itens.map((item) => this.withAbsoluteImageUrl(item)))
     );
   }
 
-  buscarSemanticamente(query: string): Observable<ConsultaSemanticaItem[]> {
-    return this.http.get<ConsultaSemanticaItem[]>(`${this.baseUrl}/semantic-search`, {
+  buscarSemanticamente(query: string): Observable<SemanticSearchItem[]> {
+    return this.http.get<SemanticSearchItem[]>(`${this.baseUrl}/semantic-search`, {
       params: { query },
     }).pipe(map((itens) => itens.map((item) => this.withAbsoluteImageUrl(item))));
   }
 
-  buscarPorId(id: string): Observable<ItemMestreResponse> {
-    return this.http.get<ItemMestreResponse>(`${this.baseUrl}/${id}`).pipe(
+  buscarPorId(id: string): Observable<MainItemResponse> {
+    return this.http.get<MainItemResponse>(`${this.baseUrl}/${id}`).pipe(
       map((item) => this.withAbsoluteImageUrl(item))
     );
   }
 
-  criar(payload: ItemMestreCreateRequest): Observable<ItemMestreResponse> {
-    return this.http.post<ItemMestreResponse>(this.baseUrl, payload).pipe(
+  criar(payload: MainItemCreateRequest): Observable<MainItemResponse> {
+    return this.http.post<MainItemResponse>(this.baseUrl, payload).pipe(
       map((item) => this.withAbsoluteImageUrl(item))
     );
   }
 
-  atualizar(id: string, payload: ItemMestreUpdateRequest): Observable<ItemMestreResponse> {
-    return this.http.put<ItemMestreResponse>(`${this.baseUrl}/${id}`, payload).pipe(
+  update(id: string, payload: MainItemUpdateRequest): Observable<MainItemResponse> {
+    return this.http.put<MainItemResponse>(`${this.baseUrl}/${id}`, payload).pipe(
       map((item) => this.withAbsoluteImageUrl(item))
     );
   }
 
-  gerarImagemIa(payload: ImagemIaRequest): Observable<ImagemIaResponse> {
-    return this.http.post<ImagemIaResponse>(`${this.baseUrl}/image-ai`, payload);
+  gerarImageIa(payload: ImageAiRequest): Observable<ImageAiResponse> {
+    return this.http.post<ImageAiResponse>(`${this.baseUrl}/image-ai`, payload);
   }
 
-  atualizarImagemPrincipal(id: string, arquivo: File, generatedByAi = false, provider?: string | null): Observable<ItemMestreResponse> {
+  atualizarImagePrincipal(id: string, arquivo: File, generatedByAi = false, provider?: string | null): Observable<MainItemResponse> {
     const formData = new FormData();
     formData.append('arquivo', arquivo);
     formData.append('generatedByAi', String(generatedByAi));
@@ -162,12 +162,12 @@ export class ItemMestreService {
       formData.append('provider', provider);
     }
 
-    return this.http.post<ItemMestreResponse>(`${this.baseUrl}/${id}/main-image`, formData).pipe(
+    return this.http.post<MainItemResponse>(`${this.baseUrl}/${id}/main-image`, formData).pipe(
       map((item) => this.withAbsoluteImageUrl(item))
     );
   }
 
-  excluir(id: string): Observable<void> {
+  delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 

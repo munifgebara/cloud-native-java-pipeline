@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-export interface Usuario {
+export interface User {
   id: string;
   username: string;
   firstName: string | null;
@@ -23,7 +23,7 @@ export interface MeuPerfil {
   alteracaoSenhaUrl: string;
 }
 
-export interface UsuarioCreateRequest {
+export interface UserCreateRequest {
   username: string;
   firstName?: string | null;
   lastName?: string | null;
@@ -33,7 +33,7 @@ export interface UsuarioCreateRequest {
   roles: string[];
 }
 
-export interface UsuarioUpdateRequest {
+export interface UserUpdateRequest {
   firstName?: string | null;
   lastName?: string | null;
   email?: string | null;
@@ -55,24 +55,24 @@ export interface AlterarSenhaRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class UsuarioService {
+export class UserService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/users`;
 
-  listar(): Observable<Usuario[]> {
-    return this.http.get<Usuario[]>(this.baseUrl);
+  listar(): Observable<User[]> {
+    return this.http.get<User[]>(this.baseUrl);
   }
 
-  buscarPorId(id: string): Observable<Usuario> {
-    return this.http.get<Usuario>(`${this.baseUrl}/${id}`);
+  buscarPorId(id: string): Observable<User> {
+    return this.http.get<User>(`${this.baseUrl}/${id}`);
   }
 
-  criar(payload: UsuarioCreateRequest): Observable<Usuario> {
-    return this.http.post<Usuario>(this.baseUrl, payload);
+  criar(payload: UserCreateRequest): Observable<User> {
+    return this.http.post<User>(this.baseUrl, payload);
   }
 
-  atualizar(id: string, payload: UsuarioUpdateRequest): Observable<Usuario> {
-    return this.http.put<Usuario>(`${this.baseUrl}/${id}`, payload);
+  update(id: string, payload: UserUpdateRequest): Observable<User> {
+    return this.http.put<User>(`${this.baseUrl}/${id}`, payload);
   }
 
   alterarStatus(id: string, enabled: boolean): Observable<void> {

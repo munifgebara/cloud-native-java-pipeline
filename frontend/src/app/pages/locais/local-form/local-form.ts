@@ -8,7 +8,7 @@ import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
 import { IMAGE_CONTENT_TYPES, imageFileFromPaste } from '../../../core/image/image-clipboard';
 import { mensagemErroHttp } from '../../../core/http-error';
-import { LocalResumo, LocalService } from '../../../core/local/local';
+import { LocationSummary, LocationService } from '../../../core/local/local';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
@@ -20,22 +20,22 @@ const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
   templateUrl: './local-form.html',
   styleUrl: './local-form.css',
 })
-export class LocalFormComponent implements OnInit {
+export class LocationFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly i18n = inject(I18nService);
-  private readonly localService = inject(LocalService);
+  private readonly localService = inject(LocationService);
 
   id = signal<string | null>(null);
-  locaisPai = signal<LocalResumo[]>([]);
+  locaisPai = signal<LocationSummary[]>([]);
   loading = signal(false);
   salvando = signal(false);
   errorMessage = signal('');
   imagemAtualUrl = signal<string | null>(null);
   imagemPreviewUrl = signal<string | null>(null);
   imagemSelecionada = signal<File | null>(null);
-  removendoImagem = signal(false);
+  removendoImage = signal(false);
 
   readonly edicao = computed(() => !!this.id());
   readonly opcoesPai = computed(() => this.locaisPai().filter((local) => local.id !== this.id()));
@@ -76,7 +76,7 @@ export class LocalFormComponent implements OnInit {
     });
   }
 
-  salvar(): void {
+  save(): void {
     this.errorMessage.set('');
     this.form.markAllAsTouched();
 
@@ -96,8 +96,8 @@ export class LocalFormComponent implements OnInit {
     };
 
     if (this.edicao()) {
-      this.localService.atualizar(this.id()!, payload).subscribe({
-        next: (local) => this.enviarImagemSeNecessario(local.id),
+      this.localService.update(this.id()!, payload).subscribe({
+        next: (local) => this.enviarImageSeNecessario(local.id),
         error: (err) => {
           this.salvando.set(false);
           this.errorMessage.set(this.extractError(err, this.i18n.translate('locations.form.updateError')));
@@ -108,7 +108,7 @@ export class LocalFormComponent implements OnInit {
     }
 
     this.localService.criar(payload).subscribe({
-      next: (local) => this.enviarImagemSeNecessario(local.id),
+      next: (local) => this.enviarImageSeNecessario(local.id),
       error: (err) => {
         this.salvando.set(false);
         this.errorMessage.set(this.extractError(err, this.i18n.translate('locations.form.createError')));
@@ -116,7 +116,7 @@ export class LocalFormComponent implements OnInit {
     });
   }
 
-  selecionarImagem(event: Event): void {
+  selecionarImage(event: Event): void {
     this.errorMessage.set('');
     const input = event.target as HTMLInputElement;
     const arquivo = input.files?.[0] ?? null;
@@ -127,13 +127,13 @@ export class LocalFormComponent implements OnInit {
       return;
     }
 
-    if (!this.aplicarImagemSelecionada(arquivo)) {
+    if (!this.aplicarImageSelecionada(arquivo)) {
       input.value = '';
       return;
     }
   }
 
-  colarImagem(event: ClipboardEvent): void {
+  colarImage(event: ClipboardEvent): void {
     this.errorMessage.set('');
     const result = imageFileFromPaste(event, MAX_IMAGE_SIZE_BYTES);
 
@@ -148,10 +148,10 @@ export class LocalFormComponent implements OnInit {
       return;
     }
 
-    this.aplicarImagemSelecionada(result.file);
+    this.aplicarImageSelecionada(result.file);
   }
 
-  private aplicarImagemSelecionada(arquivo: File): boolean {
+  private aplicarImageSelecionada(arquivo: File): boolean {
     if (!IMAGE_CONTENT_TYPES.includes(arquivo.type as (typeof IMAGE_CONTENT_TYPES)[number])) {
       this.errorMessage.set(this.i18n.translate('locations.form.imageInvalidType'));
       return false;
@@ -171,7 +171,7 @@ export class LocalFormComponent implements OnInit {
     return true;
   }
 
-  removerImagem(): void {
+  removerImage(): void {
     const id = this.id();
     if (!id || (!this.imagemAtualUrl() && !this.imagemSelecionada())) {
       this.imagemSelecionada.set(null);
@@ -180,17 +180,17 @@ export class LocalFormComponent implements OnInit {
     }
 
     this.errorMessage.set('');
-    this.removendoImagem.set(true);
+    this.removendoImage.set(true);
 
-    this.localService.removerImagem(id).subscribe({
+    this.localService.removerImage(id).subscribe({
       next: () => {
         this.imagemAtualUrl.set(null);
         this.imagemSelecionada.set(null);
         this.imagemPreviewUrl.set(null);
-        this.removendoImagem.set(false);
+        this.removendoImage.set(false);
       },
       error: (err) => {
-        this.removendoImagem.set(false);
+        this.removendoImage.set(false);
         this.errorMessage.set(this.extractError(err, this.i18n.translate('locations.form.imageRemoveError')));
       },
     });
@@ -208,7 +208,7 @@ export class LocalFormComponent implements OnInit {
     });
   }
 
-  private enviarImagemSeNecessario(localId: string): void {
+  private enviarImageSeNecessario(localId: string): void {
     const imagem = this.imagemSelecionada();
 
     if (!imagem) {
@@ -217,7 +217,7 @@ export class LocalFormComponent implements OnInit {
       return;
     }
 
-    this.localService.atualizarImagem(localId, imagem).subscribe({
+    this.localService.atualizarImage(localId, imagem).subscribe({
       next: () => {
         this.salvando.set(false);
         this.router.navigate(['/locais']);

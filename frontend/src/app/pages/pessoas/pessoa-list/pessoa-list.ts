@@ -6,7 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { PessoaResumo, PessoaService } from '../../../core/pessoa/pessoa';
+import { PersonSummary, PersonService } from '../../../core/pessoa/pessoa';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
 @Component({
@@ -16,23 +16,23 @@ import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
   providers: [ConfirmationService],
   templateUrl: './pessoa-list.html',
 })
-export class PessoaListComponent implements OnInit {
-  private readonly pessoaService = inject(PessoaService);
+export class PersonListComponent implements OnInit {
+  private readonly pessoaService = inject(PersonService);
   private readonly router = inject(Router);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly i18n = inject(I18nService);
 
-  pessoas = signal<PessoaResumo[]>([]);
+  pessoas = signal<PersonSummary[]>([]);
   loading = signal(false);
   deletingId = signal<string | null>(null);
   errorMessage = signal('');
-  filtroNome = '';
+  nameFilter = '';
 
   ngOnInit(): void {
-    this.carregar();
+    this.load();
   }
 
-  carregar(): void {
+  load(): void {
     this.loading.set(true);
     this.errorMessage.set('');
 
@@ -48,11 +48,11 @@ export class PessoaListComponent implements OnInit {
     });
   }
 
-  pesquisar(): void {
-    const name = this.filtroNome.trim();
+  search(): void {
+    const name = this.nameFilter.trim();
 
     if (!name) {
-      this.carregar();
+      this.load();
       return;
     }
 
@@ -71,11 +71,11 @@ export class PessoaListComponent implements OnInit {
     });
   }
 
-  novo(): void {
+  create(): void {
     this.router.navigate(['/pessoas/nova']);
   }
 
-  confirmarExclusao(pessoa: PessoaResumo): void {
+  confirmDelete(pessoa: PersonSummary): void {
     this.errorMessage.set('');
 
     this.confirmationService.confirm({
@@ -86,14 +86,14 @@ export class PessoaListComponent implements OnInit {
       acceptLabel: this.i18n.translate('people.delete'),
       rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
       acceptButtonStyleClass: 'p-button-danger',
-      accept: () => this.excluir(pessoa),
+      accept: () => this.delete(pessoa),
     });
   }
 
-  private excluir(pessoa: PessoaResumo): void {
+  private delete(pessoa: PersonSummary): void {
     this.deletingId.set(pessoa.id);
 
-    this.pessoaService.excluir(pessoa.id).subscribe({
+    this.pessoaService.delete(pessoa.id).subscribe({
       next: () => {
         this.pessoas.update((pessoas) => pessoas.filter((item) => item.id !== pessoa.id));
         this.deletingId.set(null);

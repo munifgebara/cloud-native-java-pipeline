@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { TranslationKey } from '../i18n/i18n';
 
-export interface CategoriaResumo {
+export interface CategorySummary {
   id: string;
   name: string;
   description: string | null;
@@ -12,7 +12,7 @@ export interface CategoriaResumo {
   active: boolean;
 }
 
-export interface CategoriaResponse {
+export interface CategoryResponse {
   id: string;
   name: string;
   description: string | null;
@@ -20,27 +20,27 @@ export interface CategoriaResponse {
   active: boolean;
 }
 
-export interface CategoriaCreateRequest {
+export interface CategoryCreateRequest {
   name: string;
   description?: string | null;
   icone?: string | null;
   active?: boolean | null;
 }
 
-export interface CategoriaUpdateRequest {
+export interface CategoryUpdateRequest {
   name: string;
   description?: string | null;
   icone?: string | null;
   active?: boolean | null;
 }
 
-export interface CategoriaIconeOption {
+export interface CategoryIconOption {
   key: string;
   labelKey: TranslationKey;
   iconClass: string;
 }
 
-export const CATEGORIA_ICONE_OPTIONS: CategoriaIconeOption[] = [
+export const CATEGORIA_ICONE_OPTIONS: CategoryIconOption[] = [
   { key: 'eletronicos', labelKey: 'categories.icons.eletronicos', iconClass: 'pi pi-desktop' },
   { key: 'moveis', labelKey: 'categories.icons.moveis', iconClass: 'pi pi-home' },
   { key: 'ferramentas', labelKey: 'categories.icons.ferramentas', iconClass: 'pi pi-wrench' },
@@ -59,33 +59,33 @@ export function categoriaIconClass(key: string | null | undefined): string {
 @Injectable({
   providedIn: 'root',
 })
-export class CategoriaService {
+export class CategoryService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/categories`;
 
-  listar(): Observable<CategoriaResumo[]> {
-    return this.http.get<CategoriaResumo[]>(this.baseUrl);
+  listar(): Observable<CategorySummary[]> {
+    return this.http.get<CategorySummary[]>(this.baseUrl);
   }
 
-  buscarPorNome(name: string): Observable<CategoriaResumo[]> {
-    return this.http.get<CategoriaResumo[]>(`${this.baseUrl}/search`, {
+  buscarPorNome(name: string): Observable<CategorySummary[]> {
+    return this.http.get<CategorySummary[]>(`${this.baseUrl}/search`, {
       params: { name },
     });
   }
 
-  buscarPorId(id: string): Observable<CategoriaResponse> {
-    return this.http.get<CategoriaResponse>(`${this.baseUrl}/${id}`);
+  buscarPorId(id: string): Observable<CategoryResponse> {
+    return this.http.get<CategoryResponse>(`${this.baseUrl}/${id}`);
   }
 
-  criar(payload: CategoriaCreateRequest): Observable<CategoriaResponse> {
-    return this.http.post<CategoriaResponse>(this.baseUrl, payload);
+  criar(payload: CategoryCreateRequest): Observable<CategoryResponse> {
+    return this.http.post<CategoryResponse>(this.baseUrl, payload);
   }
 
-  atualizar(id: string, payload: CategoriaUpdateRequest): Observable<CategoriaResponse> {
-    return this.http.put<CategoriaResponse>(`${this.baseUrl}/${id}`, payload);
+  update(id: string, payload: CategoryUpdateRequest): Observable<CategoryResponse> {
+    return this.http.put<CategoryResponse>(`${this.baseUrl}/${id}`, payload);
   }
 
-  excluir(id: string): Observable<void> {
+  delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 }

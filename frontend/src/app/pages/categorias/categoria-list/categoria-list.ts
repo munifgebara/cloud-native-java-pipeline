@@ -7,7 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { CategoriaResumo, CategoriaService, categoriaIconClass } from '../../../core/categoria/categoria';
+import { CategorySummary, CategoryService, categoriaIconClass } from '../../../core/categoria/categoria';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
 @Component({
@@ -17,23 +17,23 @@ import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
   providers: [ConfirmationService],
   templateUrl: './categoria-list.html',
 })
-export class CategoriaListComponent implements OnInit {
-  private readonly categoriaService = inject(CategoriaService);
+export class CategoryListComponent implements OnInit {
+  private readonly categoriaService = inject(CategoryService);
   private readonly router = inject(Router);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly i18n = inject(I18nService);
 
-  categorias = signal<CategoriaResumo[]>([]);
+  categorias = signal<CategorySummary[]>([]);
   loading = signal(false);
   deletingId = signal<string | null>(null);
   errorMessage = signal('');
-  filtroNome = '';
+  nameFilter = '';
 
   ngOnInit(): void {
-    this.carregar();
+    this.load();
   }
 
-  carregar(): void {
+  load(): void {
     this.loading.set(true);
     this.errorMessage.set('');
 
@@ -49,11 +49,11 @@ export class CategoriaListComponent implements OnInit {
     });
   }
 
-  pesquisar(): void {
-    const name = this.filtroNome.trim();
+  search(): void {
+    const name = this.nameFilter.trim();
 
     if (!name) {
-      this.carregar();
+      this.load();
       return;
     }
 
@@ -72,11 +72,11 @@ export class CategoriaListComponent implements OnInit {
     });
   }
 
-  novo(): void {
+  create(): void {
     this.router.navigate(['/categorias/nova']);
   }
 
-  confirmarExclusao(categoria: CategoriaResumo): void {
+  confirmDelete(categoria: CategorySummary): void {
     this.errorMessage.set('');
 
     this.confirmationService.confirm({
@@ -87,22 +87,22 @@ export class CategoriaListComponent implements OnInit {
       acceptLabel: this.i18n.translate('categories.delete'),
       rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
       acceptButtonStyleClass: 'p-button-danger',
-      accept: () => this.excluir(categoria),
+      accept: () => this.delete(categoria),
     });
   }
 
-  statusLabel(categoria: CategoriaResumo): string {
+  statusLabel(categoria: CategorySummary): string {
     return categoria.active ? this.i18n.translate('categories.active') : this.i18n.translate('categories.inactive');
   }
 
-  iconClass(categoria: CategoriaResumo): string {
+  iconClass(categoria: CategorySummary): string {
     return categoriaIconClass(categoria.icone);
   }
 
-  private excluir(categoria: CategoriaResumo): void {
+  private delete(categoria: CategorySummary): void {
     this.deletingId.set(categoria.id);
 
-    this.categoriaService.excluir(categoria.id).subscribe({
+    this.categoriaService.delete(categoria.id).subscribe({
       next: () => {
         this.categorias.update((categorias) => categorias.filter((item) => item.id !== categoria.id));
         this.deletingId.set(null);

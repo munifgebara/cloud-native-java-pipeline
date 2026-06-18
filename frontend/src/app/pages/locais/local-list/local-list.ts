@@ -7,7 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { LocalResumo, LocalService } from '../../../core/local/local';
+import { LocationSummary, LocationService } from '../../../core/local/local';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
 @Component({
@@ -18,23 +18,23 @@ import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
   templateUrl: './local-list.html',
   styleUrl: './local-list.css',
 })
-export class LocalListComponent implements OnInit {
-  private readonly localService = inject(LocalService);
+export class LocationListComponent implements OnInit {
+  private readonly localService = inject(LocationService);
   private readonly router = inject(Router);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly i18n = inject(I18nService);
 
-  locais = signal<LocalResumo[]>([]);
+  locais = signal<LocationSummary[]>([]);
   loading = signal(false);
   deletingId = signal<string | null>(null);
   errorMessage = signal('');
-  filtroNome = '';
+  nameFilter = '';
 
   ngOnInit(): void {
-    this.carregar();
+    this.load();
   }
 
-  carregar(): void {
+  load(): void {
     this.loading.set(true);
     this.errorMessage.set('');
 
@@ -50,11 +50,11 @@ export class LocalListComponent implements OnInit {
     });
   }
 
-  pesquisar(): void {
-    const name = this.filtroNome.trim();
+  search(): void {
+    const name = this.nameFilter.trim();
 
     if (!name) {
-      this.carregar();
+      this.load();
       return;
     }
 
@@ -73,11 +73,11 @@ export class LocalListComponent implements OnInit {
     });
   }
 
-  novo(): void {
-    this.router.navigate(['/locais/novo']);
+  create(): void {
+    this.router.navigate(['/locais/create']);
   }
 
-  confirmarExclusao(local: LocalResumo): void {
+  confirmDelete(local: LocationSummary): void {
     this.errorMessage.set('');
 
     this.confirmationService.confirm({
@@ -88,22 +88,22 @@ export class LocalListComponent implements OnInit {
       acceptLabel: this.i18n.translate('locations.delete'),
       rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
       acceptButtonStyleClass: 'p-button-danger',
-      accept: () => this.excluir(local),
+      accept: () => this.delete(local),
     });
   }
 
-  statusLabel(local: LocalResumo): string {
+  statusLabel(local: LocationSummary): string {
     return local.active ? this.i18n.translate('locations.active') : this.i18n.translate('locations.inactive');
   }
 
-  indent(local: LocalResumo): string {
+  indent(local: LocationSummary): string {
     return `${local.nivel * 1.25}rem`;
   }
 
-  private excluir(local: LocalResumo): void {
+  private delete(local: LocationSummary): void {
     this.deletingId.set(local.id);
 
-    this.localService.excluir(local.id).subscribe({
+    this.localService.delete(local.id).subscribe({
       next: () => {
         this.locais.update((locais) => locais.filter((item) => item.id !== local.id));
         this.deletingId.set(null);

@@ -10,7 +10,7 @@
       </div>
     }
 
-    <form [formGroup]="form" (ngSubmit)="salvar()" class="form-grid">
+    <form [formGroup]="form" (ngSubmit)="save()" class="form-grid">
       <div class="field">
         <label for="username">{{ 'login.username' | translate }}</label>
         <input id="username" pInputText type="text" formControlName="username" />

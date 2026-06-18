@@ -37,7 +37,7 @@
           <div
             class="image-control"
             tabindex="0"
-            (paste)="colarImagem($event)">
+            (paste)="colarImage($event)">
             <div class="image-preview">
               @if (imagemPreviewUrl() || imagemAtualUrl()) {
                 <img [src]="imagemPreviewUrl() || imagemAtualUrl()" [alt]="form.controls.name.value || ('masterItems.form.mainImage' | translate)" />
@@ -51,7 +51,7 @@
                 id="imagem"
                 type="file"
                 accept="image/png,image/jpeg,image/webp,image/gif"
-                (change)="selecionarImagem($event)" />
+                (change)="selecionarImage($event)" />
               <small>{{ 'masterItems.form.imageHint' | translate }}</small>
               <small>{{ 'masterItems.form.imagePasteHint' | translate }}</small>
               <button
@@ -60,9 +60,9 @@
                 severity="secondary"
                 icon="pi pi-image"
                 [label]="'masterItems.form.generateImageIa' | translate"
-                (click)="gerarImagemIa()"
-                [loading]="gerandoImagemIa()"
-                [disabled]="salvando() || gerandoImagemIa()">
+                (click)="gerarImageIa()"
+                [loading]="gerandoImageIa()"
+                [disabled]="salvando() || gerandoImageIa()">
               </button>
             </div>
           </div>
@@ -76,7 +76,7 @@
                   type="button"
                   icon="pi pi-check"
                   [label]="'masterItems.form.acceptAiImage' | translate"
-                  (click)="aceitarImagemIa()">
+                  (click)="aceitarImageIa()">
                 </button>
                 <button
                   pButton
@@ -84,9 +84,9 @@
                   severity="secondary"
                   icon="pi pi-refresh"
                   [label]="'masterItems.form.regenerateAiImage' | translate"
-                  (click)="gerarImagemIa()"
-                  [loading]="gerandoImagemIa()"
-                  [disabled]="gerandoImagemIa()">
+                  (click)="gerarImageIa()"
+                  [loading]="gerandoImageIa()"
+                  [disabled]="gerandoImageIa()">
                 </button>
                 <button
                   pButton
@@ -94,7 +94,7 @@
                   severity="secondary"
                   icon="pi pi-times"
                   [label]="'common.cancel' | translate"
-                  (click)="cancelarImagemIa()">
+                  (click)="cancelarImageIa()">
                 </button>
               </div>
             </div>
@@ -130,7 +130,7 @@
             type="button"
             [label]="'common.save' | translate"
             icon="pi pi-save"
-            (click)="salvar()"
+            (click)="save()"
             [loading]="salvando()">
           </button>
         </div>
@@ -204,7 +204,7 @@
                   text
                   icon="pi pi-pencil"
                   [label]="'common.edit' | translate"
-                  [routerLink]="['/instancias-item', instancia.id, 'editar']">
+                  [routerLink]="['/instancias-item', instancia.id, 'edit']">
                 </button>
               </div>
             </td>

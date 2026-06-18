@@ -6,7 +6,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
-import { CATEGORIA_ICONE_OPTIONS, CategoriaService } from '../../../core/categoria/categoria';
+import { CATEGORIA_ICONE_OPTIONS, CategoryService } from '../../../core/categoria/categoria';
 import { mensagemErroHttp } from '../../../core/http-error';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
@@ -17,12 +17,12 @@ import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
   templateUrl: './categoria-form.html',
   styleUrl: './categoria-form.css',
 })
-export class CategoriaFormComponent implements OnInit {
+export class CategoryFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly i18n = inject(I18nService);
-  private readonly categoriaService = inject(CategoriaService);
+  private readonly categoriaService = inject(CategoryService);
 
   id = signal<string | null>(null);
   loading = signal(false);
@@ -66,7 +66,7 @@ export class CategoriaFormComponent implements OnInit {
     });
   }
 
-  salvar(): void {
+  save(): void {
     this.errorMessage.set('');
     this.form.markAllAsTouched();
 
@@ -86,7 +86,7 @@ export class CategoriaFormComponent implements OnInit {
     };
 
     if (this.edicao()) {
-      this.categoriaService.atualizar(this.id()!, payload).subscribe({
+      this.categoriaService.update(this.id()!, payload).subscribe({
         next: () => {
           this.salvando.set(false);
           this.router.navigate(['/categorias']);
@@ -117,7 +117,7 @@ export class CategoriaFormComponent implements OnInit {
     return !!campo && campo.invalid && (campo.touched || campo.dirty);
   }
 
-  selecionarIcone(icone: string | null): void {
+  selecionarIcon(icone: string | null): void {
     this.form.controls.icone.setValue(icone);
     this.form.controls.icone.markAsDirty();
   }

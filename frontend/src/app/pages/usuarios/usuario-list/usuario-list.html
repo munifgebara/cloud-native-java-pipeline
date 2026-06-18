@@ -10,7 +10,7 @@
       type="button"
       [label]="'common.new' | translate"
       icon="pi pi-plus"
-      (click)="novo()">
+      (click)="create()">
     </button>
   </div>
 
@@ -57,7 +57,7 @@
               text
               icon="pi pi-pencil"
               [label]="'common.edit' | translate"
-              [routerLink]="['/usuarios', usuario.id, 'editar']">
+              [routerLink]="['/usuarios', usuario.id, 'edit']">
             </button>
 
             <button

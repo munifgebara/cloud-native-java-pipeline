@@ -57,7 +57,7 @@
             <option [value]="local.id">{{ local.caminho || local.name }}</option>
           }
         </select>
-        <small>{{ localPadraoResumo() }}</small>
+        <small>{{ localPadraoSummary() }}</small>
       </div>
 
       <div class="upload-actions">
@@ -93,7 +93,7 @@
         </div>
         <div>
           <dt>{{ 'photoRegistration.defaultLocation' | translate }}</dt>
-          <dd>{{ localPadraoResumo() }}</dd>
+          <dd>{{ localPadraoSummary() }}</dd>
         </div>
         <div>
           <dt>{{ 'photoRegistration.suggestions' | translate }}</dt>

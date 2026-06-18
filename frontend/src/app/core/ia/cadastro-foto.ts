@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-export interface CadastroFotoInstanciaSugestao {
+export interface PhotoUploadInstanceSuggestion {
   identifier: string | null;
   assetTag: string | null;
   serialNumber: string | null;
@@ -12,7 +12,7 @@ export interface CadastroFotoInstanciaSugestao {
   confidence: number | null;
 }
 
-export interface CadastroFotoItemSugestao {
+export interface PhotoUploadItemSuggestion {
   name: string;
   description: string | null;
   categoriaSugerida: string | null;
@@ -28,25 +28,25 @@ export interface CadastroFotoItemSugestao {
   condition: string | null;
   notes: string | null;
   confidence: number | null;
-  instancias: CadastroFotoInstanciaSugestao[];
+  instancias: PhotoUploadInstanceSuggestion[];
 }
 
-export interface CadastroFotoSugestaoResponse {
-  itens: CadastroFotoItemSugestao[];
+export interface PhotoUploadSuggestionResponse {
+  itens: PhotoUploadItemSuggestion[];
   mensagem: string | null;
 }
 
 @Injectable({
   providedIn: 'root',
 })
-export class CadastroFotoIaService {
+export class PhotoUploadAiService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/ai/cadastro-foto`;
 
-  sugerirCadastro(arquivo: File): Observable<CadastroFotoSugestaoResponse> {
+  sugerirCadastro(arquivo: File): Observable<PhotoUploadSuggestionResponse> {
     const formData = new FormData();
     formData.append('arquivo', arquivo);
 
-    return this.http.post<CadastroFotoSugestaoResponse>(`${this.baseUrl}/suggestions`, formData);
+    return this.http.post<PhotoUploadSuggestionResponse>(`${this.baseUrl}/suggestions`, formData);
   }
 }

@@ -3,7 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { Usuario, UsuarioService } from '../../../core/usuario/usuario';
+import { User, UserService } from '../../../core/usuario/usuario';
 import { mensagemErroHttp } from '../../../core/http-error';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
@@ -13,21 +13,21 @@ import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
   imports: [ButtonModule, TableModule, TagModule, RouterLink, TranslatePipe],
   templateUrl: './usuario-list.html',
 })
-export class UsuarioListComponent implements OnInit {
-  private readonly usuarioService = inject(UsuarioService);
+export class UserListComponent implements OnInit {
+  private readonly usuarioService = inject(UserService);
   private readonly router = inject(Router);
   private readonly i18n = inject(I18nService);
 
-  usuarios = signal<Usuario[]>([]);
+  usuarios = signal<User[]>([]);
   loading = signal(false);
   updatingId = signal<string | null>(null);
   errorMessage = signal('');
 
   ngOnInit(): void {
-    this.carregar();
+    this.load();
   }
 
-  carregar(): void {
+  load(): void {
     this.loading.set(true);
     this.errorMessage.set('');
 
@@ -43,11 +43,11 @@ export class UsuarioListComponent implements OnInit {
     });
   }
 
-  novo(): void {
-    this.router.navigate(['/usuarios/novo']);
+  create(): void {
+    this.router.navigate(['/usuarios/create']);
   }
 
-  alterarStatus(usuario: Usuario): void {
+  alterarStatus(usuario: User): void {
     this.updatingId.set(usuario.id);
     this.errorMessage.set('');
 
@@ -65,11 +65,11 @@ export class UsuarioListComponent implements OnInit {
     });
   }
 
-  nomeCompleto(usuario: Usuario): string {
+  nomeCompleto(usuario: User): string {
     return [usuario.firstName, usuario.lastName].filter(Boolean).join(' ') || '-';
   }
 
-  statusLabel(usuario: Usuario): string {
+  statusLabel(usuario: User): string {
     return usuario.enabled ? this.i18n.translate('users.active') : this.i18n.translate('users.inactive');
   }
 }

@@ -6,7 +6,7 @@ import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { UsuarioService } from '../../../core/usuario/usuario';
+import { UserService } from '../../../core/usuario/usuario';
 import { mensagemErroHttp } from '../../../core/http-error';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
@@ -17,11 +17,11 @@ import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
   templateUrl: './usuario-form.html',
   styleUrl: './usuario-form.css',
 })
-export class UsuarioFormComponent implements OnInit {
+export class UserFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly usuarioService = inject(UsuarioService);
+  private readonly usuarioService = inject(UserService);
   private readonly i18n = inject(I18nService);
 
   id = signal<string | null>(null);
@@ -76,7 +76,7 @@ export class UsuarioFormComponent implements OnInit {
     });
   }
 
-  salvar(): void {
+  save(): void {
     this.errorMessage.set('');
     this.form.markAllAsTouched();
 
@@ -96,7 +96,7 @@ export class UsuarioFormComponent implements OnInit {
     };
 
     if (this.edicao()) {
-      this.usuarioService.atualizar(this.id()!, payload).subscribe({
+      this.usuarioService.update(this.id()!, payload).subscribe({
         next: () => {
           this.salvando.set(false);
           this.router.navigate(['/usuarios']);

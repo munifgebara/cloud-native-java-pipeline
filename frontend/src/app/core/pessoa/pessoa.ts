@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-export interface PessoaResumo {
+export interface PersonSummary {
   id: string;
   name: string;
   taxId: string;
@@ -11,7 +11,7 @@ export interface PessoaResumo {
   telefonePrincipal: string | null;
 }
 
-export interface PessoaResponse {
+export interface PersonResponse {
   id: string;
   name: string;
   taxId: string;
@@ -28,15 +28,15 @@ export interface PessoaResponse {
   alteradoEm: string;
 }
 
-export interface PessoaRevisao {
+export interface PersonRevisao {
   revisao: number;
   timestamp: string;
   type: 'ADD' | 'MOD' | 'DEL';
-  pessoa: PessoaResponse;
+  pessoa: PersonResponse;
   changedFields: string[];
 }
 
-export interface PessoaCreateRequest {
+export interface PersonCreateRequest {
   name: string;
   taxId: string;
   telefonePrincipal?: string | null;
@@ -50,7 +50,7 @@ export interface PessoaCreateRequest {
   uf?: string | null;
 }
 
-export interface PessoaUpdateRequest {
+export interface PersonUpdateRequest {
   name: string;
   telefonePrincipal?: string | null;
   telefoneSecundario?: string | null;
@@ -66,37 +66,37 @@ export interface PessoaUpdateRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class PessoaService {
+export class PersonService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/people`;
 
-  listar(): Observable<PessoaResumo[]> {
-    return this.http.get<PessoaResumo[]>(this.baseUrl);
+  listar(): Observable<PersonSummary[]> {
+    return this.http.get<PersonSummary[]>(this.baseUrl);
   }
 
-  buscarPorNome(name: string): Observable<PessoaResumo[]> {
-    return this.http.get<PessoaResumo[]>(`${this.baseUrl}/search`, {
+  buscarPorNome(name: string): Observable<PersonSummary[]> {
+    return this.http.get<PersonSummary[]>(`${this.baseUrl}/search`, {
       params: { name },
     });
   }
 
-  buscarPorId(id: string): Observable<PessoaResponse> {
-    return this.http.get<PessoaResponse>(`${this.baseUrl}/${id}`);
+  buscarPorId(id: string): Observable<PersonResponse> {
+    return this.http.get<PersonResponse>(`${this.baseUrl}/${id}`);
   }
 
-  criar(payload: PessoaCreateRequest): Observable<PessoaResponse> {
-    return this.http.post<PessoaResponse>(this.baseUrl, payload);
+  criar(payload: PersonCreateRequest): Observable<PersonResponse> {
+    return this.http.post<PersonResponse>(this.baseUrl, payload);
   }
 
-  atualizar(id: string, payload: PessoaUpdateRequest): Observable<PessoaResponse> {
-    return this.http.put<PessoaResponse>(`${this.baseUrl}/${id}`, payload);
+  update(id: string, payload: PersonUpdateRequest): Observable<PersonResponse> {
+    return this.http.put<PersonResponse>(`${this.baseUrl}/${id}`, payload);
   }
 
-  listarRevisoes(id: string): Observable<PessoaRevisao[]> {
-    return this.http.get<PessoaRevisao[]>(`${this.baseUrl}/${id}/revisions`);
+  listarRevisoes(id: string): Observable<PersonRevisao[]> {
+    return this.http.get<PersonRevisao[]>(`${this.baseUrl}/${id}/revisions`);
   }
 
-  excluir(id: string): Observable<void> {
+  delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 }

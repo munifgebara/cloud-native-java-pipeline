@@ -82,14 +82,14 @@
         </div>
 
         <div class="actions full">
-          <a (click)="voltar()" style="cursor:pointer">{{ 'common.cancel' | translate }}</a>
+          <a (click)="back()" style="cursor:pointer">{{ 'common.cancel' | translate }}</a>
 
           <button
             pButton
             type="button"
             [label]="'common.save' | translate"
             icon="pi pi-save"
-            (click)="salvar()"
+            (click)="save()"
             [loading]="salvando()">
           </button>
         </div>

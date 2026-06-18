@@ -10,7 +10,7 @@
       type="button"
       [label]="'common.new' | translate"
       icon="pi pi-plus"
-      (click)="novo()">
+      (click)="create()">
     </button>
   </app-stella-page-header>
 
@@ -18,11 +18,11 @@
     <input
       pInputText
       type="text"
-      [(ngModel)]="filtroNome"
+      [(ngModel)]="nameFilter"
       [placeholder]="'masterItems.searchByName' | translate"
-      (keyup.enter)="pesquisar()" />
+      (keyup.enter)="search()" />
 
-    <select [(ngModel)]="filtroCategoriaId" (change)="pesquisar()">
+    <select [(ngModel)]="filtroCategoryId" (change)="search()">
       <option value="">{{ 'masterItems.allCategories' | translate }}</option>
       @for (categoria of categorias(); track categoria.id) {
         <option [value]="categoria.id">{{ categoria.name }}</option>
@@ -34,7 +34,7 @@
       type="button"
       [label]="'common.search' | translate"
       icon="pi pi-search"
-      (click)="pesquisar()">
+      (click)="search()">
     </button>
 
     <button
@@ -117,11 +117,11 @@
               <dl class="semantic-details">
                 <div>
                   <dt>{{ 'masterItems.semanticLocations' | translate }}</dt>
-                  <dd>{{ locaisResumo(item) }}</dd>
+                  <dd>{{ locaisSummary(item) }}</dd>
                 </div>
                 <div>
                   <dt>{{ 'masterItems.semanticInstances' | translate }}</dt>
-                  <dd>{{ instanciasResumo(item) }}</dd>
+                  <dd>{{ instanciasSummary(item) }}</dd>
                 </div>
               </dl>
             </div>
@@ -189,7 +189,7 @@
               text
               icon="pi pi-pencil"
               [label]="'common.edit' | translate"
-              [routerLink]="['/itens-mestre', item.id, 'editar']">
+              [routerLink]="['/itens-mestre', item.id, 'edit']">
             </button>
 
             <button
@@ -201,7 +201,7 @@
               [label]="'masterItems.delete' | translate"
               [loading]="deletingId() === item.id"
               [disabled]="loading() || deletingId() !== null"
-              (click)="confirmarExclusao(item)">
+              (click)="confirmDelete(item)">
             </button>
           </div>
         </td>

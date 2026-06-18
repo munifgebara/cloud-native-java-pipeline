@@ -7,8 +7,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { CategoriaResumo, CategoriaService, categoriaIconClass } from '../../../core/categoria/categoria';
-import { ConsultaSemanticaItem, ItemMestreResumo, ItemMestreService } from '../../../core/item-mestre/item-mestre';
+import { CategorySummary, CategoryService, categoriaIconClass } from '../../../core/categoria/categoria';
+import { SemanticSearchItem, MainItemSummary, MainItemService } from '../../../core/item-mestre/item-mestre';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 import { StellaAiPanelComponent } from '../../../shared/design-system/stella-ai-panel/stella-ai-panel';
 import { StellaEmptyStateComponent } from '../../../shared/design-system/stella-empty-state/stella-empty-state';
@@ -36,31 +36,31 @@ import { StellaStateMessageComponent } from '../../../shared/design-system/stell
   templateUrl: './item-mestre-list.html',
   styleUrl: './item-mestre-list.css',
 })
-export class ItemMestreListComponent implements OnInit {
-  private readonly itemMestreService = inject(ItemMestreService);
-  private readonly categoriaService = inject(CategoriaService);
+export class MainItemListComponent implements OnInit {
+  private readonly itemMestreService = inject(MainItemService);
+  private readonly categoriaService = inject(CategoryService);
   private readonly router = inject(Router);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly i18n = inject(I18nService);
 
-  itens = signal<ItemMestreResumo[]>([]);
-  resultadosSemanticos = signal<ConsultaSemanticaItem[]>([]);
-  categorias = signal<CategoriaResumo[]>([]);
+  itens = signal<MainItemSummary[]>([]);
+  resultadosSemanticos = signal<SemanticSearchItem[]>([]);
+  categorias = signal<CategorySummary[]>([]);
   loading = signal(false);
   loadingSemantica = signal(false);
   deletingId = signal<string | null>(null);
   errorMessage = signal('');
   semanticErrorMessage = signal('');
-  filtroNome = '';
-  filtroCategoriaId = '';
+  nameFilter = '';
+  filtroCategoryId = '';
   consultaSemantica = '';
 
   ngOnInit(): void {
-    this.carregarCategorias();
-    this.carregar();
+    this.carregarCategories();
+    this.load();
   }
 
-  carregar(): void {
+  load(): void {
     this.loading.set(true);
     this.errorMessage.set('');
 
@@ -76,11 +76,11 @@ export class ItemMestreListComponent implements OnInit {
     });
   }
 
-  pesquisar(): void {
+  search(): void {
     this.loading.set(true);
     this.errorMessage.set('');
 
-    this.itemMestreService.filtrar(this.filtroNome, this.filtroCategoriaId).subscribe({
+    this.itemMestreService.filtrar(this.nameFilter, this.filtroCategoryId).subscribe({
       next: (dados) => {
         this.itens.set(dados);
         this.loading.set(false);
@@ -121,16 +121,16 @@ export class ItemMestreListComponent implements OnInit {
   }
 
   limparFiltros(): void {
-    this.filtroNome = '';
-    this.filtroCategoriaId = '';
-    this.carregar();
+    this.nameFilter = '';
+    this.filtroCategoryId = '';
+    this.load();
   }
 
-  novo(): void {
-    this.router.navigate(['/itens-mestre/novo']);
+  create(): void {
+    this.router.navigate(['/itens-mestre/create']);
   }
 
-  confirmarExclusao(item: ItemMestreResumo): void {
+  confirmDelete(item: MainItemSummary): void {
     this.errorMessage.set('');
 
     this.confirmationService.confirm({
@@ -141,27 +141,27 @@ export class ItemMestreListComponent implements OnInit {
       acceptLabel: this.i18n.translate('masterItems.delete'),
       rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
       acceptButtonStyleClass: 'p-button-danger',
-      accept: () => this.excluir(item),
+      accept: () => this.delete(item),
     });
   }
 
-  statusLabel(item: ItemMestreResumo): string {
+  statusLabel(item: MainItemSummary): string {
     return item.active ? this.i18n.translate('masterItems.active') : this.i18n.translate('masterItems.inactive');
   }
 
-  iconClass(item: ItemMestreResumo): string {
+  iconClass(item: MainItemSummary): string {
     return categoriaIconClass(item.categoryIcon);
   }
 
-  semanticIconClass(item: ConsultaSemanticaItem): string {
+  semanticIconClass(item: SemanticSearchItem): string {
     return categoriaIconClass(item.categoryIcon);
   }
 
-  relevancia(item: ConsultaSemanticaItem): string {
+  relevancia(item: SemanticSearchItem): string {
     return `${Math.round(item.similaridade * 100)}%`;
   }
 
-  instanciasResumo(item: ConsultaSemanticaItem): string {
+  instanciasSummary(item: SemanticSearchItem): string {
     if (!item.instancias.length) {
       return this.i18n.translate('masterItems.semanticNoInstances');
     }
@@ -172,7 +172,7 @@ export class ItemMestreListComponent implements OnInit {
       .join(', ');
   }
 
-  locaisResumo(item: ConsultaSemanticaItem): string {
+  locaisSummary(item: SemanticSearchItem): string {
     if (!item.probableLocations.length) {
       return this.i18n.translate('masterItems.semanticNoLocations');
     }
@@ -182,17 +182,17 @@ export class ItemMestreListComponent implements OnInit {
       .join(', ');
   }
 
-  private carregarCategorias(): void {
+  private carregarCategories(): void {
     this.categoriaService.listar().subscribe({
       next: (categorias) => this.categorias.set(categorias),
       error: () => this.errorMessage.set(this.i18n.translate('masterItems.categoryLoadError')),
     });
   }
 
-  private excluir(item: ItemMestreResumo): void {
+  private delete(item: MainItemSummary): void {
     this.deletingId.set(item.id);
 
-    this.itemMestreService.excluir(item.id).subscribe({
+    this.itemMestreService.delete(item.id).subscribe({
       next: () => {
         this.itens.update((itens) => itens.filter((atual) => atual.id !== item.id));
         this.deletingId.set(null);

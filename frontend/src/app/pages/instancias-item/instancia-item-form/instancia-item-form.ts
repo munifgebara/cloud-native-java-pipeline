@@ -8,8 +8,8 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
 import { mensagemErroHttp } from '../../../core/http-error';
-import { InstanciaItemService, StatusOperacionalInstancia } from '../../../core/instancia-item/instancia-item';
-import { LocalResumo, LocalService } from '../../../core/local/local';
+import { ItemInstanceService, StatusOperacionalInstancia } from '../../../core/instancia-item/instancia-item';
+import { LocationSummary, LocationService } from '../../../core/local/local';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
 @Component({
@@ -19,20 +19,20 @@ import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
   templateUrl: './instancia-item-form.html',
   styleUrl: './instancia-item-form.css',
 })
-export class InstanciaItemFormComponent implements OnInit {
+export class ItemInstanceFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly i18n = inject(I18nService);
-  private readonly instanciaItemService = inject(InstanciaItemService);
-  private readonly localService = inject(LocalService);
+  private readonly instanciaItemService = inject(ItemInstanceService);
+  private readonly localService = inject(LocationService);
 
   private mainItemId = '';
 
   id = signal<string | null>(null);
   mainItemName = signal('');
-  locais = signal<LocalResumo[]>([]);
+  locais = signal<LocationSummary[]>([]);
   loading = signal(false);
   salvando = signal(false);
   errorMessage = signal('');
@@ -82,7 +82,7 @@ export class InstanciaItemFormComponent implements OnInit {
     });
   }
 
-  salvar(): void {
+  save(): void {
     this.errorMessage.set('');
     this.form.markAllAsTouched();
 
@@ -110,7 +110,7 @@ export class InstanciaItemFormComponent implements OnInit {
 
     this.salvando.set(true);
 
-    this.instanciaItemService.atualizar(this.id()!, payload).subscribe({
+    this.instanciaItemService.update(this.id()!, payload).subscribe({
       next: () => {
         this.salvando.set(false);
         this.location.back();
@@ -122,7 +122,7 @@ export class InstanciaItemFormComponent implements OnInit {
     });
   }
 
-  voltar(): void {
+  back(): void {
     this.location.back();
   }
 

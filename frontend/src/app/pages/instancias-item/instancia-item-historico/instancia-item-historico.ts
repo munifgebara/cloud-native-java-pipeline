@@ -5,10 +5,10 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import {
-  InstanciaItemHistoricoResponse,
-  InstanciaItemResponse,
-  InstanciaItemService,
-  MovimentacaoItemResponse,
+  ItemInstanceHistoricoResponse,
+  ItemInstanceResponse,
+  ItemInstanceService,
+  ItemMovementResponse,
   StatusOperacionalInstancia,
 } from '../../../core/instancia-item/instancia-item';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
@@ -20,14 +20,14 @@ import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
   templateUrl: './instancia-item-historico.html',
   styleUrl: './instancia-item-historico.css',
 })
-export class InstanciaItemHistoricoComponent implements OnInit {
+export class ItemInstanceHistoricoComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
-  private readonly service = inject(InstanciaItemService);
+  private readonly service = inject(ItemInstanceService);
   private readonly i18n = inject(I18nService);
 
   loading = signal(false);
   errorMessage = signal('');
-  historico = signal<InstanciaItemHistoricoResponse | null>(null);
+  historico = signal<ItemInstanceHistoricoResponse | null>(null);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -49,7 +49,7 @@ export class InstanciaItemHistoricoComponent implements OnInit {
     });
   }
 
-  nomeInstancia(instancia: InstanciaItemResponse): string {
+  nomeInstancia(instancia: ItemInstanceResponse): string {
     return instancia.identifier || instancia.assetTag || instancia.serialNumber || instancia.mainItemName;
   }
 
@@ -67,11 +67,11 @@ export class InstanciaItemHistoricoComponent implements OnInit {
     return severities[status];
   }
 
-  tipoLabel(movimentacao: MovimentacaoItemResponse): string {
+  tipoLabel(movimentacao: ItemMovementResponse): string {
     return this.i18n.translate(`itemInstances.history.type.${movimentacao.type}`);
   }
 
-  movimentoDescricao(movimentacao: MovimentacaoItemResponse): string {
+  movimentoDescricao(movimentacao: ItemMovementResponse): string {
     if (movimentacao.type === 'ENTRADA') {
       return this.i18n.translate('itemInstances.history.entryDescription', {
         destination: movimentacao.localDestinoNome || '-',
