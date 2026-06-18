@@ -14,6 +14,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -221,6 +222,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<Map<String, Object>> handleNoResourceFound(NoResourceFoundException ex, HttpServletRequest request) {
         return response(HttpStatus.NOT_FOUND, "Resource not found.", ex, request, false);
+    }
+
+    /**
+     * Handles requests using an HTTP method the resource does not support.
+     * Returns {@code 405 Method Not Allowed} instead of a {@code 500}.
+     *
+     * @param ex      exception indicating the unsupported HTTP method
+     * @param request request that originated the error
+     * @return 405 response
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<Map<String, Object>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+        return response(HttpStatus.METHOD_NOT_ALLOWED, "HTTP method not supported for this resource.", ex, request, false);
     }
 
     /**

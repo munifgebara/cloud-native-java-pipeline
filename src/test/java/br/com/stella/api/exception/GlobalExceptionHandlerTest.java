@@ -123,4 +123,17 @@ class GlobalExceptionHandlerTest {
                 .containsEntry("status", 404)
                 .containsEntry("path", "/api/v0/items-mestre");
     }
+
+    @Test
+    void shouldReturn405WhenHttpMethodNotSupported() {
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v0/loans-item");
+
+        var response = handler.handleMethodNotSupported(
+                new org.springframework.web.HttpRequestMethodNotSupportedException("GET"), request);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
+        assertThat(response.getBody())
+                .containsEntry("status", 405)
+                .containsEntry("path", "/api/v0/loans-item");
+    }
 }
