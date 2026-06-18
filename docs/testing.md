@@ -13,7 +13,7 @@ This command is the default backend verification gate. It runs the frontend buil
 Run a single test class:
 
 ```bash
-./mvnw -Dtest=PessoaServiceTest test
+./mvnw -Dtest=PersonServiceTest test
 ```
 
 Run the Cucumber BDD suite:
@@ -41,7 +41,7 @@ Run the API smoke/regression test against a live Stella API without importing ba
 ```bash
 STELLA_API_BASE_URL=http://localhost:8080 \
 STELLA_API_USERNAME=admin \
-STELLA_API_PASSWORD=admin \
+STELLA_API_PASSWORD=admin123 \
 ./scripts/api-blackbox-test.sh
 ```
 
@@ -50,7 +50,7 @@ The same script can point to the validation environment:
 ```bash
 STELLA_API_BASE_URL=https://stella.gebaralabs.dev \
 STELLA_API_USERNAME=admin \
-STELLA_API_PASSWORD=admin \
+STELLA_API_PASSWORD=admin123 \
 ./scripts/api-blackbox-test.sh
 ```
 
@@ -62,7 +62,7 @@ STELLA_API_TOKEN='ey...' \
 ./scripts/api-blackbox-test.sh
 ```
 
-The script requires `curl` and `python3`. It validates health, authentication, item-master creation, lookup, listing, search by name, optional semantic search, and cleanup. Any item created by the test is deleted at the end through a shell trap whenever possible.
+The script requires `curl` and `python3`. It exercises 42 scenarios against the (English) API: health, authentication (valid/invalid, 401 without token), `users/me`, full CRUD for main items, categories, storage locations, item instances and people (create, lookup, list, search/filter, update, revision history), instance history, duplicate tax-id conflict (409), dashboard summary, the error-handling contract (404 unknown route, 405 wrong method), optional semantic search, and cleanup. Any resource created by the test is deleted at the end through a shell trap whenever possible.
 
 Configuration:
 
