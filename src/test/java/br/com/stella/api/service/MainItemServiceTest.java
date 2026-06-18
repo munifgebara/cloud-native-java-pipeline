@@ -252,10 +252,10 @@ class ItemMestreServiceTest {
     void shouldUpdateImageMainOfItemMain() {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
-        item.setImageBucket("stella-itens");
+        item.setImageBucket("stella-items");
         item.setImageObjectKey("main-items/antiga.jpg");
         var file = new MockMultipartFile("file", "photo.png", "image/png", new byte[]{1, 2, 3});
-        var image = new MainItemImageDTO("stella-itens", "main-items/nova.png", "image/png", 3L);
+        var image = new MainItemImageDTO("stella-items", "main-items/nova.png", "image/png", 3L);
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
         when(imageStorageService.storeMainItemImage(id, file)).thenReturn(image);
@@ -268,7 +268,7 @@ class ItemMestreServiceTest {
         assertThat(response.imageSizeBytes()).isEqualTo(3L);
         assertThat(response.imageGeneratedByAi()).isFalse();
         assertThat(response.imageProvider()).isNull();
-        verify(imageStorageService).removeSilently("stella-itens", "main-items/antiga.jpg");
+        verify(imageStorageService).removeSilently("stella-items", "main-items/antiga.jpg");
     }
 
     @Test
@@ -276,7 +276,7 @@ class ItemMestreServiceTest {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
         var file = new MockMultipartFile("file", "photo.png", "image/png", new byte[]{1, 2, 3});
-        var image = new MainItemImageDTO("stella-itens", "main-items/ia.png", "image/png", 3L);
+        var image = new MainItemImageDTO("stella-items", "main-items/ia.png", "image/png", 3L);
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
         when(imageStorageService.storeMainItemImage(id, file)).thenReturn(image);
@@ -321,20 +321,20 @@ class ItemMestreServiceTest {
     void shouldFindMetadataAndOpenImageMain() {
         UUID id = UUID.randomUUID();
         MainItem item = item(id, "Notebook", null);
-        item.setImageBucket("stella-itens");
+        item.setImageBucket("stella-items");
         item.setImageObjectKey("main-items/%s/photo.png".formatted(id));
         item.setImageContentType("image/png");
         item.setImageSizeBytes(3L);
 
         when(repository.findById(id)).thenReturn(Optional.of(item));
-        when(imageStorageService.open("stella-itens", "main-items/%s/photo.png".formatted(id)))
+        when(imageStorageService.open("stella-items", "main-items/%s/photo.png".formatted(id)))
                 .thenReturn(new ByteArrayInputStream(new byte[]{1, 2, 3}));
 
         var metadados = service.fetchMainImageMetadata(id);
         var image = service.openMainImage(id);
 
         assertThat(metadados.objectKey()).isEqualTo("main-items/%s/photo.png".formatted(id));
-        assertThat(metadados.tamanhoBytes()).isEqualTo(3L);
+        assertThat(metadados.sizeBytes()).isEqualTo(3L);
         assertThat(image).hasSameContentAs(new ByteArrayInputStream(new byte[]{1, 2, 3}));
     }
 

@@ -38,14 +38,14 @@ public class OpenAiImageAiProvider implements ImageAiProvider {
             throw new IllegalStateException("OPENAI_API_KEY not configured in the environment.");
         }
 
-        String modelo = modelo();
+        String model = model();
         long inicio = System.nanoTime();
 
         try {
             aiUsageGuard.consume(AiOperation.IMAGE_GENERATION);
             var options = OpenAiImageOptions.builder()
                     .apiKey(apiKey)
-                    .model(modelo)
+                    .model(model)
                     .size(environment.getProperty("STELLA_OPENAI_IMAGE_SIZE", "1024x1024"))
                     .quality(environment.getProperty("STELLA_OPENAI_IMAGE_QUALITY", "low"))
                     .n(1)
@@ -56,14 +56,14 @@ public class OpenAiImageAiProvider implements ImageAiProvider {
             var result = parseResponse(response);
             StructuredBusinessLogger.info(log, "ai", "image-generation", StructuredBusinessLogger.fields(
                     "ai_provider", PROVIDER,
-                    "ai_model", modelo,
+                    "ai_model", model,
                     "duration_ms", elapsedMillis(inicio),
                     "image_content_type", result.contentType(),
                     "success", true
             ));
             return result;
         } catch (RuntimeException ex) {
-            logFailure(modelo, inicio, ex);
+            logFailure(model, inicio, ex);
             throw ex;
         }
     }
@@ -81,7 +81,7 @@ public class OpenAiImageAiProvider implements ImageAiProvider {
         return new ImageAiResponseDTO("data:%s;base64,%s".formatted(CONTENT_TYPE, base64), CONTENT_TYPE, PROVIDER);
     }
 
-    private String modelo() {
+    private String model() {
         return environment.getProperty("STELLA_OPENAI_IMAGE_MODEL", "gpt-image-1");
     }
 
@@ -101,10 +101,10 @@ public class OpenAiImageAiProvider implements ImageAiProvider {
         );
     }
 
-    private void logFailure(String modelo, long inicio, Exception ex) {
+    private void logFailure(String model, long inicio, Exception ex) {
         StructuredBusinessLogger.error(log, "ai", "image-generation", StructuredBusinessLogger.fields(
                 "ai_provider", PROVIDER,
-                "ai_model", modelo,
+                "ai_model", model,
                 "duration_ms", elapsedMillis(inicio),
                 "success", false
         ), ex);

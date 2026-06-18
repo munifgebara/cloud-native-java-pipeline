@@ -269,7 +269,7 @@ class LocalArmazenamentoServiceTest {
         var image = service.openImage(id);
 
         assertThat(metadados.contentType()).isEqualTo("image/png");
-        assertThat(metadados.tamanhoBytes()).isEqualTo(2L);
+        assertThat(metadados.sizeBytes()).isEqualTo(2L);
         assertThat(image).hasSameContentAs(new ByteArrayInputStream(new byte[]{1, 2}));
     }
 

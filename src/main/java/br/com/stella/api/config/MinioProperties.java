@@ -21,7 +21,7 @@ public record MinioProperties(
             secretKey = "minioadmin";
         }
         if (bucket == null || bucket.isBlank()) {
-            bucket = "stella-itens";
+            bucket = "stella-items";
         }
         if (maxImageSizeBytes <= 0) {
             maxImageSizeBytes = 5 * 1024 * 1024;

@@ -4,7 +4,7 @@ public record PhotoUploadInstanceSuggestionDTO(
         String identifier,
         String assetTag,
         String serialNumber,
-        String estadoConservacao,
+        String condition,
         String notes,
-        Double confianca
+        Double confidence
 ) {}

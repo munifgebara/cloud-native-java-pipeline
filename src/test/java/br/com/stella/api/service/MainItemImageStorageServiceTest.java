@@ -44,7 +44,7 @@ class ImagemItemMestreStorageServiceTest {
 
         assertThat(image.bucket()).isEqualTo("stella-test");
         assertThat(image.contentType()).isEqualTo("image/png");
-        assertThat(image.tamanhoBytes()).isEqualTo(3);
+        assertThat(image.sizeBytes()).isEqualTo(3);
         assertThat(image.objectKey())
                 .startsWith("main-items/%s/".formatted(itemId))
                 .endsWith(".png");
@@ -75,7 +75,7 @@ class ImagemItemMestreStorageServiceTest {
 
         assertThat(image.bucket()).isEqualTo("stella-test");
         assertThat(image.contentType()).isEqualTo("image/webp");
-        assertThat(image.tamanhoBytes()).isEqualTo(3);
+        assertThat(image.sizeBytes()).isEqualTo(3);
         assertThat(image.objectKey())
                 .startsWith("locations/%s/".formatted(locationId))
                 .endsWith(".webp");

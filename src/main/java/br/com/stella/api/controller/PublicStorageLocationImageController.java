@@ -53,7 +53,7 @@ public class PublicStorageLocationImageController {
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(image.contentType()))
-                .contentLength(image.tamanhoBytes() == null ? -1 : image.tamanhoBytes())
+                .contentLength(image.sizeBytes() == null ? -1 : image.sizeBytes())
                 .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS).cachePublic())
                 .body(new InputStreamResource(stream));
     }

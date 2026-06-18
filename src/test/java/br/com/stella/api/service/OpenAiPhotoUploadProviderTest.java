@@ -50,26 +50,26 @@ class OpenAiPhotoUploadProviderTest {
     @Test
     void shouldSendImageForOpenAiAndConvertResponseStructured() {
         when(chatModel.call(any(Prompt.class))).thenReturn(respostaJson("""
-                {"itens":[{"name":"Clean Code","description":"Livro identificado pela capa","suggestedCategory":"Livros",\
-                "marca":null,"modelo":null,"autor":"Robert C. Martin","editora":"Prentice Hall",\
-                "anoPublicacao":"2008","isbn":"9780132350884","fontePesquisa":"conhecimento do modelo",\
-                "identificacaoVerificada":true,"quantity":1,"estadoConservacao":"bom",\
-                "notes":"Capa visivel","confianca":0.82,\
+                {"items":[{"name":"Clean Code","description":"Livro identificado pela capa","suggestedCategory":"Livros",\
+                "brand":null,"model":null,"author":"Robert C. Martin","publisher":"Prentice Hall",\
+                "publicationYear":"2008","isbn":"9780132350884","source":"conhecimento do model",\
+                "identificationVerified":true,"quantity":1,"condition":"bom",\
+                "notes":"Capa visivel","confidence":0.82,\
                 "instances":[{"identifier":"Clean Code 1","assetTag":null,"serialNumber":null,\
-                "estadoConservacao":"bom","notes":null,"confianca":0.82}]}],\
+                "condition":"bom","notes":null,"confidence":0.82}]}],\
                 "message":"Sugestoes geradas."}
                 """));
 
         var response = provider.suggestRegistration(new MockMultipartFile("file", "photo.png", "image/png", "image".getBytes()));
 
         assertThat(response.message()).isEqualTo("Sugestoes geradas.");
-        assertThat(response.itens()).hasSize(1);
-        assertThat(response.itens().getFirst().name()).isEqualTo("Clean Code");
-        assertThat(response.itens().getFirst().autor()).isEqualTo("Robert C. Martin");
-        assertThat(response.itens().getFirst().isbn()).isEqualTo("9780132350884");
-        assertThat(response.itens().getFirst().identificacaoVerificada()).isTrue();
-        assertThat(response.itens().getFirst().instances()).hasSize(1);
-        assertThat(response.itens().getFirst().instances().getFirst().identifier()).isEqualTo("Clean Code 1");
+        assertThat(response.items()).hasSize(1);
+        assertThat(response.items().getFirst().name()).isEqualTo("Clean Code");
+        assertThat(response.items().getFirst().author()).isEqualTo("Robert C. Martin");
+        assertThat(response.items().getFirst().isbn()).isEqualTo("9780132350884");
+        assertThat(response.items().getFirst().identificationVerified()).isTrue();
+        assertThat(response.items().getFirst().instances()).hasSize(1);
+        assertThat(response.items().getFirst().instances().getFirst().identifier()).isEqualTo("Clean Code 1");
     }
 
     @Test
@@ -90,12 +90,12 @@ class OpenAiPhotoUploadProviderTest {
     @Test
     void shouldConvertResponseWithListEmpty() {
         when(chatModel.call(any(Prompt.class))).thenReturn(respostaJson(
-                "{\"itens\":null,\"message\":\"Without suggestions.\"}"
+                "{\"items\":null,\"message\":\"Without suggestions.\"}"
         ));
 
         var response = provider.suggestRegistration(new MockMultipartFile("file", "photo.png", "image/png", "image".getBytes()));
 
-        assertThat(response.itens()).isNull();
+        assertThat(response.items()).isNull();
         assertThat(response.message()).isEqualTo("Without suggestions.");
     }
 

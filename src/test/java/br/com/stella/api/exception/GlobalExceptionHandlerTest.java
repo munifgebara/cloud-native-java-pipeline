@@ -111,16 +111,16 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldReturn404WhenRouteDoesNotExist() {
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v0/itens-mestre");
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v0/items-mestre");
 
         var response = handler.handleNoResourceFound(
                 new org.springframework.web.servlet.resource.NoResourceFoundException(
-                        org.springframework.http.HttpMethod.GET, "/api/v0/itens-mestre", "/api/v0/itens-mestre"),
+                        org.springframework.http.HttpMethod.GET, "/api/v0/items-mestre", "/api/v0/items-mestre"),
                 request);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(response.getBody())
                 .containsEntry("status", 404)
-                .containsEntry("path", "/api/v0/itens-mestre");
+                .containsEntry("path", "/api/v0/items-mestre");
     }
 }

@@ -178,7 +178,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
         location.setImageBucket(image.bucket());
         location.setImageObjectKey(image.objectKey());
         location.setImageContentType(image.contentType());
-        location.setImageSizeBytes(image.tamanhoBytes());
+        location.setImageSizeBytes(image.sizeBytes());
 
         StorageLocation salvo = save(location);
         imageStorageService.removeSilently(bucketAnterior, objectKeyAnterior);
@@ -186,7 +186,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
                 "location_id", salvo.getId(),
                 "location_name", salvo.getName(),
                 "image_content_type", image.contentType(),
-                "image_size_bytes", image.tamanhoBytes(),
+                "image_size_bytes", image.sizeBytes(),
                 "success", true
         ));
         return StorageLocationMapper.toResponseDTO(salvo);

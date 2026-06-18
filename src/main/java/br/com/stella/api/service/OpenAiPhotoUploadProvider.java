@@ -58,43 +58,43 @@ public class OpenAiPhotoUploadProvider implements PhotoUploadAiProvider {
             throw new IllegalStateException("OPENAI_API_KEY not configured in the environment.");
         }
 
-        String modelo = modelo();
+        String model = model();
         long inicio = System.nanoTime();
 
         try {
             byte[] bytes = image.getBytes();
             aiUsageGuard.consume(AiOperation.IMAGE_ANALYSIS);
             var result = chatClient.prompt()
-                    .options(OpenAiChatOptions.builder().apiKey(apiKey).model(modelo))
+                    .options(OpenAiChatOptions.builder().apiKey(apiKey).model(model))
                     .user(u -> u.text(ORIENTACAO).media(MimeType.valueOf(image.getContentType()), new ByteArrayResource(bytes)))
                     .call()
                     .entity(PhotoUploadSuggestionResponseDTO.class);
 
             StructuredBusinessLogger.info(log, "ai", "image-identification", StructuredBusinessLogger.fields(
                     "ai_provider", PROVIDER,
-                    "ai_model", modelo,
+                    "ai_model", model,
                     "duration_ms", elapsedMillis(inicio),
                     "success", true,
-                    "ai_detected_items", result == null || result.itens() == null ? 0 : result.itens().size()
+                    "ai_detected_items", result == null || result.items() == null ? 0 : result.items().size()
             ));
             return result;
         } catch (IOException ex) {
-            logFailure(modelo, inicio, ex);
+            logFailure(model, inicio, ex);
             throw new IllegalArgumentException("Unable to read the submitted image.", ex);
         } catch (RuntimeException ex) {
-            logFailure(modelo, inicio, ex);
+            logFailure(model, inicio, ex);
             throw ex;
         }
     }
 
-    private String modelo() {
+    private String model() {
         return environment.getProperty("STELLA_OPENAI_MODEL", "gpt-4.1-mini");
     }
 
-    private void logFailure(String modelo, long inicio, Exception ex) {
+    private void logFailure(String model, long inicio, Exception ex) {
         StructuredBusinessLogger.error(log, "ai", "image-identification", StructuredBusinessLogger.fields(
                 "ai_provider", PROVIDER,
-                "ai_model", modelo,
+                "ai_model", model,
                 "duration_ms", elapsedMillis(inicio),
                 "success", false
         ), ex);
