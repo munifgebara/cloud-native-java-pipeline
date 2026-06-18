@@ -86,14 +86,14 @@ class InstanciaItemServiceTest {
         ArgumentCaptor<ItemInstance> captor = ArgumentCaptor.forClass(ItemInstance.class);
         verify(repository).save(captor.capture());
 
-        ItemInstance instanciaSalva = captor.getValue();
-        assertThat(instanciaSalva.getMainItem()).isEqualTo(mainItem);
-        assertThat(instanciaSalva.getCurrentLocation()).isEqualTo(location);
-        assertThat(instanciaSalva.getIdentifier()).isEqualTo("NB-001");
-        assertThat(instanciaSalva.getAssetTag()).isEqualTo("PAT-001");
-        assertThat(instanciaSalva.getSerialNumber()).isEqualTo("SN-123");
-        assertThat(instanciaSalva.getOperationalStatus()).isEqualTo(ItemInstanceStatus.DISPONIVEL);
-        assertThat(instanciaSalva.getNotes()).isEqualTo("Unidade do financeiro");
+        ItemInstance savedInstance = captor.getValue();
+        assertThat(savedInstance.getMainItem()).isEqualTo(mainItem);
+        assertThat(savedInstance.getCurrentLocation()).isEqualTo(location);
+        assertThat(savedInstance.getIdentifier()).isEqualTo("NB-001");
+        assertThat(savedInstance.getAssetTag()).isEqualTo("PAT-001");
+        assertThat(savedInstance.getSerialNumber()).isEqualTo("SN-123");
+        assertThat(savedInstance.getOperationalStatus()).isEqualTo(ItemInstanceStatus.DISPONIVEL);
+        assertThat(savedInstance.getNotes()).isEqualTo("Unidade do financeiro");
         assertThat(response.mainItemId()).isEqualTo(mainItemId);
         assertThat(response.mainItemName()).isEqualTo("Notebook Dell Latitude 5440");
         assertThat(response.operationalStatus()).isEqualTo(ItemInstanceStatus.DISPONIVEL);
@@ -280,10 +280,10 @@ class InstanciaItemServiceTest {
 
         assertThat(response.instance().id()).isEqualTo(instanciaId);
         assertThat(response.instance().currentLocationId()).isEqualTo(destino.getId());
-        assertThat(response.movimentacoes()).hasSize(1);
-        assertThat(response.movimentacoes().getFirst().tipo()).isEqualTo(ItemMovementType.TRANSFERENCIA);
-        assertThat(response.movimentacoes().getFirst().originLocationId()).isEqualTo(origem.getId());
-        assertThat(response.movimentacoes().getFirst().destinationLocationId()).isEqualTo(destino.getId());
+        assertThat(response.movements()).hasSize(1);
+        assertThat(response.movements().getFirst().tipo()).isEqualTo(ItemMovementType.TRANSFERENCIA);
+        assertThat(response.movements().getFirst().originLocationId()).isEqualTo(origem.getId());
+        assertThat(response.movements().getFirst().destinationLocationId()).isEqualTo(destino.getId());
     }
 
     @Test
@@ -298,7 +298,7 @@ class InstanciaItemServiceTest {
         var response = service.findHistory(instanciaId);
 
         assertThat(response.instance().id()).isEqualTo(instanciaId);
-        assertThat(response.movimentacoes()).isEmpty();
+        assertThat(response.movements()).isEmpty();
     }
 
     private ItemInstance instance(UUID id, String identifier, MainItem mainItem) {

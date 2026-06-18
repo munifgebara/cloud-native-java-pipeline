@@ -11,7 +11,7 @@ public record ItemLoanCreateDTO(
         UUID itemInstanceId,
 
         @NotNull(message = "Person is required.")
-        UUID pessoaId,
+        UUID personId,
 
         LocalDate expectedReturnDate,
 

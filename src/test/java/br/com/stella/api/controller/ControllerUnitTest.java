@@ -16,7 +16,7 @@ import br.com.stella.api.dto.MainItemSummaryDTO;
 import br.com.stella.api.dto.StorageLocationResponseDTO;
 import br.com.stella.api.dto.StorageLocationSummaryDTO;
 import br.com.stella.api.dto.LoginResponseDTO;
-import br.com.stella.api.dto.MeuPerfilResponseDTO;
+import br.com.stella.api.dto.MyProfileResponseDTO;
 import br.com.stella.api.dto.ItemMovementResponseDTO;
 import br.com.stella.api.dto.PersonResponseDTO;
 import br.com.stella.api.dto.PersonSummaryDTO;
@@ -228,12 +228,12 @@ class ControllerUnitTest {
         when(emprestimoService.registerLoan(null)).thenReturn(loan);
         when(emprestimoService.registerReturn(null)).thenReturn(loan);
 
-        ItemMovementController movimentacoes = new ItemMovementController(movimentacaoService);
+        ItemMovementController movements = new ItemMovementController(movimentacaoService);
         ItemLoanController emprestimos = new ItemLoanController(emprestimoService);
 
-        assertThat(movimentacoes.registerInbound(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(movimentacoes.registerOutbound(null).getBody()).isEqualTo(movement);
-        assertThat(movimentacoes.registerTransfer(null).getBody()).isEqualTo(movement);
+        assertThat(movements.registerInbound(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(movements.registerOutbound(null).getBody()).isEqualTo(movement);
+        assertThat(movements.registerTransfer(null).getBody()).isEqualTo(movement);
         assertThat(emprestimos.registerLoan(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(emprestimos.registerReturn(null).getBody()).isEqualTo(loan);
     }
@@ -244,26 +244,26 @@ class ControllerUnitTest {
         UserController controller = new UserController(service);
         Jwt jwt = jwt("user-1");
         var user = mock(UserResponseDTO.class);
-        var perfil = mock(MeuPerfilResponseDTO.class);
+        var perfil = mock(MyProfileResponseDTO.class);
 
         when(service.list()).thenReturn(List.of(user));
         when(service.findById("user-1")).thenReturn(user);
         when(service.create(null)).thenReturn(user);
         when(service.update("user-1", null)).thenReturn(user);
-        when(service.meuPerfil(jwt)).thenReturn(perfil);
-        when(service.atualizarMeuPerfil(jwt, null)).thenReturn(perfil);
+        when(service.myProfile(jwt)).thenReturn(perfil);
+        when(service.updateMyProfile(jwt, null)).thenReturn(perfil);
 
         assertThat(controller.list().getBody()).containsExactly(user);
         assertThat(controller.findById("user-1").getBody()).isEqualTo(user);
         assertThat(controller.create(null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(controller.update("user-1", null).getBody()).isEqualTo(user);
-        assertThat(controller.alterarStatus("user-1", Map.of("enabled", true)).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-        assertThat(controller.meuPerfil(jwt).getBody()).isEqualTo(perfil);
-        assertThat(controller.atualizarMeuPerfil(jwt, null).getBody()).isEqualTo(perfil);
-        assertThat(controller.alterarMinhaSenha(jwt, null).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(controller.changeStatus("user-1", Map.of("enabled", true)).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(controller.myProfile(jwt).getBody()).isEqualTo(perfil);
+        assertThat(controller.updateMyProfile(jwt, null).getBody()).isEqualTo(perfil);
+        assertThat(controller.changeMyPassword(jwt, null).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
-        verify(service).alterarStatus("user-1", true);
-        verify(service).alterarMinhaSenha(jwt, null);
+        verify(service).changeStatus("user-1", true);
+        verify(service).changeMyPassword(jwt, null);
     }
 
     @Test

@@ -64,7 +64,7 @@ public class ItemLoanService extends SuperService<ItemLoan, ItemLoanRepository> 
     public ItemLoanResponseDTO registerLoan(ItemLoanCreateDTO dto) {
         ItemInstance instance = itemInstanceRepository.findById(dto.itemInstanceId())
                 .orElseThrow(() -> new IllegalArgumentException("Instance not found."));
-        Person person = personRepository.findById(dto.pessoaId())
+        Person person = personRepository.findById(dto.personId())
                 .orElseThrow(() -> new IllegalArgumentException("Person not found."));
 
         ItemInstanceRules.requireAvailableWithLocation(

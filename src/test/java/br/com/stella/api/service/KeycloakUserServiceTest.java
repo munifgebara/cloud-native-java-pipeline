@@ -1,8 +1,8 @@
 package br.com.stella.api.service;
 
 import br.com.stella.api.config.KeycloakProperties;
-import br.com.stella.api.dto.AlterarSenhaDTO;
-import br.com.stella.api.dto.MeuPerfilUpdateDTO;
+import br.com.stella.api.dto.ChangePasswordDTO;
+import br.com.stella.api.dto.MyProfileUpdateDTO;
 import br.com.stella.api.dto.UserCreateDTO;
 import br.com.stella.api.dto.UserResponseDTO;
 import br.com.stella.api.dto.UserUpdateDTO;
@@ -144,7 +144,7 @@ class KeycloakUsuarioServiceTest {
                 .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer admin-token"))
                 .andRespond(withNoContent());
 
-        service.alterarMinhaSenha(jwt("user-3", "usuario3"), new AlterarSenhaDTO("atual123", "nova123"));
+        service.changeMyPassword(jwt("user-3", "usuario3"), new ChangePasswordDTO("atual123", "nova123"));
 
         server.verify();
     }
@@ -191,7 +191,7 @@ class KeycloakUsuarioServiceTest {
 
     @Test
     void shouldLoadMeuProfileAFromOfJwtWithoutQueryKeycloakAdmin() {
-        var perfil = service.meuPerfil(jwt("user-7", "perfil7"));
+        var perfil = service.myProfile(jwt("user-7", "perfil7"));
 
         assertThat(perfil.id()).isEqualTo("user-7");
         assertThat(perfil.username()).isEqualTo("perfil7");
@@ -199,7 +199,7 @@ class KeycloakUsuarioServiceTest {
         assertThat(perfil.lastName()).isEqualTo("Sobrenome");
         assertThat(perfil.email()).isEqualTo("perfil7@example.location");
         assertThat(perfil.roles()).containsExactly("admin", "user");
-        assertThat(perfil.alteracaoSenhaUrl()).isEqualTo("http://keycloak/realms/stella/account");
+        assertThat(perfil.passwordChangeUrl()).isEqualTo("http://keycloak/realms/stella/account");
         server.verify();
     }
 
@@ -411,7 +411,7 @@ class KeycloakUsuarioServiceTest {
                         [{"id": "role-admin", "name": "admin"}]
                         """, MediaType.APPLICATION_JSON));
 
-        var perfil = service.atualizarMeuPerfil(jwt("user-5", "perfil"), new MeuPerfilUpdateDTO(
+        var perfil = service.updateMyProfile(jwt("user-5", "perfil"), new MyProfileUpdateDTO(
                 " Novo ",
                 " ",
                 " novo@example.location "
@@ -419,7 +419,7 @@ class KeycloakUsuarioServiceTest {
 
         assertThat(perfil.firstName()).isEqualTo("Novo");
         assertThat(perfil.lastName()).isNull();
-        assertThat(perfil.alteracaoSenhaUrl()).isEqualTo("http://keycloak/realms/stella/account");
+        assertThat(perfil.passwordChangeUrl()).isEqualTo("http://keycloak/realms/stella/account");
         assertThat(perfil.roles()).containsExactly("admin");
         server.verify();
     }
@@ -444,7 +444,7 @@ class KeycloakUsuarioServiceTest {
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
 
-        assertThatThrownBy(() -> service.alterarMinhaSenha(jwt("user-6", "usuario6"), new AlterarSenhaDTO("errada", "nova123")))
+        assertThatThrownBy(() -> service.changeMyPassword(jwt("user-6", "usuario6"), new ChangePasswordDTO("errada", "nova123")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid current password.");
 

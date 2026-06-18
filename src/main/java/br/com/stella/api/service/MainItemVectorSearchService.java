@@ -267,7 +267,7 @@ public class MainItemVectorSearchService {
 
         Map<UUID, MainItem> itensPorId = mainItemRepository.findWithCategoryByIds(ids).stream()
                 .collect(Collectors.toMap(MainItem::getId, item -> item));
-        Map<UUID, List<ItemInstance>> instanciasPorItem = itemInstanceRepository.findActiveByMainItemIds(ids).stream()
+        Map<UUID, List<ItemInstance>> instancesByItem = itemInstanceRepository.findActiveByMainItemIds(ids).stream()
                 .collect(Collectors.groupingBy(instance -> instance.getMainItem().getId()));
 
         List<SemanticSearchItemDTO> response = new ArrayList<>();
@@ -277,7 +277,7 @@ public class MainItemVectorSearchService {
                 continue;
             }
 
-            List<ItemInstance> instances = instanciasPorItem.getOrDefault(id, List.of());
+            List<ItemInstance> instances = instancesByItem.getOrDefault(id, List.of());
             response.add(new SemanticSearchItemDTO(
                     item.getId(),
                     item.getName(),

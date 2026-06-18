@@ -7,9 +7,9 @@ import java.util.UUID;
 public record ItemLoanResponseDTO(
         UUID id,
         UUID itemInstanceId,
-        String instanciaIdentificacao,
-        UUID pessoaId,
-        String pessoaNome,
+        String instanceIdentification,
+        UUID personId,
+        String personName,
         Instant loanDate,
         LocalDate expectedReturnDate,
         Instant returnDate,

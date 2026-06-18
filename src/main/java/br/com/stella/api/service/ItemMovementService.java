@@ -78,12 +78,12 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
 
         validateIdentification(instance);
 
-        ItemInstance instanciaSalva = itemInstanceRepository.save(instance);
+        ItemInstance savedInstance = itemInstanceRepository.save(instance);
 
         ItemMovement movement = new ItemMovement();
         movement.setType(ItemMovementType.ENTRADA);
-        movement.setItemInstance(instanciaSalva);
-        movement.setDestinationLocation(instanciaSalva.getCurrentLocation());
+        movement.setItemInstance(savedInstance);
+        movement.setDestinationLocation(savedInstance.getCurrentLocation());
         movement.setNotes(BrValidations.trimToNull(dto.notes()));
 
         return ItemMovementMapper.toResponseDTO(save(movement));
