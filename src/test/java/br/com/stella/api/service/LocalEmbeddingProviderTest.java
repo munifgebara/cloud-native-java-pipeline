@@ -27,7 +27,7 @@ class LocalEmbeddingProviderTest {
     void setUp() {
         provider = new LocalEmbeddingProvider(
                 embeddingModel,
-                new EmbeddingsProperties("location", "http://stella-embeddings:8000", "modelo-location", 3)
+                new EmbeddingsProperties("location", "http://stella-embeddings:8000", "model-location", 3)
         );
     }
 

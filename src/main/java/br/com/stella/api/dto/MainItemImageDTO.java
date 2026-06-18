@@ -4,5 +4,5 @@ public record MainItemImageDTO(
         String bucket,
         String objectKey,
         String contentType,
-        Long tamanhoBytes
+        Long sizeBytes
 ) {}

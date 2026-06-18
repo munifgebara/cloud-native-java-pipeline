@@ -60,9 +60,9 @@ class InventoryRepositoryIntegrationTest {
         persistir(furadeira, livro);
         flushAndClear();
 
-        var itens = mainItemRepository.findAll(MainItemRepository.filterActive("furadeira", ferramentas.getId()), Sort.by("name"));
+        var items = mainItemRepository.findAll(MainItemRepository.filterActive("furadeira", ferramentas.getId()), Sort.by("name"));
 
-        assertThat(itens).extracting(MainItem::getName)
+        assertThat(items).extracting(MainItem::getName)
                 .containsExactly("ITG Furadeira de impacto");
     }
 

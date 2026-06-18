@@ -12,5 +12,5 @@ public record SemanticSearchItemDTO(
         String imageUrl,
         double similarity,
         List<SemanticSearchInstanceDTO> instances,
-        List<SemanticSearchLocationDTO> locaisProvaveis
+        List<SemanticSearchLocationDTO> probableLocations
 ) {}

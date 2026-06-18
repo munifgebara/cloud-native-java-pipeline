@@ -67,7 +67,7 @@ class ItemMestreVectorSearchServiceTest {
         ArgumentCaptor<String> document = ArgumentCaptor.forClass(String.class);
         verify(embeddingProvider).generateEmbedding(document.capture());
         assertThat(document.getValue()).contains("Name: Video card", "Description: Computer component", "Category: Electronics");
-        verify(jdbcTemplate).update(anyString(), eq(id), eq("location"), eq("modelo-teste"), eq(3), eq(document.getValue()), eq("[0.10000000,0.20000000,0.30000001]"));
+        verify(jdbcTemplate).update(anyString(), eq(id), eq("location"), eq("model-teste"), eq(3), eq(document.getValue()), eq("[0.10000000,0.20000000,0.30000001]"));
     }
 
     @Test
@@ -120,7 +120,7 @@ class ItemMestreVectorSearchServiceTest {
         UUID instanciaId = UUID.randomUUID();
         UUID locationId = UUID.randomUUID();
         MainItem item = item(itemId, true);
-        item.setImageObjectKey("itens/photo.png");
+        item.setImageObjectKey("items/photo.png");
         StorageLocation location = new StorageLocation();
         location.setId(locationId);
         location.setName("Caixa A");
@@ -148,7 +148,7 @@ class ItemMestreVectorSearchServiceTest {
         assertThat(result.getFirst().similarity()).isEqualTo(0.8765);
         assertThat(result.getFirst().imageUrl()).isEqualTo("/api/public/main-items/%s/main-image".formatted(itemId));
         assertThat(result.getFirst().instances()).extracting("identifier").containsExactly("GPU 1");
-        assertThat(result.getFirst().locaisProvaveis()).extracting("name").containsExactly("Caixa A");
+        assertThat(result.getFirst().probableLocations()).extracting("name").containsExactly("Caixa A");
         verify(vectorSearchMetricsService).recordQuery("onde encontro placa de computador", 1);
     }
 
@@ -242,7 +242,7 @@ class ItemMestreVectorSearchServiceTest {
     private MainItemVectorSearchService service(boolean enabled, AiProperties aiProperties, OpenAiLimitsProperties limitsProperties) {
         return new MainItemVectorSearchService(
                 new VectorSearchProperties(enabled, 0.2, 10),
-                new EmbeddingsProperties("location", "http://localhost:8000", "modelo-teste", 3),
+                new EmbeddingsProperties("location", "http://localhost:8000", "model-teste", 3),
                 embeddingProvider,
                 documentFactory,
                 jdbcTemplate,

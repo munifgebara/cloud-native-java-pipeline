@@ -226,7 +226,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
         item.setImageBucket(image.bucket());
         item.setImageObjectKey(image.objectKey());
         item.setImageContentType(image.contentType());
-        item.setImageSizeBytes(image.tamanhoBytes());
+        item.setImageSizeBytes(image.sizeBytes());
         item.setImageGeneratedByAi(generatedByAi);
         item.setImageProvider(generatedByAi ? BrValidations.trimToNull(provider) : null);
 
@@ -237,7 +237,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
                 "item_id", salvo.getId(),
                 "item_name", salvo.getName(),
                 "image_content_type", image.contentType(),
-                "image_size_bytes", image.tamanhoBytes(),
+                "image_size_bytes", image.sizeBytes(),
                 "image_generated_by_ai", generatedByAi,
                 "ai_provider", generatedByAi ? BrValidations.trimToNull(provider) : null,
                 "success", true

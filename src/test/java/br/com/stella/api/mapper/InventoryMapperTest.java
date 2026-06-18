@@ -157,7 +157,7 @@ class InventoryMapperTest {
         MainItem item = MainItemMapper.toEntity(new MainItemCreateDTO("Furadeira", "Impacto", "220V", "CADASTRO_IA_FOTO", category.getId(), false));
         item.setId(UUID.randomUUID());
         item.setCategory(category);
-        item.setImageObjectKey("itens/%s/photo.png".formatted(item.getId()));
+        item.setImageObjectKey("items/%s/photo.png".formatted(item.getId()));
         item.setImageContentType("image/png");
         item.setImageSizeBytes(30L);
 
