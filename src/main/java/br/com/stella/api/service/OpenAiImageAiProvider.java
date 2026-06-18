@@ -5,6 +5,7 @@ import br.com.stella.api.dto.ImageAiResponseDTO;
 import br.com.stella.api.observability.StructuredBusinessLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import br.com.stella.api.exception.AiUsageLimitException;
 import br.com.stella.api.exception.ExternalIntegrationException;
 import org.springframework.ai.image.ImageModel;
 import org.springframework.ai.image.ImagePrompt;
@@ -62,10 +63,24 @@ public class OpenAiImageAiProvider implements ImageAiProvider {
                     "success", true
             ));
             return result;
-        } catch (RuntimeException ex) {
+        } catch (AiUsageLimitException | ExternalIntegrationException ex) {
             logFailure(model, inicio, ex);
             throw ex;
+        } catch (RuntimeException ex) {
+            // An OpenAI/transport failure (e.g. model access denied) is an external integration
+            // problem -> 502, not a generic 500.
+            logFailure(model, inicio, ex);
+            throw new ExternalIntegrationException("Failed to generate the image via OpenAI: " + rootMessage(ex), ex);
         }
+    }
+
+    /** Deepest cause message, so the actual OpenAI error (e.g. model access denied) is surfaced. */
+    private static String rootMessage(Throwable ex) {
+        Throwable root = ex;
+        while (root.getCause() != null && root.getCause() != root) {
+            root = root.getCause();
+        }
+        return root.getMessage() == null ? root.getClass().getSimpleName() : root.getMessage();
     }
 
     private ImageAiResponseDTO parseResponse(ImageResponse response) {

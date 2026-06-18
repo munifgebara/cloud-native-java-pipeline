@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class OpenAiImagemIaProviderTest {
+class OpenAiImageAiProviderTest {
 
     @Mock
     private ImageModel imageModel;
@@ -78,7 +78,7 @@ class OpenAiImagemIaProviderTest {
         when(imageModel.call(any(ImagePrompt.class))).thenThrow(new RuntimeException("Could not connect to OpenAI to generate item image."));
 
         assertThatThrownBy(() -> provider.generateImage(new ImageAiRequestDTO("Furadeira", null, null)))
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(ExternalIntegrationException.class) // -> 502, not a generic 500
                 .hasMessageContaining("OpenAI");
     }
 

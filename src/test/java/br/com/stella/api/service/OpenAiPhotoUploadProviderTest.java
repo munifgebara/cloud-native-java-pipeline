@@ -3,6 +3,7 @@ package br.com.stella.api.service;
 import br.com.stella.api.config.AiProperties;
 import br.com.stella.api.config.OpenAiLimitsProperties;
 import br.com.stella.api.exception.AiUsageLimitException;
+import br.com.stella.api.exception.ExternalIntegrationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -104,8 +105,9 @@ class OpenAiPhotoUploadProviderTest {
         when(chatModel.call(any(Prompt.class))).thenThrow(new RuntimeException("Fail na API"));
 
         assertThatThrownBy(() -> provider.suggestRegistration(new MockMultipartFile("file", "photo.png", "image/png", "image".getBytes())))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Fail na API");
+                .isInstanceOf(ExternalIntegrationException.class) // -> 502, not a generic 500
+                .hasMessageContaining("OpenAI")
+                .hasRootCauseMessage("Fail na API");
     }
 
     @Test
