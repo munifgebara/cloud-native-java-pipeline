@@ -8,7 +8,7 @@ export interface CategorySummary {
   id: string;
   name: string;
   description: string | null;
-  icone: string | null;
+  icon: string | null;
   active: boolean;
 }
 
@@ -16,21 +16,21 @@ export interface CategoryResponse {
   id: string;
   name: string;
   description: string | null;
-  icone: string | null;
+  icon: string | null;
   active: boolean;
 }
 
 export interface CategoryCreateRequest {
   name: string;
   description?: string | null;
-  icone?: string | null;
+  icon?: string | null;
   active?: boolean | null;
 }
 
 export interface CategoryUpdateRequest {
   name: string;
   description?: string | null;
-  icone?: string | null;
+  icon?: string | null;
   active?: boolean | null;
 }
 

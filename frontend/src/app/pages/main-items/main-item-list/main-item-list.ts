@@ -43,7 +43,7 @@ export class MainItemListComponent implements OnInit {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly i18n = inject(I18nService);
 
-  itens = signal<MainItemSummary[]>([]);
+  items = signal<MainItemSummary[]>([]);
   resultadosSemanticos = signal<SemanticSearchItem[]>([]);
   categories = signal<CategorySummary[]>([]);
   loading = signal(false);
@@ -53,7 +53,7 @@ export class MainItemListComponent implements OnInit {
   semanticErrorMessage = signal('');
   nameFilter = '';
   filtroCategoryId = '';
-  consultaSemantica = '';
+  semanticQuery = '';
 
   ngOnInit(): void {
     this.carregarCategories();
@@ -66,7 +66,7 @@ export class MainItemListComponent implements OnInit {
 
     this.itemMestreService.listar().subscribe({
       next: (dados) => {
-        this.itens.set(dados);
+        this.items.set(dados);
         this.loading.set(false);
       },
       error: () => {
@@ -82,7 +82,7 @@ export class MainItemListComponent implements OnInit {
 
     this.itemMestreService.filtrar(this.nameFilter, this.filtroCategoryId).subscribe({
       next: (dados) => {
-        this.itens.set(dados);
+        this.items.set(dados);
         this.loading.set(false);
       },
       error: () => {
@@ -93,8 +93,8 @@ export class MainItemListComponent implements OnInit {
   }
 
   pesquisarSemanticamente(): void {
-    const consulta = this.consultaSemantica.trim();
-    if (!consulta) {
+    const query = this.semanticQuery.trim();
+    if (!query) {
       this.resultadosSemanticos.set([]);
       return;
     }
@@ -102,7 +102,7 @@ export class MainItemListComponent implements OnInit {
     this.loadingSemantica.set(true);
     this.semanticErrorMessage.set('');
 
-    this.itemMestreService.buscarSemanticamente(consulta).subscribe({
+    this.itemMestreService.searchSemantically(query).subscribe({
       next: (dados) => {
         this.resultadosSemanticos.set(dados);
         this.loadingSemantica.set(false);
@@ -115,7 +115,7 @@ export class MainItemListComponent implements OnInit {
   }
 
   limparBuscaSemantica(): void {
-    this.consultaSemantica = '';
+    this.semanticQuery = '';
     this.resultadosSemanticos.set([]);
     this.semanticErrorMessage.set('');
   }
@@ -158,17 +158,17 @@ export class MainItemListComponent implements OnInit {
   }
 
   relevancia(item: SemanticSearchItem): string {
-    return `${Math.round(item.similaridade * 100)}%`;
+    return `${Math.round(item.similarity * 100)}%`;
   }
 
   instanciasSummary(item: SemanticSearchItem): string {
-    if (!item.instancias.length) {
+    if (!item.instances.length) {
       return this.i18n.translate('masterItems.semanticNoInstances');
     }
 
-    return item.instancias
+    return item.instances
       .slice(0, 3)
-      .map((instancia) => instancia.identifier || instancia.assetTag || instancia.serialNumber || this.i18n.translate('masterItems.semanticUnnamedInstance'))
+      .map((instance) => instance.identifier || instance.assetTag || instance.serialNumber || this.i18n.translate('masterItems.semanticUnnamedInstance'))
       .join(', ');
   }
 
@@ -178,7 +178,7 @@ export class MainItemListComponent implements OnInit {
     }
 
     return item.probableLocations
-      .map((local) => `${local.name} (${local.quantidade})`)
+      .map((local) => `${local.name} (${local.quantity})`)
       .join(', ');
   }
 
@@ -194,7 +194,7 @@ export class MainItemListComponent implements OnInit {
 
     this.itemMestreService.delete(item.id).subscribe({
       next: () => {
-        this.itens.update((itens) => itens.filter((atual) => atual.id !== item.id));
+        this.items.update((items) => items.filter((atual) => atual.id !== item.id));
         this.deletingId.set(null);
       },
       error: () => {

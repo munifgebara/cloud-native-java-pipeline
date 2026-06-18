@@ -15,7 +15,7 @@ export interface PhotoUploadInstanceSuggestion {
 export interface PhotoUploadItemSuggestion {
   name: string;
   description: string | null;
-  categorySugerida: string | null;
+  suggestedCategory: string | null;
   brand: string | null;
   model: string | null;
   author: string | null;
@@ -24,16 +24,16 @@ export interface PhotoUploadItemSuggestion {
   isbn: string | null;
   source: string | null;
   identificationVerified: boolean | null;
-  quantidade: number;
+  quantity: number;
   condition: string | null;
   notes: string | null;
   confidence: number | null;
-  instancias: PhotoUploadInstanceSuggestion[];
+  instances: PhotoUploadInstanceSuggestion[];
 }
 
 export interface PhotoUploadSuggestionResponse {
-  itens: PhotoUploadItemSuggestion[];
-  mensagem: string | null;
+  items: PhotoUploadItemSuggestion[];
+  message: string | null;
 }
 
 @Injectable({

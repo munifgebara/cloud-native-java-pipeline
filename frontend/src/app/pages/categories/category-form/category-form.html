@@ -37,21 +37,21 @@
               pButton
               type="button"
               severity="secondary"
-              [outlined]="form.controls.icone.value !== null"
+              [outlined]="form.controls.icon.value !== null"
               [label]="'categories.icons.none' | translate"
               icon="pi pi-ban"
               (click)="selecionarIcon(null)">
             </button>
 
-            @for (icone of icones; track icone.key) {
+            @for (icon of icones; track icon.key) {
               <button
                 pButton
                 type="button"
                 severity="secondary"
-                [outlined]="form.controls.icone.value !== icone.key"
-                [label]="icone.labelKey | translate"
-                [icon]="icone.iconClass"
-                (click)="selecionarIcon(icone.key)">
+                [outlined]="form.controls.icon.value !== icon.key"
+                [label]="icon.labelKey | translate"
+                [icon]="icon.iconClass"
+                (click)="selecionarIcon(icon.key)">
               </button>
             }
           </div>

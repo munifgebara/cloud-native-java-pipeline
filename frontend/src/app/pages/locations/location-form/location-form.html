@@ -23,11 +23,11 @@
         </div>
 
         <div class="field full">
-          <label for="paiId">{{ 'locations.form.parent' | translate }}</label>
-          <select id="paiId" formControlName="paiId">
+          <label for="parentId">{{ 'locations.form.parent' | translate }}</label>
+          <select id="parentId" formControlName="parentId">
             <option value="">{{ 'locations.form.rootLocation' | translate }}</option>
             @for (local of opcoesPai(); track local.id) {
-              <option [value]="local.id">{{ local.caminho }}</option>
+              <option [value]="local.id">{{ local.path }}</option>
             }
           </select>
         </div>

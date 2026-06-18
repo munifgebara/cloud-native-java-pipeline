@@ -12,11 +12,11 @@ interface ViaCepResponse {
 }
 
 export interface CepLookupResult {
-  cep: string;
-  endereco: string;
-  bairro: string;
-  cidade: string;
-  uf: string;
+  zipCode: string;
+  address: string;
+  neighborhood: string;
+  city: string;
+  state: string;
 }
 
 @Injectable({
@@ -35,11 +35,11 @@ export class CepService {
         }
 
         return {
-          cep: response.cep?.replace(/\D/g, '') ?? sanitizedCep,
-          endereco: response.logradouro?.trim() ?? '',
-          bairro: response.bairro?.trim() ?? '',
-          cidade: response.localidade?.trim() ?? '',
-          uf: response.uf?.trim().toUpperCase() ?? '',
+          zipCode: response.cep?.replace(/\D/g, '') ?? sanitizedCep,
+          address: response.logradouro?.trim() ?? '',
+          neighborhood: response.bairro?.trim() ?? '',
+          city: response.localidade?.trim() ?? '',
+          state: response.uf?.trim().toUpperCase() ?? '',
         };
       }),
     );

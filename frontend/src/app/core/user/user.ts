@@ -20,7 +20,7 @@ export interface MeuPerfil {
   lastName: string | null;
   email: string | null;
   roles: string[];
-  alteracaoSenhaUrl: string;
+  passwordChangeUrl: string;
 }
 
 export interface UserCreateRequest {

@@ -8,10 +8,10 @@ export interface LocationSummary {
   id: string;
   name: string;
   description: string | null;
-  paiId: string | null;
-  paiNome: string | null;
-  caminho: string;
-  nivel: number;
+  parentId: string | null;
+  parentName: string | null;
+  path: string;
+  level: number;
   imageUrl: string | null;
   active: boolean;
 }
@@ -20,27 +20,27 @@ export interface LocationResponse {
   id: string;
   name: string;
   description: string | null;
-  paiId: string | null;
-  paiNome: string | null;
-  caminho: string;
-  nivel: number;
+  parentId: string | null;
+  parentName: string | null;
+  path: string;
+  level: number;
   imageUrl: string | null;
-  imagemContentType: string | null;
-  imagemTamanhoBytes: number | null;
+  imageContentType: string | null;
+  imageSizeBytes: number | null;
   active: boolean;
 }
 
 export interface LocationCreateRequest {
   name: string;
   description?: string | null;
-  paiId?: string | null;
+  parentId?: string | null;
   active?: boolean | null;
 }
 
 export interface LocationUpdateRequest {
   name: string;
   description?: string | null;
-  paiId?: string | null;
+  parentId?: string | null;
   active?: boolean | null;
 }
 

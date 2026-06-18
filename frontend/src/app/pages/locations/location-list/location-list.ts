@@ -97,7 +97,7 @@ export class LocationListComponent implements OnInit {
   }
 
   indent(local: LocationSummary): string {
-    return `${local.nivel * 1.25}rem`;
+    return `${local.level * 1.25}rem`;
   }
 
   private delete(local: LocationSummary): void {

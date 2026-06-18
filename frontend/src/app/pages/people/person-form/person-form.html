@@ -39,25 +39,25 @@
         </div>
 
         <div class="field">
-          <label for="telefonePrincipal">{{ 'people.form.mainPhone' | translate }}</label>
-          <input id="telefonePrincipal" pInputText formControlName="telefonePrincipal" />
-          @if (campoInvalido('telefonePrincipal')) {
+          <label for="primaryPhone">{{ 'people.form.mainPhone' | translate }}</label>
+          <input id="primaryPhone" pInputText formControlName="primaryPhone" />
+          @if (campoInvalido('primaryPhone')) {
             <small class="field-error">{{ 'people.form.phoneInvalid' | translate }}</small>
           }
         </div>
 
         <div class="field">
-          <label for="telefoneSecundario">{{ 'people.form.secondaryPhone' | translate }}</label>
-          <input id="telefoneSecundario" pInputText formControlName="telefoneSecundario" />
-          @if (campoInvalido('telefoneSecundario')) {
+          <label for="secondaryPhone">{{ 'people.form.secondaryPhone' | translate }}</label>
+          <input id="secondaryPhone" pInputText formControlName="secondaryPhone" />
+          @if (campoInvalido('secondaryPhone')) {
             <small class="field-error">{{ 'people.form.phoneInvalid' | translate }}</small>
           }
         </div>
 
         <div class="field">
-          <label for="cep">{{ 'people.form.cep' | translate }}</label>
-          <input id="cep" pInputText formControlName="cep" />
-          @if (campoInvalido('cep')) {
+          <label for="zipCode">{{ 'people.form.zipCode' | translate }}</label>
+          <input id="zipCode" pInputText formControlName="zipCode" />
+          @if (campoInvalido('zipCode')) {
             <small class="field-error">{{ 'people.form.cepInvalid' | translate }}</small>
           } @else if (buscandoCep()) {
             <small class="field-hint">{{ 'people.form.cepSearching' | translate }}</small>
@@ -67,31 +67,31 @@
         </div>
 
         <div class="field">
-          <label for="uf">{{ 'people.form.uf' | translate }}</label>
-          <input id="uf" pInputText formControlName="uf" />
-          @if (campoInvalido('uf')) {
+          <label for="state">{{ 'people.form.state' | translate }}</label>
+          <input id="state" pInputText formControlName="state" />
+          @if (campoInvalido('state')) {
             <small class="field-error">{{ 'people.form.ufInvalid' | translate }}</small>
           }
         </div>
 
         <div class="field full">
-          <label for="endereco">{{ 'people.form.address' | translate }}</label>
-          <input id="endereco" pInputText formControlName="endereco" />
+          <label for="address">{{ 'people.form.address' | translate }}</label>
+          <input id="address" pInputText formControlName="address" />
         </div>
 
         <div class="field">
-          <label for="complemento">{{ 'people.form.complement' | translate }}</label>
-          <input id="complemento" pInputText formControlName="complemento" />
+          <label for="complement">{{ 'people.form.complement' | translate }}</label>
+          <input id="complement" pInputText formControlName="complement" />
         </div>
 
         <div class="field">
-          <label for="bairro">{{ 'people.form.district' | translate }}</label>
-          <input id="bairro" pInputText formControlName="bairro" />
+          <label for="neighborhood">{{ 'people.form.district' | translate }}</label>
+          <input id="neighborhood" pInputText formControlName="neighborhood" />
         </div>
 
         <div class="field">
-          <label for="cidade">{{ 'people.form.city' | translate }}</label>
-          <input id="cidade" pInputText formControlName="cidade" />
+          <label for="city">{{ 'people.form.city' | translate }}</label>
+          <input id="city" pInputText formControlName="city" />
         </div>
 
         @if (edicao() && person(); as personAtual) {
@@ -106,11 +106,11 @@
             <dl class="audit-meta">
               <div>
                 <dt>{{ 'people.audit.createdAt' | translate }}</dt>
-                <dd>{{ formatarDataHora(personAtual.criadoEm) }}</dd>
+                <dd>{{ formatarDataHora(personAtual.createdAt) }}</dd>
               </div>
               <div>
                 <dt>{{ 'people.audit.updatedAt' | translate }}</dt>
-                <dd>{{ formatarDataHora(personAtual.alteradoEm) }}</dd>
+                <dd>{{ formatarDataHora(personAtual.updatedAt) }}</dd>
               </div>
             </dl>
 
@@ -119,65 +119,65 @@
 
               @if (carregandoRevisoes()) {
                 <p class="audit-empty">{{ 'common.loading' | translate }}</p>
-              } @else if (revisoesError()) {
-                <p class="audit-error">{{ revisoesError() }}</p>
-              } @else if (!revisoes().length) {
+              } @else if (revisionsError()) {
+                <p class="audit-error">{{ revisionsError() }}</p>
+              } @else if (!revisions().length) {
                 <p class="audit-empty">{{ 'people.audit.empty' | translate }}</p>
               } @else {
                 <div class="revision-list">
-                  @for (revisao of revisoes(); track revisao.revisao) {
+                  @for (revision of revisions(); track revision.revision) {
                     <details class="revision-item">
                       <summary>
-                        <span>{{ rotuloTipoRevisao(revisao.type) }}</span>
-                        <time [attr.datetime]="revisao.timestamp">
-                          {{ formatarDataHora(revisao.timestamp) }}
+                        <span>{{ rotuloTipoRevisao(revision.type) }}</span>
+                        <time [attr.datetime]="revision.timestamp">
+                          {{ formatarDataHora(revision.timestamp) }}
                         </time>
                       </summary>
 
                       <dl class="revision-data">
-                        <div [class.changed]="campoAlterado(revisao, 'name')">
+                        <div [class.changed]="campoAlterado(revision, 'name')">
                           <dt>{{ 'common.name' | translate }}</dt>
-                          <dd>{{ revisao.person.name }}</dd>
+                          <dd>{{ revision.person.name }}</dd>
                         </div>
-                        <div [class.changed]="campoAlterado(revisao, 'taxId')">
+                        <div [class.changed]="campoAlterado(revision, 'taxId')">
                           <dt>{{ 'people.form.taxId' | translate }}</dt>
-                          <dd>{{ revisao.person.taxId }}</dd>
+                          <dd>{{ revision.person.taxId }}</dd>
                         </div>
-                        <div [class.changed]="campoAlterado(revisao, 'email')">
+                        <div [class.changed]="campoAlterado(revision, 'email')">
                           <dt>{{ 'people.form.email' | translate }}</dt>
-                          <dd>{{ revisao.person.email || '-' }}</dd>
+                          <dd>{{ revision.person.email || '-' }}</dd>
                         </div>
-                        <div [class.changed]="campoAlterado(revisao, 'telefonePrincipal')">
+                        <div [class.changed]="campoAlterado(revision, 'primaryPhone')">
                           <dt>{{ 'people.form.mainPhone' | translate }}</dt>
-                          <dd>{{ revisao.person.telefonePrincipal || '-' }}</dd>
+                          <dd>{{ revision.person.primaryPhone || '-' }}</dd>
                         </div>
-                        <div [class.changed]="campoAlterado(revisao, 'telefoneSecundario')">
+                        <div [class.changed]="campoAlterado(revision, 'secondaryPhone')">
                           <dt>{{ 'people.form.secondaryPhone' | translate }}</dt>
-                          <dd>{{ revisao.person.telefoneSecundario || '-' }}</dd>
+                          <dd>{{ revision.person.secondaryPhone || '-' }}</dd>
                         </div>
-                        <div [class.changed]="campoAlterado(revisao, 'cep')">
-                          <dt>{{ 'people.form.cep' | translate }}</dt>
-                          <dd>{{ revisao.person.cep || '-' }}</dd>
+                        <div [class.changed]="campoAlterado(revision, 'zipCode')">
+                          <dt>{{ 'people.form.zipCode' | translate }}</dt>
+                          <dd>{{ revision.person.zipCode || '-' }}</dd>
                         </div>
-                        <div [class.changed]="campoAlterado(revisao, 'endereco')">
+                        <div [class.changed]="campoAlterado(revision, 'address')">
                           <dt>{{ 'people.form.address' | translate }}</dt>
-                          <dd>{{ revisao.person.endereco || '-' }}</dd>
+                          <dd>{{ revision.person.address || '-' }}</dd>
                         </div>
-                        <div [class.changed]="campoAlterado(revisao, 'complemento')">
+                        <div [class.changed]="campoAlterado(revision, 'complement')">
                           <dt>{{ 'people.form.complement' | translate }}</dt>
-                          <dd>{{ revisao.person.complemento || '-' }}</dd>
+                          <dd>{{ revision.person.complement || '-' }}</dd>
                         </div>
-                        <div [class.changed]="campoAlterado(revisao, 'bairro')">
+                        <div [class.changed]="campoAlterado(revision, 'neighborhood')">
                           <dt>{{ 'people.form.district' | translate }}</dt>
-                          <dd>{{ revisao.person.bairro || '-' }}</dd>
+                          <dd>{{ revision.person.neighborhood || '-' }}</dd>
                         </div>
-                        <div [class.changed]="campoAlterado(revisao, 'cidade')">
+                        <div [class.changed]="campoAlterado(revision, 'city')">
                           <dt>{{ 'people.form.city' | translate }}</dt>
-                          <dd>{{ revisao.person.cidade || '-' }}</dd>
+                          <dd>{{ revision.person.city || '-' }}</dd>
                         </div>
-                        <div [class.changed]="campoAlterado(revisao, 'uf')">
-                          <dt>{{ 'people.form.uf' | translate }}</dt>
-                          <dd>{{ revisao.person.uf || '-' }}</dd>
+                        <div [class.changed]="campoAlterado(revision, 'state')">
+                          <dt>{{ 'people.form.state' | translate }}</dt>
+                          <dd>{{ revision.person.state || '-' }}</dd>
                         </div>
                       </dl>
                     </details>

@@ -5,11 +5,11 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import {
-  ItemInstanceHistoricoResponse,
+  ItemInstanceHistoryResponse,
   ItemInstanceResponse,
   ItemInstanceService,
   ItemMovementResponse,
-  StatusOperacionalInstancia,
+  InstanceOperationalStatus,
 } from '../../../core/item-instance/item-instance';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
@@ -27,7 +27,7 @@ export class ItemInstanceHistoricoComponent implements OnInit {
 
   loading = signal(false);
   errorMessage = signal('');
-  history = signal<ItemInstanceHistoricoResponse | null>(null);
+  history = signal<ItemInstanceHistoryResponse | null>(null);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -49,16 +49,16 @@ export class ItemInstanceHistoricoComponent implements OnInit {
     });
   }
 
-  nomeInstancia(instancia: ItemInstanceResponse): string {
-    return instancia.identifier || instancia.assetTag || instancia.serialNumber || instancia.mainItemName;
+  nomeInstancia(instance: ItemInstanceResponse): string {
+    return instance.identifier || instance.assetTag || instance.serialNumber || instance.mainItemName;
   }
 
-  statusLabel(status: StatusOperacionalInstancia): string {
+  statusLabel(status: InstanceOperationalStatus): string {
     return this.i18n.translate(`itemInstances.status.${status}`);
   }
 
-  statusSeverity(status: StatusOperacionalInstancia): 'success' | 'info' | 'warn' | 'secondary' {
-    const severities: Record<StatusOperacionalInstancia, 'success' | 'info' | 'warn' | 'secondary'> = {
+  statusSeverity(status: InstanceOperationalStatus): 'success' | 'info' | 'warn' | 'secondary' {
+    const severities: Record<InstanceOperationalStatus, 'success' | 'info' | 'warn' | 'secondary'> = {
       DISPONIVEL: 'success',
       EM_MOVIMENTACAO: 'info',
       EMPRESTADO: 'warn',
@@ -67,28 +67,28 @@ export class ItemInstanceHistoricoComponent implements OnInit {
     return severities[status];
   }
 
-  tipoLabel(movimentacao: ItemMovementResponse): string {
-    return this.i18n.translate(`itemInstances.history.type.${movimentacao.type}`);
+  tipoLabel(movement: ItemMovementResponse): string {
+    return this.i18n.translate(`itemInstances.history.type.${movement.type}`);
   }
 
-  movimentoDescricao(movimentacao: ItemMovementResponse): string {
-    if (movimentacao.type === 'ENTRADA') {
+  movimentoDescricao(movement: ItemMovementResponse): string {
+    if (movement.type === 'ENTRADA') {
       return this.i18n.translate('itemInstances.history.entryDescription', {
-        destination: movimentacao.localDestinoNome || '-',
+        destination: movement.destinationLocationName || '-',
       });
     }
-    if (movimentacao.type === 'SAIDA') {
+    if (movement.type === 'SAIDA') {
       return this.i18n.translate('itemInstances.history.exitDescription', {
-        origin: movimentacao.localOrigemNome || '-',
-        reason: movimentacao.reason || '-',
+        origin: movement.originLocationName || '-',
+        reason: movement.reason || '-',
       });
     }
-    if (movimentacao.type === 'TRANSFERENCIA') {
+    if (movement.type === 'TRANSFERENCIA') {
       return this.i18n.translate('itemInstances.history.transferDescription', {
-        origin: movimentacao.localOrigemNome || '-',
-        destination: movimentacao.localDestinoNome || '-',
+        origin: movement.originLocationName || '-',
+        destination: movement.destinationLocationName || '-',
       });
     }
-    return movimentacao.type;
+    return movement.type;
   }
 }

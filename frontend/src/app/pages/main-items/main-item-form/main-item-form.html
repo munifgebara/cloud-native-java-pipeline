@@ -143,7 +143,7 @@
   <p-card class="instances-card">
     <ng-template pTemplate="title">
       <div class="instances-header">
-        <span>{{ 'masterItems.form.instances' | translate }} ({{ instancias().length }})</span>
+        <span>{{ 'masterItems.form.instances' | translate }} ({{ instances().length }})</span>
         <button
           pButton
           type="button"
@@ -155,12 +155,12 @@
     </ng-template>
 
     <ng-template pTemplate="content">
-      @if (instanciaError() && !dialogInstancia()) {
-        <div class="message error">{{ instanciaError() }}</div>
+      @if (instanceError() && !dialogInstancia()) {
+        <div class="message error">{{ instanceError() }}</div>
       }
 
       <p-table
-        [value]="instancias()"
+        [value]="instances()"
         [loading]="carregandoInstancias()"
         styleClass="responsive-table instances-table">
         <ng-template pTemplate="header">
@@ -172,18 +172,18 @@
           </tr>
         </ng-template>
 
-        <ng-template pTemplate="body" let-instancia>
+        <ng-template pTemplate="body" let-instance>
           <tr>
             <td [attr.data-label]="'itemInstances.identifier' | translate">
-              {{ instanciaLabel(instancia) }}
+              {{ instanceLabel(instance) }}
             </td>
             <td [attr.data-label]="'itemInstances.currentLocation' | translate">
-              {{ instancia.currentLocationName || '-' }}
+              {{ instance.currentLocationName || '-' }}
             </td>
             <td [attr.data-label]="'itemInstances.status' | translate">
               <p-tag
-                [value]="instanciaStatusLabel(instancia.operationalStatus)"
-                [severity]="instanciaStatusSeverity(instancia.operationalStatus)">
+                [value]="instanceStatusLabel(instance.operationalStatus)"
+                [severity]="instanceStatusSeverity(instance.operationalStatus)">
               </p-tag>
             </td>
             <td [attr.data-label]="'common.actions' | translate">
@@ -195,7 +195,7 @@
                   text
                   icon="pi pi-history"
                   [label]="'itemInstances.history.action' | translate"
-                  [routerLink]="['/item-instances', instancia.id, 'history']">
+                  [routerLink]="['/item-instances', instance.id, 'history']">
                 </button>
                 <button
                   pButton
@@ -204,7 +204,7 @@
                   text
                   icon="pi pi-pencil"
                   [label]="'common.edit' | translate"
-                  [routerLink]="['/item-instances', instancia.id, 'edit']">
+                  [routerLink]="['/item-instances', instance.id, 'edit']">
                 </button>
               </div>
             </td>
@@ -227,8 +227,8 @@
     (visibleChange)="!$event && fecharDialogInstancia()"
     [style]="{ width: '32rem' }">
     <div class="instance-dialog-form">
-      @if (instanciaError()) {
-        <div class="message error">{{ instanciaError() }}</div>
+      @if (instanceError()) {
+        <div class="message error">{{ instanceError() }}</div>
       }
 
       <div class="field">
@@ -236,7 +236,7 @@
         <select id="instLocalId" [(ngModel)]="novaInstanciaLocalId">
           <option value="">{{ 'itemInstances.form.selectLocation' | translate }}</option>
           @for (local of locationsAtivos(); track local.id) {
-            <option [value]="local.id">{{ local.caminho }}</option>
+            <option [value]="local.id">{{ local.path }}</option>
           }
         </select>
       </div>

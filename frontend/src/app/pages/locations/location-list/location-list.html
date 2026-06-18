@@ -80,8 +80,8 @@
             {{ local.name }}
           </span>
         </td>
-        <td [attr.data-label]="'locations.path' | translate">{{ local.caminho }}</td>
-        <td [attr.data-label]="'locations.parent' | translate">{{ local.paiNome || '-' }}</td>
+        <td [attr.data-label]="'locations.path' | translate">{{ local.path }}</td>
+        <td [attr.data-label]="'locations.parent' | translate">{{ local.parentName || '-' }}</td>
         <td [attr.data-label]="'locations.status' | translate">
           <p-tag
             [value]="statusLabel(local)"
