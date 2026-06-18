@@ -85,6 +85,35 @@ npm run build
 
 The Maven build also runs the frontend build as part of the integrated package flow.
 
+## Browser E2E (Playwright)
+
+End-to-end smoke test that drives the real SPA in a headless browser. It logs in and navigates
+the main screens via the sidebar, asserting that no API call returns 4xx/5xx and no console error
+occurs — a low-maintenance way to catch front/back drift without brittle UI selectors.
+
+One-time setup (installs the Chromium binary used by Playwright):
+
+```bash
+cd frontend
+npm install
+npx playwright install chromium
+```
+
+The test needs a **running** stack (Postgres+pgvector, Keycloak, MinIO and the app serving the SPA
+at `/app`). Bring it up with `docker compose up -d` and start the app, then:
+
+```bash
+cd frontend
+STELLA_E2E_BASE_URL=http://localhost:8080 \
+STELLA_E2E_USERNAME=admin \
+STELLA_E2E_PASSWORD=admin123 \
+npm run e2e
+```
+
+It can also target the validation environment by changing `STELLA_E2E_BASE_URL` to
+`https://stella.gebaralabs.dev` (with valid credentials). Config lives in
+`frontend/playwright.config.ts`; specs in `frontend/e2e/`.
+
 ## Coverage Goal
 
 The project currently enforces coverage through JaCoCo. The near-term target is to keep raising coverage toward 80%, with a later backlog item to move toward 90%. Production-critical backend flows should receive integration or service-level tests before UI polish work.
