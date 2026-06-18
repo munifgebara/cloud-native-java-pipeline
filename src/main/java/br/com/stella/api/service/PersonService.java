@@ -179,7 +179,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
 
         AuditReader auditReader = AuditReaderFactory.get(entityManager);
 
-        List<PersonRevisionDTO> revisoes = auditReader.createQuery()
+        List<PersonRevisionDTO> revisions = auditReader.createQuery()
                 .forRevisionsOfEntity(Person.class, false, true)
                 .add(AuditEntity.id().eq(id))
                 .addOrder(AuditEntity.revisionNumber().desc())
@@ -188,7 +188,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
                 .map(this::toPersonRevisionDTO)
                 .toList();
 
-        return adicionarCamposAlterados(revisoes);
+        return adicionarCamposAlterados(revisions);
     }
 
     /**
@@ -314,14 +314,14 @@ public class PersonService extends SuperService<Person, PersonRepository> {
      * @return revision DTO with changed fields still empty (populated by {@link #adicionarCamposAlterados})
      */
     private PersonRevisionDTO toPersonRevisionDTO(Object item) {
-        if (item instanceof Object[] dadosRevisao
-                && dadosRevisao[0] instanceof Person person
-                && dadosRevisao[1] instanceof MRevisionEntity revisao
-                && dadosRevisao[2] instanceof RevisionType tipo) {
+        if (item instanceof Object[] revisionData
+                && revisionData[0] instanceof Person person
+                && revisionData[1] instanceof MRevisionEntity revision
+                && revisionData[2] instanceof RevisionType type) {
             return new PersonRevisionDTO(
-                    revisao.getId(),
-                    revisao.getTimestamp(),
-                    tipo.name(),
+                    revision.getId(),
+                    revision.getTimestamp(),
+                    type.name(),
                     PersonMapper.toResponseDTO(person),
                     List.of()
             );
@@ -329,26 +329,26 @@ public class PersonService extends SuperService<Person, PersonRepository> {
         throw new IllegalStateException("Unexpected Envers revision data format.");
     }
 
-    private List<PersonRevisionDTO> adicionarCamposAlterados(List<PersonRevisionDTO> revisoes) {
+    private List<PersonRevisionDTO> adicionarCamposAlterados(List<PersonRevisionDTO> revisions) {
         List<PersonRevisionDTO> result = new ArrayList<>();
 
-        for (int i = 0; i < revisoes.size(); i++) {
-            PersonRevisionDTO revisao = revisoes.get(i);
-            PersonResponseDTO versaoAnterior = i + 1 < revisoes.size() ? revisoes.get(i + 1).person() : null;
+        for (int i = 0; i < revisions.size(); i++) {
+            PersonRevisionDTO revision = revisions.get(i);
+            PersonResponseDTO previousVersion = i + 1 < revisions.size() ? revisions.get(i + 1).person() : null;
 
             result.add(new PersonRevisionDTO(
-                    revisao.revisao(),
-                    revisao.dataHora(),
-                    revisao.tipo(),
-                    revisao.person(),
-                    camposAlterados(revisao.person(), versaoAnterior)
+                    revision.revision(),
+                    revision.timestamp(),
+                    revision.type(),
+                    revision.person(),
+                    changedFields(revision.person(), previousVersion)
             ));
         }
 
         return result;
     }
 
-    private List<String> camposAlterados(PersonResponseDTO atual, PersonResponseDTO anterior) {
+    private List<String> changedFields(PersonResponseDTO atual, PersonResponseDTO anterior) {
         if (atual == null || anterior == null) {
             return List.of();
         }

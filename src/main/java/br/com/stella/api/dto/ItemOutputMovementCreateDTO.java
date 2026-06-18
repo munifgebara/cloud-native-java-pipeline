@@ -12,7 +12,7 @@ public record ItemOutputMovementCreateDTO(
 
         @NotBlank(message = "Reason is required.")
         @Size(max = 200, message = "Reason must not exceed 200 characters.")
-        String motivo,
+        String reason,
 
         @Size(max = 1000, message = "Observation must not exceed 1000 characters.")
         String notes

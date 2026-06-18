@@ -110,8 +110,8 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
         );
 
         StorageLocation originLocation = instance.getCurrentLocation();
-        String motivo = BrValidations.trimToNull(dto.motivo());
-        if (motivo == null) {
+        String reason = BrValidations.trimToNull(dto.reason());
+        if (reason == null) {
             throw new IllegalArgumentException("Reason is required.");
         }
 
@@ -123,7 +123,7 @@ public class ItemMovementService extends SuperService<ItemMovement, ItemMovement
         movement.setType(ItemMovementType.SAIDA);
         movement.setItemInstance(instance);
         movement.setOriginLocation(originLocation);
-        movement.setReason(motivo);
+        movement.setReason(reason);
         movement.setNotes(BrValidations.trimToNull(dto.notes()));
 
         return ItemMovementMapper.toResponseDTO(save(movement));

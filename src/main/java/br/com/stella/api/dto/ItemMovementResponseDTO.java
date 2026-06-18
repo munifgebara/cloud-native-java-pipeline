@@ -13,7 +13,7 @@ import java.util.UUID;
  * avoid additional requests on the client.</p>
  *
  * @param id                     unique identifier of the movement
- * @param tipo                   movement type ({@code ENTRADA}, {@code SAIDA} or {@code TRANSFERENCIA})
+ * @param type                   movement type ({@code ENTRADA}, {@code SAIDA} or {@code TRANSFERENCIA})
  * @param movementDate       date and time when the movement occurred (UTC)
  * @param itemInstanceId        identifier of the moved item instance
  * @param instanceIdentification readable identification of the instance (identifier, asset number or serial number)
@@ -21,12 +21,12 @@ import java.util.UUID;
  * @param originLocationName        origin location name (denormalized); {@code null} in inbound movements
  * @param destinationLocationId         identifier of the destination location; {@code null} in outbound movements
  * @param destinationLocationName       destination location name (denormalized); {@code null} in outbound movements
- * @param motivo                 summarized reason for the movement; may be {@code null}
+ * @param reason                 summarized reason for the movement; may be {@code null}
  * @param notes             complementary notes about the movement; may be {@code null}
  */
 public record ItemMovementResponseDTO(
         UUID id,
-        ItemMovementType tipo,
+        ItemMovementType type,
         Instant movementDate,
         UUID itemInstanceId,
         String instanceIdentification,
@@ -34,6 +34,6 @@ public record ItemMovementResponseDTO(
         String originLocationName,
         UUID destinationLocationId,
         String destinationLocationName,
-        String motivo,
+        String reason,
         String notes
 ) {}

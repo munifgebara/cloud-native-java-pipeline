@@ -281,7 +281,7 @@ class InstanciaItemServiceTest {
         assertThat(response.instance().id()).isEqualTo(instanciaId);
         assertThat(response.instance().currentLocationId()).isEqualTo(destino.getId());
         assertThat(response.movements()).hasSize(1);
-        assertThat(response.movements().getFirst().tipo()).isEqualTo(ItemMovementType.TRANSFERENCIA);
+        assertThat(response.movements().getFirst().type()).isEqualTo(ItemMovementType.TRANSFERENCIA);
         assertThat(response.movements().getFirst().originLocationId()).isEqualTo(origem.getId());
         assertThat(response.movements().getFirst().destinationLocationId()).isEqualTo(destino.getId());
     }
@@ -332,10 +332,10 @@ class InstanciaItemServiceTest {
         return location;
     }
 
-    private ItemMovement movement(ItemInstance instance, StorageLocation origem, StorageLocation destino, ItemMovementType tipo) {
+    private ItemMovement movement(ItemInstance instance, StorageLocation origem, StorageLocation destino, ItemMovementType type) {
         ItemMovement movement = new ItemMovement();
         movement.setId(UUID.randomUUID());
-        movement.setType(tipo);
+        movement.setType(type);
         movement.setItemInstance(instance);
         movement.setOriginLocation(origem);
         movement.setDestinationLocation(destino);
