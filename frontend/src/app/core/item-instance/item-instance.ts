@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-export type StatusOperacionalInstancia = 'DISPONIVEL' | 'EM_MOVIMENTACAO' | 'EMPRESTADO' | 'INATIVO';
+export type InstanceOperationalStatus = 'DISPONIVEL' | 'EM_MOVIMENTACAO' | 'EMPRESTADO' | 'INATIVO';
 
 export interface ItemInstanceSummary {
   id: string;
@@ -16,7 +16,7 @@ export interface ItemInstanceSummary {
   identifier: string | null;
   assetTag: string | null;
   serialNumber: string | null;
-  operationalStatus: StatusOperacionalInstancia;
+  operationalStatus: InstanceOperationalStatus;
   active: boolean;
 }
 
@@ -32,9 +32,9 @@ export interface ItemInstanceResponse {
   identifier: string | null;
   assetTag: string | null;
   serialNumber: string | null;
-  operationalStatus: StatusOperacionalInstancia;
+  operationalStatus: InstanceOperationalStatus;
   notes: string | null;
-  origemCadastro: string | null;
+  registrationOrigin: string | null;
   active: boolean;
 }
 
@@ -44,9 +44,9 @@ export interface ItemInstanceCreateRequest {
   identifier?: string | null;
   assetTag?: string | null;
   serialNumber?: string | null;
-  operationalStatus?: StatusOperacionalInstancia | null;
+  operationalStatus?: InstanceOperationalStatus | null;
   notes?: string | null;
-  origemCadastro?: string | null;
+  registrationOrigin?: string | null;
   active?: boolean | null;
 }
 
@@ -56,13 +56,13 @@ export interface ItemInstanceUpdateRequest {
   identifier?: string | null;
   assetTag?: string | null;
   serialNumber?: string | null;
-  operationalStatus?: StatusOperacionalInstancia | null;
+  operationalStatus?: InstanceOperationalStatus | null;
   notes?: string | null;
-  origemCadastro?: string | null;
+  registrationOrigin?: string | null;
   active?: boolean | null;
 }
 
-export interface MovimentacaoEntradaRequest {
+export interface InboundMovementRequest {
   mainItemId: string;
   destinationLocationId: string;
   identifier?: string | null;
@@ -71,37 +71,37 @@ export interface MovimentacaoEntradaRequest {
   notes?: string | null;
 }
 
-export interface MovimentacaoSaidaRequest {
-  instanciaItemId: string;
+export interface OutboundMovementRequest {
+  itemInstanceId: string;
   reason: string;
   notes?: string | null;
 }
 
-export interface MovimentacaoTransferenciaRequest {
-  instanciaItemId: string;
+export interface TransferMovementRequest {
+  itemInstanceId: string;
   destinationLocationId: string;
   notes?: string | null;
 }
 
 export interface ItemLoanRequest {
-  instanciaItemId: string;
+  itemInstanceId: string;
   personId: string;
   expectedReturnDate?: string | null;
   notes?: string | null;
 }
 
 export interface DevolucaoItemRequest {
-  instanciaItemId: string;
-  localRetornoId: string;
+  itemInstanceId: string;
+  returnLocationId: string;
   notes?: string | null;
 }
 
 export interface ItemLoanResponse {
   id: string;
-  instanciaItemId: string;
-  instanciaIdentificacao: string | null;
+  itemInstanceId: string;
+  instanceIdentification: string | null;
   personId: string;
-  personNome: string;
+  personName: string;
   loanDate: string;
   expectedReturnDate: string | null;
   returnDate: string | null;
@@ -112,19 +112,19 @@ export interface ItemMovementResponse {
   id: string;
   type: 'ENTRADA' | 'SAIDA' | 'TRANSFERENCIA';
   movementDate: string;
-  instanciaItemId: string;
-  instanciaIdentificacao: string | null;
+  itemInstanceId: string;
+  instanceIdentification: string | null;
   originLocationId: string | null;
-  localOrigemNome: string | null;
+  originLocationName: string | null;
   destinationLocationId: string | null;
-  localDestinoNome: string | null;
+  destinationLocationName: string | null;
   reason: string | null;
   notes: string | null;
 }
 
-export interface ItemInstanceHistoricoResponse {
-  instancia: ItemInstanceResponse;
-  movimentacoes: ItemMovementResponse[];
+export interface ItemInstanceHistoryResponse {
+  instance: ItemInstanceResponse;
+  movements: ItemMovementResponse[];
 }
 
 @Injectable({
@@ -148,7 +148,7 @@ export class ItemInstanceService {
     identification?: string | null,
     mainItem?: string | null,
     categoryId?: string | null,
-    operationalStatus?: StatusOperacionalInstancia | null
+    operationalStatus?: InstanceOperationalStatus | null
   ): Observable<ItemInstanceSummary[]> {
     const params: Record<string, string> = {};
     const identificacaoTratada = (identification ?? '').trim();
@@ -177,23 +177,23 @@ export class ItemInstanceService {
     return this.http.get<ItemInstanceResponse>(`${this.baseUrl}/${id}`);
   }
 
-  buscarHistorico(id: string): Observable<ItemInstanceHistoricoResponse> {
-    return this.http.get<ItemInstanceHistoricoResponse>(`${this.baseUrl}/${id}/history`);
+  buscarHistorico(id: string): Observable<ItemInstanceHistoryResponse> {
+    return this.http.get<ItemInstanceHistoryResponse>(`${this.baseUrl}/${id}/history`);
   }
 
   criar(payload: ItemInstanceCreateRequest): Observable<ItemInstanceResponse> {
     return this.http.post<ItemInstanceResponse>(this.baseUrl, payload);
   }
 
-  registrarEntrada(payload: MovimentacaoEntradaRequest): Observable<ItemMovementResponse> {
+  registrarEntrada(payload: InboundMovementRequest): Observable<ItemMovementResponse> {
     return this.http.post<ItemMovementResponse>(`${environment.apiBaseUrl}/api/v0/movements-item/inbound`, payload);
   }
 
-  registrarSaida(payload: MovimentacaoSaidaRequest): Observable<ItemMovementResponse> {
+  registrarSaida(payload: OutboundMovementRequest): Observable<ItemMovementResponse> {
     return this.http.post<ItemMovementResponse>(`${environment.apiBaseUrl}/api/v0/movements-item/outbound`, payload);
   }
 
-  registrarTransferencia(payload: MovimentacaoTransferenciaRequest): Observable<ItemMovementResponse> {
+  registrarTransferencia(payload: TransferMovementRequest): Observable<ItemMovementResponse> {
     return this.http.post<ItemMovementResponse>(`${environment.apiBaseUrl}/api/v0/movements-item/transfer`, payload);
   }
 

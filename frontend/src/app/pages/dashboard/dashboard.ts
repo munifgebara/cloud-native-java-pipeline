@@ -41,7 +41,7 @@ export class DashboardComponent implements OnInit {
   loadingSemantica = signal(false);
   errorMessage = signal('');
   semanticErrorMessage = signal('');
-  consultaSemantica = '';
+  semanticQuery = '';
 
   ngOnInit(): void {
     this.dashboardService.carregarSummary().subscribe({
@@ -56,17 +56,17 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  buscarSemanticamente(): void {
-    const consulta = this.consultaSemantica.trim();
+  searchSemantically(): void {
+    const query = this.semanticQuery.trim();
     this.semanticErrorMessage.set('');
 
-    if (!consulta) {
+    if (!query) {
       this.resultadosSemanticos.set([]);
       return;
     }
 
     this.loadingSemantica.set(true);
-    this.itemMestreService.buscarSemanticamente(consulta).subscribe({
+    this.itemMestreService.searchSemantically(query).subscribe({
       next: (resultados) => {
         this.resultadosSemanticos.set(resultados);
         this.loadingSemantica.set(false);
@@ -84,17 +84,17 @@ export class DashboardComponent implements OnInit {
   }
 
   similaridadePercentual(item: SemanticSearchItem): string {
-    return `${Math.round(item.similaridade * 100)}%`;
+    return `${Math.round(item.similarity * 100)}%`;
   }
 
   instanciasSummary(item: SemanticSearchItem): string {
-    if (!item.instancias.length) {
+    if (!item.instances.length) {
       return this.i18n.translate('dashboard.semanticNoInstances');
     }
 
-    return item.instancias
+    return item.instances
       .slice(0, 3)
-      .map((instancia) => instancia.identifier || instancia.assetTag || instancia.serialNumber || this.i18n.translate('dashboard.semanticUnnamedInstance'))
+      .map((instance) => instance.identifier || instance.assetTag || instance.serialNumber || this.i18n.translate('dashboard.semanticUnnamedInstance'))
       .join(', ');
   }
 
@@ -105,7 +105,7 @@ export class DashboardComponent implements OnInit {
 
     return item.probableLocations
       .slice(0, 3)
-      .map((local) => `${local.name} (${local.quantidade})`)
+      .map((local) => `${local.name} (${local.quantity})`)
       .join(', ');
   }
 

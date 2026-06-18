@@ -35,7 +35,7 @@ export class CategoryFormComponent implements OnInit {
   form = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(150)]],
     description: ['', [Validators.maxLength(500)]],
-    icone: [null as string | null],
+    icon: [null as string | null],
     active: [true],
   });
 
@@ -54,7 +54,7 @@ export class CategoryFormComponent implements OnInit {
         this.form.patchValue({
           name: category.name ?? '',
           description: category.description ?? '',
-          icone: category.icone ?? null,
+          icon: category.icon ?? null,
           active: category.active,
         });
         this.loading.set(false);
@@ -81,7 +81,7 @@ export class CategoryFormComponent implements OnInit {
     const payload = {
       name: valor.name?.trim() ?? '',
       description: this.nullIfBlank(valor.description),
-      icone: valor.icone ?? null,
+      icon: valor.icon ?? null,
       active: !!valor.active,
     };
 
@@ -117,9 +117,9 @@ export class CategoryFormComponent implements OnInit {
     return !!campo && campo.invalid && (campo.touched || campo.dirty);
   }
 
-  selecionarIcon(icone: string | null): void {
-    this.form.controls.icone.setValue(icone);
-    this.form.controls.icone.markAsDirty();
+  selecionarIcon(icon: string | null): void {
+    this.form.controls.icon.setValue(icon);
+    this.form.controls.icon.markAsDirty();
   }
 
   private nullIfBlank(value: string | null | undefined): string | null {

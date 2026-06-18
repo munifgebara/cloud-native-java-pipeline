@@ -8,28 +8,28 @@ export interface PersonSummary {
   name: string;
   taxId: string;
   email: string | null;
-  telefonePrincipal: string | null;
+  primaryPhone: string | null;
 }
 
 export interface PersonResponse {
   id: string;
   name: string;
   taxId: string;
-  telefonePrincipal: string | null;
-  telefoneSecundario: string | null;
+  primaryPhone: string | null;
+  secondaryPhone: string | null;
   email: string | null;
-  cep: string | null;
-  endereco: string | null;
-  complemento: string | null;
-  bairro: string | null;
-  cidade: string | null;
-  uf: string | null;
-  criadoEm: string;
-  alteradoEm: string;
+  zipCode: string | null;
+  address: string | null;
+  complement: string | null;
+  neighborhood: string | null;
+  city: string | null;
+  state: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface PersonRevisao {
-  revisao: number;
+export interface PersonRevision {
+  revision: number;
   timestamp: string;
   type: 'ADD' | 'MOD' | 'DEL';
   person: PersonResponse;
@@ -39,28 +39,28 @@ export interface PersonRevisao {
 export interface PersonCreateRequest {
   name: string;
   taxId: string;
-  telefonePrincipal?: string | null;
-  telefoneSecundario?: string | null;
+  primaryPhone?: string | null;
+  secondaryPhone?: string | null;
   email?: string | null;
-  cep?: string | null;
-  endereco?: string | null;
-  complemento?: string | null;
-  bairro?: string | null;
-  cidade?: string | null;
-  uf?: string | null;
+  zipCode?: string | null;
+  address?: string | null;
+  complement?: string | null;
+  neighborhood?: string | null;
+  city?: string | null;
+  state?: string | null;
 }
 
 export interface PersonUpdateRequest {
   name: string;
-  telefonePrincipal?: string | null;
-  telefoneSecundario?: string | null;
+  primaryPhone?: string | null;
+  secondaryPhone?: string | null;
   email?: string | null;
-  cep?: string | null;
-  endereco?: string | null;
-  complemento?: string | null;
-  bairro?: string | null;
-  cidade?: string | null;
-  uf?: string | null;
+  zipCode?: string | null;
+  address?: string | null;
+  complement?: string | null;
+  neighborhood?: string | null;
+  city?: string | null;
+  state?: string | null;
 }
 
 @Injectable({
@@ -92,8 +92,8 @@ export class PersonService {
     return this.http.put<PersonResponse>(`${this.baseUrl}/${id}`, payload);
   }
 
-  listarRevisoes(id: string): Observable<PersonRevisao[]> {
-    return this.http.get<PersonRevisao[]>(`${this.baseUrl}/${id}/revisions`);
+  listRevisions(id: string): Observable<PersonRevision[]> {
+    return this.http.get<PersonRevision[]>(`${this.baseUrl}/${id}/revisions`);
   }
 
   delete(id: string): Observable<void> {

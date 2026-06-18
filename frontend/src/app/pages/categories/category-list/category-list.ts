@@ -96,7 +96,7 @@ export class CategoryListComponent implements OnInit {
   }
 
   iconClass(category: CategorySummary): string {
-    return categoryIconClass(category.icone);
+    return categoryIconClass(category.icon);
   }
 
   private delete(category: CategorySummary): void {

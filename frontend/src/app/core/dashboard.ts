@@ -11,22 +11,22 @@ export interface DashboardSummary {
   loanedInstanceCount: number;
   locationCount: number;
   itemsWithoutImageCount: number;
-  quantidadeItensCadastradosPorIa: number;
-  quantidadeConsultasVetoriais: number;
-  locationsComMaisItens: DashboardLocalQuantidade[];
-  categoriesComMaisItens: DashboardCategoryQuantidade[];
+  aiRegisteredItemCount: number;
+  vectorQueryCount: number;
+  topLocations: DashboardLocationQuantity[];
+  topCategories: DashboardCategoryQuantity[];
 }
 
-export interface DashboardLocalQuantidade {
+export interface DashboardLocationQuantity {
   id: string;
   name: string;
   instanceCount: number;
 }
 
-export interface DashboardCategoryQuantidade {
+export interface DashboardCategoryQuantity {
   id: string;
   name: string;
-  quantidadeItens: number;
+  itemCount: number;
 }
 
 @Injectable({

@@ -2,9 +2,9 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { catchError, throwError } from 'rxjs';
 
 type ApiErrorBody = {
-  erro?: string;
+  error?: string;
   message?: string;
-  campos?: Record<string, string>;
+  fields?: Record<string, string>;
 };
 
 export function mensagemErroHttp(error: unknown, fallback: string): string {
@@ -48,14 +48,14 @@ function montarMensagemUser(error: HttpErrorResponse, fallback: string): string 
   }
 
   const body = error.error as ApiErrorBody | null;
-  const campos = body?.campos ? Object.values(body.campos).filter(Boolean) : [];
+  const fields = body?.fields ? Object.values(body.fields).filter(Boolean) : [];
 
-  if (campos.length) {
-    return campos.join(' ');
+  if (fields.length) {
+    return fields.join(' ');
   }
 
-  if (body?.erro) {
-    return body.erro;
+  if (body?.error) {
+    return body.error;
   }
 
   if (body?.message) {

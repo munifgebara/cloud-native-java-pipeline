@@ -58,7 +58,7 @@
       <input
         pInputText
         type="text"
-        [(ngModel)]="consultaSemantica"
+        [(ngModel)]="semanticQuery"
         [placeholder]="'masterItems.semanticPlaceholder' | translate"
         (keyup.enter)="pesquisarSemanticamente()" />
 
@@ -128,14 +128,14 @@
           </article>
         }
       </div>
-    } @else if (consultaSemantica.trim() && !loadingSemantica() && !semanticErrorMessage()) {
+    } @else if (semanticQuery.trim() && !loadingSemantica() && !semanticErrorMessage()) {
       <app-stella-empty-state [compact]="true" [message]="'masterItems.semanticEmpty' | translate" />
     }
   </app-stella-ai-panel>
 
   <p-table
     styleClass="responsive-table"
-    [value]="itens()"
+    [value]="items()"
     [loading]="loading()"
     [tableStyle]="{ 'min-width': '76rem' }">
     <ng-template pTemplate="header">

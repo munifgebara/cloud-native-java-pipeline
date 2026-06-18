@@ -8,7 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
 import { mensagemErroHttp } from '../../../core/http-error';
-import { ItemInstanceService, StatusOperacionalInstancia } from '../../../core/item-instance/item-instance';
+import { ItemInstanceService, InstanceOperationalStatus } from '../../../core/item-instance/item-instance';
 import { LocationSummary, LocationService } from '../../../core/location/location';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
@@ -25,7 +25,7 @@ export class ItemInstanceFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly i18n = inject(I18nService);
-  private readonly instanciaItemService = inject(ItemInstanceService);
+  private readonly itemInstanceService = inject(ItemInstanceService);
   private readonly localService = inject(LocationService);
 
   private mainItemId = '';
@@ -36,14 +36,14 @@ export class ItemInstanceFormComponent implements OnInit {
   loading = signal(false);
   salvando = signal(false);
   errorMessage = signal('');
-  statusOptions: StatusOperacionalInstancia[] = ['DISPONIVEL', 'EM_MOVIMENTACAO', 'EMPRESTADO', 'INATIVO'];
+  statusOptions: InstanceOperationalStatus[] = ['DISPONIVEL', 'EM_MOVIMENTACAO', 'EMPRESTADO', 'INATIVO'];
 
   form = this.fb.group({
     currentLocationId: ['', [Validators.required]],
     identifier: ['', [Validators.maxLength(100)]],
     assetTag: ['', [Validators.maxLength(100)]],
     serialNumber: ['', [Validators.maxLength(150)]],
-    operationalStatus: ['DISPONIVEL' as StatusOperacionalInstancia, [Validators.required]],
+    operationalStatus: ['DISPONIVEL' as InstanceOperationalStatus, [Validators.required]],
     notes: ['', [Validators.maxLength(1000)]],
     active: [true],
   });
@@ -60,18 +60,18 @@ export class ItemInstanceFormComponent implements OnInit {
 
     this.loading.set(true);
 
-    this.instanciaItemService.buscarPorId(id).subscribe({
-      next: (instancia) => {
-        this.mainItemId = instancia.mainItemId ?? '';
-        this.mainItemName.set(instancia.mainItemName ?? '');
+    this.itemInstanceService.buscarPorId(id).subscribe({
+      next: (instance) => {
+        this.mainItemId = instance.mainItemId ?? '';
+        this.mainItemName.set(instance.mainItemName ?? '');
         this.form.patchValue({
-          currentLocationId: instancia.currentLocationId ?? '',
-          identifier: instancia.identifier ?? '',
-          assetTag: instancia.assetTag ?? '',
-          serialNumber: instancia.serialNumber ?? '',
-          operationalStatus: instancia.operationalStatus ?? 'DISPONIVEL',
-          notes: instancia.notes ?? '',
-          active: instancia.active,
+          currentLocationId: instance.currentLocationId ?? '',
+          identifier: instance.identifier ?? '',
+          assetTag: instance.assetTag ?? '',
+          serialNumber: instance.serialNumber ?? '',
+          operationalStatus: instance.operationalStatus ?? 'DISPONIVEL',
+          notes: instance.notes ?? '',
+          active: instance.active,
         });
         this.loading.set(false);
       },
@@ -110,7 +110,7 @@ export class ItemInstanceFormComponent implements OnInit {
 
     this.salvando.set(true);
 
-    this.instanciaItemService.update(this.id()!, payload).subscribe({
+    this.itemInstanceService.update(this.id()!, payload).subscribe({
       next: () => {
         this.salvando.set(false);
         this.location.back();
@@ -131,7 +131,7 @@ export class ItemInstanceFormComponent implements OnInit {
     return !!campo && campo.invalid && (campo.touched || campo.dirty);
   }
 
-  statusLabel(status: StatusOperacionalInstancia): string {
+  statusLabel(status: InstanceOperationalStatus): string {
     return this.i18n.translate(`itemInstances.status.${status}`);
   }
 

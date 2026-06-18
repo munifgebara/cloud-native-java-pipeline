@@ -54,7 +54,7 @@
         <select id="localPadrao" [(ngModel)]="localPadraoId">
           <option value="">{{ 'photoRegistration.noDefaultLocation' | translate }}</option>
           @for (local of locations(); track local.id) {
-            <option [value]="local.id">{{ local.caminho || local.name }}</option>
+            <option [value]="local.id">{{ local.path || local.name }}</option>
           }
         </select>
         <small>{{ localPadraoSummary() }}</small>
@@ -97,13 +97,13 @@
         </div>
         <div>
           <dt>{{ 'photoRegistration.suggestions' | translate }}</dt>
-          <dd>{{ itens().length }}</dd>
+          <dd>{{ items().length }}</dd>
         </div>
       </dl>
     </aside>
   </section>
 
-  @if (!itens().length) {
+  @if (!items().length) {
     <app-stella-empty-state
       class="analysis-empty"
       icon="pi pi-sparkles"
@@ -111,7 +111,7 @@
       [message]="'photoRegistration.waitingAnalysisHint' | translate" />
   }
 
-  @if (itens().length) {
+  @if (items().length) {
     <section class="review-header stella-panel">
       <div>
         <span class="review-kicker">{{ 'photoRegistration.stepReview' | translate }}</span>
@@ -120,7 +120,7 @@
       </div>
       <div class="review-metrics" [attr.aria-label]="'photoRegistration.analysisSummary' | translate">
         <span>
-          <strong>{{ itens().length }}</strong>
+          <strong>{{ items().length }}</strong>
           {{ 'photoRegistration.suggestions' | translate }}
         </span>
         <span>
@@ -128,18 +128,18 @@
           {{ 'photoRegistration.approvedItems' | translate }}
         </span>
         <span>
-          <strong>{{ instanciasAprovadasTotal() }}</strong>
+          <strong>{{ approvedInstancesTotal() }}</strong>
           {{ 'photoRegistration.approvedInstances' | translate }}
         </span>
       </div>
     </section>
 
     <div class="suggestions">
-      @for (item of itens(); track $index) {
-        <article class="suggestion-card stella-card" [class.pending]="!item.aprovada">
+      @for (item of items(); track $index) {
+        <article class="suggestion-card stella-card" [class.pending]="!item.approved">
           <header class="suggestion-header">
             <label class="approval">
-              <p-checkbox [binary]="true" [ngModel]="item.aprovada" (onChange)="toggleItem(item)" />
+              <p-checkbox [binary]="true" [ngModel]="item.approved" (onChange)="toggleItem(item)" />
               <span>{{ 'photoRegistration.approveItem' | translate }}</span>
             </label>
             <div class="suggestion-title">
@@ -186,7 +186,7 @@
             <div class="item-grid">
               <label>
                 {{ 'photoRegistration.suggestedCategory' | translate }}
-                <input pInputText type="text" [(ngModel)]="item.categorySugerida" />
+                <input pInputText type="text" [(ngModel)]="item.suggestedCategory" />
               </label>
 
               <label>
@@ -246,32 +246,32 @@
           <details class="instances" open>
             <summary>
               <span>{{ 'photoRegistration.instancesTitle' | translate }}</span>
-              <small>{{ instanciasAprovadasItem(item) }} / {{ item.instancias.length }} {{ 'photoRegistration.approvedInstancesShort' | translate }}</small>
+              <small>{{ approvedInstancesForItem(item) }} / {{ item.instances.length }} {{ 'photoRegistration.approvedInstancesShort' | translate }}</small>
             </summary>
-            @for (instancia of item.instancias; track $index) {
+            @for (instance of item.instances; track $index) {
               <div class="instance-row">
                 <label class="approval compact">
-                  <p-checkbox [binary]="true" [ngModel]="instancia.aprovada" (onChange)="toggleInstancia(instancia)" />
+                  <p-checkbox [binary]="true" [ngModel]="instance.approved" (onChange)="toggleInstancia(instance)" />
                 </label>
 
                 <label>
                   {{ 'itemInstances.identifier' | translate }}
-                  <input pInputText type="text" [(ngModel)]="instancia.identifier" />
+                  <input pInputText type="text" [(ngModel)]="instance.identifier" />
                 </label>
 
                 <label>
                   {{ 'itemInstances.assetTag' | translate }}
-                  <input pInputText type="text" [(ngModel)]="instancia.assetTag" />
+                  <input pInputText type="text" [(ngModel)]="instance.assetTag" />
                 </label>
 
                 <label>
                   {{ 'itemInstances.serialNumber' | translate }}
-                  <input pInputText type="text" [(ngModel)]="instancia.serialNumber" />
+                  <input pInputText type="text" [(ngModel)]="instance.serialNumber" />
                 </label>
 
                 <label>
                   {{ 'photoRegistration.condition' | translate }}
-                  <input pInputText type="text" [(ngModel)]="instancia.condition" />
+                  <input pInputText type="text" [(ngModel)]="instance.condition" />
                 </label>
               </div>
             }
@@ -285,7 +285,7 @@
         <span class="review-kicker">{{ 'photoRegistration.stepConfirm' | translate }}</span>
         <h3>{{ 'photoRegistration.confirmTitle' | translate }}</h3>
         <p>
-          {{ 'photoRegistration.confirmSummary' | translate: { items: itensAprovados(), instances: instanciasAprovadasTotal() } }}
+          {{ 'photoRegistration.confirmSummary' | translate: { items: itensAprovados(), instances: approvedInstancesTotal() } }}
         </p>
       </div>
       <button

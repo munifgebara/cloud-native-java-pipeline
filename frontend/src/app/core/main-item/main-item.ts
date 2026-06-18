@@ -28,7 +28,7 @@ export interface SemanticSearchInstance {
 export interface SemanticSearchLocation {
   id: string;
   name: string;
-  quantidade: number;
+  quantity: number;
 }
 
 export interface SemanticSearchItem {
@@ -38,8 +38,8 @@ export interface SemanticSearchItem {
   categoryName: string | null;
   categoryIcon: string | null;
   imageUrl: string | null;
-  similaridade: number;
-  instancias: SemanticSearchInstance[];
+  similarity: number;
+  instances: SemanticSearchInstance[];
   probableLocations: SemanticSearchLocation[];
 }
 
@@ -48,15 +48,15 @@ export interface MainItemResponse {
   name: string;
   description: string | null;
   notes: string | null;
-  origemCadastro: string | null;
+  registrationOrigin: string | null;
   categoryId: string | null;
   categoryName: string | null;
   categoryIcon: string | null;
   imageUrl: string | null;
-  imagemContentType: string | null;
-  imagemTamanhoBytes: number | null;
-  imagemGeneratedByAi: boolean;
-  imagemProvider: string | null;
+  imageContentType: string | null;
+  imageSizeBytes: number | null;
+  imageGeneratedByAi: boolean;
+  imageProvider: string | null;
   active: boolean;
 }
 
@@ -64,7 +64,7 @@ export interface MainItemCreateRequest {
   name: string;
   description?: string | null;
   notes?: string | null;
-  origemCadastro?: string | null;
+  registrationOrigin?: string | null;
   categoryId?: string | null;
   active?: boolean | null;
 }
@@ -73,7 +73,7 @@ export interface MainItemUpdateRequest {
   name: string;
   description?: string | null;
   notes?: string | null;
-  origemCadastro?: string | null;
+  registrationOrigin?: string | null;
   categoryId?: string | null;
   active?: boolean | null;
 }
@@ -99,14 +99,14 @@ export class MainItemService {
 
   listar(): Observable<MainItemSummary[]> {
     return this.http.get<MainItemSummary[]>(this.baseUrl).pipe(
-      map((itens) => itens.map((item) => this.withAbsoluteImageUrl(item)))
+      map((items) => items.map((item) => this.withAbsoluteImageUrl(item)))
     );
   }
 
   buscarPorNome(name: string): Observable<MainItemSummary[]> {
     return this.http.get<MainItemSummary[]>(`${this.baseUrl}/search`, {
       params: { name },
-    }).pipe(map((itens) => itens.map((item) => this.withAbsoluteImageUrl(item))));
+    }).pipe(map((items) => items.map((item) => this.withAbsoluteImageUrl(item))));
   }
 
   filtrar(name?: string | null, categoryId?: string | null): Observable<MainItemSummary[]> {
@@ -122,14 +122,14 @@ export class MainItemService {
     }
 
     return this.http.get<MainItemSummary[]>(`${this.baseUrl}/filter`, { params }).pipe(
-      map((itens) => itens.map((item) => this.withAbsoluteImageUrl(item)))
+      map((items) => items.map((item) => this.withAbsoluteImageUrl(item)))
     );
   }
 
-  buscarSemanticamente(query: string): Observable<SemanticSearchItem[]> {
+  searchSemantically(query: string): Observable<SemanticSearchItem[]> {
     return this.http.get<SemanticSearchItem[]>(`${this.baseUrl}/semantic-search`, {
       params: { query },
-    }).pipe(map((itens) => itens.map((item) => this.withAbsoluteImageUrl(item))));
+    }).pipe(map((items) => items.map((item) => this.withAbsoluteImageUrl(item))));
   }
 
   buscarPorId(id: string): Observable<MainItemResponse> {

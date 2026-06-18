@@ -76,14 +76,14 @@
 
       <app-stella-metric-card
         [title]="'dashboard.aiCreatedItems' | translate"
-        [value]="resumo()?.quantidadeItensCadastradosPorIa ?? 0"
+        [value]="resumo()?.aiRegisteredItemCount ?? 0"
         [caption]="'dashboard.openPhotoRegistration' | translate"
         tone="success"
         link="/photo-upload" />
 
       <app-stella-metric-card
         [title]="'dashboard.vectorQueries' | translate"
-        [value]="resumo()?.quantidadeConsultasVetoriais ?? 0"
+        [value]="resumo()?.vectorQueryCount ?? 0"
         [caption]="'dashboard.openVectorSearch' | translate"
         tone="accent"
         href="#busca-vetorial-dashboard" />
@@ -99,16 +99,16 @@
         <input
           pInputText
           type="search"
-          [(ngModel)]="consultaSemantica"
+          [(ngModel)]="semanticQuery"
           [placeholder]="'dashboard.semanticPlaceholder' | translate"
-          (keyup.enter)="buscarSemanticamente()" />
+          (keyup.enter)="searchSemantically()" />
         <button
           pButton
           type="button"
           icon="pi pi-search"
           [label]="'dashboard.semanticSearch' | translate"
           [loading]="loadingSemantica()"
-          (click)="buscarSemanticamente()">
+          (click)="searchSemantically()">
         </button>
       </div>
 
@@ -153,7 +153,7 @@
             </article>
           }
         </div>
-      } @else if (consultaSemantica.trim() && !loadingSemantica() && !semanticErrorMessage()) {
+      } @else if (semanticQuery.trim() && !loadingSemantica() && !semanticErrorMessage()) {
         <app-stella-empty-state [compact]="true" [message]="'dashboard.semanticEmpty' | translate" />
       }
     </app-stella-ai-panel>
@@ -165,9 +165,9 @@
           <a routerLink="/locations">{{ 'dashboard.openLocations' | translate }}</a>
         </div>
 
-        @if ((resumo()?.locationsComMaisItens?.length ?? 0) > 0) {
+        @if ((resumo()?.topLocations?.length ?? 0) > 0) {
           <ol class="ranking-list">
-            @for (local of resumo()?.locationsComMaisItens; track local.id) {
+            @for (local of resumo()?.topLocations; track local.id) {
               <li>
                 <span class="ranking-name">{{ local.name }}</span>
                 <span class="ranking-value">{{ local.instanceCount }} {{ 'dashboard.instancesSuffix' | translate }}</span>
@@ -185,12 +185,12 @@
           <a routerLink="/categories">{{ 'dashboard.openCategories' | translate }}</a>
         </div>
 
-        @if ((resumo()?.categoriesComMaisItens?.length ?? 0) > 0) {
+        @if ((resumo()?.topCategories?.length ?? 0) > 0) {
           <ol class="ranking-list">
-            @for (category of resumo()?.categoriesComMaisItens; track category.id) {
+            @for (category of resumo()?.topCategories; track category.id) {
               <li>
                 <span class="ranking-name">{{ category.name }}</span>
-                <span class="ranking-value">{{ category.quantidadeItens }} {{ 'dashboard.itemsSuffix' | translate }}</span>
+                <span class="ranking-value">{{ category.itemCount }} {{ 'dashboard.itemsSuffix' | translate }}</span>
               </li>
             }
           </ol>

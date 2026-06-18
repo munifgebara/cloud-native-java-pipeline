@@ -43,7 +43,7 @@ export class LocationFormComponent implements OnInit {
   form = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(150)]],
     description: ['', [Validators.maxLength(500)]],
-    paiId: [''],
+    parentId: [''],
     active: [true],
   });
 
@@ -63,7 +63,7 @@ export class LocationFormComponent implements OnInit {
         this.form.patchValue({
           name: local.name ?? '',
           description: local.description ?? '',
-          paiId: local.paiId ?? '',
+          parentId: local.parentId ?? '',
           active: local.active,
         });
         this.imagemAtualUrl.set(local.imageUrl);
@@ -91,7 +91,7 @@ export class LocationFormComponent implements OnInit {
     const payload = {
       name: valor.name?.trim() ?? '',
       description: this.nullIfBlank(valor.description),
-      paiId: this.nullIfBlank(valor.paiId),
+      parentId: this.nullIfBlank(valor.parentId),
       active: !!valor.active,
     };
 

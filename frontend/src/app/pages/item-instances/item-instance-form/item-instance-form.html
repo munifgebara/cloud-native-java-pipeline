@@ -24,7 +24,7 @@
           <select id="currentLocationId" formControlName="currentLocationId">
             <option value="">{{ 'itemInstances.form.selectLocation' | translate }}</option>
             @for (local of locations(); track local.id) {
-              <option [value]="local.id">{{ local.caminho }}</option>
+              <option [value]="local.id">{{ local.path }}</option>
             }
           </select>
           @if (campoInvalido('currentLocationId')) {

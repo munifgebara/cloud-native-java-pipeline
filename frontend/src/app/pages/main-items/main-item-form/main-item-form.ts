@@ -13,7 +13,7 @@ import { CategorySummary, CategoryService } from '../../../core/category/categor
 import { IMAGE_CONTENT_TYPES, imageFileFromPaste } from '../../../core/image/image-clipboard';
 import { mensagemErroHttp } from '../../../core/http-error';
 import { MainItemService } from '../../../core/main-item/main-item';
-import { ItemInstanceSummary, ItemInstanceService, StatusOperacionalInstancia } from '../../../core/item-instance/item-instance';
+import { ItemInstanceSummary, ItemInstanceService, InstanceOperationalStatus } from '../../../core/item-instance/item-instance';
 import { LocationSummary, LocationService } from '../../../core/location/location';
 import { I18nService, TranslatePipe } from '../../../core/i18n/i18n';
 
@@ -33,7 +33,7 @@ export class MainItemFormComponent implements OnInit {
   private readonly i18n = inject(I18nService);
   private readonly itemMestreService = inject(MainItemService);
   private readonly categoryService = inject(CategoryService);
-  private readonly instanciaItemService = inject(ItemInstanceService);
+  private readonly itemInstanceService = inject(ItemInstanceService);
   private readonly localService = inject(LocationService);
 
   id = signal<string | null>(null);
@@ -51,12 +51,12 @@ export class MainItemFormComponent implements OnInit {
   gerandoImageIa = signal(false);
 
   // Instâncias do item
-  instancias = signal<ItemInstanceSummary[]>([]);
+  instances = signal<ItemInstanceSummary[]>([]);
   carregandoInstancias = signal(false);
   locations = signal<LocationSummary[]>([]);
   dialogInstancia = signal(false);
   salvandoInstancia = signal(false);
-  instanciaError = signal('');
+  instanceError = signal('');
   novaInstanciaLocalId = '';
   novaInstanciaIdentificador = '';
   novaInstanciaPatrimonio = '';
@@ -150,7 +150,7 @@ export class MainItemFormComponent implements OnInit {
   // ── Gestão de instâncias ────────────────────────────────────────────────────
 
   abrirDialogInstancia(): void {
-    this.instanciaError.set('');
+    this.instanceError.set('');
     this.novaInstanciaLocalId = '';
     this.novaInstanciaIdentificador = '';
     this.novaInstanciaPatrimonio = '';
@@ -165,25 +165,25 @@ export class MainItemFormComponent implements OnInit {
   }
 
   salvarInstancia(): void {
-    this.instanciaError.set('');
+    this.instanceError.set('');
     const localId = this.novaInstanciaLocalId;
     const identifier = this.nullIfBlank(this.novaInstanciaIdentificador);
     const assetTag = this.nullIfBlank(this.novaInstanciaPatrimonio);
     const serialNumber = this.nullIfBlank(this.novaInstanciaNumeroSerie);
 
     if (!localId) {
-      this.instanciaError.set(this.i18n.translate('itemInstances.form.locationInvalid'));
+      this.instanceError.set(this.i18n.translate('itemInstances.form.locationInvalid'));
       return;
     }
 
     if (!identifier && !assetTag && !serialNumber) {
-      this.instanciaError.set(this.i18n.translate('itemInstances.form.identificationRequired'));
+      this.instanceError.set(this.i18n.translate('itemInstances.form.identificationRequired'));
       return;
     }
 
     this.salvandoInstancia.set(true);
 
-    this.instanciaItemService.registrarEntrada({
+    this.itemInstanceService.registrarEntrada({
       mainItemId: this.id()!,
       destinationLocationId: localId,
       identifier,
@@ -198,21 +198,21 @@ export class MainItemFormComponent implements OnInit {
       },
       error: (err) => {
         this.salvandoInstancia.set(false);
-        this.instanciaError.set(this.extractError(err, this.i18n.translate('masterItems.form.instanceCreateError')));
+        this.instanceError.set(this.extractError(err, this.i18n.translate('masterItems.form.instanceCreateError')));
       },
     });
   }
 
-  instanciaLabel(instancia: ItemInstanceSummary): string {
-    return instancia.identifier || instancia.assetTag || instancia.serialNumber || '-';
+  instanceLabel(instance: ItemInstanceSummary): string {
+    return instance.identifier || instance.assetTag || instance.serialNumber || '-';
   }
 
-  instanciaStatusLabel(status: StatusOperacionalInstancia): string {
+  instanceStatusLabel(status: InstanceOperationalStatus): string {
     return this.i18n.translate(`itemInstances.status.${status}`);
   }
 
-  instanciaStatusSeverity(status: StatusOperacionalInstancia): 'success' | 'info' | 'warn' | 'secondary' {
-    const map: Record<StatusOperacionalInstancia, 'success' | 'info' | 'warn' | 'secondary'> = {
+  instanceStatusSeverity(status: InstanceOperationalStatus): 'success' | 'info' | 'warn' | 'secondary' {
+    const map: Record<InstanceOperationalStatus, 'success' | 'info' | 'warn' | 'secondary'> = {
       DISPONIVEL: 'success', EM_MOVIMENTACAO: 'info', EMPRESTADO: 'warn', INATIVO: 'secondary',
     };
     return map[status];
@@ -348,13 +348,13 @@ export class MainItemFormComponent implements OnInit {
     const id = this.id();
     if (!id) return;
     this.carregandoInstancias.set(true);
-    this.instanciaItemService.listar().subscribe({
+    this.itemInstanceService.listar().subscribe({
       next: (todas) => {
-        this.instancias.set(todas.filter(i => i.mainItemId === id));
+        this.instances.set(todas.filter(i => i.mainItemId === id));
         this.carregandoInstancias.set(false);
       },
       error: () => {
-        this.instanciaError.set(this.i18n.translate('masterItems.form.instancesLoadError'));
+        this.instanceError.set(this.i18n.translate('masterItems.form.instancesLoadError'));
         this.carregandoInstancias.set(false);
       },
     });

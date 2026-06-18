@@ -23,8 +23,8 @@ import { StellaStateMessageComponent } from '../../shared/design-system/stella-s
 const ORIGEM_CADASTRO_IA = 'CADASTRO_IA_FOTO';
 const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
 
-type InstanciaRevisao = {
-  aprovada: boolean;
+type InstanceReview = {
+  approved: boolean;
   identifier: string;
   assetTag: string;
   serialNumber: string;
@@ -34,11 +34,11 @@ type InstanciaRevisao = {
 };
 
 type ItemRevisao = {
-  aprovada: boolean;
+  approved: boolean;
   name: string;
   description: string;
   categoryId: string;
-  categorySugerida: string;
+  suggestedCategory: string;
   brand: string;
   model: string;
   author: string;
@@ -47,11 +47,11 @@ type ItemRevisao = {
   isbn: string;
   source: string;
   identificationVerified: boolean | null;
-  quantidade: number;
+  quantity: number;
   condition: string;
   notes: string;
   confidence: number | null;
-  instancias: InstanciaRevisao[];
+  instances: InstanceReview[];
 };
 
 @Component({
@@ -78,13 +78,13 @@ export class PhotoUploadComponent implements OnInit {
   private readonly categoryService = inject(CategoryService);
   private readonly localService = inject(LocationService);
   private readonly itemMestreService = inject(MainItemService);
-  private readonly instanciaService = inject(ItemInstanceService);
+  private readonly instanceService = inject(ItemInstanceService);
   private readonly router = inject(Router);
   private readonly i18n = inject(I18nService);
 
   arquivo = signal<File | null>(null);
   previewUrl = signal<string | null>(null);
-  itens = signal<ItemRevisao[]>([]);
+  items = signal<ItemRevisao[]>([]);
   categories = signal<CategorySummary[]>([]);
   locations = signal<LocationSummary[]>([]);
   localPadraoId = '';
@@ -153,8 +153,8 @@ export class PhotoUploadComponent implements OnInit {
 
     this.iaService.sugerirCadastro(arquivo).subscribe({
       next: (response) => {
-        this.itens.set((response.itens ?? []).map((item) => this.toRevisao(item)));
-        this.successMessage.set(response.mensagem ?? '');
+        this.items.set((response.items ?? []).map((item) => this.toRevisao(item)));
+        this.successMessage.set(response.message ?? '');
         this.analisando.set(false);
       },
       error: (error) => {
@@ -165,7 +165,7 @@ export class PhotoUploadComponent implements OnInit {
   }
 
   cadastrarSelecionados(): void {
-    const selecionados = this.itens().filter((item) => item.aprovada && item.name.trim());
+    const selecionados = this.items().filter((item) => item.approved && item.name.trim());
     if (!selecionados.length) {
       this.errorMessage.set(this.i18n.translate('photoRegistration.selectAtLeastOne'));
       return;
@@ -189,11 +189,11 @@ export class PhotoUploadComponent implements OnInit {
   }
 
   toggleItem(item: ItemRevisao): void {
-    item.aprovada = !item.aprovada;
+    item.approved = !item.approved;
   }
 
-  toggleInstancia(instancia: InstanciaRevisao): void {
-    instancia.aprovada = !instancia.aprovada;
+  toggleInstancia(instance: InstanceReview): void {
+    instance.approved = !instance.approved;
   }
 
   confiancaLabel(valor: number | null): string {
@@ -205,7 +205,7 @@ export class PhotoUploadComponent implements OnInit {
       return 4;
     }
 
-    if (this.itens().length) {
+    if (this.items().length) {
       return this.itensAprovados() ? 4 : 3;
     }
 
@@ -217,17 +217,17 @@ export class PhotoUploadComponent implements OnInit {
   }
 
   itensAprovados(): number {
-    return this.itens().filter((item) => item.aprovada && item.name.trim()).length;
+    return this.items().filter((item) => item.approved && item.name.trim()).length;
   }
 
-  instanciasAprovadasTotal(): number {
-    return this.itens()
-      .filter((item) => item.aprovada)
-      .reduce((total, item) => total + this.instanciasAprovadasItem(item), 0);
+  approvedInstancesTotal(): number {
+    return this.items()
+      .filter((item) => item.approved)
+      .reduce((total, item) => total + this.approvedInstancesForItem(item), 0);
   }
 
-  instanciasAprovadasItem(item: ItemRevisao): number {
-    return item.instancias.filter((instancia) => instancia.aprovada).length;
+  approvedInstancesForItem(item: ItemRevisao): number {
+    return item.instances.filter((instance) => instance.approved).length;
   }
 
   localPadraoSummary(): string {
@@ -236,7 +236,7 @@ export class PhotoUploadComponent implements OnInit {
     }
 
     const local = this.locations().find((item) => item.id === this.localPadraoId);
-    return local?.caminho || local?.name || this.i18n.translate('photoRegistration.noDefaultLocation');
+    return local?.path || local?.name || this.i18n.translate('photoRegistration.noDefaultLocation');
   }
 
   private cadastrarItem(item: ItemRevisao) {
@@ -246,7 +246,7 @@ export class PhotoUploadComponent implements OnInit {
       name: item.name.trim(),
       description: this.nullIfBlank(item.description),
       notes: this.observacoesItem(item),
-      origemCadastro: ORIGEM_CADASTRO_IA,
+      registrationOrigin: ORIGEM_CADASTRO_IA,
       categoryId: item.categoryId || null,
       active: true,
     }).pipe(
@@ -257,11 +257,11 @@ export class PhotoUploadComponent implements OnInit {
 
         return itemComImage$.pipe(
           switchMap((itemSalvo) => {
-            const instancias = this.instanciasAprovadas(item, itemSalvo);
-            if (!instancias.length) {
+            const instances = this.approvedInstances(item, itemSalvo);
+            if (!instances.length) {
               return of([]);
             }
-            return forkJoin(instancias.map((instancia) => this.instanciaService.criar(instancia)));
+            return forkJoin(instances.map((instance) => this.instanceService.criar(instance)));
           }),
         );
       }),
@@ -285,7 +285,7 @@ export class PhotoUploadComponent implements OnInit {
     this.limparImageSelecionada();
     this.arquivo.set(file);
     this.previewUrl.set(URL.createObjectURL(file));
-    this.itens.set([]);
+    this.items.set([]);
     return true;
   }
 
@@ -296,28 +296,28 @@ export class PhotoUploadComponent implements OnInit {
 
     this.arquivo.set(null);
     this.previewUrl.set(null);
-    this.itens.set([]);
+    this.items.set([]);
   }
 
-  private instanciasAprovadas(item: ItemRevisao, salvo: MainItemResponse) {
-    return item.instancias
-      .filter((instancia) => instancia.aprovada)
-      .map((instancia, index) => ({
+  private approvedInstances(item: ItemRevisao, salvo: MainItemResponse) {
+    return item.instances
+      .filter((instance) => instance.approved)
+      .map((instance, index) => ({
         mainItemId: salvo.id,
         currentLocationId: this.localPadraoId || null,
-        identifier: this.nullIfBlank(instancia.identifier) ?? `${salvo.name} ${index + 1}`,
-        assetTag: this.nullIfBlank(instancia.assetTag),
-        serialNumber: this.nullIfBlank(instancia.serialNumber),
+        identifier: this.nullIfBlank(instance.identifier) ?? `${salvo.name} ${index + 1}`,
+        assetTag: this.nullIfBlank(instance.assetTag),
+        serialNumber: this.nullIfBlank(instance.serialNumber),
         operationalStatus: 'DISPONIVEL' as const,
-        notes: this.observacoesInstancia(instancia),
-        origemCadastro: ORIGEM_CADASTRO_IA,
+        notes: this.observacoesInstancia(instance),
+        registrationOrigin: ORIGEM_CADASTRO_IA,
         active: true,
       }));
   }
 
   private toRevisao(item: PhotoUploadItemSuggestion): ItemRevisao {
-    const quantidade = Math.max(1, item.quantidade ?? item.instancias?.length ?? 1);
-    const instanciasFonte = item.instancias?.length ? item.instancias : Array.from({ length: quantidade }, () => ({
+    const quantity = Math.max(1, item.quantity ?? item.instances?.length ?? 1);
+    const instancesSource = item.instances?.length ? item.instances : Array.from({ length: quantity }, () => ({
       identifier: null,
       assetTag: null,
       serialNumber: null,
@@ -327,11 +327,11 @@ export class PhotoUploadComponent implements OnInit {
     }));
 
     return {
-      aprovada: true,
+      approved: true,
       name: item.name ?? '',
       description: item.description ?? '',
-      categoryId: this.categoryPorNome(item.categorySugerida),
-      categorySugerida: item.categorySugerida ?? '',
+      categoryId: this.categoryPorNome(item.suggestedCategory),
+      suggestedCategory: item.suggestedCategory ?? '',
       brand: item.brand ?? '',
       model: item.model ?? '',
       author: item.author ?? '',
@@ -340,18 +340,18 @@ export class PhotoUploadComponent implements OnInit {
       isbn: item.isbn ?? '',
       source: item.source ?? '',
       identificationVerified: item.identificationVerified,
-      quantidade,
+      quantity,
       condition: item.condition ?? '',
       notes: item.notes ?? '',
       confidence: item.confidence,
-      instancias: instanciasFonte.map((instancia, index) => ({
-        aprovada: true,
-        identifier: instancia.identifier ?? `${item.name ?? 'Item'} ${index + 1}`,
-        assetTag: instancia.assetTag ?? '',
-        serialNumber: instancia.serialNumber ?? '',
-        condition: instancia.condition ?? '',
-        notes: instancia.notes ?? '',
-        confidence: instancia.confidence,
+      instances: instancesSource.map((instance, index) => ({
+        approved: true,
+        identifier: instance.identifier ?? `${item.name ?? 'Item'} ${index + 1}`,
+        assetTag: instance.assetTag ?? '',
+        serialNumber: instance.serialNumber ?? '',
+        condition: instance.condition ?? '',
+        notes: instance.notes ?? '',
+        confidence: instance.confidence,
       })),
     };
   }
@@ -377,14 +377,14 @@ export class PhotoUploadComponent implements OnInit {
       item.source ? `Fonte da identificação: ${item.source}` : '',
       item.identificationVerified != null ? `Identificação verificada: ${item.identificationVerified ? 'sim' : 'não'}` : '',
       item.condition ? `Estado sugerido: ${item.condition}` : '',
-      item.categorySugerida ? `Category sugerida pela IA: ${item.categorySugerida}` : '',
+      item.suggestedCategory ? `Categoria sugerida pela IA: ${item.suggestedCategory}` : '',
     ]);
   }
 
-  private observacoesInstancia(instancia: InstanciaRevisao): string | null {
+  private observacoesInstancia(instance: InstanceReview): string | null {
     return this.joinObservacoes([
-      instancia.notes,
-      instancia.condition ? `Estado sugerido: ${instancia.condition}` : '',
+      instance.notes,
+      instance.condition ? `Estado sugerido: ${instance.condition}` : '',
     ]);
   }
 

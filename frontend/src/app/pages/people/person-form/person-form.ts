@@ -9,7 +9,7 @@ import { catchError, debounceTime, distinctUntilChanged, filter, map, of, switch
 import { CepService } from '../../../core/cep/cep';
 import { mensagemErroHttp } from '../../../core/http-error';
 import { I18nService, TranslatePipe, TranslationKey } from '../../../core/i18n/i18n';
-import { PersonResponse, PersonRevisao, PersonService } from '../../../core/person/person';
+import { PersonResponse, PersonRevision, PersonService } from '../../../core/person/person';
 import {
   somenteDigitos,
   validarCep,
@@ -62,9 +62,9 @@ export class PersonFormComponent implements OnInit {
   cepMessage = signal('');
   buscandoCep = signal(false);
   person = signal<PersonResponse | null>(null);
-  revisoes = signal<PersonRevisao[]>([]);
+  revisions = signal<PersonRevision[]>([]);
   carregandoRevisoes = signal(false);
-  revisoesError = signal('');
+  revisionsError = signal('');
   private ultimoCepConsultado: string | null = null;
 
   readonly edicao = computed(() => !!this.id());
@@ -72,15 +72,15 @@ export class PersonFormComponent implements OnInit {
   form = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(150)]],
     taxId: ['', [cpfCnpjValidator]],
-    telefonePrincipal: ['', [Validators.maxLength(20), telefoneValidator]],
-    telefoneSecundario: ['', [Validators.maxLength(20), telefoneValidator]],
+    primaryPhone: ['', [Validators.maxLength(20), telefoneValidator]],
+    secondaryPhone: ['', [Validators.maxLength(20), telefoneValidator]],
     email: ['', [Validators.email, Validators.maxLength(150)]],
-    cep: ['', [cepValidator]],
-    endereco: ['', [Validators.maxLength(200)]],
-    complemento: ['', [Validators.maxLength(100)]],
-    bairro: ['', [Validators.maxLength(100)]],
-    cidade: ['', [Validators.maxLength(100)]],
-    uf: ['', [Validators.maxLength(2), Validators.pattern(/^[A-Za-z]{2}$/)]],
+    zipCode: ['', [cepValidator]],
+    address: ['', [Validators.maxLength(200)]],
+    complement: ['', [Validators.maxLength(100)]],
+    neighborhood: ['', [Validators.maxLength(100)]],
+    city: ['', [Validators.maxLength(100)]],
+    state: ['', [Validators.maxLength(2), Validators.pattern(/^[A-Za-z]{2}$/)]],
   });
 
   ngOnInit(): void {
@@ -102,20 +102,20 @@ export class PersonFormComponent implements OnInit {
           {
             name: person.name ?? '',
             taxId: person.taxId ?? '',
-            telefonePrincipal: person.telefonePrincipal ?? '',
-            telefoneSecundario: person.telefoneSecundario ?? '',
+            primaryPhone: person.primaryPhone ?? '',
+            secondaryPhone: person.secondaryPhone ?? '',
             email: person.email ?? '',
-            cep: person.cep ?? '',
-            endereco: person.endereco ?? '',
-            complemento: person.complemento ?? '',
-            bairro: person.bairro ?? '',
-            cidade: person.cidade ?? '',
-            uf: person.uf ?? '',
+            zipCode: person.zipCode ?? '',
+            address: person.address ?? '',
+            complement: person.complement ?? '',
+            neighborhood: person.neighborhood ?? '',
+            city: person.city ?? '',
+            state: person.state ?? '',
           },
           { emitEvent: false },
         );
 
-        this.ultimoCepConsultado = somenteDigitos(person.cep);
+        this.ultimoCepConsultado = somenteDigitos(person.zipCode);
 
         this.form.controls.taxId.disable();
         this.loading.set(false);
@@ -144,15 +144,15 @@ export class PersonFormComponent implements OnInit {
     if (this.edicao()) {
       const payload = {
         name: valor.name?.trim() ?? '',
-        telefonePrincipal: this.nullIfBlank(valor.telefonePrincipal),
-        telefoneSecundario: this.nullIfBlank(valor.telefoneSecundario),
+        primaryPhone: this.nullIfBlank(valor.primaryPhone),
+        secondaryPhone: this.nullIfBlank(valor.secondaryPhone),
         email: this.nullIfBlank(valor.email),
-        cep: this.onlyDigitsOrNull(valor.cep),
-        endereco: this.nullIfBlank(valor.endereco),
-        complemento: this.nullIfBlank(valor.complemento),
-        bairro: this.nullIfBlank(valor.bairro),
-        cidade: this.nullIfBlank(valor.cidade),
-        uf: this.upperOrNull(valor.uf),
+        zipCode: this.onlyDigitsOrNull(valor.zipCode),
+        address: this.nullIfBlank(valor.address),
+        complement: this.nullIfBlank(valor.complement),
+        neighborhood: this.nullIfBlank(valor.neighborhood),
+        city: this.nullIfBlank(valor.city),
+        state: this.upperOrNull(valor.state),
       };
 
       this.personService.update(this.id()!, payload).subscribe({
@@ -172,15 +172,15 @@ export class PersonFormComponent implements OnInit {
     const payload = {
       name: valor.name?.trim() ?? '',
       taxId: this.onlyDigitsOrNull(valor.taxId) ?? '',
-      telefonePrincipal: this.nullIfBlank(valor.telefonePrincipal),
-      telefoneSecundario: this.nullIfBlank(valor.telefoneSecundario),
+      primaryPhone: this.nullIfBlank(valor.primaryPhone),
+      secondaryPhone: this.nullIfBlank(valor.secondaryPhone),
       email: this.nullIfBlank(valor.email),
-      cep: this.onlyDigitsOrNull(valor.cep),
-      endereco: this.nullIfBlank(valor.endereco),
-      complemento: this.nullIfBlank(valor.complemento),
-      bairro: this.nullIfBlank(valor.bairro),
-      cidade: this.nullIfBlank(valor.cidade),
-      uf: this.upperOrNull(valor.uf),
+      zipCode: this.onlyDigitsOrNull(valor.zipCode),
+      address: this.nullIfBlank(valor.address),
+      complement: this.nullIfBlank(valor.complement),
+      neighborhood: this.nullIfBlank(valor.neighborhood),
+      city: this.nullIfBlank(valor.city),
+      state: this.upperOrNull(valor.state),
     };
 
     this.personService.criar(payload).subscribe({
@@ -211,51 +211,51 @@ export class PersonFormComponent implements OnInit {
     }).format(new Date(value));
   }
 
-  rotuloTipoRevisao(type: PersonRevisao['type']): string {
+  rotuloTipoRevisao(type: PersonRevision['type']): string {
     return this.i18n.translate(`people.audit.type.${type}` as TranslationKey);
   }
 
-  campoAlterado(revisao: PersonRevisao, campo: string): boolean {
-    return revisao.changedFields.includes(campo);
+  campoAlterado(revision: PersonRevision, campo: string): boolean {
+    return revision.changedFields.includes(campo);
   }
 
   private observarCep(): void {
-    this.form.controls.cep.valueChanges
+    this.form.controls.zipCode.valueChanges
       .pipe(
         debounceTime(400),
         distinctUntilChanged(),
         tap((valor) => {
-          const cep = somenteDigitos(valor);
+          const zipCode = somenteDigitos(valor);
 
-          if (cep !== this.ultimoCepConsultado) {
+          if (zipCode !== this.ultimoCepConsultado) {
             this.cepMessage.set('');
           }
 
-          if (!cep) {
+          if (!zipCode) {
             this.buscandoCep.set(false);
             this.ultimoCepConsultado = null;
           }
         }),
         filter((valor) => validarCep(valor)),
         map((valor) => somenteDigitos(valor)),
-        filter((cep) => cep !== this.ultimoCepConsultado),
+        filter((zipCode) => zipCode !== this.ultimoCepConsultado),
         tap(() => {
           this.buscandoCep.set(true);
           this.cepMessage.set('');
         }),
-        switchMap((cep) =>
-          this.cepService.buscarEndereco(cep).pipe(
-            catchError(() => of('erro' as const)),
-            map((resultado) => ({ cep, resultado })),
+        switchMap((zipCode) =>
+          this.cepService.buscarEndereco(zipCode).pipe(
+            catchError(() => of('error' as const)),
+            map((resultado) => ({ zipCode, resultado })),
           ),
         ),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(({ cep, resultado }) => {
+      .subscribe(({ zipCode, resultado }) => {
         this.buscandoCep.set(false);
-        this.ultimoCepConsultado = cep;
+        this.ultimoCepConsultado = zipCode;
 
-        if (resultado === 'erro') {
+        if (resultado === 'error') {
           this.cepMessage.set(this.i18n.translate('people.form.cepLookupError'));
           return;
         }
@@ -266,10 +266,10 @@ export class PersonFormComponent implements OnInit {
         }
 
         this.form.patchValue({
-          endereco: resultado.endereco,
-          bairro: resultado.bairro,
-          cidade: resultado.cidade,
-          uf: resultado.uf,
+          address: resultado.address,
+          neighborhood: resultado.neighborhood,
+          city: resultado.city,
+          state: resultado.state,
         });
 
         this.cepMessage.set(this.i18n.translate('people.form.cepFilled'));
@@ -278,16 +278,16 @@ export class PersonFormComponent implements OnInit {
 
   private carregarRevisoes(id: string): void {
     this.carregandoRevisoes.set(true);
-    this.revisoesError.set('');
+    this.revisionsError.set('');
 
-    this.personService.listarRevisoes(id).subscribe({
-      next: (revisoes) => {
-        this.revisoes.set(revisoes);
+    this.personService.listRevisions(id).subscribe({
+      next: (revisions) => {
+        this.revisions.set(revisions);
         this.carregandoRevisoes.set(false);
       },
       error: () => {
-        this.revisoes.set([]);
-        this.revisoesError.set(this.i18n.translate('people.audit.loadError'));
+        this.revisions.set([]);
+        this.revisionsError.set(this.i18n.translate('people.audit.loadError'));
         this.carregandoRevisoes.set(false);
       },
     });
