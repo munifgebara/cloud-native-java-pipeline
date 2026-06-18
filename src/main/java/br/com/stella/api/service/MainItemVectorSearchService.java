@@ -183,20 +183,20 @@ public class MainItemVectorSearchService {
         }
 
         long inicio = System.nanoTime();
-        List<MainItem> itens = mainItemRepository.findByActiveTrueOrderByNameAsc();
+        List<MainItem> items = mainItemRepository.findByActiveTrueOrderByNameAsc();
         try {
-            itens.forEach(this::synchronize);
+            items.forEach(this::synchronize);
             StructuredBusinessLogger.info(log, "vector-search", "items-reindexed", StructuredBusinessLogger.fields(
-                    "items_count", itens.size(),
+                    "items_count", items.size(),
                     "embeddings_provider", embeddingsProperties.provider(),
                     "embeddings_model", embeddingsProperties.model(),
                     "duration_ms", elapsedMillis(inicio),
                     "success", true
             ));
-            return itens.size();
+            return items.size();
         } catch (RuntimeException ex) {
             StructuredBusinessLogger.error(log, "vector-search", "items-reindexed", StructuredBusinessLogger.fields(
-                    "items_count", itens.size(),
+                    "items_count", items.size(),
                     "embeddings_provider", embeddingsProperties.provider(),
                     "embeddings_model", embeddingsProperties.model(),
                     "duration_ms", elapsedMillis(inicio),
@@ -314,10 +314,10 @@ public class MainItemVectorSearchService {
                 .collect(Collectors.groupingBy(StorageLocation::getId, LinkedHashMap::new, Collectors.toList()))
                 .values()
                 .stream()
-                .map(locais -> new SemanticSearchLocationDTO(
-                        locais.getFirst().getId(),
-                        locais.getFirst().getName(),
-                        locais.size()
+                .map(locations -> new SemanticSearchLocationDTO(
+                        locations.getFirst().getId(),
+                        locations.getFirst().getName(),
+                        locations.size()
                 ))
                 .sorted(Comparator.comparing(SemanticSearchLocationDTO::quantity).reversed()
                         .thenComparing(SemanticSearchLocationDTO::name, String.CASE_INSENSITIVE_ORDER))
