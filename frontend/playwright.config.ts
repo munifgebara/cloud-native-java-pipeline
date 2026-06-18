@@ -12,12 +12,18 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: false,
-  retries: process.env.CI ? 1 : 0,
+  // One worker: the suite shares a single backend/Keycloak; serial runs avoid login contention.
+  workers: 1,
+  // Retries absorb transient cold-start / Keycloak token latency on the first login of a run;
+  // a real regression still fails every attempt.
+  retries: process.env.CI ? 2 : 1,
   reporter: [['list']],
   use: {
     baseURL: process.env.STELLA_E2E_BASE_URL || 'http://localhost:8080',
     headless: true,
     ignoreHTTPSErrors: true,
+    navigationTimeout: 30_000,
+    actionTimeout: 15_000,
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
   },
