@@ -16,7 +16,7 @@
       [subtitle]="'dashboard.aiActionsSubtitle' | translate"
       [ariaLabel]="'dashboard.aiActionsTitle' | translate">
       <div class="action-grid">
-        <a class="action-card" routerLink="/cadastro-foto">
+        <a class="action-card" routerLink="/photo-upload">
           <i class="pi pi-camera"></i>
           <span>
             <strong>{{ 'dashboard.photoRegistrationAction' | translate }}</strong>
@@ -36,42 +36,42 @@
     <div class="cards executive-cards">
       <app-stella-metric-card
         [title]="'dashboard.peopleCount' | translate"
-        [value]="resumo()?.quantidadePessoas ?? 0"
+        [value]="resumo()?.peopleCount ?? 0"
         [caption]="'dashboard.openPeople' | translate"
-        link="/pessoas"
+        link="/people"
         [ariaLabel]="'dashboard.peopleListAria' | translate" />
 
       <app-stella-metric-card
         [title]="'dashboard.masterItemsCount' | translate"
-        [value]="resumo()?.quantidadeItensMestre ?? 0"
+        [value]="resumo()?.mainItemCount ?? 0"
         [caption]="'dashboard.openMasterItems' | translate"
-        link="/itens-mestre"
+        link="/main-items"
         [ariaLabel]="'dashboard.masterItemsListAria' | translate" />
 
       <app-stella-metric-card
         [title]="'dashboard.instancesCount' | translate"
-        [value]="resumo()?.quantidadeInstancias ?? 0"
-        link="/instancias-item"
+        [value]="resumo()?.instanceCount ?? 0"
+        link="/item-instances"
         [ariaLabel]="'dashboard.instancesListAria' | translate">
         <div class="metric-breakdown">
-          <span>{{ 'dashboard.availableInstances' | translate }}: {{ resumo()?.quantidadeInstanciasDisponiveis ?? 0 }}</span>
-          <span>{{ 'dashboard.loanedInstances' | translate }}: {{ resumo()?.quantidadeInstanciasEmprestadas ?? 0 }}</span>
+          <span>{{ 'dashboard.availableInstances' | translate }}: {{ resumo()?.availableInstanceCount ?? 0 }}</span>
+          <span>{{ 'dashboard.loanedInstances' | translate }}: {{ resumo()?.loanedInstanceCount ?? 0 }}</span>
         </div>
       </app-stella-metric-card>
 
       <app-stella-metric-card
         [title]="'dashboard.locationsCount' | translate"
-        [value]="resumo()?.quantidadeLocais ?? 0"
+        [value]="resumo()?.locationCount ?? 0"
         [caption]="'dashboard.openLocations' | translate"
-        link="/locais"
+        link="/locations"
         [ariaLabel]="'dashboard.locationsListAria' | translate" />
 
       <app-stella-metric-card
         [title]="'dashboard.itemsWithoutImage' | translate"
-        [value]="resumo()?.quantidadeItensSemImagem ?? 0"
+        [value]="resumo()?.itemsWithoutImageCount ?? 0"
         [caption]="'dashboard.openMasterItems' | translate"
         tone="warning"
-        link="/itens-mestre"
+        link="/main-items"
         [ariaLabel]="'dashboard.masterItemsListAria' | translate" />
 
       <app-stella-metric-card
@@ -79,7 +79,7 @@
         [value]="resumo()?.quantidadeItensCadastradosPorIa ?? 0"
         [caption]="'dashboard.openPhotoRegistration' | translate"
         tone="success"
-        link="/cadastro-foto" />
+        link="/photo-upload" />
 
       <app-stella-metric-card
         [title]="'dashboard.vectorQueries' | translate"
@@ -118,35 +118,35 @@
 
       @if (resultadosSemanticos().length) {
         <div class="semantic-grid">
-          @for (item of resultadosSemanticos(); track item.itemMestreId) {
+          @for (item of resultadosSemanticos(); track item.mainItemId) {
             <article class="semantic-card">
               <div class="semantic-image">
-                @if (item.imagemUrl) {
-                  <img [src]="item.imagemUrl" [alt]="item.nome" />
+                @if (item.imageUrl) {
+                  <img [src]="item.imageUrl" [alt]="item.name" />
                 } @else {
                   <i class="pi pi-image"></i>
                 }
               </div>
               <div class="semantic-content">
                 <div class="semantic-title-row">
-                  <h3>{{ item.nome }}</h3>
+                  <h3>{{ item.name }}</h3>
                   <span>{{ similaridadePercentual(item) }}</span>
                 </div>
-                <p>{{ item.descricao || ('dashboard.semanticNoDescription' | translate) }}</p>
-                @if (item.categoriaNome) {
+                <p>{{ item.description || ('dashboard.semanticNoDescription' | translate) }}</p>
+                @if (item.categoryName) {
                   <span class="semantic-category">
                     <i [class]="semanticIconClass(item)"></i>
-                    {{ item.categoriaNome }}
+                    {{ item.categoryName }}
                   </span>
                 }
                 <dl>
                   <div>
                     <dt>{{ 'dashboard.semanticLocations' | translate }}</dt>
-                    <dd>{{ locaisResumo(item) }}</dd>
+                    <dd>{{ locationsSummary(item) }}</dd>
                   </div>
                   <div>
                     <dt>{{ 'dashboard.semanticInstances' | translate }}</dt>
-                    <dd>{{ instanciasResumo(item) }}</dd>
+                    <dd>{{ instanciasSummary(item) }}</dd>
                   </div>
                 </dl>
               </div>
@@ -162,15 +162,15 @@
       <section class="ranking-section" [attr.aria-label]="'dashboard.topLocations' | translate">
         <div class="section-header">
           <h2>{{ 'dashboard.topLocations' | translate }}</h2>
-          <a routerLink="/locais">{{ 'dashboard.openLocations' | translate }}</a>
+          <a routerLink="/locations">{{ 'dashboard.openLocations' | translate }}</a>
         </div>
 
-        @if ((resumo()?.locaisComMaisItens?.length ?? 0) > 0) {
+        @if ((resumo()?.locationsComMaisItens?.length ?? 0) > 0) {
           <ol class="ranking-list">
-            @for (local of resumo()?.locaisComMaisItens; track local.id) {
+            @for (local of resumo()?.locationsComMaisItens; track local.id) {
               <li>
-                <span class="ranking-name">{{ local.nome }}</span>
-                <span class="ranking-value">{{ local.quantidadeInstancias }} {{ 'dashboard.instancesSuffix' | translate }}</span>
+                <span class="ranking-name">{{ local.name }}</span>
+                <span class="ranking-value">{{ local.instanceCount }} {{ 'dashboard.instancesSuffix' | translate }}</span>
               </li>
             }
           </ol>
@@ -182,15 +182,15 @@
       <section class="ranking-section" [attr.aria-label]="'dashboard.topCategories' | translate">
         <div class="section-header">
           <h2>{{ 'dashboard.topCategories' | translate }}</h2>
-          <a routerLink="/categorias">{{ 'dashboard.openCategories' | translate }}</a>
+          <a routerLink="/categories">{{ 'dashboard.openCategories' | translate }}</a>
         </div>
 
-        @if ((resumo()?.categoriasComMaisItens?.length ?? 0) > 0) {
+        @if ((resumo()?.categoriesComMaisItens?.length ?? 0) > 0) {
           <ol class="ranking-list">
-            @for (categoria of resumo()?.categoriasComMaisItens; track categoria.id) {
+            @for (category of resumo()?.categoriesComMaisItens; track category.id) {
               <li>
-                <span class="ranking-name">{{ categoria.nome }}</span>
-                <span class="ranking-value">{{ categoria.quantidadeItens }} {{ 'dashboard.itemsSuffix' | translate }}</span>
+                <span class="ranking-name">{{ category.name }}</span>
+                <span class="ranking-value">{{ category.quantidadeItens }} {{ 'dashboard.itemsSuffix' | translate }}</span>
               </li>
             }
           </ol>

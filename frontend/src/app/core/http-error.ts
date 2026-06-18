@@ -17,14 +17,14 @@ export function mensagemErroHttp(error: unknown, fallback: string): string {
     return userMessage;
   }
 
-  return montarMensagemUsuario(error, fallback);
+  return montarMensagemUser(error, fallback);
 }
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) =>
   next(req).pipe(
     catchError((error: unknown) => {
       if (error instanceof HttpErrorResponse) {
-        const userMessage = montarMensagemUsuario(error, 'Não foi possível concluir a operação.');
+        const userMessage = montarMensagemUser(error, 'Não foi possível concluir a operação.');
         Object.defineProperty(error, 'userMessage', {
           configurable: true,
           enumerable: false,
@@ -42,7 +42,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) =>
     }),
   );
 
-function montarMensagemUsuario(error: HttpErrorResponse, fallback: string): string {
+function montarMensagemUser(error: HttpErrorResponse, fallback: string): string {
   if (error.status === 0) {
     return 'Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.';
   }

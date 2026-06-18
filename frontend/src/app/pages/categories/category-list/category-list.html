@@ -1,0 +1,110 @@
+<div class="page">
+  <p-confirmdialog />
+
+  <div class="page-header">
+    <div>
+      <h2>{{ 'categories.title' | translate }}</h2>
+      <p>{{ 'categories.subtitle' | translate }}</p>
+    </div>
+
+    <button
+      pButton
+      type="button"
+      [label]="'common.new' | translate"
+      icon="pi pi-plus"
+      (click)="create()">
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <input
+      pInputText
+      type="text"
+      [(ngModel)]="nameFilter"
+      [placeholder]="'categories.searchByName' | translate"
+      (keyup.enter)="search()" />
+
+    <button
+      pButton
+      type="button"
+      [label]="'common.search' | translate"
+      icon="pi pi-search"
+      (click)="search()">
+    </button>
+
+    <button
+      pButton
+      type="button"
+      severity="secondary"
+      [label]="'common.clear' | translate"
+      icon="pi pi-times"
+      (click)="nameFilter=''; load()">
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="error-box">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <p-table
+    styleClass="responsive-table"
+    [value]="categories()"
+    [loading]="loading()"
+    [tableStyle]="{ 'min-width': '64rem' }">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>{{ 'common.name' | translate }}</th>
+        <th>{{ 'categories.description' | translate }}</th>
+        <th style="width: 140px;">{{ 'categories.status' | translate }}</th>
+        <th style="width: 220px;">{{ 'common.actions' | translate }}</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-category>
+      <tr>
+        <td [attr.data-label]="'common.name' | translate">
+          <span class="category-name">
+            <span class="category-icon">
+              <i [class]="iconClass(category)"></i>
+            </span>
+            <span>{{ category.name }}</span>
+          </span>
+        </td>
+        <td [attr.data-label]="'categories.description' | translate">{{ category.description || '-' }}</td>
+        <td [attr.data-label]="'categories.status' | translate">
+          <p-tag
+            [value]="statusLabel(category)"
+            [severity]="category.active ? 'success' : 'secondary'">
+          </p-tag>
+        </td>
+        <td [attr.data-label]="'common.actions' | translate">
+          <div class="actions">
+            <button
+              pButton
+              type="button"
+              severity="secondary"
+              text
+              icon="pi pi-pencil"
+              [label]="'common.edit' | translate"
+              [routerLink]="['/categories', category.id, 'edit']">
+            </button>
+
+            <button
+              pButton
+              type="button"
+              severity="danger"
+              text
+              icon="pi pi-trash"
+              [label]="'categories.delete' | translate"
+              [loading]="deletingId() === category.id"
+              [disabled]="loading() || deletingId() !== null"
+              (click)="confirmDelete(category)">
+            </button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

@@ -4,20 +4,20 @@ import { AppLayoutComponent } from './layout/app-layout/app-layout';
 import { DashboardComponent } from './pages/dashboard/dashboard';
 import { authGuard } from './core/auth-guard';
 import { adminGuard } from './core/role-guard';
-import { PessoaListComponent } from './pages/pessoas/pessoa-list/pessoa-list';
-import { PessoaFormComponent } from './pages/pessoas/pessoa-form/pessoa-form';
-import { CategoriaListComponent } from './pages/categorias/categoria-list/categoria-list';
-import { CategoriaFormComponent } from './pages/categorias/categoria-form/categoria-form';
-import { LocalListComponent } from './pages/locais/local-list/local-list';
-import { LocalFormComponent } from './pages/locais/local-form/local-form';
-import { ItemMestreListComponent } from './pages/itens-mestre/item-mestre-list/item-mestre-list';
-import { ItemMestreFormComponent } from './pages/itens-mestre/item-mestre-form/item-mestre-form';
-import { InstanciaItemFormComponent } from './pages/instancias-item/instancia-item-form/instancia-item-form';
-import { InstanciaItemHistoricoComponent } from './pages/instancias-item/instancia-item-historico/instancia-item-historico';
-import { UsuarioListComponent } from './pages/usuarios/usuario-list/usuario-list';
-import { UsuarioFormComponent } from './pages/usuarios/usuario-form/usuario-form';
-import { PerfilComponent } from './pages/perfil/perfil';
-import { CadastroFotoComponent } from './pages/cadastro-foto/cadastro-foto';
+import { PersonListComponent } from './pages/people/person-list/person-list';
+import { PersonFormComponent } from './pages/people/person-form/person-form';
+import { CategoryListComponent } from './pages/categories/category-list/category-list';
+import { CategoryFormComponent } from './pages/categories/category-form/category-form';
+import { LocationListComponent } from './pages/locations/location-list/location-list';
+import { LocationFormComponent } from './pages/locations/location-form/location-form';
+import { MainItemListComponent } from './pages/main-items/main-item-list/main-item-list';
+import { MainItemFormComponent } from './pages/main-items/main-item-form/main-item-form';
+import { ItemInstanceFormComponent } from './pages/item-instances/item-instance-form/item-instance-form';
+import { ItemInstanceHistoricoComponent } from './pages/item-instances/item-instance-history/item-instance-history';
+import { UserListComponent } from './pages/users/user-list/user-list';
+import { UserFormComponent } from './pages/users/user-form/user-form';
+import { PerfilComponent } from './pages/profile/profile';
+import { PhotoUploadComponent } from './pages/photo-upload/photo-upload';
 
 export const routes: Routes = [
   {
@@ -39,83 +39,83 @@ export const routes: Routes = [
         component: DashboardComponent,
       },
       {
-        path: 'perfil',
+        path: 'profile',
         component: PerfilComponent,
       },
       {
-        path: 'usuarios',
-        component: UsuarioListComponent,
+        path: 'users',
+        component: UserListComponent,
         canActivate: [adminGuard],
       },
       {
-        path: 'usuarios/novo',
-        component: UsuarioFormComponent,
+        path: 'users/create',
+        component: UserFormComponent,
         canActivate: [adminGuard],
       },
       {
-        path: 'usuarios/:id/editar',
-        component: UsuarioFormComponent,
+        path: 'users/:id/edit',
+        component: UserFormComponent,
         canActivate: [adminGuard],
       },
       {
-        path: 'pessoas',
-        component: PessoaListComponent,
+        path: 'people',
+        component: PersonListComponent,
       },
       {
-        path: 'pessoas/nova',
-        component: PessoaFormComponent,
+        path: 'people/nova',
+        component: PersonFormComponent,
       },
       {
-        path: 'pessoas/:id/editar',
-        component: PessoaFormComponent,
+        path: 'people/:id/edit',
+        component: PersonFormComponent,
       },
       {
-        path: 'categorias',
-        component: CategoriaListComponent,
+        path: 'categories',
+        component: CategoryListComponent,
       },
       {
-        path: 'categorias/nova',
-        component: CategoriaFormComponent,
+        path: 'categories/nova',
+        component: CategoryFormComponent,
       },
       {
-        path: 'categorias/:id/editar',
-        component: CategoriaFormComponent,
+        path: 'categories/:id/edit',
+        component: CategoryFormComponent,
       },
       {
-        path: 'locais',
-        component: LocalListComponent,
+        path: 'locations',
+        component: LocationListComponent,
       },
       {
-        path: 'locais/novo',
-        component: LocalFormComponent,
+        path: 'locations/create',
+        component: LocationFormComponent,
       },
       {
-        path: 'locais/:id/editar',
-        component: LocalFormComponent,
+        path: 'locations/:id/edit',
+        component: LocationFormComponent,
       },
       {
-        path: 'itens-mestre',
-        component: ItemMestreListComponent,
+        path: 'main-items',
+        component: MainItemListComponent,
       },
       {
-        path: 'cadastro-foto',
-        component: CadastroFotoComponent,
+        path: 'photo-upload',
+        component: PhotoUploadComponent,
       },
       {
-        path: 'itens-mestre/novo',
-        component: ItemMestreFormComponent,
+        path: 'main-items/create',
+        component: MainItemFormComponent,
       },
       {
-        path: 'itens-mestre/:id/editar',
-        component: ItemMestreFormComponent,
+        path: 'main-items/:id/edit',
+        component: MainItemFormComponent,
       },
       {
-        path: 'instancias-item/:id/historico',
-        component: InstanciaItemHistoricoComponent,
+        path: 'item-instances/:id/history',
+        component: ItemInstanceHistoricoComponent,
       },
       {
-        path: 'instancias-item/:id/editar',
-        component: InstanciaItemFormComponent,
+        path: 'item-instances/:id/edit',
+        component: ItemInstanceFormComponent,
       },
     ],
   },
