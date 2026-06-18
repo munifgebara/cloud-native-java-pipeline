@@ -1,6 +1,8 @@
 package br.com.stella.api.service;
 
 import br.com.stella.api.dto.PhotoUploadSuggestionResponseDTO;
+import br.com.stella.api.exception.AiUsageLimitException;
+import br.com.stella.api.exception.ExternalIntegrationException;
 import br.com.stella.api.observability.StructuredBusinessLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,9 +83,13 @@ public class OpenAiPhotoUploadProvider implements PhotoUploadAiProvider {
         } catch (IOException ex) {
             logFailure(model, inicio, ex);
             throw new IllegalArgumentException("Unable to read the submitted image.", ex);
-        } catch (RuntimeException ex) {
+        } catch (AiUsageLimitException | ExternalIntegrationException ex) {
             logFailure(model, inicio, ex);
             throw ex;
+        } catch (RuntimeException ex) {
+            // OpenAI/transport failure -> 502 (external integration), not a generic 500.
+            logFailure(model, inicio, ex);
+            throw new ExternalIntegrationException("Failed to analyze the image via OpenAI.", ex);
         }
     }
 
