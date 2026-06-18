@@ -41,10 +41,10 @@ export class LocalFormComponent implements OnInit {
   readonly opcoesPai = computed(() => this.locaisPai().filter((local) => local.id !== this.id()));
 
   form = this.fb.group({
-    nome: ['', [Validators.required, Validators.maxLength(150)]],
-    descricao: ['', [Validators.maxLength(500)]],
+    name: ['', [Validators.required, Validators.maxLength(150)]],
+    description: ['', [Validators.maxLength(500)]],
     paiId: [''],
-    ativa: [true],
+    active: [true],
   });
 
   ngOnInit(): void {
@@ -61,12 +61,12 @@ export class LocalFormComponent implements OnInit {
     this.localService.buscarPorId(id).subscribe({
       next: (local) => {
         this.form.patchValue({
-          nome: local.nome ?? '',
-          descricao: local.descricao ?? '',
+          name: local.name ?? '',
+          description: local.description ?? '',
           paiId: local.paiId ?? '',
-          ativa: local.ativa,
+          active: local.active,
         });
-        this.imagemAtualUrl.set(local.imagemUrl);
+        this.imagemAtualUrl.set(local.imageUrl);
         this.loading.set(false);
       },
       error: () => {
@@ -89,10 +89,10 @@ export class LocalFormComponent implements OnInit {
 
     const valor = this.form.getRawValue();
     const payload = {
-      nome: valor.nome?.trim() ?? '',
-      descricao: this.nullIfBlank(valor.descricao),
+      name: valor.name?.trim() ?? '',
+      description: this.nullIfBlank(valor.description),
       paiId: this.nullIfBlank(valor.paiId),
-      ativa: !!valor.ativa,
+      active: !!valor.active,
     };
 
     if (this.edicao()) {
@@ -196,8 +196,8 @@ export class LocalFormComponent implements OnInit {
     });
   }
 
-  campoInvalido(nome: keyof typeof this.form.controls): boolean {
-    const campo = this.form.controls[nome];
+  campoInvalido(name: keyof typeof this.form.controls): boolean {
+    const campo = this.form.controls[name];
     return !!campo && campo.invalid && (campo.touched || campo.dirty);
   }
 

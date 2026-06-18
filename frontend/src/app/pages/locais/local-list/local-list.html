@@ -68,8 +68,8 @@
       <tr>
         <td [attr.data-label]="'locations.image' | translate">
           <div class="location-image">
-            @if (local.imagemUrl) {
-              <img [src]="local.imagemUrl" [alt]="local.nome" />
+            @if (local.imageUrl) {
+              <img [src]="local.imageUrl" [alt]="local.name" />
             } @else {
               <i class="pi pi-image"></i>
             }
@@ -77,7 +77,7 @@
         </td>
         <td [attr.data-label]="'common.name' | translate">
           <span class="hierarchy-name" [style.padding-left]="indent(local)">
-            {{ local.nome }}
+            {{ local.name }}
           </span>
         </td>
         <td [attr.data-label]="'locations.path' | translate">{{ local.caminho }}</td>
@@ -85,7 +85,7 @@
         <td [attr.data-label]="'locations.status' | translate">
           <p-tag
             [value]="statusLabel(local)"
-            [severity]="local.ativa ? 'success' : 'secondary'">
+            [severity]="local.active ? 'success' : 'secondary'">
           </p-tag>
         </td>
         <td [attr.data-label]="'common.actions' | translate">

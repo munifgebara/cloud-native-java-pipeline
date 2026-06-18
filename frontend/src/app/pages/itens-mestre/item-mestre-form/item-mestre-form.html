@@ -15,19 +15,19 @@
         }
 
         <div class="field full">
-          <label for="nome">{{ 'common.name' | translate }}</label>
-          <input id="nome" pInputText formControlName="nome" />
-          @if (campoInvalido('nome')) {
+          <label for="name">{{ 'common.name' | translate }}</label>
+          <input id="name" pInputText formControlName="name" />
+          @if (campoInvalido('name')) {
             <small class="field-error">{{ 'masterItems.form.nameInvalid' | translate }}</small>
           }
         </div>
 
         <div class="field full">
-          <label for="categoriaId">{{ 'masterItems.form.category' | translate }}</label>
-          <select id="categoriaId" formControlName="categoriaId">
+          <label for="categoryId">{{ 'masterItems.form.category' | translate }}</label>
+          <select id="categoryId" formControlName="categoryId">
             <option value="">{{ 'masterItems.form.noCategory' | translate }}</option>
             @for (categoria of categorias(); track categoria.id) {
-              <option [value]="categoria.id">{{ categoria.nome }}</option>
+              <option [value]="categoria.id">{{ categoria.name }}</option>
             }
           </select>
         </div>
@@ -40,7 +40,7 @@
             (paste)="colarImagem($event)">
             <div class="image-preview">
               @if (imagemPreviewUrl() || imagemAtualUrl()) {
-                <img [src]="imagemPreviewUrl() || imagemAtualUrl()" [alt]="form.controls.nome.value || ('masterItems.form.mainImage' | translate)" />
+                <img [src]="imagemPreviewUrl() || imagemAtualUrl()" [alt]="form.controls.name.value || ('masterItems.form.mainImage' | translate)" />
               } @else {
                 <i class="pi pi-image"></i>
               }
@@ -102,24 +102,24 @@
         </div>
 
         <div class="field full">
-          <label for="descricao">{{ 'masterItems.description' | translate }}</label>
-          <textarea id="descricao" pTextarea rows="4" formControlName="descricao"></textarea>
-          @if (campoInvalido('descricao')) {
+          <label for="description">{{ 'masterItems.description' | translate }}</label>
+          <textarea id="description" pTextarea rows="4" formControlName="description"></textarea>
+          @if (campoInvalido('description')) {
             <small class="field-error">{{ 'masterItems.form.descriptionInvalid' | translate }}</small>
           }
         </div>
 
         <div class="field full">
-          <label for="observacoes">{{ 'masterItems.notes' | translate }}</label>
-          <textarea id="observacoes" pTextarea rows="5" formControlName="observacoes"></textarea>
-          @if (campoInvalido('observacoes')) {
+          <label for="notes">{{ 'masterItems.notes' | translate }}</label>
+          <textarea id="notes" pTextarea rows="5" formControlName="notes"></textarea>
+          @if (campoInvalido('notes')) {
             <small class="field-error">{{ 'masterItems.form.notesInvalid' | translate }}</small>
           }
         </div>
 
         <div class="field checkbox-field full">
-          <p-checkbox inputId="ativa" formControlName="ativa" [binary]="true"></p-checkbox>
-          <label for="ativa">{{ 'masterItems.form.active' | translate }}</label>
+          <p-checkbox inputId="active" formControlName="active" [binary]="true"></p-checkbox>
+          <label for="active">{{ 'masterItems.form.active' | translate }}</label>
         </div>
 
         <div class="actions full">
@@ -178,12 +178,12 @@
               {{ instanciaLabel(instancia) }}
             </td>
             <td [attr.data-label]="'itemInstances.currentLocation' | translate">
-              {{ instancia.localAtualNome || '-' }}
+              {{ instancia.currentLocationName || '-' }}
             </td>
             <td [attr.data-label]="'itemInstances.status' | translate">
               <p-tag
-                [value]="instanciaStatusLabel(instancia.statusOperacional)"
-                [severity]="instanciaStatusSeverity(instancia.statusOperacional)">
+                [value]="instanciaStatusLabel(instancia.operationalStatus)"
+                [severity]="instanciaStatusSeverity(instancia.operationalStatus)">
               </p-tag>
             </td>
             <td [attr.data-label]="'common.actions' | translate">

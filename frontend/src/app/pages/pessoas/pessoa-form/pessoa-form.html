@@ -15,17 +15,17 @@
         }
 
         <div class="field full">
-          <label for="nome">{{ 'common.name' | translate }}</label>
-          <input id="nome" pInputText formControlName="nome" />
-          @if (campoInvalido('nome')) {
+          <label for="name">{{ 'common.name' | translate }}</label>
+          <input id="name" pInputText formControlName="name" />
+          @if (campoInvalido('name')) {
             <small class="field-error">{{ 'people.form.nameInvalid' | translate }}</small>
           }
         </div>
 
         <div class="field">
-          <label for="cpfCnpj">{{ 'people.form.cpfCnpj' | translate }}</label>
-          <input id="cpfCnpj" pInputText formControlName="cpfCnpj" />
-          @if (campoInvalido('cpfCnpj')) {
+          <label for="taxId">{{ 'people.form.taxId' | translate }}</label>
+          <input id="taxId" pInputText formControlName="taxId" />
+          @if (campoInvalido('taxId')) {
             <small class="field-error">{{ 'people.form.cpfCnpjInvalid' | translate }}</small>
           }
         </div>
@@ -128,20 +128,20 @@
                   @for (revisao of revisoes(); track revisao.revisao) {
                     <details class="revision-item">
                       <summary>
-                        <span>{{ rotuloTipoRevisao(revisao.tipo) }}</span>
-                        <time [attr.datetime]="revisao.dataHora">
-                          {{ formatarDataHora(revisao.dataHora) }}
+                        <span>{{ rotuloTipoRevisao(revisao.type) }}</span>
+                        <time [attr.datetime]="revisao.timestamp">
+                          {{ formatarDataHora(revisao.timestamp) }}
                         </time>
                       </summary>
 
                       <dl class="revision-data">
-                        <div [class.changed]="campoAlterado(revisao, 'nome')">
+                        <div [class.changed]="campoAlterado(revisao, 'name')">
                           <dt>{{ 'common.name' | translate }}</dt>
-                          <dd>{{ revisao.pessoa.nome }}</dd>
+                          <dd>{{ revisao.pessoa.name }}</dd>
                         </div>
-                        <div [class.changed]="campoAlterado(revisao, 'cpfCnpj')">
-                          <dt>{{ 'people.form.cpfCnpj' | translate }}</dt>
-                          <dd>{{ revisao.pessoa.cpfCnpj }}</dd>
+                        <div [class.changed]="campoAlterado(revisao, 'taxId')">
+                          <dt>{{ 'people.form.taxId' | translate }}</dt>
+                          <dd>{{ revisao.pessoa.taxId }}</dd>
                         </div>
                         <div [class.changed]="campoAlterado(revisao, 'email')">
                           <dt>{{ 'people.form.email' | translate }}</dt>

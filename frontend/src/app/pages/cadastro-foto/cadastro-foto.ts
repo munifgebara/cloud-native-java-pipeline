@@ -25,32 +25,32 @@ const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
 
 type InstanciaRevisao = {
   aprovada: boolean;
-  identificador: string;
-  patrimonio: string;
-  numeroSerie: string;
-  estadoConservacao: string;
-  observacoes: string;
-  confianca: number | null;
+  identifier: string;
+  assetTag: string;
+  serialNumber: string;
+  condition: string;
+  notes: string;
+  confidence: number | null;
 };
 
 type ItemRevisao = {
   aprovada: boolean;
-  nome: string;
-  descricao: string;
-  categoriaId: string;
+  name: string;
+  description: string;
+  categoryId: string;
   categoriaSugerida: string;
-  marca: string;
-  modelo: string;
-  autor: string;
-  editora: string;
-  anoPublicacao: string;
+  brand: string;
+  model: string;
+  author: string;
+  publisher: string;
+  publicationYear: string;
   isbn: string;
-  fontePesquisa: string;
-  identificacaoVerificada: boolean | null;
+  source: string;
+  identificationVerified: boolean | null;
   quantidade: number;
-  estadoConservacao: string;
-  observacoes: string;
-  confianca: number | null;
+  condition: string;
+  notes: string;
+  confidence: number | null;
   instancias: InstanciaRevisao[];
 };
 
@@ -165,7 +165,7 @@ export class CadastroFotoComponent implements OnInit {
   }
 
   cadastrarSelecionados(): void {
-    const selecionados = this.itens().filter((item) => item.aprovada && item.nome.trim());
+    const selecionados = this.itens().filter((item) => item.aprovada && item.name.trim());
     if (!selecionados.length) {
       this.errorMessage.set(this.i18n.translate('photoRegistration.selectAtLeastOne'));
       return;
@@ -217,7 +217,7 @@ export class CadastroFotoComponent implements OnInit {
   }
 
   itensAprovados(): number {
-    return this.itens().filter((item) => item.aprovada && item.nome.trim()).length;
+    return this.itens().filter((item) => item.aprovada && item.name.trim()).length;
   }
 
   instanciasAprovadasTotal(): number {
@@ -236,19 +236,19 @@ export class CadastroFotoComponent implements OnInit {
     }
 
     const local = this.locais().find((item) => item.id === this.localPadraoId);
-    return local?.caminho || local?.nome || this.i18n.translate('photoRegistration.noDefaultLocation');
+    return local?.caminho || local?.name || this.i18n.translate('photoRegistration.noDefaultLocation');
   }
 
   private cadastrarItem(item: ItemRevisao) {
     const arquivo = this.arquivo();
 
     return this.itemMestreService.criar({
-      nome: item.nome.trim(),
-      descricao: this.nullIfBlank(item.descricao),
-      observacoes: this.observacoesItem(item),
+      name: item.name.trim(),
+      description: this.nullIfBlank(item.description),
+      notes: this.observacoesItem(item),
       origemCadastro: ORIGEM_CADASTRO_IA,
-      categoriaId: item.categoriaId || null,
-      ativa: true,
+      categoryId: item.categoryId || null,
+      active: true,
     }).pipe(
       switchMap((salvo) => {
         const itemComImagem$ = arquivo
@@ -303,88 +303,88 @@ export class CadastroFotoComponent implements OnInit {
     return item.instancias
       .filter((instancia) => instancia.aprovada)
       .map((instancia, index) => ({
-        itemMestreId: salvo.id,
-        localAtualId: this.localPadraoId || null,
-        identificador: this.nullIfBlank(instancia.identificador) ?? `${salvo.nome} ${index + 1}`,
-        patrimonio: this.nullIfBlank(instancia.patrimonio),
-        numeroSerie: this.nullIfBlank(instancia.numeroSerie),
-        statusOperacional: 'DISPONIVEL' as const,
-        observacoes: this.observacoesInstancia(instancia),
+        mainItemId: salvo.id,
+        currentLocationId: this.localPadraoId || null,
+        identifier: this.nullIfBlank(instancia.identifier) ?? `${salvo.name} ${index + 1}`,
+        assetTag: this.nullIfBlank(instancia.assetTag),
+        serialNumber: this.nullIfBlank(instancia.serialNumber),
+        operationalStatus: 'DISPONIVEL' as const,
+        notes: this.observacoesInstancia(instancia),
         origemCadastro: ORIGEM_CADASTRO_IA,
-        ativa: true,
+        active: true,
       }));
   }
 
   private toRevisao(item: CadastroFotoItemSugestao): ItemRevisao {
     const quantidade = Math.max(1, item.quantidade ?? item.instancias?.length ?? 1);
     const instanciasFonte = item.instancias?.length ? item.instancias : Array.from({ length: quantidade }, () => ({
-      identificador: null,
-      patrimonio: null,
-      numeroSerie: null,
-      estadoConservacao: item.estadoConservacao,
-      observacoes: null,
-      confianca: item.confianca,
+      identifier: null,
+      assetTag: null,
+      serialNumber: null,
+      condition: item.condition,
+      notes: null,
+      confidence: item.confidence,
     }));
 
     return {
       aprovada: true,
-      nome: item.nome ?? '',
-      descricao: item.descricao ?? '',
-      categoriaId: this.categoriaPorNome(item.categoriaSugerida),
+      name: item.name ?? '',
+      description: item.description ?? '',
+      categoryId: this.categoriaPorNome(item.categoriaSugerida),
       categoriaSugerida: item.categoriaSugerida ?? '',
-      marca: item.marca ?? '',
-      modelo: item.modelo ?? '',
-      autor: item.autor ?? '',
-      editora: item.editora ?? '',
-      anoPublicacao: item.anoPublicacao ?? '',
+      brand: item.brand ?? '',
+      model: item.model ?? '',
+      author: item.author ?? '',
+      publisher: item.publisher ?? '',
+      publicationYear: item.publicationYear ?? '',
       isbn: item.isbn ?? '',
-      fontePesquisa: item.fontePesquisa ?? '',
-      identificacaoVerificada: item.identificacaoVerificada,
+      source: item.source ?? '',
+      identificationVerified: item.identificationVerified,
       quantidade,
-      estadoConservacao: item.estadoConservacao ?? '',
-      observacoes: item.observacoes ?? '',
-      confianca: item.confianca,
+      condition: item.condition ?? '',
+      notes: item.notes ?? '',
+      confidence: item.confidence,
       instancias: instanciasFonte.map((instancia, index) => ({
         aprovada: true,
-        identificador: instancia.identificador ?? `${item.nome ?? 'Item'} ${index + 1}`,
-        patrimonio: instancia.patrimonio ?? '',
-        numeroSerie: instancia.numeroSerie ?? '',
-        estadoConservacao: instancia.estadoConservacao ?? '',
-        observacoes: instancia.observacoes ?? '',
-        confianca: instancia.confianca,
+        identifier: instancia.identifier ?? `${item.name ?? 'Item'} ${index + 1}`,
+        assetTag: instancia.assetTag ?? '',
+        serialNumber: instancia.serialNumber ?? '',
+        condition: instancia.condition ?? '',
+        notes: instancia.notes ?? '',
+        confidence: instancia.confidence,
       })),
     };
   }
 
-  private categoriaPorNome(nome: string | null): string {
-    const normalizado = (nome ?? '').trim().toLocaleLowerCase();
+  private categoriaPorNome(name: string | null): string {
+    const normalizado = (name ?? '').trim().toLocaleLowerCase();
     if (!normalizado) {
       return '';
     }
 
-    return this.categorias().find((categoria) => categoria.nome.toLocaleLowerCase() === normalizado)?.id ?? '';
+    return this.categorias().find((categoria) => categoria.name.toLocaleLowerCase() === normalizado)?.id ?? '';
   }
 
   private observacoesItem(item: ItemRevisao): string | null {
     return this.joinObservacoes([
-      item.observacoes,
-      item.marca ? `Marca sugerida: ${item.marca}` : '',
-      item.modelo ? `Modelo sugerido: ${item.modelo}` : '',
-      item.autor ? `Autor identificado: ${item.autor}` : '',
-      item.editora ? `Editora identificada: ${item.editora}` : '',
-      item.anoPublicacao ? `Ano de publicação identificado: ${item.anoPublicacao}` : '',
+      item.notes,
+      item.brand ? `Marca sugerida: ${item.brand}` : '',
+      item.model ? `Modelo sugerido: ${item.model}` : '',
+      item.author ? `Autor identificado: ${item.author}` : '',
+      item.publisher ? `Editora identificada: ${item.publisher}` : '',
+      item.publicationYear ? `Ano de publicação identificado: ${item.publicationYear}` : '',
       item.isbn ? `ISBN identificado: ${item.isbn}` : '',
-      item.fontePesquisa ? `Fonte da identificação: ${item.fontePesquisa}` : '',
-      item.identificacaoVerificada != null ? `Identificação verificada: ${item.identificacaoVerificada ? 'sim' : 'não'}` : '',
-      item.estadoConservacao ? `Estado sugerido: ${item.estadoConservacao}` : '',
+      item.source ? `Fonte da identificação: ${item.source}` : '',
+      item.identificationVerified != null ? `Identificação verificada: ${item.identificationVerified ? 'sim' : 'não'}` : '',
+      item.condition ? `Estado sugerido: ${item.condition}` : '',
       item.categoriaSugerida ? `Categoria sugerida pela IA: ${item.categoriaSugerida}` : '',
     ]);
   }
 
   private observacoesInstancia(instancia: InstanciaRevisao): string | null {
     return this.joinObservacoes([
-      instancia.observacoes,
-      instancia.estadoConservacao ? `Estado sugerido: ${instancia.estadoConservacao}` : '',
+      instancia.notes,
+      instancia.condition ? `Estado sugerido: ${instancia.condition}` : '',
     ]);
   }
 

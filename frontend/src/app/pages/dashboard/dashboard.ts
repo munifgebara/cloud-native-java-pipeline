@@ -80,7 +80,7 @@ export class DashboardComponent implements OnInit {
   }
 
   semanticIconClass(item: ConsultaSemanticaItem): string {
-    return categoriaIconClass(item.categoriaIcone);
+    return categoriaIconClass(item.categoryIcon);
   }
 
   similaridadePercentual(item: ConsultaSemanticaItem): string {
@@ -94,18 +94,18 @@ export class DashboardComponent implements OnInit {
 
     return item.instancias
       .slice(0, 3)
-      .map((instancia) => instancia.identificador || instancia.patrimonio || instancia.numeroSerie || this.i18n.translate('dashboard.semanticUnnamedInstance'))
+      .map((instancia) => instancia.identifier || instancia.assetTag || instancia.serialNumber || this.i18n.translate('dashboard.semanticUnnamedInstance'))
       .join(', ');
   }
 
   locaisResumo(item: ConsultaSemanticaItem): string {
-    if (!item.locaisProvaveis.length) {
+    if (!item.probableLocations.length) {
       return this.i18n.translate('dashboard.semanticNoLocations');
     }
 
-    return item.locaisProvaveis
+    return item.probableLocations
       .slice(0, 3)
-      .map((local) => `${local.nome} (${local.quantidade})`)
+      .map((local) => `${local.name} (${local.quantidade})`)
       .join(', ');
   }
 

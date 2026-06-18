@@ -28,10 +28,10 @@ export class InstanciaItemFormComponent implements OnInit {
   private readonly instanciaItemService = inject(InstanciaItemService);
   private readonly localService = inject(LocalService);
 
-  private itemMestreId = '';
+  private mainItemId = '';
 
   id = signal<string | null>(null);
-  itemMestreNome = signal('');
+  mainItemName = signal('');
   locais = signal<LocalResumo[]>([]);
   loading = signal(false);
   salvando = signal(false);
@@ -39,13 +39,13 @@ export class InstanciaItemFormComponent implements OnInit {
   statusOptions: StatusOperacionalInstancia[] = ['DISPONIVEL', 'EM_MOVIMENTACAO', 'EMPRESTADO', 'INATIVO'];
 
   form = this.fb.group({
-    localAtualId: ['', [Validators.required]],
-    identificador: ['', [Validators.maxLength(100)]],
-    patrimonio: ['', [Validators.maxLength(100)]],
-    numeroSerie: ['', [Validators.maxLength(150)]],
-    statusOperacional: ['DISPONIVEL' as StatusOperacionalInstancia, [Validators.required]],
-    observacoes: ['', [Validators.maxLength(1000)]],
-    ativa: [true],
+    currentLocationId: ['', [Validators.required]],
+    identifier: ['', [Validators.maxLength(100)]],
+    assetTag: ['', [Validators.maxLength(100)]],
+    serialNumber: ['', [Validators.maxLength(150)]],
+    operationalStatus: ['DISPONIVEL' as StatusOperacionalInstancia, [Validators.required]],
+    notes: ['', [Validators.maxLength(1000)]],
+    active: [true],
   });
 
   ngOnInit(): void {
@@ -62,16 +62,16 @@ export class InstanciaItemFormComponent implements OnInit {
 
     this.instanciaItemService.buscarPorId(id).subscribe({
       next: (instancia) => {
-        this.itemMestreId = instancia.itemMestreId ?? '';
-        this.itemMestreNome.set(instancia.itemMestreNome ?? '');
+        this.mainItemId = instancia.mainItemId ?? '';
+        this.mainItemName.set(instancia.mainItemName ?? '');
         this.form.patchValue({
-          localAtualId: instancia.localAtualId ?? '',
-          identificador: instancia.identificador ?? '',
-          patrimonio: instancia.patrimonio ?? '',
-          numeroSerie: instancia.numeroSerie ?? '',
-          statusOperacional: instancia.statusOperacional ?? 'DISPONIVEL',
-          observacoes: instancia.observacoes ?? '',
-          ativa: instancia.ativa,
+          currentLocationId: instancia.currentLocationId ?? '',
+          identifier: instancia.identifier ?? '',
+          assetTag: instancia.assetTag ?? '',
+          serialNumber: instancia.serialNumber ?? '',
+          operationalStatus: instancia.operationalStatus ?? 'DISPONIVEL',
+          notes: instancia.notes ?? '',
+          active: instancia.active,
         });
         this.loading.set(false);
       },
@@ -93,17 +93,17 @@ export class InstanciaItemFormComponent implements OnInit {
 
     const valor = this.form.getRawValue();
     const payload = {
-      itemMestreId: this.itemMestreId,
-      localAtualId: valor.localAtualId ?? '',
-      identificador: this.nullIfBlank(valor.identificador),
-      patrimonio: this.nullIfBlank(valor.patrimonio),
-      numeroSerie: this.nullIfBlank(valor.numeroSerie),
-      statusOperacional: valor.statusOperacional ?? 'DISPONIVEL',
-      observacoes: this.nullIfBlank(valor.observacoes),
-      ativa: !!valor.ativa,
+      mainItemId: this.mainItemId,
+      currentLocationId: valor.currentLocationId ?? '',
+      identifier: this.nullIfBlank(valor.identifier),
+      assetTag: this.nullIfBlank(valor.assetTag),
+      serialNumber: this.nullIfBlank(valor.serialNumber),
+      operationalStatus: valor.operationalStatus ?? 'DISPONIVEL',
+      notes: this.nullIfBlank(valor.notes),
+      active: !!valor.active,
     };
 
-    if (!payload.identificador && !payload.patrimonio && !payload.numeroSerie) {
+    if (!payload.identifier && !payload.assetTag && !payload.serialNumber) {
       this.errorMessage.set(this.i18n.translate('itemInstances.form.identificationRequired'));
       return;
     }
@@ -126,8 +126,8 @@ export class InstanciaItemFormComponent implements OnInit {
     this.location.back();
   }
 
-  campoInvalido(nome: keyof typeof this.form.controls): boolean {
-    const campo = this.form.controls[nome];
+  campoInvalido(name: keyof typeof this.form.controls): boolean {
+    const campo = this.form.controls[name];
     return !!campo && campo.invalid && (campo.touched || campo.dirty);
   }
 

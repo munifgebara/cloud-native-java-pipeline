@@ -4,13 +4,13 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface DashboardResumo {
-  quantidadePessoas: number;
-  quantidadeItensMestre: number;
-  quantidadeInstancias: number;
-  quantidadeInstanciasDisponiveis: number;
-  quantidadeInstanciasEmprestadas: number;
-  quantidadeLocais: number;
-  quantidadeItensSemImagem: number;
+  peopleCount: number;
+  mainItemCount: number;
+  instanceCount: number;
+  availableInstanceCount: number;
+  loanedInstanceCount: number;
+  locationCount: number;
+  itemsWithoutImageCount: number;
   quantidadeItensCadastradosPorIa: number;
   quantidadeConsultasVetoriais: number;
   locaisComMaisItens: DashboardLocalQuantidade[];
@@ -19,13 +19,13 @@ export interface DashboardResumo {
 
 export interface DashboardLocalQuantidade {
   id: string;
-  nome: string;
-  quantidadeInstancias: number;
+  name: string;
+  instanceCount: number;
 }
 
 export interface DashboardCategoriaQuantidade {
   id: string;
-  nome: string;
+  name: string;
   quantidadeItens: number;
 }
 
@@ -37,6 +37,6 @@ export class DashboardService {
   private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/dashboard`;
 
   carregarResumo(): Observable<DashboardResumo> {
-    return this.http.get<DashboardResumo>(`${this.baseUrl}/resumo`);
+    return this.http.get<DashboardResumo>(`${this.baseUrl}/summary`);
   }
 }

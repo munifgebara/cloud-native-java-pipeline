@@ -143,7 +143,7 @@ export const ES_TRANSLATIONS = {
   'people.deleteConfirmMessage': 'Deseas eliminar {{name}}?',
   'people.form.editTitle': 'Editar persona',
   'people.form.newTitle': 'Nueva persona',
-  'people.form.cpfCnpj': 'CPF/CNPJ',
+  'people.form.taxId': 'CPF/CNPJ',
   'people.form.email': 'E-mail',
   'people.form.mainPhone': 'Telefono principal',
   'people.form.secondaryPhone': 'Telefono secundario',

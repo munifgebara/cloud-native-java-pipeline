@@ -33,10 +33,10 @@ export class CategoriaFormComponent implements OnInit {
   readonly edicao = computed(() => !!this.id());
 
   form = this.fb.group({
-    nome: ['', [Validators.required, Validators.maxLength(150)]],
-    descricao: ['', [Validators.maxLength(500)]],
+    name: ['', [Validators.required, Validators.maxLength(150)]],
+    description: ['', [Validators.maxLength(500)]],
     icone: [null as string | null],
-    ativa: [true],
+    active: [true],
   });
 
   ngOnInit(): void {
@@ -52,10 +52,10 @@ export class CategoriaFormComponent implements OnInit {
     this.categoriaService.buscarPorId(id).subscribe({
       next: (categoria) => {
         this.form.patchValue({
-          nome: categoria.nome ?? '',
-          descricao: categoria.descricao ?? '',
+          name: categoria.name ?? '',
+          description: categoria.description ?? '',
           icone: categoria.icone ?? null,
-          ativa: categoria.ativa,
+          active: categoria.active,
         });
         this.loading.set(false);
       },
@@ -79,10 +79,10 @@ export class CategoriaFormComponent implements OnInit {
 
     const valor = this.form.getRawValue();
     const payload = {
-      nome: valor.nome?.trim() ?? '',
-      descricao: this.nullIfBlank(valor.descricao),
+      name: valor.name?.trim() ?? '',
+      description: this.nullIfBlank(valor.description),
       icone: valor.icone ?? null,
-      ativa: !!valor.ativa,
+      active: !!valor.active,
     };
 
     if (this.edicao()) {
@@ -112,8 +112,8 @@ export class CategoriaFormComponent implements OnInit {
     });
   }
 
-  campoInvalido(nome: keyof typeof this.form.controls): boolean {
-    const campo = this.form.controls[nome];
+  campoInvalido(name: keyof typeof this.form.controls): boolean {
+    const campo = this.form.controls[name];
     return !!campo && campo.invalid && (campo.touched || campo.dirty);
   }
 

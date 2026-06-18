@@ -49,9 +49,9 @@ export class PessoaListComponent implements OnInit {
   }
 
   pesquisar(): void {
-    const nome = this.filtroNome.trim();
+    const name = this.filtroNome.trim();
 
-    if (!nome) {
+    if (!name) {
       this.carregar();
       return;
     }
@@ -59,7 +59,7 @@ export class PessoaListComponent implements OnInit {
     this.loading.set(true);
     this.errorMessage.set('');
 
-    this.pessoaService.buscarPorNome(nome).subscribe({
+    this.pessoaService.buscarPorNome(name).subscribe({
       next: (dados) => {
         this.pessoas.set(dados);
         this.loading.set(false);
@@ -80,7 +80,7 @@ export class PessoaListComponent implements OnInit {
 
     this.confirmationService.confirm({
       header: this.i18n.translate('people.deleteConfirmTitle'),
-      message: this.i18n.translate('people.deleteConfirmMessage', { name: pessoa.nome }),
+      message: this.i18n.translate('people.deleteConfirmMessage', { name: pessoa.name }),
       icon: 'pi pi-exclamation-triangle',
       rejectLabel: this.i18n.translate('common.cancel'),
       acceptLabel: this.i18n.translate('people.delete'),

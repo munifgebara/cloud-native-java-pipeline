@@ -66,11 +66,11 @@ export class ItemMestreFormComponent implements OnInit {
   readonly edicao = computed(() => !!this.id());
 
   form = this.fb.group({
-    nome: ['', [Validators.required, Validators.maxLength(150)]],
-    categoriaId: [''],
-    descricao: ['', [Validators.maxLength(500)]],
-    observacoes: ['', [Validators.maxLength(1000)]],
-    ativa: [true],
+    name: ['', [Validators.required, Validators.maxLength(150)]],
+    categoryId: [''],
+    description: ['', [Validators.maxLength(500)]],
+    notes: ['', [Validators.maxLength(1000)]],
+    active: [true],
   });
 
   ngOnInit(): void {
@@ -87,13 +87,13 @@ export class ItemMestreFormComponent implements OnInit {
     this.itemMestreService.buscarPorId(id).subscribe({
       next: (item) => {
         this.form.patchValue({
-          nome: item.nome ?? '',
-          categoriaId: item.categoriaId ?? '',
-          descricao: item.descricao ?? '',
-          observacoes: item.observacoes ?? '',
-          ativa: item.ativa,
+          name: item.name ?? '',
+          categoryId: item.categoryId ?? '',
+          description: item.description ?? '',
+          notes: item.notes ?? '',
+          active: item.active,
         });
-        this.imagemAtualUrl.set(item.imagemUrl);
+        this.imagemAtualUrl.set(item.imageUrl);
         this.loading.set(false);
       },
       error: () => {
@@ -119,11 +119,11 @@ export class ItemMestreFormComponent implements OnInit {
 
     const valor = this.form.getRawValue();
     const payload = {
-      nome: valor.nome?.trim() ?? '',
-      categoriaId: this.nullIfBlank(valor.categoriaId),
-      descricao: this.nullIfBlank(valor.descricao),
-      observacoes: this.nullIfBlank(valor.observacoes),
-      ativa: !!valor.ativa,
+      name: valor.name?.trim() ?? '',
+      categoryId: this.nullIfBlank(valor.categoryId),
+      description: this.nullIfBlank(valor.description),
+      notes: this.nullIfBlank(valor.notes),
+      active: !!valor.active,
     };
 
     if (this.edicao()) {
@@ -167,16 +167,16 @@ export class ItemMestreFormComponent implements OnInit {
   salvarInstancia(): void {
     this.instanciaError.set('');
     const localId = this.novaInstanciaLocalId;
-    const identificador = this.nullIfBlank(this.novaInstanciaIdentificador);
-    const patrimonio = this.nullIfBlank(this.novaInstanciaPatrimonio);
-    const numeroSerie = this.nullIfBlank(this.novaInstanciaNumeroSerie);
+    const identifier = this.nullIfBlank(this.novaInstanciaIdentificador);
+    const assetTag = this.nullIfBlank(this.novaInstanciaPatrimonio);
+    const serialNumber = this.nullIfBlank(this.novaInstanciaNumeroSerie);
 
     if (!localId) {
       this.instanciaError.set(this.i18n.translate('itemInstances.form.locationInvalid'));
       return;
     }
 
-    if (!identificador && !patrimonio && !numeroSerie) {
+    if (!identifier && !assetTag && !serialNumber) {
       this.instanciaError.set(this.i18n.translate('itemInstances.form.identificationRequired'));
       return;
     }
@@ -184,12 +184,12 @@ export class ItemMestreFormComponent implements OnInit {
     this.salvandoInstancia.set(true);
 
     this.instanciaItemService.registrarEntrada({
-      itemMestreId: this.id()!,
-      localDestinoId: localId,
-      identificador,
-      patrimonio,
-      numeroSerie,
-      observacao: this.nullIfBlank(this.novaInstanciaObservacoes),
+      mainItemId: this.id()!,
+      destinationLocationId: localId,
+      identifier,
+      assetTag,
+      serialNumber,
+      notes: this.nullIfBlank(this.novaInstanciaObservacoes),
     }).subscribe({
       next: () => {
         this.salvandoInstancia.set(false);
@@ -204,7 +204,7 @@ export class ItemMestreFormComponent implements OnInit {
   }
 
   instanciaLabel(instancia: InstanciaItemResumo): string {
-    return instancia.identificador || instancia.patrimonio || instancia.numeroSerie || '-';
+    return instancia.identifier || instancia.assetTag || instancia.serialNumber || '-';
   }
 
   instanciaStatusLabel(status: StatusOperacionalInstancia): string {
@@ -219,7 +219,7 @@ export class ItemMestreFormComponent implements OnInit {
   }
 
   locaisAtivos(): LocalResumo[] {
-    return this.locais().filter(l => l.ativa);
+    return this.locais().filter(l => l.active);
   }
 
   // ── Imagem ──────────────────────────────────────────────────────────────────
@@ -284,26 +284,26 @@ export class ItemMestreFormComponent implements OnInit {
     return true;
   }
 
-  campoInvalido(nome: keyof typeof this.form.controls): boolean {
-    const campo = this.form.controls[nome];
+  campoInvalido(name: keyof typeof this.form.controls): boolean {
+    const campo = this.form.controls[name];
     return !!campo && campo.invalid && (campo.touched || campo.dirty);
   }
 
   gerarImagemIa(): void {
     this.errorMessage.set('');
     const valor = this.form.getRawValue();
-    const nome = this.nullIfBlank(valor.nome);
+    const name = this.nullIfBlank(valor.name);
 
-    if (!nome) {
+    if (!name) {
       this.errorMessage.set(this.i18n.translate('masterItems.form.aiNameRequired'));
       return;
     }
 
     this.gerandoImagemIa.set(true);
     this.itemMestreService.gerarImagemIa({
-      nome,
-      categoria: this.categoriaSelecionadaNome(valor.categoriaId),
-      descricao: this.nullIfBlank(valor.descricao),
+      name,
+      categoria: this.categoriaSelecionadaNome(valor.categoryId),
+      description: this.nullIfBlank(valor.description),
     }).subscribe({
       next: (imagem) => {
         this.imagemIaPreviewUrl.set(imagem.dataUrl);
@@ -350,7 +350,7 @@ export class ItemMestreFormComponent implements OnInit {
     this.carregandoInstancias.set(true);
     this.instanciaItemService.listar().subscribe({
       next: (todas) => {
-        this.instancias.set(todas.filter(i => i.itemMestreId === id));
+        this.instancias.set(todas.filter(i => i.mainItemId === id));
         this.carregandoInstancias.set(false);
       },
       error: () => {
@@ -398,12 +398,12 @@ export class ItemMestreFormComponent implements OnInit {
     return v ? v : null;
   }
 
-  private categoriaSelecionadaNome(categoriaId: string | null | undefined): string | null {
-    if (!categoriaId) {
+  private categoriaSelecionadaNome(categoryId: string | null | undefined): string | null {
+    if (!categoryId) {
       return null;
     }
 
-    return this.categorias().find((categoria) => categoria.id === categoriaId)?.nome ?? null;
+    return this.categorias().find((categoria) => categoria.id === categoryId)?.name ?? null;
   }
 
   private limparImagemIaGerada(): void {

@@ -6,42 +6,42 @@ import { environment } from '../../../environments/environment';
 
 export interface LocalResumo {
   id: string;
-  nome: string;
-  descricao: string | null;
+  name: string;
+  description: string | null;
   paiId: string | null;
   paiNome: string | null;
   caminho: string;
   nivel: number;
-  imagemUrl: string | null;
-  ativa: boolean;
+  imageUrl: string | null;
+  active: boolean;
 }
 
 export interface LocalResponse {
   id: string;
-  nome: string;
-  descricao: string | null;
+  name: string;
+  description: string | null;
   paiId: string | null;
   paiNome: string | null;
   caminho: string;
   nivel: number;
-  imagemUrl: string | null;
+  imageUrl: string | null;
   imagemContentType: string | null;
   imagemTamanhoBytes: number | null;
-  ativa: boolean;
+  active: boolean;
 }
 
 export interface LocalCreateRequest {
-  nome: string;
-  descricao?: string | null;
+  name: string;
+  description?: string | null;
   paiId?: string | null;
-  ativa?: boolean | null;
+  active?: boolean | null;
 }
 
 export interface LocalUpdateRequest {
-  nome: string;
-  descricao?: string | null;
+  name: string;
+  description?: string | null;
   paiId?: string | null;
-  ativa?: boolean | null;
+  active?: boolean | null;
 }
 
 @Injectable({
@@ -49,7 +49,7 @@ export interface LocalUpdateRequest {
 })
 export class LocalService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/locais`;
+  private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/locations`;
 
   listar(): Observable<LocalResumo[]> {
     return this.http.get<LocalResumo[]>(this.baseUrl).pipe(
@@ -57,9 +57,9 @@ export class LocalService {
     );
   }
 
-  buscarPorNome(nome: string): Observable<LocalResumo[]> {
-    return this.http.get<LocalResumo[]>(`${this.baseUrl}/buscar`, {
-      params: { nome },
+  buscarPorNome(name: string): Observable<LocalResumo[]> {
+    return this.http.get<LocalResumo[]>(`${this.baseUrl}/search`, {
+      params: { name },
     }).pipe(map((locais) => locais.map((local) => this.withAbsoluteImageUrl(local))));
   }
 
@@ -100,14 +100,14 @@ export class LocalService {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
-  private withAbsoluteImageUrl<T extends { imagemUrl: string | null }>(local: T): T {
-    if (!local.imagemUrl || local.imagemUrl.startsWith('http')) {
+  private withAbsoluteImageUrl<T extends { imageUrl: string | null }>(local: T): T {
+    if (!local.imageUrl || local.imageUrl.startsWith('http')) {
       return local;
     }
 
     return {
       ...local,
-      imagemUrl: `${environment.apiBaseUrl}${local.imagemUrl}`,
+      imageUrl: `${environment.apiBaseUrl}${local.imageUrl}`,
     };
   }
 }

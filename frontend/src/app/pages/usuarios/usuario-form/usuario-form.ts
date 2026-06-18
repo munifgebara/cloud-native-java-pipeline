@@ -125,8 +125,8 @@ export class UsuarioFormComponent implements OnInit {
     });
   }
 
-  campoInvalido(nome: keyof typeof this.form.controls): boolean {
-    const campo = this.form.controls[nome];
+  campoInvalido(name: keyof typeof this.form.controls): boolean {
+    const campo = this.form.controls[name];
     return !!campo && campo.invalid && (campo.touched || campo.dirty);
   }
 

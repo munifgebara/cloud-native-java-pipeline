@@ -7,93 +7,93 @@ export type StatusOperacionalInstancia = 'DISPONIVEL' | 'EM_MOVIMENTACAO' | 'EMP
 
 export interface InstanciaItemResumo {
   id: string;
-  itemMestreId: string;
-  itemMestreNome: string;
-  categoriaNome: string | null;
-  categoriaIcone: string | null;
-  localAtualId: string | null;
-  localAtualNome: string | null;
-  identificador: string | null;
-  patrimonio: string | null;
-  numeroSerie: string | null;
-  statusOperacional: StatusOperacionalInstancia;
-  ativa: boolean;
+  mainItemId: string;
+  mainItemName: string;
+  categoryName: string | null;
+  categoryIcon: string | null;
+  currentLocationId: string | null;
+  currentLocationName: string | null;
+  identifier: string | null;
+  assetTag: string | null;
+  serialNumber: string | null;
+  operationalStatus: StatusOperacionalInstancia;
+  active: boolean;
 }
 
 export interface InstanciaItemResponse {
   id: string;
-  itemMestreId: string;
-  itemMestreNome: string;
-  categoriaId: string | null;
-  categoriaNome: string | null;
-  categoriaIcone: string | null;
-  localAtualId: string | null;
-  localAtualNome: string | null;
-  identificador: string | null;
-  patrimonio: string | null;
-  numeroSerie: string | null;
-  statusOperacional: StatusOperacionalInstancia;
-  observacoes: string | null;
+  mainItemId: string;
+  mainItemName: string;
+  categoryId: string | null;
+  categoryName: string | null;
+  categoryIcon: string | null;
+  currentLocationId: string | null;
+  currentLocationName: string | null;
+  identifier: string | null;
+  assetTag: string | null;
+  serialNumber: string | null;
+  operationalStatus: StatusOperacionalInstancia;
+  notes: string | null;
   origemCadastro: string | null;
-  ativa: boolean;
+  active: boolean;
 }
 
 export interface InstanciaItemCreateRequest {
-  itemMestreId: string;
-  localAtualId?: string | null;
-  identificador?: string | null;
-  patrimonio?: string | null;
-  numeroSerie?: string | null;
-  statusOperacional?: StatusOperacionalInstancia | null;
-  observacoes?: string | null;
+  mainItemId: string;
+  currentLocationId?: string | null;
+  identifier?: string | null;
+  assetTag?: string | null;
+  serialNumber?: string | null;
+  operationalStatus?: StatusOperacionalInstancia | null;
+  notes?: string | null;
   origemCadastro?: string | null;
-  ativa?: boolean | null;
+  active?: boolean | null;
 }
 
 export interface InstanciaItemUpdateRequest {
-  itemMestreId: string;
-  localAtualId?: string | null;
-  identificador?: string | null;
-  patrimonio?: string | null;
-  numeroSerie?: string | null;
-  statusOperacional?: StatusOperacionalInstancia | null;
-  observacoes?: string | null;
+  mainItemId: string;
+  currentLocationId?: string | null;
+  identifier?: string | null;
+  assetTag?: string | null;
+  serialNumber?: string | null;
+  operationalStatus?: StatusOperacionalInstancia | null;
+  notes?: string | null;
   origemCadastro?: string | null;
-  ativa?: boolean | null;
+  active?: boolean | null;
 }
 
 export interface MovimentacaoEntradaRequest {
-  itemMestreId: string;
-  localDestinoId: string;
-  identificador?: string | null;
-  patrimonio?: string | null;
-  numeroSerie?: string | null;
-  observacao?: string | null;
+  mainItemId: string;
+  destinationLocationId: string;
+  identifier?: string | null;
+  assetTag?: string | null;
+  serialNumber?: string | null;
+  notes?: string | null;
 }
 
 export interface MovimentacaoSaidaRequest {
   instanciaItemId: string;
-  motivo: string;
-  observacao?: string | null;
+  reason: string;
+  notes?: string | null;
 }
 
 export interface MovimentacaoTransferenciaRequest {
   instanciaItemId: string;
-  localDestinoId: string;
-  observacao?: string | null;
+  destinationLocationId: string;
+  notes?: string | null;
 }
 
 export interface EmprestimoItemRequest {
   instanciaItemId: string;
   pessoaId: string;
-  previsaoDevolucao?: string | null;
-  observacao?: string | null;
+  expectedReturnDate?: string | null;
+  notes?: string | null;
 }
 
 export interface DevolucaoItemRequest {
   instanciaItemId: string;
   localRetornoId: string;
-  observacao?: string | null;
+  notes?: string | null;
 }
 
 export interface EmprestimoItemResponse {
@@ -102,24 +102,24 @@ export interface EmprestimoItemResponse {
   instanciaIdentificacao: string | null;
   pessoaId: string;
   pessoaNome: string;
-  dataEmprestimo: string;
-  previsaoDevolucao: string | null;
-  dataDevolucao: string | null;
-  observacao: string | null;
+  loanDate: string;
+  expectedReturnDate: string | null;
+  returnDate: string | null;
+  notes: string | null;
 }
 
 export interface MovimentacaoItemResponse {
   id: string;
-  tipo: 'ENTRADA' | 'SAIDA' | 'TRANSFERENCIA';
-  dataMovimentacao: string;
+  type: 'ENTRADA' | 'SAIDA' | 'TRANSFERENCIA';
+  movementDate: string;
   instanciaItemId: string;
   instanciaIdentificacao: string | null;
-  localOrigemId: string | null;
+  originLocationId: string | null;
   localOrigemNome: string | null;
-  localDestinoId: string | null;
+  destinationLocationId: string | null;
   localDestinoNome: string | null;
-  motivo: string | null;
-  observacao: string | null;
+  reason: string | null;
+  notes: string | null;
 }
 
 export interface InstanciaItemHistoricoResponse {
@@ -132,45 +132,45 @@ export interface InstanciaItemHistoricoResponse {
 })
 export class InstanciaItemService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/instancias-item`;
+  private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/instances-item`;
 
   listar(): Observable<InstanciaItemResumo[]> {
     return this.http.get<InstanciaItemResumo[]>(this.baseUrl);
   }
 
-  buscarPorIdentificador(identificador: string): Observable<InstanciaItemResumo[]> {
-    return this.http.get<InstanciaItemResumo[]>(`${this.baseUrl}/buscar`, {
-      params: { identificador },
+  buscarPorIdentificador(identifier: string): Observable<InstanciaItemResumo[]> {
+    return this.http.get<InstanciaItemResumo[]>(`${this.baseUrl}/search`, {
+      params: { identifier },
     });
   }
 
   filtrar(
-    identificacao?: string | null,
-    itemMestre?: string | null,
-    categoriaId?: string | null,
-    statusOperacional?: StatusOperacionalInstancia | null
+    identification?: string | null,
+    mainItem?: string | null,
+    categoryId?: string | null,
+    operationalStatus?: StatusOperacionalInstancia | null
   ): Observable<InstanciaItemResumo[]> {
     const params: Record<string, string> = {};
-    const identificacaoTratada = (identificacao ?? '').trim();
-    const itemMestreTratado = (itemMestre ?? '').trim();
+    const identificacaoTratada = (identification ?? '').trim();
+    const itemMestreTratado = (mainItem ?? '').trim();
 
     if (identificacaoTratada) {
-      params['identificacao'] = identificacaoTratada;
+      params['identification'] = identificacaoTratada;
     }
 
     if (itemMestreTratado) {
-      params['itemMestre'] = itemMestreTratado;
+      params['mainItem'] = itemMestreTratado;
     }
 
-    if (categoriaId) {
-      params['categoriaId'] = categoriaId;
+    if (categoryId) {
+      params['categoryId'] = categoryId;
     }
 
-    if (statusOperacional) {
-      params['statusOperacional'] = statusOperacional;
+    if (operationalStatus) {
+      params['operationalStatus'] = operationalStatus;
     }
 
-    return this.http.get<InstanciaItemResumo[]>(`${this.baseUrl}/filtrar`, { params });
+    return this.http.get<InstanciaItemResumo[]>(`${this.baseUrl}/filter`, { params });
   }
 
   buscarPorId(id: string): Observable<InstanciaItemResponse> {
@@ -178,7 +178,7 @@ export class InstanciaItemService {
   }
 
   buscarHistorico(id: string): Observable<InstanciaItemHistoricoResponse> {
-    return this.http.get<InstanciaItemHistoricoResponse>(`${this.baseUrl}/${id}/historico`);
+    return this.http.get<InstanciaItemHistoricoResponse>(`${this.baseUrl}/${id}/history`);
   }
 
   criar(payload: InstanciaItemCreateRequest): Observable<InstanciaItemResponse> {
@@ -186,23 +186,23 @@ export class InstanciaItemService {
   }
 
   registrarEntrada(payload: MovimentacaoEntradaRequest): Observable<MovimentacaoItemResponse> {
-    return this.http.post<MovimentacaoItemResponse>(`${environment.apiBaseUrl}/api/v0/movimentacoes-item/entrada`, payload);
+    return this.http.post<MovimentacaoItemResponse>(`${environment.apiBaseUrl}/api/v0/movements-item/inbound`, payload);
   }
 
   registrarSaida(payload: MovimentacaoSaidaRequest): Observable<MovimentacaoItemResponse> {
-    return this.http.post<MovimentacaoItemResponse>(`${environment.apiBaseUrl}/api/v0/movimentacoes-item/saida`, payload);
+    return this.http.post<MovimentacaoItemResponse>(`${environment.apiBaseUrl}/api/v0/movements-item/outbound`, payload);
   }
 
   registrarTransferencia(payload: MovimentacaoTransferenciaRequest): Observable<MovimentacaoItemResponse> {
-    return this.http.post<MovimentacaoItemResponse>(`${environment.apiBaseUrl}/api/v0/movimentacoes-item/transferencia`, payload);
+    return this.http.post<MovimentacaoItemResponse>(`${environment.apiBaseUrl}/api/v0/movements-item/transfer`, payload);
   }
 
   registrarEmprestimo(payload: EmprestimoItemRequest): Observable<EmprestimoItemResponse> {
-    return this.http.post<EmprestimoItemResponse>(`${environment.apiBaseUrl}/api/v0/emprestimos-item`, payload);
+    return this.http.post<EmprestimoItemResponse>(`${environment.apiBaseUrl}/api/v0/loans-item`, payload);
   }
 
   registrarDevolucao(payload: DevolucaoItemRequest): Observable<EmprestimoItemResponse> {
-    return this.http.post<EmprestimoItemResponse>(`${environment.apiBaseUrl}/api/v0/emprestimos-item/devolucao`, payload);
+    return this.http.post<EmprestimoItemResponse>(`${environment.apiBaseUrl}/api/v0/loans-item/return`, payload);
   }
 
   atualizar(id: string, payload: InstanciaItemUpdateRequest): Observable<InstanciaItemResponse> {

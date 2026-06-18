@@ -48,8 +48,8 @@ export interface MeuPerfilUpdateRequest {
 }
 
 export interface AlterarSenhaRequest {
-  senhaAtual: string;
-  novaSenha: string;
+  currentPassword: string;
+  newPassword: string;
 }
 
 @Injectable({
@@ -57,7 +57,7 @@ export interface AlterarSenhaRequest {
 })
 export class UsuarioService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/usuarios`;
+  private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/users`;
 
   listar(): Observable<Usuario[]> {
     return this.http.get<Usuario[]>(this.baseUrl);
@@ -88,6 +88,6 @@ export class UsuarioService {
   }
 
   alterarMinhaSenha(payload: AlterarSenhaRequest): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/me/senha`, payload);
+    return this.http.put<void>(`${this.baseUrl}/me/password`, payload);
   }
 }

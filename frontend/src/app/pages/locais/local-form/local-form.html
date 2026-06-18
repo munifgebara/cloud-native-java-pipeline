@@ -15,9 +15,9 @@
         }
 
         <div class="field full">
-          <label for="nome">{{ 'common.name' | translate }}</label>
-          <input id="nome" pInputText formControlName="nome" />
-          @if (campoInvalido('nome')) {
+          <label for="name">{{ 'common.name' | translate }}</label>
+          <input id="name" pInputText formControlName="name" />
+          @if (campoInvalido('name')) {
             <small class="field-error">{{ 'locations.form.nameInvalid' | translate }}</small>
           }
         </div>
@@ -40,7 +40,7 @@
             (paste)="colarImagem($event)">
             <div class="image-preview">
               @if (imagemPreviewUrl() || imagemAtualUrl()) {
-                <img [src]="imagemPreviewUrl() || imagemAtualUrl()" [alt]="form.controls.nome.value || ('locations.form.image' | translate)" />
+                <img [src]="imagemPreviewUrl() || imagemAtualUrl()" [alt]="form.controls.name.value || ('locations.form.image' | translate)" />
               } @else {
                 <i class="pi pi-image"></i>
               }
@@ -71,16 +71,16 @@
         </div>
 
         <div class="field full">
-          <label for="descricao">{{ 'locations.description' | translate }}</label>
-          <textarea id="descricao" pTextarea rows="4" formControlName="descricao"></textarea>
-          @if (campoInvalido('descricao')) {
+          <label for="description">{{ 'locations.description' | translate }}</label>
+          <textarea id="description" pTextarea rows="4" formControlName="description"></textarea>
+          @if (campoInvalido('description')) {
             <small class="field-error">{{ 'locations.form.descriptionInvalid' | translate }}</small>
           }
         </div>
 
         <div class="field checkbox-field full">
-          <p-checkbox inputId="ativa" formControlName="ativa" [binary]="true"></p-checkbox>
-          <label for="ativa">{{ 'locations.form.active' | translate }}</label>
+          <p-checkbox inputId="active" formControlName="active" [binary]="true"></p-checkbox>
+          <label for="active">{{ 'locations.form.active' | translate }}</label>
         </div>
 
         <div class="actions full">

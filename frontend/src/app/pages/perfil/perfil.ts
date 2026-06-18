@@ -33,8 +33,8 @@ export class PerfilComponent implements OnInit {
   });
 
   senhaForm = this.fb.group({
-    senhaAtual: ['', [Validators.required]],
-    novaSenha: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(100)]],
+    currentPassword: ['', [Validators.required]],
+    newPassword: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(100)]],
   });
 
   ngOnInit(): void {
@@ -106,8 +106,8 @@ export class PerfilComponent implements OnInit {
     const valor = this.senhaForm.getRawValue();
 
     this.usuarioService.alterarMinhaSenha({
-      senhaAtual: valor.senhaAtual ?? '',
-      novaSenha: valor.novaSenha ?? '',
+      currentPassword: valor.currentPassword ?? '',
+      newPassword: valor.newPassword ?? '',
     }).subscribe({
       next: () => {
         this.senhaForm.reset();
@@ -121,13 +121,13 @@ export class PerfilComponent implements OnInit {
     });
   }
 
-  campoPerfilInvalido(nome: keyof typeof this.perfilForm.controls): boolean {
-    const campo = this.perfilForm.controls[nome];
+  campoPerfilInvalido(name: keyof typeof this.perfilForm.controls): boolean {
+    const campo = this.perfilForm.controls[name];
     return !!campo && campo.invalid && (campo.touched || campo.dirty);
   }
 
-  campoSenhaInvalido(nome: keyof typeof this.senhaForm.controls): boolean {
-    const campo = this.senhaForm.controls[nome];
+  campoSenhaInvalido(name: keyof typeof this.senhaForm.controls): boolean {
+    const campo = this.senhaForm.controls[name];
     return !!campo && campo.invalid && (campo.touched || campo.dirty);
   }
 

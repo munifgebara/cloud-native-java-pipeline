@@ -54,7 +54,7 @@
         <select id="localPadrao" [(ngModel)]="localPadraoId">
           <option value="">{{ 'photoRegistration.noDefaultLocation' | translate }}</option>
           @for (local of locais(); track local.id) {
-            <option [value]="local.id">{{ local.caminho || local.nome }}</option>
+            <option [value]="local.id">{{ local.caminho || local.name }}</option>
           }
         </select>
         <small>{{ localPadraoResumo() }}</small>
@@ -143,41 +143,41 @@
               <span>{{ 'photoRegistration.approveItem' | translate }}</span>
             </label>
             <div class="suggestion-title">
-              <h4>{{ item.nome || ('photoRegistration.unnamedSuggestion' | translate) }}</h4>
-              <p>{{ item.descricao || ('masterItems.semanticNoDescription' | translate) }}</p>
+              <h4>{{ item.name || ('photoRegistration.unnamedSuggestion' | translate) }}</h4>
+              <p>{{ item.description || ('masterItems.semanticNoDescription' | translate) }}</p>
             </div>
             <div class="suggestion-tags">
-              <p-tag [value]="confiancaLabel(item.confianca)" severity="info" />
+              <p-tag [value]="confiancaLabel(item.confidence)" severity="info" />
               <p-tag
-                [value]="item.identificacaoVerificada === null ? '-' : (item.identificacaoVerificada ? ('common.yes' | translate) : ('common.no' | translate))"
-                [severity]="item.identificacaoVerificada ? 'success' : 'warn'" />
+                [value]="item.identificationVerified === null ? '-' : (item.identificationVerified ? ('common.yes' | translate) : ('common.no' | translate))"
+                [severity]="item.identificationVerified ? 'success' : 'warn'" />
             </div>
           </header>
 
           <div class="item-grid primary-fields">
             <label>
               {{ 'common.name' | translate }}
-              <input pInputText type="text" [(ngModel)]="item.nome" />
+              <input pInputText type="text" [(ngModel)]="item.name" />
             </label>
 
             <label>
               {{ 'masterItems.description' | translate }}
-              <input pInputText type="text" [(ngModel)]="item.descricao" />
+              <input pInputText type="text" [(ngModel)]="item.description" />
             </label>
 
             <label>
               {{ 'masterItems.category' | translate }}
-              <select [(ngModel)]="item.categoriaId">
+              <select [(ngModel)]="item.categoryId">
                 <option value="">{{ 'masterItems.form.noCategory' | translate }}</option>
                 @for (categoria of categorias(); track categoria.id) {
-                  <option [value]="categoria.id">{{ categoria.nome }}</option>
+                  <option [value]="categoria.id">{{ categoria.name }}</option>
                 }
               </select>
             </label>
 
             <label>
               {{ 'photoRegistration.condition' | translate }}
-              <input pInputText type="text" [(ngModel)]="item.estadoConservacao" />
+              <input pInputText type="text" [(ngModel)]="item.condition" />
             </label>
           </div>
 
@@ -191,27 +191,27 @@
 
               <label>
                 {{ 'photoRegistration.brand' | translate }}
-                <input pInputText type="text" [(ngModel)]="item.marca" />
+                <input pInputText type="text" [(ngModel)]="item.brand" />
               </label>
 
               <label>
                 {{ 'photoRegistration.model' | translate }}
-                <input pInputText type="text" [(ngModel)]="item.modelo" />
+                <input pInputText type="text" [(ngModel)]="item.model" />
               </label>
 
               <label>
                 {{ 'photoRegistration.author' | translate }}
-                <input pInputText type="text" [(ngModel)]="item.autor" />
+                <input pInputText type="text" [(ngModel)]="item.author" />
               </label>
 
               <label>
                 {{ 'photoRegistration.publisher' | translate }}
-                <input pInputText type="text" [(ngModel)]="item.editora" />
+                <input pInputText type="text" [(ngModel)]="item.publisher" />
               </label>
 
               <label>
                 {{ 'photoRegistration.publicationYear' | translate }}
-                <input pInputText type="text" [(ngModel)]="item.anoPublicacao" />
+                <input pInputText type="text" [(ngModel)]="item.publicationYear" />
               </label>
 
               <label>
@@ -221,26 +221,26 @@
 
               <label>
                 {{ 'photoRegistration.source' | translate }}
-                <input pInputText type="text" [(ngModel)]="item.fontePesquisa" />
+                <input pInputText type="text" [(ngModel)]="item.source" />
               </label>
 
               <label>
                 {{ 'photoRegistration.confidence' | translate }}
-                <p-tag [value]="confiancaLabel(item.confianca)" severity="info" />
+                <p-tag [value]="confiancaLabel(item.confidence)" severity="info" />
               </label>
 
               <label>
                 {{ 'photoRegistration.verifiedIdentification' | translate }}
                 <p-tag
-                  [value]="item.identificacaoVerificada === null ? '-' : (item.identificacaoVerificada ? ('common.yes' | translate) : ('common.no' | translate))"
-                  [severity]="item.identificacaoVerificada ? 'success' : 'warn'" />
+                  [value]="item.identificationVerified === null ? '-' : (item.identificationVerified ? ('common.yes' | translate) : ('common.no' | translate))"
+                  [severity]="item.identificationVerified ? 'success' : 'warn'" />
               </label>
             </div>
           </details>
 
           <label class="full-field">
             {{ 'masterItems.notes' | translate }}
-            <textarea rows="2" [(ngModel)]="item.observacoes"></textarea>
+            <textarea rows="2" [(ngModel)]="item.notes"></textarea>
           </label>
 
           <details class="instances" open>
@@ -256,22 +256,22 @@
 
                 <label>
                   {{ 'itemInstances.identifier' | translate }}
-                  <input pInputText type="text" [(ngModel)]="instancia.identificador" />
+                  <input pInputText type="text" [(ngModel)]="instancia.identifier" />
                 </label>
 
                 <label>
                   {{ 'itemInstances.assetTag' | translate }}
-                  <input pInputText type="text" [(ngModel)]="instancia.patrimonio" />
+                  <input pInputText type="text" [(ngModel)]="instancia.assetTag" />
                 </label>
 
                 <label>
                   {{ 'itemInstances.serialNumber' | translate }}
-                  <input pInputText type="text" [(ngModel)]="instancia.numeroSerie" />
+                  <input pInputText type="text" [(ngModel)]="instancia.serialNumber" />
                 </label>
 
                 <label>
                   {{ 'photoRegistration.condition' | translate }}
-                  <input pInputText type="text" [(ngModel)]="instancia.estadoConservacao" />
+                  <input pInputText type="text" [(ngModel)]="instancia.condition" />
                 </label>
               </div>
             }

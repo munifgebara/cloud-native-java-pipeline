@@ -6,32 +6,32 @@ import { TranslationKey } from '../i18n/i18n';
 
 export interface CategoriaResumo {
   id: string;
-  nome: string;
-  descricao: string | null;
+  name: string;
+  description: string | null;
   icone: string | null;
-  ativa: boolean;
+  active: boolean;
 }
 
 export interface CategoriaResponse {
   id: string;
-  nome: string;
-  descricao: string | null;
+  name: string;
+  description: string | null;
   icone: string | null;
-  ativa: boolean;
+  active: boolean;
 }
 
 export interface CategoriaCreateRequest {
-  nome: string;
-  descricao?: string | null;
+  name: string;
+  description?: string | null;
   icone?: string | null;
-  ativa?: boolean | null;
+  active?: boolean | null;
 }
 
 export interface CategoriaUpdateRequest {
-  nome: string;
-  descricao?: string | null;
+  name: string;
+  description?: string | null;
   icone?: string | null;
-  ativa?: boolean | null;
+  active?: boolean | null;
 }
 
 export interface CategoriaIconeOption {
@@ -61,15 +61,15 @@ export function categoriaIconClass(key: string | null | undefined): string {
 })
 export class CategoriaService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/categorias`;
+  private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/categories`;
 
   listar(): Observable<CategoriaResumo[]> {
     return this.http.get<CategoriaResumo[]>(this.baseUrl);
   }
 
-  buscarPorNome(nome: string): Observable<CategoriaResumo[]> {
-    return this.http.get<CategoriaResumo[]>(`${this.baseUrl}/buscar`, {
-      params: { nome },
+  buscarPorNome(name: string): Observable<CategoriaResumo[]> {
+    return this.http.get<CategoriaResumo[]>(`${this.baseUrl}/search`, {
+      params: { name },
     });
   }
 

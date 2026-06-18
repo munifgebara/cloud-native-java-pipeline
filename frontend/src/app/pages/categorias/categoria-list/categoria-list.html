@@ -69,14 +69,14 @@
             <span class="category-icon">
               <i [class]="iconClass(categoria)"></i>
             </span>
-            <span>{{ categoria.nome }}</span>
+            <span>{{ categoria.name }}</span>
           </span>
         </td>
-        <td [attr.data-label]="'categories.description' | translate">{{ categoria.descricao || '-' }}</td>
+        <td [attr.data-label]="'categories.description' | translate">{{ categoria.description || '-' }}</td>
         <td [attr.data-label]="'categories.status' | translate">
           <p-tag
             [value]="statusLabel(categoria)"
-            [severity]="categoria.ativa ? 'success' : 'secondary'">
+            [severity]="categoria.active ? 'success' : 'secondary'">
           </p-tag>
         </td>
         <td [attr.data-label]="'common.actions' | translate">

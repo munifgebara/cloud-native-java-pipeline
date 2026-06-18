@@ -4,30 +4,30 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export interface CadastroFotoInstanciaSugestao {
-  identificador: string | null;
-  patrimonio: string | null;
-  numeroSerie: string | null;
-  estadoConservacao: string | null;
-  observacoes: string | null;
-  confianca: number | null;
+  identifier: string | null;
+  assetTag: string | null;
+  serialNumber: string | null;
+  condition: string | null;
+  notes: string | null;
+  confidence: number | null;
 }
 
 export interface CadastroFotoItemSugestao {
-  nome: string;
-  descricao: string | null;
+  name: string;
+  description: string | null;
   categoriaSugerida: string | null;
-  marca: string | null;
-  modelo: string | null;
-  autor: string | null;
-  editora: string | null;
-  anoPublicacao: string | null;
+  brand: string | null;
+  model: string | null;
+  author: string | null;
+  publisher: string | null;
+  publicationYear: string | null;
   isbn: string | null;
-  fontePesquisa: string | null;
-  identificacaoVerificada: boolean | null;
+  source: string | null;
+  identificationVerified: boolean | null;
   quantidade: number;
-  estadoConservacao: string | null;
-  observacoes: string | null;
-  confianca: number | null;
+  condition: string | null;
+  notes: string | null;
+  confidence: number | null;
   instancias: CadastroFotoInstanciaSugestao[];
 }
 
@@ -41,12 +41,12 @@ export interface CadastroFotoSugestaoResponse {
 })
 export class CadastroFotoIaService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/ia/cadastro-foto`;
+  private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/ai/cadastro-foto`;
 
   sugerirCadastro(arquivo: File): Observable<CadastroFotoSugestaoResponse> {
     const formData = new FormData();
     formData.append('arquivo', arquivo);
 
-    return this.http.post<CadastroFotoSugestaoResponse>(`${this.baseUrl}/sugestoes`, formData);
+    return this.http.post<CadastroFotoSugestaoResponse>(`${this.baseUrl}/suggestions`, formData);
   }
 }

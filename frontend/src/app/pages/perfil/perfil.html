@@ -66,14 +66,14 @@
 
       <form [formGroup]="senhaForm" (ngSubmit)="alterarSenha()" class="form-grid">
         <div class="field">
-          <label for="senhaAtual">{{ 'profile.currentPassword' | translate }}</label>
-          <input id="senhaAtual" pInputText type="password" formControlName="senhaAtual" />
+          <label for="currentPassword">{{ 'profile.currentPassword' | translate }}</label>
+          <input id="currentPassword" pInputText type="password" formControlName="currentPassword" />
         </div>
 
         <div class="field">
-          <label for="novaSenha">{{ 'profile.newPassword' | translate }}</label>
-          <input id="novaSenha" pInputText type="password" formControlName="novaSenha" />
-          @if (campoSenhaInvalido('novaSenha')) {
+          <label for="newPassword">{{ 'profile.newPassword' | translate }}</label>
+          <input id="newPassword" pInputText type="password" formControlName="newPassword" />
+          @if (campoSenhaInvalido('newPassword')) {
             <small>{{ 'users.form.passwordInvalid' | translate }}</small>
           }
         </div>

@@ -5,16 +5,16 @@ import { environment } from '../../../environments/environment';
 
 export interface PessoaResumo {
   id: string;
-  nome: string;
-  cpfCnpj: string;
+  name: string;
+  taxId: string;
   email: string | null;
   telefonePrincipal: string | null;
 }
 
 export interface PessoaResponse {
   id: string;
-  nome: string;
-  cpfCnpj: string;
+  name: string;
+  taxId: string;
   telefonePrincipal: string | null;
   telefoneSecundario: string | null;
   email: string | null;
@@ -30,15 +30,15 @@ export interface PessoaResponse {
 
 export interface PessoaRevisao {
   revisao: number;
-  dataHora: string;
-  tipo: 'ADD' | 'MOD' | 'DEL';
+  timestamp: string;
+  type: 'ADD' | 'MOD' | 'DEL';
   pessoa: PessoaResponse;
-  camposAlterados: string[];
+  changedFields: string[];
 }
 
 export interface PessoaCreateRequest {
-  nome: string;
-  cpfCnpj: string;
+  name: string;
+  taxId: string;
   telefonePrincipal?: string | null;
   telefoneSecundario?: string | null;
   email?: string | null;
@@ -51,7 +51,7 @@ export interface PessoaCreateRequest {
 }
 
 export interface PessoaUpdateRequest {
-  nome: string;
+  name: string;
   telefonePrincipal?: string | null;
   telefoneSecundario?: string | null;
   email?: string | null;
@@ -68,15 +68,15 @@ export interface PessoaUpdateRequest {
 })
 export class PessoaService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/pessoas`;
+  private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/people`;
 
   listar(): Observable<PessoaResumo[]> {
     return this.http.get<PessoaResumo[]>(this.baseUrl);
   }
 
-  buscarPorNome(nome: string): Observable<PessoaResumo[]> {
-    return this.http.get<PessoaResumo[]>(`${this.baseUrl}/buscar`, {
-      params: { nome },
+  buscarPorNome(name: string): Observable<PessoaResumo[]> {
+    return this.http.get<PessoaResumo[]>(`${this.baseUrl}/search`, {
+      params: { name },
     });
   }
 
@@ -93,7 +93,7 @@ export class PessoaService {
   }
 
   listarRevisoes(id: string): Observable<PessoaRevisao[]> {
-    return this.http.get<PessoaRevisao[]>(`${this.baseUrl}/${id}/revisoes`);
+    return this.http.get<PessoaRevisao[]>(`${this.baseUrl}/${id}/revisions`);
   }
 
   excluir(id: string): Observable<void> {

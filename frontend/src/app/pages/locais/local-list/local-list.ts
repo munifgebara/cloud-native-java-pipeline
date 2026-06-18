@@ -51,9 +51,9 @@ export class LocalListComponent implements OnInit {
   }
 
   pesquisar(): void {
-    const nome = this.filtroNome.trim();
+    const name = this.filtroNome.trim();
 
-    if (!nome) {
+    if (!name) {
       this.carregar();
       return;
     }
@@ -61,7 +61,7 @@ export class LocalListComponent implements OnInit {
     this.loading.set(true);
     this.errorMessage.set('');
 
-    this.localService.buscarPorNome(nome).subscribe({
+    this.localService.buscarPorNome(name).subscribe({
       next: (dados) => {
         this.locais.set(dados);
         this.loading.set(false);
@@ -82,7 +82,7 @@ export class LocalListComponent implements OnInit {
 
     this.confirmationService.confirm({
       header: this.i18n.translate('locations.deleteConfirmTitle'),
-      message: this.i18n.translate('locations.deleteConfirmMessage', { name: local.nome }),
+      message: this.i18n.translate('locations.deleteConfirmMessage', { name: local.name }),
       icon: 'pi pi-exclamation-triangle',
       rejectLabel: this.i18n.translate('common.cancel'),
       acceptLabel: this.i18n.translate('locations.delete'),
@@ -93,7 +93,7 @@ export class LocalListComponent implements OnInit {
   }
 
   statusLabel(local: LocalResumo): string {
-    return local.ativa ? this.i18n.translate('locations.active') : this.i18n.translate('locations.inactive');
+    return local.active ? this.i18n.translate('locations.active') : this.i18n.translate('locations.inactive');
   }
 
   indent(local: LocalResumo): string {

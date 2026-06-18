@@ -50,9 +50,9 @@ export class CategoriaListComponent implements OnInit {
   }
 
   pesquisar(): void {
-    const nome = this.filtroNome.trim();
+    const name = this.filtroNome.trim();
 
-    if (!nome) {
+    if (!name) {
       this.carregar();
       return;
     }
@@ -60,7 +60,7 @@ export class CategoriaListComponent implements OnInit {
     this.loading.set(true);
     this.errorMessage.set('');
 
-    this.categoriaService.buscarPorNome(nome).subscribe({
+    this.categoriaService.buscarPorNome(name).subscribe({
       next: (dados) => {
         this.categorias.set(dados);
         this.loading.set(false);
@@ -81,7 +81,7 @@ export class CategoriaListComponent implements OnInit {
 
     this.confirmationService.confirm({
       header: this.i18n.translate('categories.deleteConfirmTitle'),
-      message: this.i18n.translate('categories.deleteConfirmMessage', { name: categoria.nome }),
+      message: this.i18n.translate('categories.deleteConfirmMessage', { name: categoria.name }),
       icon: 'pi pi-exclamation-triangle',
       rejectLabel: this.i18n.translate('common.cancel'),
       acceptLabel: this.i18n.translate('categories.delete'),
@@ -92,7 +92,7 @@ export class CategoriaListComponent implements OnInit {
   }
 
   statusLabel(categoria: CategoriaResumo): string {
-    return categoria.ativa ? this.i18n.translate('categories.active') : this.i18n.translate('categories.inactive');
+    return categoria.active ? this.i18n.translate('categories.active') : this.i18n.translate('categories.inactive');
   }
 
   iconClass(categoria: CategoriaResumo): string {

@@ -50,7 +50,7 @@ export class InstanciaItemHistoricoComponent implements OnInit {
   }
 
   nomeInstancia(instancia: InstanciaItemResponse): string {
-    return instancia.identificador || instancia.patrimonio || instancia.numeroSerie || instancia.itemMestreNome;
+    return instancia.identifier || instancia.assetTag || instancia.serialNumber || instancia.mainItemName;
   }
 
   statusLabel(status: StatusOperacionalInstancia): string {
@@ -68,27 +68,27 @@ export class InstanciaItemHistoricoComponent implements OnInit {
   }
 
   tipoLabel(movimentacao: MovimentacaoItemResponse): string {
-    return this.i18n.translate(`itemInstances.history.type.${movimentacao.tipo}`);
+    return this.i18n.translate(`itemInstances.history.type.${movimentacao.type}`);
   }
 
   movimentoDescricao(movimentacao: MovimentacaoItemResponse): string {
-    if (movimentacao.tipo === 'ENTRADA') {
+    if (movimentacao.type === 'ENTRADA') {
       return this.i18n.translate('itemInstances.history.entryDescription', {
         destination: movimentacao.localDestinoNome || '-',
       });
     }
-    if (movimentacao.tipo === 'SAIDA') {
+    if (movimentacao.type === 'SAIDA') {
       return this.i18n.translate('itemInstances.history.exitDescription', {
         origin: movimentacao.localOrigemNome || '-',
-        reason: movimentacao.motivo || '-',
+        reason: movimentacao.reason || '-',
       });
     }
-    if (movimentacao.tipo === 'TRANSFERENCIA') {
+    if (movimentacao.type === 'TRANSFERENCIA') {
       return this.i18n.translate('itemInstances.history.transferDescription', {
         origin: movimentacao.localOrigemNome || '-',
         destination: movimentacao.localDestinoNome || '-',
       });
     }
-    return movimentacao.tipo;
+    return movimentacao.type;
   }
 }

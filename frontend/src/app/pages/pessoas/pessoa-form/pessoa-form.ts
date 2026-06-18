@@ -70,8 +70,8 @@ export class PessoaFormComponent implements OnInit {
   readonly edicao = computed(() => !!this.id());
 
   form = this.fb.group({
-    nome: ['', [Validators.required, Validators.maxLength(150)]],
-    cpfCnpj: ['', [cpfCnpjValidator]],
+    name: ['', [Validators.required, Validators.maxLength(150)]],
+    taxId: ['', [cpfCnpjValidator]],
     telefonePrincipal: ['', [Validators.maxLength(20), telefoneValidator]],
     telefoneSecundario: ['', [Validators.maxLength(20), telefoneValidator]],
     email: ['', [Validators.email, Validators.maxLength(150)]],
@@ -100,8 +100,8 @@ export class PessoaFormComponent implements OnInit {
         this.pessoa.set(pessoa);
         this.form.patchValue(
           {
-            nome: pessoa.nome ?? '',
-            cpfCnpj: pessoa.cpfCnpj ?? '',
+            name: pessoa.name ?? '',
+            taxId: pessoa.taxId ?? '',
             telefonePrincipal: pessoa.telefonePrincipal ?? '',
             telefoneSecundario: pessoa.telefoneSecundario ?? '',
             email: pessoa.email ?? '',
@@ -117,7 +117,7 @@ export class PessoaFormComponent implements OnInit {
 
         this.ultimoCepConsultado = somenteDigitos(pessoa.cep);
 
-        this.form.controls.cpfCnpj.disable();
+        this.form.controls.taxId.disable();
         this.loading.set(false);
         this.carregarRevisoes(id);
       },
@@ -143,7 +143,7 @@ export class PessoaFormComponent implements OnInit {
 
     if (this.edicao()) {
       const payload = {
-        nome: valor.nome?.trim() ?? '',
+        name: valor.name?.trim() ?? '',
         telefonePrincipal: this.nullIfBlank(valor.telefonePrincipal),
         telefoneSecundario: this.nullIfBlank(valor.telefoneSecundario),
         email: this.nullIfBlank(valor.email),
@@ -170,8 +170,8 @@ export class PessoaFormComponent implements OnInit {
     }
 
     const payload = {
-      nome: valor.nome?.trim() ?? '',
-      cpfCnpj: this.onlyDigitsOrNull(valor.cpfCnpj) ?? '',
+      name: valor.name?.trim() ?? '',
+      taxId: this.onlyDigitsOrNull(valor.taxId) ?? '',
       telefonePrincipal: this.nullIfBlank(valor.telefonePrincipal),
       telefoneSecundario: this.nullIfBlank(valor.telefoneSecundario),
       email: this.nullIfBlank(valor.email),
@@ -195,8 +195,8 @@ export class PessoaFormComponent implements OnInit {
     });
   }
 
-  campoInvalido(nome: keyof typeof this.form.controls): boolean {
-    const campo = this.form.controls[nome];
+  campoInvalido(name: keyof typeof this.form.controls): boolean {
+    const campo = this.form.controls[name];
     return !!campo && campo.invalid && (campo.touched || campo.dirty);
   }
 
@@ -211,12 +211,12 @@ export class PessoaFormComponent implements OnInit {
     }).format(new Date(value));
   }
 
-  rotuloTipoRevisao(tipo: PessoaRevisao['tipo']): string {
-    return this.i18n.translate(`people.audit.type.${tipo}` as TranslationKey);
+  rotuloTipoRevisao(type: PessoaRevisao['type']): string {
+    return this.i18n.translate(`people.audit.type.${type}` as TranslationKey);
   }
 
   campoAlterado(revisao: PessoaRevisao, campo: string): boolean {
-    return revisao.camposAlterados.includes(campo);
+    return revisao.changedFields.includes(campo);
   }
 
   private observarCep(): void {

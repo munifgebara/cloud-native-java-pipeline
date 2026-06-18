@@ -15,17 +15,17 @@
         }
 
         <div class="field full">
-          <label for="nome">{{ 'common.name' | translate }}</label>
-          <input id="nome" pInputText formControlName="nome" />
-          @if (campoInvalido('nome')) {
+          <label for="name">{{ 'common.name' | translate }}</label>
+          <input id="name" pInputText formControlName="name" />
+          @if (campoInvalido('name')) {
             <small class="field-error">{{ 'categories.form.nameInvalid' | translate }}</small>
           }
         </div>
 
         <div class="field full">
-          <label for="descricao">{{ 'categories.description' | translate }}</label>
-          <textarea id="descricao" pTextarea rows="4" formControlName="descricao"></textarea>
-          @if (campoInvalido('descricao')) {
+          <label for="description">{{ 'categories.description' | translate }}</label>
+          <textarea id="description" pTextarea rows="4" formControlName="description"></textarea>
+          @if (campoInvalido('description')) {
             <small class="field-error">{{ 'categories.form.descriptionInvalid' | translate }}</small>
           }
         </div>
@@ -58,8 +58,8 @@
         </div>
 
         <div class="field checkbox-field full">
-          <p-checkbox inputId="ativa" formControlName="ativa" [binary]="true"></p-checkbox>
-          <label for="ativa">{{ 'categories.form.active' | translate }}</label>
+          <p-checkbox inputId="active" formControlName="active" [binary]="true"></p-checkbox>
+          <label for="active">{{ 'categories.form.active' | translate }}</label>
         </div>
 
         <div class="actions full">

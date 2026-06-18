@@ -135,7 +135,7 @@ export class ItemMestreListComponent implements OnInit {
 
     this.confirmationService.confirm({
       header: this.i18n.translate('masterItems.deleteConfirmTitle'),
-      message: this.i18n.translate('masterItems.deleteConfirmMessage', { name: item.nome }),
+      message: this.i18n.translate('masterItems.deleteConfirmMessage', { name: item.name }),
       icon: 'pi pi-exclamation-triangle',
       rejectLabel: this.i18n.translate('common.cancel'),
       acceptLabel: this.i18n.translate('masterItems.delete'),
@@ -146,15 +146,15 @@ export class ItemMestreListComponent implements OnInit {
   }
 
   statusLabel(item: ItemMestreResumo): string {
-    return item.ativa ? this.i18n.translate('masterItems.active') : this.i18n.translate('masterItems.inactive');
+    return item.active ? this.i18n.translate('masterItems.active') : this.i18n.translate('masterItems.inactive');
   }
 
   iconClass(item: ItemMestreResumo): string {
-    return categoriaIconClass(item.categoriaIcone);
+    return categoriaIconClass(item.categoryIcon);
   }
 
   semanticIconClass(item: ConsultaSemanticaItem): string {
-    return categoriaIconClass(item.categoriaIcone);
+    return categoriaIconClass(item.categoryIcon);
   }
 
   relevancia(item: ConsultaSemanticaItem): string {
@@ -168,17 +168,17 @@ export class ItemMestreListComponent implements OnInit {
 
     return item.instancias
       .slice(0, 3)
-      .map((instancia) => instancia.identificador || instancia.patrimonio || instancia.numeroSerie || this.i18n.translate('masterItems.semanticUnnamedInstance'))
+      .map((instancia) => instancia.identifier || instancia.assetTag || instancia.serialNumber || this.i18n.translate('masterItems.semanticUnnamedInstance'))
       .join(', ');
   }
 
   locaisResumo(item: ConsultaSemanticaItem): string {
-    if (!item.locaisProvaveis.length) {
+    if (!item.probableLocations.length) {
       return this.i18n.translate('masterItems.semanticNoLocations');
     }
 
-    return item.locaisProvaveis
-      .map((local) => `${local.nome} (${local.quantidade})`)
+    return item.probableLocations
+      .map((local) => `${local.name} (${local.quantidade})`)
       .join(', ');
   }
 

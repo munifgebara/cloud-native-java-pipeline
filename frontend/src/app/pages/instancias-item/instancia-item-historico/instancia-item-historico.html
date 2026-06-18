@@ -31,38 +31,38 @@
           <div class="summary-grid">
             <div>
               <span>{{ 'itemInstances.masterItem' | translate }}</span>
-              <strong>{{ historicoAtual.instancia.itemMestreNome }}</strong>
+              <strong>{{ historicoAtual.instancia.mainItemName }}</strong>
             </div>
             <div>
               <span>{{ 'itemInstances.currentLocation' | translate }}</span>
-              <strong>{{ historicoAtual.instancia.localAtualNome || '-' }}</strong>
+              <strong>{{ historicoAtual.instancia.currentLocationName || '-' }}</strong>
             </div>
             <div>
               <span>{{ 'itemInstances.status' | translate }}</span>
               <p-tag
-                [value]="statusLabel(historicoAtual.instancia.statusOperacional)"
-                [severity]="statusSeverity(historicoAtual.instancia.statusOperacional)">
+                [value]="statusLabel(historicoAtual.instancia.operationalStatus)"
+                [severity]="statusSeverity(historicoAtual.instancia.operationalStatus)">
               </p-tag>
             </div>
             <div>
               <span>{{ 'itemInstances.active' | translate }}</span>
-              <strong>{{ (historicoAtual.instancia.ativa ? 'common.yes' : 'common.no') | translate }}</strong>
+              <strong>{{ (historicoAtual.instancia.active ? 'common.yes' : 'common.no') | translate }}</strong>
             </div>
             <div>
               <span>{{ 'itemInstances.identifier' | translate }}</span>
-              <strong>{{ historicoAtual.instancia.identificador || '-' }}</strong>
+              <strong>{{ historicoAtual.instancia.identifier || '-' }}</strong>
             </div>
             <div>
               <span>{{ 'itemInstances.assetTag' | translate }}</span>
-              <strong>{{ historicoAtual.instancia.patrimonio || '-' }}</strong>
+              <strong>{{ historicoAtual.instancia.assetTag || '-' }}</strong>
             </div>
             <div>
               <span>{{ 'itemInstances.serialNumber' | translate }}</span>
-              <strong>{{ historicoAtual.instancia.numeroSerie || '-' }}</strong>
+              <strong>{{ historicoAtual.instancia.serialNumber || '-' }}</strong>
             </div>
             <div>
               <span>{{ 'itemInstances.notes' | translate }}</span>
-              <strong>{{ historicoAtual.instancia.observacoes || '-' }}</strong>
+              <strong>{{ historicoAtual.instancia.notes || '-' }}</strong>
             </div>
           </div>
         </ng-template>
@@ -84,11 +84,11 @@
               <div class="timeline-content">
                 <div class="timeline-header">
                   <strong>{{ tipoLabel(movimentacao) }}</strong>
-                  <span>{{ movimentacao.dataMovimentacao | date:'dd/MM/yyyy HH:mm' }}</span>
+                  <span>{{ movimentacao.movementDate | date:'dd/MM/yyyy HH:mm' }}</span>
                 </div>
                 <p>{{ movimentoDescricao(movimentacao) }}</p>
-                @if (movimentacao.observacao) {
-                  <small>{{ movimentacao.observacao }}</small>
+                @if (movimentacao.notes) {
+                  <small>{{ movimentacao.notes }}</small>
                 }
               </div>
             </article>

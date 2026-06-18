@@ -25,7 +25,7 @@
     <select [(ngModel)]="filtroCategoriaId" (change)="pesquisar()">
       <option value="">{{ 'masterItems.allCategories' | translate }}</option>
       @for (categoria of categorias(); track categoria.id) {
-        <option [value]="categoria.id">{{ categoria.nome }}</option>
+        <option [value]="categoria.id">{{ categoria.name }}</option>
       }
     </select>
 
@@ -87,11 +87,11 @@
 
     @if (resultadosSemanticos().length) {
       <div class="semantic-grid">
-        @for (item of resultadosSemanticos(); track item.itemMestreId) {
+        @for (item of resultadosSemanticos(); track item.mainItemId) {
           <article class="semantic-card">
             <div class="semantic-image">
-              @if (item.imagemUrl) {
-                <img [src]="item.imagemUrl" [alt]="item.nome" />
+              @if (item.imageUrl) {
+                <img [src]="item.imageUrl" [alt]="item.name" />
               } @else {
                 <i class="pi pi-image"></i>
               }
@@ -99,18 +99,18 @@
 
             <div class="semantic-content">
               <div class="semantic-title-row">
-                <h4>{{ item.nome }}</h4>
+                <h4>{{ item.name }}</h4>
                 <span class="relevance">{{ relevancia(item) }}</span>
               </div>
 
-              <p class="semantic-description">{{ item.descricao || ('masterItems.semanticNoDescription' | translate) }}</p>
+              <p class="semantic-description">{{ item.description || ('masterItems.semanticNoDescription' | translate) }}</p>
 
-              @if (item.categoriaNome) {
+              @if (item.categoryName) {
                 <span class="category-name">
                   <span class="category-icon">
                     <i [class]="semanticIconClass(item)"></i>
                   </span>
-                  <span>{{ item.categoriaNome }}</span>
+                  <span>{{ item.categoryName }}</span>
                 </span>
               }
 
@@ -153,31 +153,31 @@
       <tr>
         <td [attr.data-label]="'masterItems.image' | translate">
           <div class="item-image">
-            @if (item.imagemUrl) {
-              <img [src]="item.imagemUrl" [alt]="item.nome" />
+            @if (item.imageUrl) {
+              <img [src]="item.imageUrl" [alt]="item.name" />
             } @else {
               <i class="pi pi-image"></i>
             }
           </div>
         </td>
-        <td [attr.data-label]="'common.name' | translate">{{ item.nome }}</td>
+        <td [attr.data-label]="'common.name' | translate">{{ item.name }}</td>
         <td [attr.data-label]="'masterItems.category' | translate">
-          @if (item.categoriaNome) {
+          @if (item.categoryName) {
             <span class="category-name">
               <span class="category-icon">
                 <i [class]="iconClass(item)"></i>
               </span>
-              <span>{{ item.categoriaNome }}</span>
+              <span>{{ item.categoryName }}</span>
             </span>
           } @else {
             -
           }
         </td>
-        <td [attr.data-label]="'masterItems.description' | translate">{{ item.descricao || '-' }}</td>
+        <td [attr.data-label]="'masterItems.description' | translate">{{ item.description || '-' }}</td>
         <td [attr.data-label]="'masterItems.status' | translate">
           <p-tag
             [value]="statusLabel(item)"
-            [severity]="item.ativa ? 'success' : 'secondary'">
+            [severity]="item.active ? 'success' : 'secondary'">
           </p-tag>
         </td>
         <td [attr.data-label]="'common.actions' | translate">

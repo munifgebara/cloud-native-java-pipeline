@@ -6,82 +6,82 @@ import { environment } from '../../../environments/environment';
 
 export interface ItemMestreResumo {
   id: string;
-  nome: string;
-  descricao: string | null;
-  categoriaId: string | null;
-  categoriaNome: string | null;
-  categoriaIcone: string | null;
-  imagemUrl: string | null;
-  ativa: boolean;
+  name: string;
+  description: string | null;
+  categoryId: string | null;
+  categoryName: string | null;
+  categoryIcon: string | null;
+  imageUrl: string | null;
+  active: boolean;
 }
 
 export interface ConsultaSemanticaInstancia {
   id: string;
-  identificador: string | null;
-  patrimonio: string | null;
-  numeroSerie: string | null;
-  statusOperacional: string;
-  localAtualId: string | null;
-  localAtualNome: string | null;
+  identifier: string | null;
+  assetTag: string | null;
+  serialNumber: string | null;
+  operationalStatus: string;
+  currentLocationId: string | null;
+  currentLocationName: string | null;
 }
 
 export interface ConsultaSemanticaLocal {
   id: string;
-  nome: string;
+  name: string;
   quantidade: number;
 }
 
 export interface ConsultaSemanticaItem {
-  itemMestreId: string;
-  nome: string;
-  descricao: string | null;
-  categoriaNome: string | null;
-  categoriaIcone: string | null;
-  imagemUrl: string | null;
+  mainItemId: string;
+  name: string;
+  description: string | null;
+  categoryName: string | null;
+  categoryIcon: string | null;
+  imageUrl: string | null;
   similaridade: number;
   instancias: ConsultaSemanticaInstancia[];
-  locaisProvaveis: ConsultaSemanticaLocal[];
+  probableLocations: ConsultaSemanticaLocal[];
 }
 
 export interface ItemMestreResponse {
   id: string;
-  nome: string;
-  descricao: string | null;
-  observacoes: string | null;
+  name: string;
+  description: string | null;
+  notes: string | null;
   origemCadastro: string | null;
-  categoriaId: string | null;
-  categoriaNome: string | null;
-  categoriaIcone: string | null;
-  imagemUrl: string | null;
+  categoryId: string | null;
+  categoryName: string | null;
+  categoryIcon: string | null;
+  imageUrl: string | null;
   imagemContentType: string | null;
   imagemTamanhoBytes: number | null;
   imagemGeneratedByAi: boolean;
   imagemProvider: string | null;
-  ativa: boolean;
+  active: boolean;
 }
 
 export interface ItemMestreCreateRequest {
-  nome: string;
-  descricao?: string | null;
-  observacoes?: string | null;
+  name: string;
+  description?: string | null;
+  notes?: string | null;
   origemCadastro?: string | null;
-  categoriaId?: string | null;
-  ativa?: boolean | null;
+  categoryId?: string | null;
+  active?: boolean | null;
 }
 
 export interface ItemMestreUpdateRequest {
-  nome: string;
-  descricao?: string | null;
-  observacoes?: string | null;
+  name: string;
+  description?: string | null;
+  notes?: string | null;
   origemCadastro?: string | null;
-  categoriaId?: string | null;
-  ativa?: boolean | null;
+  categoryId?: string | null;
+  active?: boolean | null;
 }
 
 export interface ImagemIaRequest {
-  nome: string;
+  name: string;
   categoria?: string | null;
-  descricao?: string | null;
+  description?: string | null;
 }
 
 export interface ImagemIaResponse {
@@ -95,7 +95,7 @@ export interface ImagemIaResponse {
 })
 export class ItemMestreService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/itens-mestre`;
+  private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/main-items`;
 
   listar(): Observable<ItemMestreResumo[]> {
     return this.http.get<ItemMestreResumo[]>(this.baseUrl).pipe(
@@ -103,32 +103,32 @@ export class ItemMestreService {
     );
   }
 
-  buscarPorNome(nome: string): Observable<ItemMestreResumo[]> {
-    return this.http.get<ItemMestreResumo[]>(`${this.baseUrl}/buscar`, {
-      params: { nome },
+  buscarPorNome(name: string): Observable<ItemMestreResumo[]> {
+    return this.http.get<ItemMestreResumo[]>(`${this.baseUrl}/search`, {
+      params: { name },
     }).pipe(map((itens) => itens.map((item) => this.withAbsoluteImageUrl(item))));
   }
 
-  filtrar(nome?: string | null, categoriaId?: string | null): Observable<ItemMestreResumo[]> {
+  filtrar(name?: string | null, categoryId?: string | null): Observable<ItemMestreResumo[]> {
     const params: Record<string, string> = {};
-    const nomeTratado = (nome ?? '').trim();
+    const nomeTratado = (name ?? '').trim();
 
     if (nomeTratado) {
-      params['nome'] = nomeTratado;
+      params['name'] = nomeTratado;
     }
 
-    if (categoriaId) {
-      params['categoriaId'] = categoriaId;
+    if (categoryId) {
+      params['categoryId'] = categoryId;
     }
 
-    return this.http.get<ItemMestreResumo[]>(`${this.baseUrl}/filtrar`, { params }).pipe(
+    return this.http.get<ItemMestreResumo[]>(`${this.baseUrl}/filter`, { params }).pipe(
       map((itens) => itens.map((item) => this.withAbsoluteImageUrl(item)))
     );
   }
 
-  buscarSemanticamente(consulta: string): Observable<ConsultaSemanticaItem[]> {
-    return this.http.get<ConsultaSemanticaItem[]>(`${this.baseUrl}/busca-semantica`, {
-      params: { consulta },
+  buscarSemanticamente(query: string): Observable<ConsultaSemanticaItem[]> {
+    return this.http.get<ConsultaSemanticaItem[]>(`${this.baseUrl}/semantic-search`, {
+      params: { query },
     }).pipe(map((itens) => itens.map((item) => this.withAbsoluteImageUrl(item))));
   }
 
@@ -151,7 +151,7 @@ export class ItemMestreService {
   }
 
   gerarImagemIa(payload: ImagemIaRequest): Observable<ImagemIaResponse> {
-    return this.http.post<ImagemIaResponse>(`${this.baseUrl}/imagem-ia`, payload);
+    return this.http.post<ImagemIaResponse>(`${this.baseUrl}/image-ai`, payload);
   }
 
   atualizarImagemPrincipal(id: string, arquivo: File, generatedByAi = false, provider?: string | null): Observable<ItemMestreResponse> {
@@ -162,7 +162,7 @@ export class ItemMestreService {
       formData.append('provider', provider);
     }
 
-    return this.http.post<ItemMestreResponse>(`${this.baseUrl}/${id}/imagem-principal`, formData).pipe(
+    return this.http.post<ItemMestreResponse>(`${this.baseUrl}/${id}/main-image`, formData).pipe(
       map((item) => this.withAbsoluteImageUrl(item))
     );
   }
@@ -171,14 +171,14 @@ export class ItemMestreService {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
-  private withAbsoluteImageUrl<T extends { imagemUrl: string | null }>(item: T): T {
-    if (!item.imagemUrl || item.imagemUrl.startsWith('http')) {
+  private withAbsoluteImageUrl<T extends { imageUrl: string | null }>(item: T): T {
+    if (!item.imageUrl || item.imageUrl.startsWith('http')) {
       return item;
     }
 
     return {
       ...item,
-      imagemUrl: `${environment.apiBaseUrl}${item.imagemUrl}`,
+      imageUrl: `${environment.apiBaseUrl}${item.imageUrl}`,
     };
   }
 }
