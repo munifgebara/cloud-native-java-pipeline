@@ -5,8 +5,8 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DashboardSummary, DashboardService } from '../../core/dashboard';
 import { I18nService, TranslatePipe } from '../../core/i18n/i18n';
-import { categoriaIconClass } from '../../core/categoria/categoria';
-import { SemanticSearchItem, MainItemService } from '../../core/item-mestre/item-mestre';
+import { categoryIconClass } from '../../core/category/category';
+import { SemanticSearchItem, MainItemService } from '../../core/main-item/main-item';
 import { StellaAiPanelComponent } from '../../shared/design-system/stella-ai-panel/stella-ai-panel';
 import { StellaEmptyStateComponent } from '../../shared/design-system/stella-empty-state/stella-empty-state';
 import { StellaMetricCardComponent } from '../../shared/design-system/stella-metric-card/stella-metric-card';
@@ -80,7 +80,7 @@ export class DashboardComponent implements OnInit {
   }
 
   semanticIconClass(item: SemanticSearchItem): string {
-    return categoriaIconClass(item.categoryIcon);
+    return categoryIconClass(item.categoryIcon);
   }
 
   similaridadePercentual(item: SemanticSearchItem): string {
@@ -98,7 +98,7 @@ export class DashboardComponent implements OnInit {
       .join(', ');
   }
 
-  locaisSummary(item: SemanticSearchItem): string {
+  locationsSummary(item: SemanticSearchItem): string {
     if (!item.probableLocations.length) {
       return this.i18n.translate('dashboard.semanticNoLocations');
     }

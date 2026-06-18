@@ -13,8 +13,8 @@ export interface DashboardSummary {
   itemsWithoutImageCount: number;
   quantidadeItensCadastradosPorIa: number;
   quantidadeConsultasVetoriais: number;
-  locaisComMaisItens: DashboardLocalQuantidade[];
-  categoriasComMaisItens: DashboardCategoryQuantidade[];
+  locationsComMaisItens: DashboardLocalQuantidade[];
+  categoriesComMaisItens: DashboardCategoryQuantidade[];
 }
 
 export interface DashboardLocalQuantidade {

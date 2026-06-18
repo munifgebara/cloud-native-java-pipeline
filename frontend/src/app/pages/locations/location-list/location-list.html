@@ -1,0 +1,119 @@
+<div class="page">
+  <p-confirmdialog />
+
+  <div class="page-header">
+    <div>
+      <h2>{{ 'locations.title' | translate }}</h2>
+      <p>{{ 'locations.subtitle' | translate }}</p>
+    </div>
+
+    <button
+      pButton
+      type="button"
+      [label]="'common.new' | translate"
+      icon="pi pi-plus"
+      (click)="create()">
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <input
+      pInputText
+      type="text"
+      [(ngModel)]="nameFilter"
+      [placeholder]="'locations.searchByName' | translate"
+      (keyup.enter)="search()" />
+
+    <button
+      pButton
+      type="button"
+      [label]="'common.search' | translate"
+      icon="pi pi-search"
+      (click)="search()">
+    </button>
+
+    <button
+      pButton
+      type="button"
+      severity="secondary"
+      [label]="'common.clear' | translate"
+      icon="pi pi-times"
+      (click)="nameFilter=''; load()">
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="error-box">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <p-table
+    styleClass="responsive-table"
+    [value]="locations()"
+    [loading]="loading()"
+    [tableStyle]="{ 'min-width': '72rem' }">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 84px;">{{ 'locations.image' | translate }}</th>
+        <th>{{ 'common.name' | translate }}</th>
+        <th>{{ 'locations.path' | translate }}</th>
+        <th>{{ 'locations.parent' | translate }}</th>
+        <th style="width: 140px;">{{ 'locations.status' | translate }}</th>
+        <th style="width: 220px;">{{ 'common.actions' | translate }}</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-local>
+      <tr>
+        <td [attr.data-label]="'locations.image' | translate">
+          <div class="location-image">
+            @if (local.imageUrl) {
+              <img [src]="local.imageUrl" [alt]="local.name" />
+            } @else {
+              <i class="pi pi-image"></i>
+            }
+          </div>
+        </td>
+        <td [attr.data-label]="'common.name' | translate">
+          <span class="hierarchy-name" [style.padding-left]="indent(local)">
+            {{ local.name }}
+          </span>
+        </td>
+        <td [attr.data-label]="'locations.path' | translate">{{ local.caminho }}</td>
+        <td [attr.data-label]="'locations.parent' | translate">{{ local.paiNome || '-' }}</td>
+        <td [attr.data-label]="'locations.status' | translate">
+          <p-tag
+            [value]="statusLabel(local)"
+            [severity]="local.active ? 'success' : 'secondary'">
+          </p-tag>
+        </td>
+        <td [attr.data-label]="'common.actions' | translate">
+          <div class="actions">
+            <button
+              pButton
+              type="button"
+              severity="secondary"
+              text
+              icon="pi pi-pencil"
+              [label]="'common.edit' | translate"
+              [routerLink]="['/locations', local.id, 'edit']">
+            </button>
+
+            <button
+              pButton
+              type="button"
+              severity="danger"
+              text
+              icon="pi pi-trash"
+              [label]="'locations.delete' | translate"
+              [loading]="deletingId() === local.id"
+              [disabled]="loading() || deletingId() !== null"
+              (click)="confirmDelete(local)">
+            </button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
