@@ -173,15 +173,15 @@ class InventoryRepositoryIntegrationTest {
 
         PersonService service = new PersonService(personRepository, entityManager);
 
-        var revisoes = service.listRevisions(person.getId());
+        var revisions = service.listRevisions(person.getId());
 
-        assertThat(revisoes).hasSize(2);
-        assertThat(revisoes).extracting("tipo")
+        assertThat(revisions).hasSize(2);
+        assertThat(revisions).extracting("type")
                 .containsExactly("MOD", "ADD");
-        assertThat(revisoes.getFirst().person().email()).isEqualTo("ana@example.com");
-        assertThat(revisoes.getFirst().camposAlterados()).containsExactly("email");
-        assertThat(revisoes.getFirst().dataHora()).isNotNull();
-        assertThat(revisoes.get(1).camposAlterados()).isEmpty();
+        assertThat(revisions.getFirst().person().email()).isEqualTo("ana@example.com");
+        assertThat(revisions.getFirst().changedFields()).containsExactly("email");
+        assertThat(revisions.getFirst().timestamp()).isNotNull();
+        assertThat(revisions.get(1).changedFields()).isEmpty();
     }
 
     private Category category(String name) {

@@ -99,7 +99,7 @@ class MovimentacaoItemServiceTest {
         assertThat(movement.getDestinationLocation()).isEqualTo(location);
         assertThat(movement.getOriginLocation()).isNull();
         assertThat(movement.getNotes()).isEqualTo("Entrada inicial");
-        assertThat(response.tipo()).isEqualTo(ItemMovementType.ENTRADA);
+        assertThat(response.type()).isEqualTo(ItemMovementType.ENTRADA);
         assertThat(response.destinationLocationId()).isEqualTo(locationId);
     }
 
@@ -156,7 +156,7 @@ class MovimentacaoItemServiceTest {
         assertThat(movement.getDestinationLocation()).isNull();
         assertThat(movement.getReason()).isEqualTo("Maintenance withdrawal");
         assertThat(movement.getNotes()).isEqualTo("Equipment sent to the technician");
-        assertThat(response.tipo()).isEqualTo(ItemMovementType.SAIDA);
+        assertThat(response.type()).isEqualTo(ItemMovementType.SAIDA);
         assertThat(response.originLocationId()).isEqualTo(locationId);
         assertThat(response.destinationLocationId()).isNull();
     }
@@ -215,7 +215,7 @@ class MovimentacaoItemServiceTest {
         assertThat(movement.getOriginLocation()).isEqualTo(origem);
         assertThat(movement.getDestinationLocation()).isEqualTo(destino);
         assertThat(movement.getNotes()).isEqualTo("Transfer for conference");
-        assertThat(response.tipo()).isEqualTo(ItemMovementType.TRANSFERENCIA);
+        assertThat(response.type()).isEqualTo(ItemMovementType.TRANSFERENCIA);
         assertThat(response.originLocationId()).isEqualTo(origemId);
         assertThat(response.destinationLocationId()).isEqualTo(destinoId);
     }

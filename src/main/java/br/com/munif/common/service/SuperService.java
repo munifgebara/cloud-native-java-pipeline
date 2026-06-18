@@ -126,17 +126,17 @@ public abstract class SuperService<T extends BaseEntity, R extends SuperReposito
      */
     public List<RevisionDTO<T>> listPreviousVersions(UUID id) {
         AuditReader auditReader = AuditReaderFactory.get(entityManager);
-        List<Number> revisoes = auditReader.getRevisions(entityClass, id);
+        List<Number> revisions = auditReader.getRevisions(entityClass, id);
 
-        if (revisoes.isEmpty()) {
+        if (revisions.isEmpty()) {
             return List.of();
         }
 
         List<RevisionDTO<T>> result = new ArrayList<>();
         // The last revision represents the current state, already obtained by findById().
-        // Therefore we iterate only up to revisoes.size() - 1.
-        for (int i = 0; i < revisoes.size() - 1; i++) {
-            Number numeroRevisao = revisoes.get(i);
+        // Therefore we iterate only up to revisions.size() - 1.
+        for (int i = 0; i < revisions.size() - 1; i++) {
+            Number numeroRevisao = revisions.get(i);
             T entidadeRevisada = auditReader.find(entityClass, id, numeroRevisao);
 
             if (entidadeRevisada != null) {

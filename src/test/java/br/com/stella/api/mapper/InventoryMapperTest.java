@@ -278,7 +278,7 @@ class InventoryMapperTest {
         assertThat(response.instanceIdentification()).isEqualTo("SER-10");
         assertThat(response.originLocationName()).isEqualTo("Origem");
         assertThat(response.destinationLocationName()).isEqualTo("Destino");
-        assertThat(response.motivo()).isEqualTo("Organizacao");
+        assertThat(response.reason()).isEqualTo("Organizacao");
     }
 
     private Category category(String name, String icon) {
