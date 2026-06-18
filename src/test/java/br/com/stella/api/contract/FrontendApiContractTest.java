@@ -2,7 +2,6 @@ package br.com.stella.api.contract;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,14 +40,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * kind of drift that breaks the SPA after an API rename. When the front bundle or the backend
  * changes, the test re-derives both sides; nothing here needs manual updating.</p>
  *
- * <p><b>Currently disabled:</b> the shipped bundle still targets the legacy Portuguese API
- * (see issue #168 — the Angular front must be rebuilt against the English API). Re-enable this
- * test once the bundle is rebuilt so it becomes a CI gate against future front/back drift.</p>
+ * <p>The front-end was aligned to the English API (#180), so this test is active and acts as a
+ * CI gate against future front/back drift. It requires the front bundle to be present on the
+ * classpath ({@code static/app}); run it through {@code mvn verify} (which builds the front) or
+ * after a front build.</p>
  */
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-@Disabled("Front bundle still targets the legacy Portuguese API; enable after the Angular front is rebuilt — see issue #168")
 class FrontendApiContractTest {
 
     /** Matches the API path literals the SPA can call, e.g. {@code /api/v0/categories} or {@code /api/public/login}. */
