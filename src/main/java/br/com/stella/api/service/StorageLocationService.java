@@ -282,13 +282,13 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
         return listPreviousVersions(id);
     }
 
-    private List<StorageLocationSummaryDTO> buildHierarchy(List<StorageLocation> locais) {
-        Map<UUID, List<StorageLocation>> childrenByParent = locais.stream()
+    private List<StorageLocationSummaryDTO> buildHierarchy(List<StorageLocation> locations) {
+        Map<UUID, List<StorageLocation>> childrenByParent = locations.stream()
                 .filter(location -> location.getParent() != null)
                 .collect(Collectors.groupingBy(location -> location.getParent().getId()));
 
-        List<StorageLocation> raizes = locais.stream()
-                .filter(location -> location.getParent() == null || locais.stream().noneMatch(item -> item.getId().equals(location.getParent().getId())))
+        List<StorageLocation> raizes = locations.stream()
+                .filter(location -> location.getParent() == null || locations.stream().noneMatch(item -> item.getId().equals(location.getParent().getId())))
                 .sorted(Comparator.comparing(StorageLocation::getName, String.CASE_INSENSITIVE_ORDER))
                 .toList();
 
