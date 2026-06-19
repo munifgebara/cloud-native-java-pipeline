@@ -265,15 +265,24 @@ export class PersonFormComponent implements OnInit {
           return;
         }
 
-        this.form.patchValue({
-          address: resultado.address,
-          neighborhood: resultado.neighborhood,
-          city: resultado.city,
-          state: resultado.state,
-        });
+        this.patchIfUserDidNotChange('address', resultado.address);
+        this.patchIfUserDidNotChange('neighborhood', resultado.neighborhood);
+        this.patchIfUserDidNotChange('city', resultado.city);
+        this.patchIfUserDidNotChange('state', resultado.state);
 
         this.cepMessage.set(this.i18n.translate('people.form.cepFilled'));
       });
+  }
+
+  private patchIfUserDidNotChange(name: 'address' | 'neighborhood' | 'city' | 'state', value: string): void {
+    const control = this.form.controls[name];
+    const currentValue = control.value?.trim() ?? '';
+
+    if (control.dirty || currentValue) {
+      return;
+    }
+
+    control.patchValue(value);
   }
 
   private carregarRevisoes(id: string): void {
