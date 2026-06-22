@@ -7,6 +7,7 @@ import br.com.stella.api.exception.ExternalIntegrationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.chat.client.ChatClient;
@@ -71,6 +72,12 @@ class OpenAiPhotoUploadProviderTest {
         assertThat(response.items().getFirst().identificationVerified()).isTrue();
         assertThat(response.items().getFirst().instances()).hasSize(1);
         assertThat(response.items().getFirst().instances().getFirst().identifier()).isEqualTo("Clean Code 1");
+
+        ArgumentCaptor<Prompt> promptCaptor = ArgumentCaptor.forClass(Prompt.class);
+        verify(chatModel).call(promptCaptor.capture());
+        assertThat(promptCaptor.getValue().getOptions())
+                .isInstanceOfSatisfying(OpenAiChatOptions.class, options ->
+                        assertThat(options.getModel()).isEqualTo("gpt-test"));
     }
 
     @Test

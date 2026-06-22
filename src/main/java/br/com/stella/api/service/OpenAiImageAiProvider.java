@@ -43,16 +43,9 @@ public class OpenAiImageAiProvider implements ImageAiProvider {
         long inicio = System.nanoTime();
 
         try {
+            ImageGenerationRequest generationRequest = ImageGenerationRequest.from(model, request, environment);
             aiUsageGuard.consume(AiOperation.IMAGE_GENERATION);
-            var options = OpenAiImageOptions.builder()
-                    .apiKey(apiKey)
-                    .model(model)
-                    .size(environment.getProperty("STELLA_OPENAI_IMAGE_SIZE", "1024x1024"))
-                    .quality(environment.getProperty("STELLA_OPENAI_IMAGE_QUALITY", "low"))
-                    .n(1)
-                    .build();
-
-            ImageResponse response = imageModel.call(new ImagePrompt(prompt(request), options));
+            ImageResponse response = imageModel.call(generationRequest.toPrompt(apiKey));
 
             var result = parseResponse(response);
             StructuredBusinessLogger.info(log, "ai", "image-generation", StructuredBusinessLogger.fields(
@@ -84,14 +77,14 @@ public class OpenAiImageAiProvider implements ImageAiProvider {
             throw new ExternalIntegrationException("OpenAI did not return the image in base64.");
         }
 
-        return new ImageAiResponseDTO("data:%s;base64,%s".formatted(CONTENT_TYPE, base64), CONTENT_TYPE, PROVIDER);
+        return GeneratedImagePayload.from(base64).toResponse();
     }
 
     private String model() {
         return environment.getProperty("STELLA_OPENAI_IMAGE_MODEL", "gpt-image-1");
     }
 
-    private String prompt(ImageAiRequestDTO request) {
+    private static String promptText(ImageAiRequestDTO request) {
         return """
                 Generate a clean catalog image to represent an inventory item.
                 Show only the product, centered, well lit, without text, without invented logos and without people.
@@ -118,5 +111,39 @@ public class OpenAiImageAiProvider implements ImageAiProvider {
 
     private long elapsedMillis(long inicio) {
         return (System.nanoTime() - inicio) / 1_000_000L;
+    }
+
+    private record ImageGenerationRequest(String model, String size, String quality, String prompt) {
+
+        private static ImageGenerationRequest from(String model, ImageAiRequestDTO request, Environment environment) {
+            return new ImageGenerationRequest(
+                    model,
+                    environment.getProperty("STELLA_OPENAI_IMAGE_SIZE", "1024x1024"),
+                    environment.getProperty("STELLA_OPENAI_IMAGE_QUALITY", "low"),
+                    promptText(request)
+            );
+        }
+
+        private ImagePrompt toPrompt(String apiKey) {
+            var options = OpenAiImageOptions.builder()
+                    .apiKey(apiKey)
+                    .model(model)
+                    .size(size)
+                    .quality(quality)
+                    .n(1)
+                    .build();
+            return new ImagePrompt(prompt, options);
+        }
+    }
+
+    private record GeneratedImagePayload(String base64, String contentType, String provider) {
+
+        private static GeneratedImagePayload from(String base64) {
+            return new GeneratedImagePayload(base64, CONTENT_TYPE, PROVIDER);
+        }
+
+        private ImageAiResponseDTO toResponse() {
+            return new ImageAiResponseDTO("data:%s;base64,%s".formatted(contentType, base64), contentType, provider);
+        }
     }
 }
