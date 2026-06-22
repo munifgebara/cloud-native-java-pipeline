@@ -12,12 +12,14 @@ PASSWORD="${STELLA_API_PASSWORD:-}"
 TOKEN="${STELLA_API_TOKEN:-}"
 RUN_SEMANTIC_SEARCH="${STELLA_RUN_SEMANTIC_SEARCH:-true}"
 RUN_REINDEX="${STELLA_RUN_REINDEX:-false}"
+RUN_PHOTO_REGISTRATION="${STELLA_RUN_PHOTO_REGISTRATION:-true}"
 
 ITEM_ID=""
 CATEGORY_ID=""
 LOCATION_ID=""
 INSTANCE_ID=""
 PERSON_ID=""
+TEST_IMAGE_PATH=""
 TEST_SUFFIX="$(date +%Y%m%d%H%M%S)-$$"
 ITEM_NAME="Stella black-box test ${TEST_SUFFIX}"
 ITEM_DESCRIPTION="Temporary item created by scripts/api-blackbox-test.sh"
@@ -74,6 +76,11 @@ assert_json_array_not_empty() {
   python3 -c 'import json, sys; data = json.load(sys.stdin); sys.exit(0 if isinstance(data, list) and len(data) >= 0 else 1)' <<<"$1"
 }
 
+assert_json_field_not_empty() {
+  local json="$1" field="$2"
+  python3 -c 'import json, sys; value = json.load(sys.stdin).get(sys.argv[1]); sys.exit(0 if value else 1)' "$field" <<<"$json"
+}
+
 scenario() {
   TOTAL=$((TOTAL + 1))
   log "[$TOTAL] $*"
@@ -121,6 +128,153 @@ request() {
   rm -f "$response_file"
 }
 
+request_multipart_file() {
+  local method="$1"
+  local path="$2"
+  local expected_status="$3"
+  local file_path="$4"
+  shift 4
+  local url
+  local response_file
+  local status
+  response_file="$(mktemp)"
+  url="$(join_url "$BASE_URL" "$path")"
+
+  local curl_args=(-sS -X "$method" -H "Accept: application/json" -o "$response_file" -w "%{http_code}")
+  if [[ -n "$TOKEN" ]]; then
+    curl_args+=(-H "Authorization: Bearer $TOKEN")
+  fi
+  curl_args+=(-F "file=@${file_path};type=image/png")
+  while [[ "$#" -gt 0 ]]; do
+    curl_args+=(-F "$1")
+    shift
+  done
+  curl_args+=("$url")
+
+  status="$(curl "${curl_args[@]}")" || {
+    rm -f "$response_file"
+    fail "connection failure on ${method} ${url}"
+  }
+
+  if [[ "$status" != "$expected_status" ]]; then
+    printf '[stella-api-blackbox] unexpected response on %s %s: HTTP %s, expected %s\n' "$method" "$url" "$status" "$expected_status" >&2
+    printf '[stella-api-blackbox] response body:\n' >&2
+    cat "$response_file" >&2
+    printf '\n' >&2
+    rm -f "$response_file"
+    exit 1
+  fi
+
+  cat "$response_file"
+  rm -f "$response_file"
+}
+
+create_audi_a1_test_image() {
+  TEST_IMAGE_PATH="$(mktemp "${TMPDIR:-/tmp}/stella-audi-a1-XXXXXX.png")"
+  python3 - "$TEST_IMAGE_PATH" <<'PY'
+import struct
+import sys
+import zlib
+
+path = sys.argv[1]
+width, height = 480, 300
+pixels = bytearray([245, 247, 250] * width * height)
+
+def set_pixel(x, y, color):
+    if 0 <= x < width and 0 <= y < height:
+        offset = (y * width + x) * 3
+        pixels[offset:offset + 3] = bytes(color)
+
+def rect(x0, y0, x1, y1, color):
+    for y in range(max(0, y0), min(height, y1)):
+        for x in range(max(0, x0), min(width, x1)):
+            set_pixel(x, y, color)
+
+def circle(cx, cy, radius, color):
+    r2 = radius * radius
+    for y in range(cy - radius, cy + radius + 1):
+        for x in range(cx - radius, cx + radius + 1):
+            if (x - cx) ** 2 + (y - cy) ** 2 <= r2:
+                set_pixel(x, y, color)
+
+def line(x0, y0, x1, y1, color, thickness=2):
+    dx = abs(x1 - x0)
+    dy = -abs(y1 - y0)
+    sx = 1 if x0 < x1 else -1
+    sy = 1 if y0 < y1 else -1
+    err = dx + dy
+    while True:
+        rect(x0 - thickness, y0 - thickness, x0 + thickness + 1, y0 + thickness + 1, color)
+        if x0 == x1 and y0 == y1:
+            break
+        e2 = 2 * err
+        if e2 >= dy:
+            err += dy
+            x0 += sx
+        if e2 <= dx:
+            err += dx
+            y0 += sy
+
+font = {
+    "A": ["01110","10001","10001","11111","10001","10001","10001"],
+    "D": ["11110","10001","10001","10001","10001","10001","11110"],
+    "I": ["11111","00100","00100","00100","00100","00100","11111"],
+    "U": ["10001","10001","10001","10001","10001","10001","01110"],
+    "1": ["00100","01100","00100","00100","00100","00100","01110"],
+    " ": ["00000","00000","00000","00000","00000","00000","00000"],
+}
+
+def text(x, y, value, scale, color):
+    cursor = x
+    for char in value:
+        glyph = font[char]
+        for row, bits in enumerate(glyph):
+            for col, bit in enumerate(bits):
+                if bit == "1":
+                    rect(cursor + col * scale, y + row * scale, cursor + (col + 1) * scale, y + (row + 1) * scale, color)
+        cursor += 6 * scale
+
+# Ground and compact hatchback silhouette inspired by an Audi A1.
+rect(0, 235, width, height, (225, 230, 236))
+rect(95, 155, 388, 205, (188, 24, 32))
+line(145, 155, 190, 112, (188, 24, 32), 5)
+line(190, 112, 292, 112, (188, 24, 32), 5)
+line(292, 112, 345, 155, (188, 24, 32), 5)
+rect(175, 124, 232, 153, (190, 218, 236))
+rect(240, 124, 304, 153, (190, 218, 236))
+rect(112, 175, 375, 204, (151, 19, 25))
+circle(155, 205, 31, (31, 41, 55))
+circle(330, 205, 31, (31, 41, 55))
+circle(155, 205, 15, (226, 232, 240))
+circle(330, 205, 15, (226, 232, 240))
+rect(378, 177, 397, 190, (255, 221, 87))
+rect(84, 178, 101, 190, (232, 238, 245))
+
+# Four-ring badge cue and explicit model label.
+for cx in (214, 231, 248, 265):
+    circle(cx, 176, 10, (226, 232, 240))
+    circle(cx, 176, 6, (188, 24, 32))
+text(112, 46, "AUDI A1", 8, (31, 41, 55))
+
+def chunk(kind, data):
+    return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data) & 0xffffffff)
+
+raw = bytearray()
+for y in range(height):
+    raw.append(0)
+    start = y * width * 3
+    raw.extend(pixels[start:start + width * 3])
+
+png = b"\x89PNG\r\n\x1a\n"
+png += chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0))
+png += chunk(b"IDAT", zlib.compress(bytes(raw), 9))
+png += chunk(b"IEND", b"")
+
+with open(path, "wb") as handle:
+    handle.write(png)
+PY
+}
+
 cleanup() {
   log "cleaning up resources created by the test..."
   local base_url token_header
@@ -142,6 +296,10 @@ cleanup() {
       fi
     fi
   done
+
+  if [[ -n "$TEST_IMAGE_PATH" ]]; then
+    rm -f "$TEST_IMAGE_PATH"
+  fi
 }
 
 authenticate() {
@@ -163,6 +321,7 @@ authenticate() {
 main() {
   require_command curl
   require_command python3
+  create_audi_a1_test_image
 
   BASE_URL="${BASE_URL%/}"
   API_PREFIX="/${API_PREFIX#/}"
@@ -223,6 +382,12 @@ main() {
   updated="$(request "PUT" "${API_PREFIX}/main-items/${ITEM_ID}" "200" "$update_payload")"
   json_assert_field "$updated" name "$updated_name" || fail "update did not reflect the new name"
   ITEM_NAME="$updated_name"
+  ok
+
+  scenario "main item image upload accepts Audi A1 PNG fixture"
+  local item_with_image
+  item_with_image="$(request_multipart_file "POST" "${API_PREFIX}/main-items/${ITEM_ID}/main-image" "200" "$TEST_IMAGE_PATH" "generatedByAi=false" "provider=blackbox")"
+  assert_json_field_not_empty "$item_with_image" imageUrl || fail "main item image upload did not return imageUrl"
   ok
 
   scenario "main item listing contains the created item"
@@ -329,6 +494,22 @@ main() {
   loc_updated="$(request "PUT" "${API_PREFIX}/locations/${LOCATION_ID}" "200" "$loc_update_payload")"
   json_assert_field "$loc_updated" name "$loc_update_name" || fail "location update did not reflect the new name"
   ok
+
+  scenario "location image upload accepts Audi A1 PNG fixture"
+  local location_with_image
+  location_with_image="$(request_multipart_file "POST" "${API_PREFIX}/locations/${LOCATION_ID}/image" "200" "$TEST_IMAGE_PATH")"
+  assert_json_field_not_empty "$location_with_image" imageUrl || fail "location image upload did not return imageUrl"
+  ok
+
+  # ── AI-assisted photo registration (optional) ───────────────────────────────
+
+  if [[ "$RUN_PHOTO_REGISTRATION" == "true" ]]; then
+    scenario "photo registration suggestions accept Audi A1 PNG fixture"
+    local photo_suggestions
+    photo_suggestions="$(request_multipart_file "POST" "${API_PREFIX}/ai/registration-photo/suggestions" "200" "$TEST_IMAGE_PATH")"
+    python3 -c 'import json, sys; data = json.load(sys.stdin); sys.exit(0 if isinstance(data.get("items"), list) else 1)' <<<"$photo_suggestions" || fail "photo registration did not return an items list"
+    ok
+  fi
 
   # ── Item instances ───────────────────────────────────────────────────────────
 
