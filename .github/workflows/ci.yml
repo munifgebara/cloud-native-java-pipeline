@@ -8,6 +8,7 @@ on:
       - 'feature/**'
       - 'bugfix/**'
       - 'hotfix/**'
+      - 'issue/**'
       - 'chore/**'
       - 'refactor/**'
       - 'docs/**'
