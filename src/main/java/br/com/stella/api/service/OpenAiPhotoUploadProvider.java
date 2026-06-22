@@ -29,10 +29,10 @@ public class OpenAiPhotoUploadProvider implements PhotoUploadAiProvider {
             For multiple identical objects, return one item with quantity and equivalent instances.
             For books, try to identify title, author, publisher, year and ISBN from the cover, spine or visible text.
             Use your knowledge to validate books identifiable by cover/spine when there is sufficient text.
-            Of not return generic names like "Book" when it is possible to identify the title.
+            Do not return generic names like "Book" when it is possible to identify the title.
             For distinct books, return a separate item for each title.
-            Of not invent unreadable asset or serial numbers; use null in those cases.
-            Of not invent bibliographic metadata: use null when there is insufficient visual evidence or validation.
+            Do not invent unreadable asset or serial numbers; use null in those cases.
+            Do not invent bibliographic metadata: use null when there is insufficient visual evidence or validation.
             Use short, useful names in English.
             If there is insufficient confidence, return an empty list and a clear message.
             """;
@@ -64,11 +64,11 @@ public class OpenAiPhotoUploadProvider implements PhotoUploadAiProvider {
         long inicio = System.nanoTime();
 
         try {
-            byte[] bytes = image.getBytes();
+            PhotoAnalysisRequest request = PhotoAnalysisRequest.from(model, image);
             aiUsageGuard.consume(AiOperation.IMAGE_ANALYSIS);
             var result = chatClient.prompt()
-                    .options(OpenAiChatOptions.builder().apiKey(apiKey).model(model))
-                    .user(u -> u.text(ORIENTACAO).media(MimeType.valueOf(image.getContentType()), new ByteArrayResource(bytes)))
+                    .options(request.optionsBuilder(apiKey))
+                    .user(u -> u.text(ORIENTACAO).media(request.mimeType(), new ByteArrayResource(request.bytes())))
                     .call()
                     .entity(PhotoUploadSuggestionResponseDTO.class);
 
@@ -108,5 +108,18 @@ public class OpenAiPhotoUploadProvider implements PhotoUploadAiProvider {
 
     private long elapsedMillis(long inicio) {
         return (System.nanoTime() - inicio) / 1_000_000L;
+    }
+
+    private record PhotoAnalysisRequest(String model, MimeType mimeType, byte[] bytes) {
+
+        private static PhotoAnalysisRequest from(String model, MultipartFile image) throws IOException {
+            return new PhotoAnalysisRequest(model, MimeType.valueOf(image.getContentType()), image.getBytes());
+        }
+
+        private OpenAiChatOptions.Builder optionsBuilder(String apiKey) {
+            return OpenAiChatOptions.builder()
+                    .apiKey(apiKey)
+                    .model(model);
+        }
     }
 }

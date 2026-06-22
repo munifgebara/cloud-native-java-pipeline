@@ -8,6 +8,7 @@ import br.com.stella.api.exception.ExternalIntegrationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.image.Image;
@@ -15,6 +16,7 @@ import org.springframework.ai.image.ImageGeneration;
 import org.springframework.ai.image.ImageModel;
 import org.springframework.ai.image.ImagePrompt;
 import org.springframework.ai.image.ImageResponse;
+import org.springframework.ai.openai.OpenAiImageOptions;
 import org.springframework.mock.env.MockEnvironment;
 
 import java.util.List;
@@ -38,7 +40,9 @@ class OpenAiImageAiProviderTest {
     void setUp() {
         var environment = new MockEnvironment()
                 .withProperty("OPENAI_API_KEY", "test-key")
-                .withProperty("STELLA_OPENAI_IMAGE_MODEL", "gpt-image-test");
+                .withProperty("STELLA_OPENAI_IMAGE_MODEL", "gpt-image-test")
+                .withProperty("STELLA_OPENAI_IMAGE_SIZE", "512x512")
+                .withProperty("STELLA_OPENAI_IMAGE_QUALITY", "medium");
         provider = new OpenAiImageAiProvider(imageModel, environment, guardSemLimite());
     }
 
@@ -51,6 +55,18 @@ class OpenAiImageAiProviderTest {
         assertThat(response.dataUrl()).isEqualTo("data:image/png;base64,aW1hZ2Vt");
         assertThat(response.contentType()).isEqualTo("image/png");
         assertThat(response.provider()).isEqualTo("openai");
+
+        ArgumentCaptor<ImagePrompt> promptCaptor = ArgumentCaptor.forClass(ImagePrompt.class);
+        verify(imageModel).call(promptCaptor.capture());
+        ImagePrompt prompt = promptCaptor.getValue();
+        assertThat(prompt.getInstructions().getFirst().getText()).contains("Furadeira", "Ferramentas");
+        assertThat(prompt.getOptions())
+                .isInstanceOfSatisfying(OpenAiImageOptions.class, options -> {
+                    assertThat(options.getModel()).isEqualTo("gpt-image-test");
+                    assertThat(options.getSize()).isEqualTo("512x512");
+                    assertThat(options.getQuality()).isEqualTo("medium");
+                    assertThat(options.getN()).isEqualTo(1);
+                });
     }
 
     @Test
@@ -89,6 +105,15 @@ class OpenAiImageAiProviderTest {
         assertThatThrownBy(() -> provider.generateImage(new ImageAiRequestDTO("Furadeira", null, null)))
                 .isInstanceOf(ExternalIntegrationException.class)
                 .hasMessage("OpenAI returned an empty response for the image.");
+    }
+
+    @Test
+    void shouldRegisterFailureWhenOpenAiNotReturnsImageBase64() {
+        when(imageModel.call(any(ImagePrompt.class))).thenReturn(imageResponse(null));
+
+        assertThatThrownBy(() -> provider.generateImage(new ImageAiRequestDTO("Furadeira", null, null)))
+                .isInstanceOf(ExternalIntegrationException.class)
+                .hasMessage("OpenAI did not return the image in base64.");
     }
 
     @Test
