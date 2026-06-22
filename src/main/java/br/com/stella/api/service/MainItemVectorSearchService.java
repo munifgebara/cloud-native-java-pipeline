@@ -9,10 +9,12 @@ import br.com.stella.api.dto.SemanticSearchLocationDTO;
 import br.com.stella.api.entity.ItemInstance;
 import br.com.stella.api.entity.MainItem;
 import br.com.stella.api.entity.StorageLocation;
+import br.com.stella.api.exception.AiUsageLimitException;
 import br.com.stella.api.exception.ExternalIntegrationException;
 import br.com.stella.api.observability.StructuredBusinessLogger;
 import br.com.stella.api.repository.ItemInstanceRepository;
 import br.com.stella.api.repository.MainItemRepository;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,7 +147,7 @@ public class MainItemVectorSearchService {
                     "duration_ms", elapsedMillis(inicio),
                     "success", false
             ), ex);
-            throw ex;
+            throw externalIntegrationException("Unable to update the vector search index.", ex);
         }
     }
 
@@ -172,7 +174,7 @@ public class MainItemVectorSearchService {
                     "duration_ms", elapsedMillis(inicio),
                     "success", false
             ), ex);
-            throw ex;
+            throw externalIntegrationException("Unable to update the vector search index.", ex);
         }
     }
 
@@ -202,7 +204,7 @@ public class MainItemVectorSearchService {
                     "duration_ms", elapsedMillis(inicio),
                     "success", false
             ), ex);
-            throw ex;
+            throw externalIntegrationException("Unable to reindex vector search items.", ex);
         }
     }
 
@@ -256,8 +258,18 @@ public class MainItemVectorSearchService {
                     "duration_ms", elapsedMillis(inicio),
                     "success", false
             ), ex);
-            throw ex;
+            throw externalIntegrationException("Unable to execute semantic search.", ex);
         }
+    }
+
+    private RuntimeException externalIntegrationException(String message, RuntimeException ex) {
+        if (ex instanceof ExternalIntegrationException || ex instanceof AiUsageLimitException) {
+            return ex;
+        }
+        if (ex instanceof DataAccessException || ex.getCause() instanceof DataAccessException) {
+            return new ExternalIntegrationException(message, ex);
+        }
+        return ex;
     }
 
     private List<SemanticSearchItemDTO> buildResponse(List<VectorResult> results) {

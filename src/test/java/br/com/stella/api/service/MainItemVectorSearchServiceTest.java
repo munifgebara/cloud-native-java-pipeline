@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -105,6 +106,17 @@ class ItemMestreVectorSearchServiceTest {
     }
 
     @Test
+    void shouldWrapDatabaseFailureOnRemoveIndexAsExternalIntegration() {
+        UUID id = UUID.randomUUID();
+        doThrow(new DataAccessResourceFailureException("database unavailable"))
+                .when(jdbcTemplate).update(anyString(), eq(id));
+
+        assertThatThrownBy(() -> service(true).remove(id))
+                .isInstanceOf(ExternalIntegrationException.class)
+                .hasMessage("Unable to update the vector search index.");
+    }
+
+    @Test
     void shouldFailWhenProviderReturnsDimensionsIncompatible() {
         MainItem item = item(UUID.randomUUID(), true);
         when(embeddingProvider.generateEmbedding(anyString())).thenReturn(new float[]{0.1f});
@@ -185,6 +197,17 @@ class ItemMestreVectorSearchServiceTest {
     }
 
     @Test
+    void shouldWrapDatabaseFailureOnFindSemanticallyAsExternalIntegration() {
+        when(embeddingProvider.generateEmbedding("placa de video")).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
+        when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any()))
+                .thenThrow(new DataAccessResourceFailureException("database unavailable"));
+
+        assertThatThrownBy(() -> service(true).search("placa de video"))
+                .isInstanceOf(ExternalIntegrationException.class)
+                .hasMessage("Unable to execute semantic search.");
+    }
+
+    @Test
     void shouldReindexItemsActiveWhenEnabled() {
         when(mainItemRepository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(item(UUID.randomUUID(), true), item(UUID.randomUUID(), true)));
         when(embeddingProvider.generateEmbedding(anyString())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
@@ -211,6 +234,18 @@ class ItemMestreVectorSearchServiceTest {
         assertThatThrownBy(() -> service(true).reindexActiveItems())
                 .isInstanceOf(ExternalIntegrationException.class)
                 .hasMessage("Embeddings provider returned a vector with incompatible dimensions.");
+    }
+
+    @Test
+    void shouldWrapDatabaseFailureOnReindexItemsActiveAsExternalIntegration() {
+        when(mainItemRepository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(item(UUID.randomUUID(), true)));
+        when(embeddingProvider.generateEmbedding(anyString())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
+        doThrow(new DataAccessResourceFailureException("database unavailable"))
+                .when(jdbcTemplate).update(anyString(), any(), any(), any(), any(), any(), any());
+
+        assertThatThrownBy(() -> service(true).reindexActiveItems())
+                .isInstanceOf(ExternalIntegrationException.class)
+                .hasMessage("Unable to update the vector search index.");
     }
 
     @Test
