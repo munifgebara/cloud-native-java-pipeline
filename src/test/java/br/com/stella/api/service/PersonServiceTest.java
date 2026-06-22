@@ -1,5 +1,6 @@
 package br.com.stella.api.service;
 
+import br.com.stella.api.dto.MainItemImageDTO;
 import br.com.stella.api.dto.PersonCreateDTO;
 import br.com.stella.api.entity.Person;
 import br.com.stella.api.exception.DuplicateRegistrationException;
@@ -7,6 +8,7 @@ import br.com.stella.api.repository.PersonRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.mock.web.MockMultipartFile;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -14,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,6 +34,9 @@ class PessoaServiceTest {
 
     @Mock
     private EntityManager entityManager;
+
+    @Mock
+    private MainItemImageStorageService imageStorageService;
 
     @InjectMocks
     private PersonService service;
@@ -114,5 +120,55 @@ class PessoaServiceTest {
 
         assertThat(service.findByName("  ")).isEmpty();
         assertThat(service.findByName(" Maria ")).hasSize(1);
+    }
+
+    @Test
+    void shouldUpdatePersonPhotoReplacingPreviousObject() {
+        UUID id = UUID.randomUUID();
+        Person person = new Person();
+        person.setId(id);
+        person.setName("Maria Silva");
+        person.setPhotoBucket("bucket-antigo");
+        person.setPhotoObjectKey("people/%s/antiga.png".formatted(id));
+
+        var file = new MockMultipartFile("file", "nova.png", "image/png", new byte[]{1, 2});
+        var image = new MainItemImageDTO("bucket-novo", "people/%s/nova.png".formatted(id), "image/png", 2L);
+
+        when(repository.findById(id)).thenReturn(Optional.of(person));
+        when(imageStorageService.storePersonPhoto(id, file)).thenReturn(image);
+        when(repository.save(person)).thenReturn(person);
+
+        var response = service.updatePhoto(id, file);
+
+        assertThat(person.getPhotoBucket()).isEqualTo("bucket-novo");
+        assertThat(person.getPhotoObjectKey()).isEqualTo("people/%s/nova.png".formatted(id));
+        assertThat(person.getPhotoContentType()).isEqualTo("image/png");
+        assertThat(person.getPhotoSizeBytes()).isEqualTo(2L);
+        assertThat(response.photoUrl()).isEqualTo("/api/public/people/%s/photo".formatted(id));
+        verify(imageStorageService).removeSilently("bucket-antigo", "people/%s/antiga.png".formatted(id));
+    }
+
+    @Test
+    void shouldRemovePersonPhoto() {
+        UUID id = UUID.randomUUID();
+        Person person = new Person();
+        person.setId(id);
+        person.setName("Maria Silva");
+        person.setPhotoBucket("bucket");
+        person.setPhotoObjectKey("people/%s/photo.png".formatted(id));
+        person.setPhotoContentType("image/png");
+        person.setPhotoSizeBytes(2L);
+
+        when(repository.findById(id)).thenReturn(Optional.of(person));
+        when(repository.save(person)).thenReturn(person);
+
+        var response = service.removePhoto(id);
+
+        assertThat(person.getPhotoBucket()).isNull();
+        assertThat(person.getPhotoObjectKey()).isNull();
+        assertThat(person.getPhotoContentType()).isNull();
+        assertThat(person.getPhotoSizeBytes()).isNull();
+        assertThat(response.photoUrl()).isNull();
+        verify(imageStorageService).removeSilently("bucket", "people/%s/photo.png".formatted(id));
     }
 }

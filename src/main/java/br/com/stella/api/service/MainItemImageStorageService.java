@@ -28,6 +28,12 @@ public class MainItemImageStorageService {
             "image/gif"
     );
 
+    private static final Set<String> ALLOWED_PERSON_PHOTO_CONTENT_TYPES = Set.of(
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+    );
+
     private static final Map<String, String> EXTENSIONS = Map.of(
             "image/jpeg", "jpg",
             "image/png", "png",
@@ -51,8 +57,16 @@ public class MainItemImageStorageService {
         return store("locations", locationId, file);
     }
 
+    public MainItemImageDTO storePersonPhoto(UUID personId, MultipartFile file) {
+        return store("people", personId, file, ALLOWED_PERSON_PHOTO_CONTENT_TYPES, "Image format not allowed. Use JPG, PNG or WebP.");
+    }
+
     private MainItemImageDTO store(String prefix, UUID entityId, MultipartFile file) {
-        validateFile(file);
+        return store(prefix, entityId, file, ALLOWED_CONTENT_TYPES, "Image format not allowed. Use JPG, PNG, WebP or GIF.");
+    }
+
+    private MainItemImageDTO store(String prefix, UUID entityId, MultipartFile file, Set<String> allowedContentTypes, String invalidFormatMessage) {
+        validateFile(file, allowedContentTypes, invalidFormatMessage);
 
         String contentType = file.getContentType().toLowerCase(Locale.ROOT);
         String objectKey = "%s/%s/%s.%s".formatted(prefix, entityId, UUID.randomUUID(), EXTENSIONS.get(contentType));
@@ -100,7 +114,7 @@ public class MainItemImageStorageService {
         }
     }
 
-    private void validateFile(MultipartFile file) {
+    private void validateFile(MultipartFile file, Set<String> allowedContentTypes, String invalidFormatMessage) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Please provide an image for upload.");
         }
@@ -110,8 +124,8 @@ public class MainItemImageStorageService {
         }
 
         String contentType = file.getContentType();
-        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase(Locale.ROOT))) {
-            throw new IllegalArgumentException("Image format not allowed. Use JPG, PNG, WebP or GIF.");
+        if (contentType == null || !allowedContentTypes.contains(contentType.toLowerCase(Locale.ROOT))) {
+            throw new IllegalArgumentException(invalidFormatMessage);
         }
     }
 

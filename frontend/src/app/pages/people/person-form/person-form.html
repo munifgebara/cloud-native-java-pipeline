@@ -54,6 +54,44 @@
           }
         </div>
 
+        <div class="field full photo-field">
+          <label for="foto">{{ 'people.form.photo' | translate }}</label>
+          <div
+            class="photo-control"
+            tabindex="0"
+            (paste)="colarFoto($event)">
+            <div class="photo-preview">
+              @if (fotoPreviewUrl() || fotoAtualUrl()) {
+                <img [src]="fotoPreviewUrl() || fotoAtualUrl()" [alt]="form.controls.name.value || ('people.form.photo' | translate)" />
+              } @else {
+                <i class="pi pi-user"></i>
+              }
+            </div>
+
+            <div class="photo-actions">
+              <input
+                id="foto"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                (change)="selecionarFoto($event)" />
+              <small>{{ 'people.form.photoHint' | translate }}</small>
+              <small>{{ 'people.form.photoPasteHint' | translate }}</small>
+
+              @if (fotoPreviewUrl() || fotoAtualUrl()) {
+                <button
+                  pButton
+                  type="button"
+                  severity="secondary"
+                  [label]="'people.form.removePhoto' | translate"
+                  icon="pi pi-trash"
+                  [loading]="removendoFoto()"
+                  (click)="removerFoto()">
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
         <div class="field">
           <label for="zipCode">{{ 'people.form.zipCode' | translate }}</label>
           <input id="zipCode" pInputText formControlName="zipCode" />
