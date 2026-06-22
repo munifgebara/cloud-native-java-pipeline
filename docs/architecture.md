@@ -40,7 +40,7 @@ The backend follows the usual Spring layering:
 - `config`: framework and integration configuration
 - `exception`: API error handling
 
-Database schema changes are versioned in `src/main/resources/db/migration` and applied by Flyway.
+Database schema changes are versioned as Flyway migrations under `src/main/java/db/migration` and applied at startup. The current prototype baseline is a clean English schema checkpoint.
 
 ## Frontend Structure
 

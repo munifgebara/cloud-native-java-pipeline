@@ -17,11 +17,11 @@ import org.hibernate.envers.Audited;
  * Each category can have an associated icon for visual identification in the UI.</p>
  *
  * <p>This entity is audited by Hibernate Envers: all changes are recorded
- * in the {@code categoria_aud} table.</p>
+ * in the {@code category_aud} table.</p>
  */
 @Entity
 @Audited
-@Table(name = "categoria")
+@Table(name = "category")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,14 +31,14 @@ public class Category extends BaseEntity {
      * Display name of the category.
      * Required, up to 150 characters.
      */
-    @Column(name = "nome", nullable = false, length = 150)
+    @Column(name = "name", nullable = false, length = 150)
     private String name;
 
     /**
      * Optional descriptive text that details the purpose or scope of the category.
      * Up to 500 characters.
      */
-    @Column(name = "descricao", length = 500)
+    @Column(name = "description", length = 500)
     private String description;
 
     /**
@@ -46,6 +46,6 @@ public class Category extends BaseEntity {
      * Valid values are defined by {@link CategoryIcon}.
      * Up to 50 characters.
      */
-    @Column(name = "icone", length = 50)
+    @Column(name = "icon", length = 50)
     private String icon;
 }

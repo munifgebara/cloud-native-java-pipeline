@@ -20,11 +20,11 @@ import java.time.Instant;
  * Custom revision entity for Hibernate Envers.
  *
  * <p>Each time an audited record (annotated with {@code @Audited}) is created,
- * updated, or deleted, Envers inserts a row into this table ({@code versao})
+ * updated, or deleted, Envers inserts a row into this table ({@code revision})
  * representing that point in time. The audit tables ({@code _aud})
  * reference this revision via the {@code rev} column.</p>
  *
- * <p>The {@code ip} and {@code usuario} fields are populated by
+ * <p>The {@code ip} and {@code username} fields are populated by
  * {@link MRevisionEntityListener} before each new revision.</p>
  *
  * @see MRevisionEntityListener
@@ -32,7 +32,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "versao")
+@Table(name = "revision")
 @RevisionEntity(MRevisionEntityListener.class)
 public class MRevisionEntity implements Serializable {
 
@@ -68,12 +68,12 @@ public class MRevisionEntity implements Serializable {
      * Login of the user responsible for the audited change.
      * Populated by {@link MRevisionEntityListener}.
      */
-    @Column(name = "usuario", length = 100)
-    private String user;
+    @Column(name = "username", length = 100)
+    private String username;
 
     /**
      * Field reserved for future extensibility.
      */
-    @Column(name = "oi", length = 100)
-    private String oi;
+    @Column(name = "external_id", length = 100)
+    private String externalId;
 }

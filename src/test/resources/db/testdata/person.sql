@@ -1,26 +1,26 @@
-delete from public.pessoa;
+delete from public.person;
 
-insert into public.pessoa (
+insert into public.person (
     id,
-    ativo,
-    criado_em,
-    alterado_em,
+    active,
+    created_at,
+    updated_at,
     version,
     extra,
-    oi,
-    nome,
-    cpf_cnpj,
-    telefone_principal,
-    telefone_secundario,
+    external_id,
+    name,
+    tax_id,
+    primary_phone,
+    secondary_phone,
     email,
-    cep,
-    endereco,
-    complemento,
-    bairro,
-    cidade,
-    uf
+    zip_code,
+    address,
+    complement,
+    neighborhood,
+    city,
+    state
 ) values
--- PESSOAS FÍSICAS (CPF válidos)
+-- Individuals with valid CPF values
 (
     '11111111-1111-1111-1111-111111111111',
     true, now(), now(), 0, 'test', 'public',
@@ -67,7 +67,7 @@ insert into public.pessoa (
     'Rua E', null, 'Zona 3', 'Maringá', 'PR'
 ),
 
--- PESSOAS JURÍDICAS (CNPJ válidos)
+-- Legal entities with valid CNPJ values
 (
     '66666666-6666-6666-6666-666666666666',
     true, now(), now(), 0, 'test', 'public',

@@ -59,21 +59,21 @@ public abstract class BaseEntity implements Serializable {
      * Indicates whether the record is active ({@code true}) or has been logically deactivated ({@code false}).
      * Every entity starts as active. Use {@link #deleteLogically()} to deactivate.
      */
-    @Column(name = "ativo", nullable = false)
+    @Column(name = "active", nullable = false)
     private boolean active = true;
 
     /**
      * Instant at which the record was created. Automatically populated in {@link #prePersist()}
      * and never changed.
      */
-    @Column(name = "criado_em", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
     /**
      * Instant of the last modification to the record. Automatically updated in
      * {@link #prePersist()} and {@link #preUpdate()}.
      */
-    @Column(name = "alterado_em", nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
     /**
@@ -94,11 +94,11 @@ public abstract class BaseEntity implements Serializable {
     private String extra;
 
     /**
-     * Field reserved for internal use and future extensibility.
+     * Optional external identifier for integrations, imports, or operational labels.
      * Present in all tables by inheriting from this superclass.
      */
-    @Column(name = "oi", length = 100)
-    private String oi;
+    @Column(name = "external_id", length = 100)
+    private String externalId;
 
     /**
      * JPA callback executed immediately before the first persistence of the record.
@@ -113,9 +113,9 @@ public abstract class BaseEntity implements Serializable {
      */
     @PrePersist
     public void prePersist() {
-        Instant agora = Instant.now();
-        this.createdAt = agora;
-        this.updatedAt = agora;
+        Instant now = Instant.now();
+        this.createdAt = now;
+        this.updatedAt = now;
         // Ensures active state on creation; deactivation is done after the initial persistence.
         this.active = true;
     }

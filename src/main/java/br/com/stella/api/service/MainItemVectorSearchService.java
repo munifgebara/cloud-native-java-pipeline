@@ -37,29 +37,29 @@ public class MainItemVectorSearchService {
     private static final Logger log = LoggerFactory.getLogger(MainItemVectorSearchService.class);
 
     private static final String UPSERT_SQL = """
-            insert into public.item_mestre_embedding
-                (item_mestre_id, provider, modelo, dimensoes, texto_indexado, embedding, active, alterado_em)
+            insert into public.main_item_embedding
+                (main_item_id, provider, model, dimensions, indexed_text, embedding, active, updated_at)
             values (?, ?, ?, ?, ?, ?::vector, true, now())
-            on conflict (item_mestre_id) do update set
+            on conflict (main_item_id) do update set
                 provider = excluded.provider,
-                modelo = excluded.modelo,
-                dimensoes = excluded.dimensoes,
-                texto_indexado = excluded.texto_indexado,
+                model = excluded.model,
+                dimensions = excluded.dimensions,
+                indexed_text = excluded.indexed_text,
                 embedding = excluded.embedding,
                 active = true,
-                alterado_em = now()
+                updated_at = now()
             """;
 
     private static final String REMOVER_SQL = """
-            update public.item_mestre_embedding
-            set active = false, alterado_em = now()
-            where item_mestre_id = ?
+            update public.main_item_embedding
+            set active = false, updated_at = now()
+            where main_item_id = ?
             """;
 
     private static final String BUSCAR_SQL = """
-            select e.item_mestre_id, 1 - (e.embedding <=> ?::vector) as similarity
-            from public.item_mestre_embedding e
-            join public.item_mestre i on i.id = e.item_mestre_id
+            select e.main_item_id, 1 - (e.embedding <=> ?::vector) as similarity
+            from public.main_item_embedding e
+            join public.main_item i on i.id = e.main_item_id
             where e.active = true
               and i.active = true
             order by e.embedding <=> ?::vector
@@ -225,7 +225,7 @@ public class MainItemVectorSearchService {
             List<VectorResult> results = jdbcTemplate.query(
                     BUSCAR_SQL,
                     (rs, rowNum) -> new VectorResult(
-                            rs.getObject("item_mestre_id", UUID.class),
+                            rs.getObject("main_item_id", UUID.class),
                             rs.getDouble("similarity")
                     ),
                     literal,

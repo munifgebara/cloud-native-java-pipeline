@@ -11,7 +11,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * context information — who made the change and from where.
  *
  * <p>This listener is called automatically by Envers before persisting
- * a new row in the {@code versao} table ({@link MRevisionEntity}).
+ * a new row in the {@code revision} table ({@link MRevisionEntity}).
  * It extracts the authenticated user from {@link SecurityContextHolder} and the IP
  * from the current HTTP request (when available).</p>
  *
@@ -27,33 +27,33 @@ public class MRevisionEntityListener implements RevisionListener {
      */
     @Override
     public void newRevision(Object revisionEntity) {
-        if (revisionEntity instanceof MRevisionEntity revisao) {
-            revisao.setUser(resolverUsuario());
-            revisao.setIp(resolverIp());
+        if (revisionEntity instanceof MRevisionEntity revision) {
+            revision.setUsername(resolveUsername());
+            revision.setIp(resolveIp());
         }
     }
 
     /**
      * Returns the name of the authenticated user from the Spring security context,
-     * or {@code "anonimo"} when there is no active authentication.
+     * or {@code "anonymous"} when there is no active authentication.
      */
-    private String resolverUsuario() {
+    private String resolveUsername() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
-            return "anonimo";
+            return "anonymous";
         }
         return auth.getName();
     }
 
     /**
-     * Returns the IP address of the current HTTP request, or {@code "desconhecido"}
+     * Returns the IP address of the current HTTP request, or {@code "unknown"}
      * when called outside a web request context (e.g.: scheduled tasks).
      */
-    private String resolverIp() {
+    private String resolveIp() {
         ServletRequestAttributes attrs =
                 (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attrs == null) {
-            return "desconhecido";
+            return "unknown";
         }
         String forwarded = attrs.getRequest().getHeader("X-Forwarded-For");
         if (forwarded != null && !forwarded.isBlank()) {

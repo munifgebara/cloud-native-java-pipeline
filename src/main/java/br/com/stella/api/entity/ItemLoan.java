@@ -28,11 +28,11 @@ import java.time.LocalDate;
  * the record — ensuring historical traceability.</p>
  *
  * <p>This entity is audited by Hibernate Envers: all changes are recorded
- * in the {@code emprestimo_item_aud} table.</p>
+ * in the {@code item_loan_aud} table.</p>
  */
 @Entity
 @Audited
-@Table(name = "emprestimo_item")
+@Table(name = "item_loan")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -44,7 +44,7 @@ public class ItemLoan extends BaseEntity {
      * Loaded lazily to avoid unnecessary joins.
      */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "instancia_item_id", nullable = false)
+    @JoinColumn(name = "item_instance_id", nullable = false)
     private ItemInstance itemInstance;
 
     /**
@@ -53,14 +53,14 @@ public class ItemLoan extends BaseEntity {
      * Loaded lazily to avoid unnecessary joins.
      */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "pessoa_id", nullable = false)
+    @JoinColumn(name = "person_id", nullable = false)
     private Person person;
 
     /**
      * Date and time the loan was made (UTC timezone).
      * Automatically populated by the {@link #prePersist()} callback if not provided.
      */
-    @Column(name = "data_emprestimo", nullable = false)
+    @Column(name = "loan_date", nullable = false)
     private Instant loanDate;
 
     /**
@@ -69,7 +69,7 @@ public class ItemLoan extends BaseEntity {
      * deadline comparisons and overdue alerts.
      * Optional — may be {@code null} when no deadline is defined.
      */
-    @Column(name = "previsao_devolucao")
+    @Column(name = "expected_return_date")
     private LocalDate expectedReturnDate;
 
     /**
@@ -77,14 +77,14 @@ public class ItemLoan extends BaseEntity {
      * {@code null} indicates the loan is still open (item still with the person).
      * When populated, closes the loan cycle and releases the instance.
      */
-    @Column(name = "data_devolucao")
+    @Column(name = "return_date")
     private Instant returnDate;
 
     /**
      * Notes about the loan (item condition at checkout, agreed terms, etc.).
      * Up to 1000 characters.
      */
-    @Column(name = "observacao", length = 1000)
+    @Column(name = "notes", length = 1000)
     private String notes;
 
     /**

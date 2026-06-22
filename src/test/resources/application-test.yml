@@ -21,7 +21,7 @@ spring:
   sql:
     init:
       mode: always
-      data-locations: classpath:db/testdata/pessoa.sql
+      data-locations: classpath:db/testdata/person.sql
 
   h2:
     console:

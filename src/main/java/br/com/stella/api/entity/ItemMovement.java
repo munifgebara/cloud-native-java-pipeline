@@ -29,11 +29,11 @@ import java.time.Instant;
  * if not explicitly provided.</p>
  *
  * <p>This entity is audited by Hibernate Envers: all changes are recorded
- * in the {@code movimentacao_item_aud} table.</p>
+ * in the {@code item_movement_aud} table.</p>
  */
 @Entity
 @Audited
-@Table(name = "movimentacao_item")
+@Table(name = "item_movement")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -45,14 +45,14 @@ public class ItemMovement extends BaseEntity {
      * or {@link ItemMovementType#TRANSFERENCIA}.
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "tipo", nullable = false, length = 30)
+    @Column(name = "type", nullable = false, length = 30)
     private ItemMovementType type;
 
     /**
      * Date and time the movement occurred (UTC timezone).
      * Automatically populated by the {@link #prePersist()} callback if not provided.
      */
-    @Column(name = "data_movimentacao", nullable = false)
+    @Column(name = "movement_date", nullable = false)
     private Instant movementDate;
 
     /**
@@ -61,7 +61,7 @@ public class ItemMovement extends BaseEntity {
      * Loaded lazily to avoid unnecessary joins.
      */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "instancia_item_id", nullable = false)
+    @JoinColumn(name = "item_instance_id", nullable = false)
     private ItemInstance itemInstance;
 
     /**
@@ -71,7 +71,7 @@ public class ItemMovement extends BaseEntity {
      * Loaded lazily to avoid unnecessary joins.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "local_origem_id")
+    @JoinColumn(name = "origin_location_id")
     private StorageLocation originLocation;
 
     /**
@@ -81,21 +81,21 @@ public class ItemMovement extends BaseEntity {
      * Loaded lazily to avoid unnecessary joins.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "local_destino_id")
+    @JoinColumn(name = "destination_location_id")
     private StorageLocation destinationLocation;
 
     /**
      * Brief reason for the movement (e.g.: "Maintenance", "Equipment redistribution").
      * Up to 200 characters.
      */
-    @Column(name = "motivo", length = 200)
+    @Column(name = "reason", length = 200)
     private String reason;
 
     /**
      * Additional notes about the movement with more details or context.
      * Up to 1000 characters.
      */
-    @Column(name = "observacao", length = 1000)
+    @Column(name = "notes", length = 1000)
     private String notes;
 
     /**

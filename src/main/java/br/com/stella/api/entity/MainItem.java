@@ -25,11 +25,11 @@ import org.hibernate.envers.Audited;
  * allow retrieving and displaying that image.</p>
  *
  * <p>This entity is audited by Hibernate Envers: all changes are recorded
- * in the {@code item_mestre_aud} table.</p>
+ * in the {@code main_item_aud} table.</p>
  */
 @Entity
 @Audited
-@Table(name = "item_mestre")
+@Table(name = "main_item")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -39,21 +39,21 @@ public class MainItem extends BaseEntity {
      * Name of the main item. Required, up to 150 characters.
      * Example: {@code "Dell Inspiron 15 Laptop"}.
      */
-    @Column(name = "nome", nullable = false, length = 150)
+    @Column(name = "name", nullable = false, length = 150)
     private String name;
 
     /**
      * Detailed description of the item, containing relevant characteristics.
      * Optional, up to 500 characters.
      */
-    @Column(name = "descricao", length = 500)
+    @Column(name = "description", length = 500)
     private String description;
 
     /**
      * Internal notes about the item (maintenance history, usage restrictions, etc.).
      * Optional, up to 1000 characters.
      */
-    @Column(name = "observacoes", length = 1000)
+    @Column(name = "notes", length = 1000)
     private String notes;
 
     /**
@@ -61,7 +61,7 @@ public class MainItem extends BaseEntity {
      * Used to track how the item was entered into the system.
      * Up to 50 characters.
      */
-    @Column(name = "origem_cadastro", length = 50)
+    @Column(name = "registration_origin", length = 50)
     private String registrationOrigin;
 
     /**
@@ -69,7 +69,7 @@ public class MainItem extends BaseEntity {
      * {@code null} when the item has no registered image.
      * Up to 100 characters.
      */
-    @Column(name = "imagem_bucket", length = 100)
+    @Column(name = "image_bucket", length = 100)
     private String imageBucket;
 
     /**
@@ -77,7 +77,7 @@ public class MainItem extends BaseEntity {
      * Used together with {@link #imageBucket} to locate the file.
      * Up to 500 characters.
      */
-    @Column(name = "imagem_object_key", length = 500)
+    @Column(name = "image_object_key", length = 500)
     private String imageObjectKey;
 
     /**
@@ -85,14 +85,14 @@ public class MainItem extends BaseEntity {
      * Required to serve the file with the correct {@code Content-Type} header.
      * Up to 100 characters.
      */
-    @Column(name = "imagem_content_type", length = 100)
+    @Column(name = "image_content_type", length = 100)
     private String imageContentType;
 
     /**
      * Size of the image in bytes. Useful for displaying information to the user
      * and for storage quota checks.
      */
-    @Column(name = "imagem_tamanho_bytes")
+    @Column(name = "image_size_bytes")
     private Long imageSizeBytes;
 
     /**
@@ -100,7 +100,7 @@ public class MainItem extends BaseEntity {
      * {@code true} when the image was produced by an AI model;
      * {@code false} when it was manually uploaded by the user.
      */
-    @Column(name = "imagem_generated_by_ai", nullable = false)
+    @Column(name = "image_generated_by_ai", nullable = false)
     private boolean imageGeneratedByAi;
 
     /**
@@ -108,7 +108,7 @@ public class MainItem extends BaseEntity {
      * {@code null} when {@link #imageGeneratedByAi} is {@code false}.
      * Up to 50 characters.
      */
-    @Column(name = "imagem_provider", length = 50)
+    @Column(name = "image_provider", length = 50)
     private String imageProvider;
 
     /**
@@ -117,6 +117,6 @@ public class MainItem extends BaseEntity {
      * Loaded lazily to avoid unnecessary joins.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "categoria_id")
+    @JoinColumn(name = "category_id")
     private Category category;
 }

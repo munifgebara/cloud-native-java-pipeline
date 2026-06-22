@@ -58,6 +58,17 @@ The Angular development server runs at `http://127.0.0.1:4200`.
 
 The Maven build installs frontend dependencies, runs the Angular production build, compiles the backend, executes tests, checks JaCoCo coverage, and packages the application.
 
+## Reset Prototype Data
+
+The Stella database schema starts from a clean Flyway checkpoint in English. During the prototype phase, operational data is disposable.
+
+When recreating a local or shared prototype environment after schema changes, reset both stores:
+
+- Drop and recreate the Stella PostgreSQL database/schema.
+- Delete Stella image objects from MinIO or the equivalent local bucket.
+
+Keycloak users and authentication data are external to the Stella operational schema and must not be deleted as part of this reset.
+
 ## Local Demo Access
 
 Local Keycloak admin credentials:

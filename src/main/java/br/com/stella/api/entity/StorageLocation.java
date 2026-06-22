@@ -23,11 +23,11 @@ import org.hibernate.envers.Audited;
  * to facilitate visual identification by users.</p>
  *
  * <p>This entity is audited by Hibernate Envers: all changes are recorded
- * in the {@code local_armazenamento_aud} table.</p>
+ * in the {@code storage_location_aud} table.</p>
  */
 @Entity
 @Audited
-@Table(name = "local_armazenamento")
+@Table(name = "storage_location")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -37,7 +37,7 @@ public class StorageLocation extends BaseEntity {
      * Name of the storage location. Required, up to 150 characters.
      * Examples: {@code "Main Warehouse"}, {@code "IT Room"}, {@code "Cabinet 02"}.
      */
-    @Column(name = "nome", nullable = false, length = 150)
+    @Column(name = "name", nullable = false, length = 150)
     private String name;
 
     /**
@@ -45,7 +45,7 @@ public class StorageLocation extends BaseEntity {
      * (e.g.: capacity, type of stored items, access restrictions).
      * Up to 500 characters.
      */
-    @Column(name = "descricao", length = 500)
+    @Column(name = "description", length = 500)
     private String description;
 
     /**
@@ -53,7 +53,7 @@ public class StorageLocation extends BaseEntity {
      * {@code null} when the location has no registered image.
      * Up to 100 characters.
      */
-    @Column(name = "imagem_bucket", length = 100)
+    @Column(name = "image_bucket", length = 100)
     private String imageBucket;
 
     /**
@@ -61,7 +61,7 @@ public class StorageLocation extends BaseEntity {
      * Used together with {@link #imageBucket} to locate the file.
      * Up to 500 characters.
      */
-    @Column(name = "imagem_object_key", length = 500)
+    @Column(name = "image_object_key", length = 500)
     private String imageObjectKey;
 
     /**
@@ -69,14 +69,14 @@ public class StorageLocation extends BaseEntity {
      * Required to serve the file with the correct {@code Content-Type} header.
      * Up to 100 characters.
      */
-    @Column(name = "imagem_content_type", length = 100)
+    @Column(name = "image_content_type", length = 100)
     private String imageContentType;
 
     /**
      * Size of the image in bytes. Useful for displaying information to the user
      * and for storage quota checks.
      */
-    @Column(name = "imagem_tamanho_bytes")
+    @Column(name = "image_size_bytes")
     private Long imageSizeBytes;
 
     /**
@@ -85,6 +85,6 @@ public class StorageLocation extends BaseEntity {
      * Loaded lazily to avoid unnecessary chained joins.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "local_pai_id")
+    @JoinColumn(name = "parent_location_id")
     private StorageLocation parent;
 }
