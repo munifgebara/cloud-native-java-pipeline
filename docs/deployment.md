@@ -10,6 +10,7 @@ Kubernetes assets live under `k8s/platform/`:
 | `postgres/` | PostgreSQL stateful workload and service |
 | `keycloak/` | Keycloak deployment, service and realm config |
 | `minio/` | MinIO deployment, service and persistent volume claim |
+| `stella-embeddings/` | Local text embeddings service used by vector search |
 | `observability/` | Grafana datasource and dashboard ConfigMaps for the existing Gimli logging stack |
 | `stella-api/` | Stella API deployment, service, ingress and configuration |
 
@@ -81,3 +82,4 @@ Application checks:
 - `/actuator/health` should report healthy readiness for the API.
 - `/app` should serve the integrated Angular application.
 - `/scalar` should expose the API documentation UI.
+- `POST /api/v0/main-items/semantic-search/reindex` should be run after enabling vector search or changing the embeddings model.

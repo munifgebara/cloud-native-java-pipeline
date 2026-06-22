@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stella-embeddings
+  namespace: platform
+  labels:
+    app: stella-embeddings
+    app.kubernetes.io/name: stella-embeddings
+    app.kubernetes.io/component: embeddings
+    app.kubernetes.io/part-of: stella
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stella-embeddings
+  template:
+    metadata:
+      labels:
+        app: stella-embeddings
+        app.kubernetes.io/name: stella-embeddings
+        app.kubernetes.io/component: embeddings
+        app.kubernetes.io/part-of: stella
+    spec:
+      containers:
+        - name: stella-embeddings
+          image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.9
+          imagePullPolicy: IfNotPresent
+          args:
+            - --model-id
+            - sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+            - --port
+            - "8000"
+          ports:
+            - containerPort: 8000
+              name: http
+          volumeMounts:
+            - name: embeddings-cache
+              mountPath: /data
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "2"
+              memory: "2Gi"
+      volumes:
+        - name: embeddings-cache
+          emptyDir: {}

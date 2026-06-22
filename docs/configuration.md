@@ -56,6 +56,20 @@ In production, configure `STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET` and use a dedicat
 
 When `AI_ENABLED=false`, the API rejects AI operations without calling OpenAI. Daily limits are counted in memory and reset by local date; they are intentionally simple and can later move to database persistence. A limit of `0` blocks that operation type, while an unset or negative limit is treated as unlimited.
 
+## Vector Search
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `STELLA_VECTOR_SEARCH_ENABLED` | `false` | Enables semantic search and indexing |
+| `STELLA_VECTOR_SEARCH_MIN_SIMILARITY` | `0.20` | Minimum similarity accepted in search results |
+| `STELLA_VECTOR_SEARCH_MAX_RESULTS` | `12` | Maximum semantic search results |
+| `STELLA_EMBEDDINGS_PROVIDER` | `local` | Embeddings provider label stored with indexed vectors |
+| `STELLA_EMBEDDINGS_BASE_URL` | `http://stella-embeddings:8000` | OpenAI-compatible embeddings endpoint |
+| `STELLA_EMBEDDINGS_MODEL` | `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` | 384-dimension model used by pgvector |
+| `STELLA_EMBEDDINGS_DIMENSIONS` | `384` | Expected embedding vector size |
+
+The database vector column is `vector(384)`, so changing to a model with different dimensions requires a migration and full reindex.
+
 ## Logging
 
 | Variable | Default | Description |
