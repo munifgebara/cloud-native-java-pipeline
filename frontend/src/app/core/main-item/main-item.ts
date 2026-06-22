@@ -156,7 +156,7 @@ export class MainItemService {
 
   atualizarImagePrincipal(id: string, arquivo: File, generatedByAi = false, provider?: string | null): Observable<MainItemResponse> {
     const formData = new FormData();
-    formData.append('arquivo', arquivo);
+    formData.append('file', arquivo);
     formData.append('generatedByAi', String(generatedByAi));
     if (provider) {
       formData.append('provider', provider);

@@ -41,11 +41,11 @@ export interface PhotoUploadSuggestionResponse {
 })
 export class PhotoUploadAiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/ai/photo-upload`;
+  private readonly baseUrl = `${environment.apiBaseUrl}/api/v0/ai/registration-photo`;
 
   sugerirCadastro(arquivo: File): Observable<PhotoUploadSuggestionResponse> {
     const formData = new FormData();
-    formData.append('arquivo', arquivo);
+    formData.append('file', arquivo);
 
     return this.http.post<PhotoUploadSuggestionResponse>(`${this.baseUrl}/suggestions`, formData);
   }
