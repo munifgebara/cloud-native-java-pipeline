@@ -3,6 +3,7 @@ package br.com.stella.api.service;
 import br.com.munif.common.persistencia.MRevisionEntity;
 import br.com.munif.common.service.SuperService;
 import br.com.munif.common.utils.validacoes.BrValidations;
+import br.com.stella.api.dto.MainItemImageDTO;
 import br.com.stella.api.dto.PersonCreateDTO;
 import br.com.stella.api.dto.PersonResponseDTO;
 import br.com.stella.api.dto.PersonRevisionDTO;
@@ -19,7 +20,9 @@ import org.hibernate.envers.RevisionType;
 import org.hibernate.envers.query.AuditEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -36,14 +39,21 @@ import java.util.UUID;
 @Service
 public class PersonService extends SuperService<Person, PersonRepository> {
 
+    private final MainItemImageStorageService imageStorageService;
+
     /**
      * Constructs the service injecting the repository and the {@code EntityManager}.
      *
      * @param repository    JPA repository for persons
      * @param entityManager entity manager used by {@code SuperService} for Envers
      */
-    public PersonService(PersonRepository repository, EntityManager entityManager) {
+    public PersonService(
+            PersonRepository repository,
+            EntityManager entityManager,
+            MainItemImageStorageService imageStorageService
+    ) {
         super(repository, entityManager, Person.class);
+        this.imageStorageService = imageStorageService;
     }
 
     /**
@@ -130,6 +140,59 @@ public class PersonService extends SuperService<Person, PersonRepository> {
 
         Person salva = save(person);
         return PersonMapper.toResponseDTO(salva);
+    }
+
+    @Transactional
+    public PersonResponseDTO updatePhoto(UUID id, MultipartFile file) {
+        Person person = findById(id);
+        String previousBucket = person.getPhotoBucket();
+        String previousObjectKey = person.getPhotoObjectKey();
+
+        MainItemImageDTO image = imageStorageService.storePersonPhoto(id, file);
+        person.setPhotoBucket(image.bucket());
+        person.setPhotoObjectKey(image.objectKey());
+        person.setPhotoContentType(image.contentType());
+        person.setPhotoSizeBytes(image.sizeBytes());
+
+        Person saved = save(person);
+        imageStorageService.removeSilently(previousBucket, previousObjectKey);
+        return PersonMapper.toResponseDTO(saved);
+    }
+
+    @Transactional
+    public PersonResponseDTO removePhoto(UUID id) {
+        Person person = findById(id);
+        String previousBucket = person.getPhotoBucket();
+        String previousObjectKey = person.getPhotoObjectKey();
+
+        person.setPhotoBucket(null);
+        person.setPhotoObjectKey(null);
+        person.setPhotoContentType(null);
+        person.setPhotoSizeBytes(null);
+
+        Person saved = save(person);
+        imageStorageService.removeSilently(previousBucket, previousObjectKey);
+        return PersonMapper.toResponseDTO(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public MainItemImageDTO fetchPhotoMetadata(UUID id) {
+        Person person = findById(id);
+        if (person.getPhotoObjectKey() == null) {
+            throw new IllegalArgumentException("Person does not have a photo.");
+        }
+        return new MainItemImageDTO(
+                person.getPhotoBucket(),
+                person.getPhotoObjectKey(),
+                person.getPhotoContentType(),
+                person.getPhotoSizeBytes()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public InputStream openPhoto(UUID id) {
+        MainItemImageDTO image = fetchPhotoMetadata(id);
+        return imageStorageService.open(image.bucket(), image.objectKey());
     }
 
     /**
@@ -366,6 +429,9 @@ public class PersonService extends SuperService<Person, PersonRepository> {
         adicionarSeAlterado(fields, "neighborhood", atual.neighborhood(), anterior.neighborhood());
         adicionarSeAlterado(fields, "city", atual.city(), anterior.city());
         adicionarSeAlterado(fields, "state", atual.state(), anterior.state());
+        adicionarSeAlterado(fields, "photoUrl", atual.photoUrl(), anterior.photoUrl());
+        adicionarSeAlterado(fields, "photoContentType", atual.photoContentType(), anterior.photoContentType());
+        adicionarSeAlterado(fields, "photoSizeBytes", atual.photoSizeBytes(), anterior.photoSizeBytes());
 
         return fields;
     }

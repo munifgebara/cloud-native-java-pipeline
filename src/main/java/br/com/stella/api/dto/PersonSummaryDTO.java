@@ -10,9 +10,11 @@ import java.util.UUID;
  *
  * @param id   unique identifier of the person
  * @param name full name or company name of the person
+ * @param photoUrl relative URL for accessing the photo; {@code null} when no photo
  */
 public record PersonSummaryDTO(
         UUID id,
-        String name
+        String name,
+        String photoUrl
 ) {
 }

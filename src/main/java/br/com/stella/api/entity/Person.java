@@ -107,4 +107,16 @@ public class Person extends BaseEntity {
      */
     @Column(name = "uf", length = 2)
     private String state;
+
+    @Column(name = "foto_bucket", length = 100)
+    private String photoBucket;
+
+    @Column(name = "foto_object_key", length = 500)
+    private String photoObjectKey;
+
+    @Column(name = "foto_content_type", length = 100)
+    private String photoContentType;
+
+    @Column(name = "foto_tamanho_bytes")
+    private Long photoSizeBytes;
 }

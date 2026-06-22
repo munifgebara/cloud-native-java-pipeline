@@ -89,12 +89,15 @@ class ControllerUnitTest {
         UUID id = UUID.randomUUID();
         var response = mock(PersonResponseDTO.class);
         var resumo = mock(PersonSummaryDTO.class);
+        var file = new MockMultipartFile("file", "photo.png", "image/png", new byte[]{1});
 
         when(service.create(null)).thenReturn(response);
         when(service.findResponseById(id)).thenReturn(response);
         when(service.listSummary()).thenReturn(List.of(resumo));
         when(service.findByName("ana")).thenReturn(List.of(resumo));
         when(service.update(id, null)).thenReturn(response);
+        when(service.updatePhoto(id, file)).thenReturn(response);
+        when(service.removePhoto(id)).thenReturn(response);
         when(service.listSummaryIncludingInactive()).thenReturn(List.of(resumo));
         when(service.listRevisions(id)).thenReturn(List.of());
 
@@ -103,6 +106,8 @@ class ControllerUnitTest {
         assertThat(controller.list().getBody()).containsExactly(resumo);
         assertThat(controller.findByName("ana").getBody()).containsExactly(resumo);
         assertThat(controller.update(id, null).getBody()).isEqualTo(response);
+        assertThat(controller.updatePhoto(id, file).getBody()).isEqualTo(response);
+        assertThat(controller.removePhoto(id).getBody()).isEqualTo(response);
         assertThat(controller.delete(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(controller.findAllIncludingInactive().getBody()).containsExactly(resumo);
         assertThat(controller.listPreviousVersions(id).getBody()).isEmpty();

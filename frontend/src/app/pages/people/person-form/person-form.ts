@@ -8,6 +8,7 @@ import { CardModule } from 'primeng/card';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, of, switchMap, tap } from 'rxjs';
 import { CepService } from '../../../core/cep/cep';
 import { mensagemErroHttp } from '../../../core/http-error';
+import { IMAGE_CONTENT_TYPES, imageFileFromPaste } from '../../../core/image/image-clipboard';
 import { I18nService, TranslatePipe, TranslationKey } from '../../../core/i18n/i18n';
 import { PersonResponse, PersonRevision, PersonService } from '../../../core/person/person';
 import {
@@ -39,6 +40,9 @@ function cepValidator(control: AbstractControl): ValidationErrors | null {
   return validarCep(valor) ? null : { cepInvalido: true };
 }
 
+const MAX_PHOTO_SIZE_BYTES = 5 * 1024 * 1024;
+const PERSON_PHOTO_CONTENT_TYPES = IMAGE_CONTENT_TYPES.filter((type) => type !== 'image/gif');
+
 @Component({
   selector: 'app-person-form',
   standalone: true,
@@ -65,6 +69,10 @@ export class PersonFormComponent implements OnInit {
   revisions = signal<PersonRevision[]>([]);
   carregandoRevisoes = signal(false);
   revisionsError = signal('');
+  fotoAtualUrl = signal<string | null>(null);
+  fotoPreviewUrl = signal<string | null>(null);
+  fotoSelecionada = signal<File | null>(null);
+  removendoFoto = signal(false);
   private ultimoCepConsultado: string | null = null;
 
   readonly edicao = computed(() => !!this.id());
@@ -98,6 +106,7 @@ export class PersonFormComponent implements OnInit {
     this.personService.buscarPorId(id).subscribe({
       next: (person) => {
         this.person.set(person);
+        this.fotoAtualUrl.set(person.photoUrl);
         this.form.patchValue(
           {
             name: person.name ?? '',
@@ -156,10 +165,7 @@ export class PersonFormComponent implements OnInit {
       };
 
       this.personService.update(this.id()!, payload).subscribe({
-        next: () => {
-          this.salvando.set(false);
-          this.router.navigate(['/people']);
-        },
+        next: (person) => this.enviarFotoSeNecessario(person.id),
         error: (err) => {
           this.salvando.set(false);
           this.errorMessage.set(this.extractError(err, this.i18n.translate('people.form.updateError')));
@@ -184,13 +190,80 @@ export class PersonFormComponent implements OnInit {
     };
 
     this.personService.criar(payload).subscribe({
-      next: () => {
-        this.salvando.set(false);
-        this.router.navigate(['/people']);
-      },
+      next: (person) => this.enviarFotoSeNecessario(person.id),
       error: (err) => {
         this.salvando.set(false);
         this.errorMessage.set(this.extractError(err, this.i18n.translate('people.form.createError')));
+      },
+    });
+  }
+
+  selecionarFoto(event: Event): void {
+    this.errorMessage.set('');
+    const input = event.target as HTMLInputElement;
+    const arquivo = input.files?.[0] ?? null;
+
+    if (!arquivo) {
+      this.fotoSelecionada.set(null);
+      this.fotoPreviewUrl.set(null);
+      return;
+    }
+
+    if (!this.aplicarFotoSelecionada(arquivo)) {
+      input.value = '';
+    }
+  }
+
+  colarFoto(event: ClipboardEvent): void {
+    this.errorMessage.set('');
+    const result = imageFileFromPaste(event, MAX_PHOTO_SIZE_BYTES);
+
+    if (!result.ok) {
+      if (result.reason === 'missing') {
+        this.errorMessage.set(this.i18n.translate('people.form.photoPasteMissing'));
+      } else if (result.reason === 'invalid-type') {
+        this.errorMessage.set(this.i18n.translate('people.form.photoInvalidType'));
+      } else {
+        this.errorMessage.set(this.i18n.translate('people.form.photoTooLarge'));
+      }
+      return;
+    }
+
+    this.aplicarFotoSelecionada(result.file);
+  }
+
+  removerFoto(): void {
+    const id = this.id();
+    if (!id) {
+      this.fotoSelecionada.set(null);
+      this.limparPreviewFoto();
+      return;
+    }
+
+    if (!this.fotoAtualUrl() && !this.fotoSelecionada()) {
+      return;
+    }
+
+    if (this.fotoSelecionada() && !this.fotoAtualUrl()) {
+      this.fotoSelecionada.set(null);
+      this.limparPreviewFoto();
+      return;
+    }
+
+    this.errorMessage.set('');
+    this.removendoFoto.set(true);
+
+    this.personService.removerFoto(id).subscribe({
+      next: (person) => {
+        this.person.set(person);
+        this.fotoAtualUrl.set(null);
+        this.fotoSelecionada.set(null);
+        this.limparPreviewFoto();
+        this.removendoFoto.set(false);
+      },
+      error: (err) => {
+        this.removendoFoto.set(false);
+        this.errorMessage.set(this.extractError(err, this.i18n.translate('people.form.photoRemoveError')));
       },
     });
   }
@@ -300,6 +373,51 @@ export class PersonFormComponent implements OnInit {
         this.carregandoRevisoes.set(false);
       },
     });
+  }
+
+  private aplicarFotoSelecionada(arquivo: File): boolean {
+    if (!PERSON_PHOTO_CONTENT_TYPES.includes(arquivo.type as (typeof PERSON_PHOTO_CONTENT_TYPES)[number])) {
+      this.errorMessage.set(this.i18n.translate('people.form.photoInvalidType'));
+      return false;
+    }
+
+    if (arquivo.size > MAX_PHOTO_SIZE_BYTES) {
+      this.errorMessage.set(this.i18n.translate('people.form.photoTooLarge'));
+      return false;
+    }
+
+    this.limparPreviewFoto();
+    this.fotoSelecionada.set(arquivo);
+    this.fotoPreviewUrl.set(URL.createObjectURL(arquivo));
+    return true;
+  }
+
+  private enviarFotoSeNecessario(personId: string): void {
+    const foto = this.fotoSelecionada();
+
+    if (!foto) {
+      this.salvando.set(false);
+      this.router.navigate(['/people']);
+      return;
+    }
+
+    this.personService.atualizarFoto(personId, foto).subscribe({
+      next: () => {
+        this.salvando.set(false);
+        this.router.navigate(['/people']);
+      },
+      error: (err) => {
+        this.salvando.set(false);
+        this.errorMessage.set(this.extractError(err, this.i18n.translate('people.form.photoUploadError')));
+      },
+    });
+  }
+
+  private limparPreviewFoto(): void {
+    if (this.fotoPreviewUrl()) {
+      URL.revokeObjectURL(this.fotoPreviewUrl()!);
+    }
+    this.fotoPreviewUrl.set(null);
   }
 
   private nullIfBlank(value: string | null | undefined): string | null {

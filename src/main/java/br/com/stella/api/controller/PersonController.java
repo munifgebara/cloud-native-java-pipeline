@@ -10,8 +10,10 @@ import br.com.stella.api.entity.Person;
 import br.com.stella.api.service.PersonService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -70,6 +72,16 @@ public class PersonController extends SuperController<PersonSummaryDTO, PersonRe
     @PutMapping("/{id}")
     public ResponseEntity<PersonResponseDTO> update(@PathVariable UUID id, @RequestBody @Valid PersonUpdateDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
+    }
+
+    @PostMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PersonResponseDTO> updatePhoto(@PathVariable UUID id, @RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(service.updatePhoto(id, file));
+    }
+
+    @DeleteMapping("/{id}/photo")
+    public ResponseEntity<PersonResponseDTO> removePhoto(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.removePhoto(id));
     }
 
     @Override

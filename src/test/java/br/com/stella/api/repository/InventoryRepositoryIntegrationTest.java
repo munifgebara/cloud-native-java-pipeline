@@ -171,7 +171,7 @@ class InventoryRepositoryIntegrationTest {
         pessoaSalva.setEmail("ana@example.com");
         commitAndStart();
 
-        PersonService service = new PersonService(personRepository, entityManager);
+        PersonService service = new PersonService(personRepository, entityManager, null);
 
         var revisions = service.listRevisions(person.getId());
 

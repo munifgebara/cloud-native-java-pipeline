@@ -94,6 +94,9 @@ public final class PersonMapper {
                 entity.getNeighborhood(),
                 entity.getCity(),
                 entity.getState(),
+                photoUrl(entity),
+                entity.getPhotoContentType(),
+                entity.getPhotoSizeBytes(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );
@@ -112,7 +115,15 @@ public final class PersonMapper {
 
         return new PersonSummaryDTO(
                 entity.getId(),
-                entity.getName()
+                entity.getName(),
+                photoUrl(entity)
         );
+    }
+
+    private static String photoUrl(Person entity) {
+        if (entity.getPhotoObjectKey() == null) {
+            return null;
+        }
+        return "/api/public/people/%s/photo".formatted(entity.getId());
     }
 }

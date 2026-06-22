@@ -22,6 +22,9 @@ import java.util.UUID;
  * @param neighborhood             neighbourhood; may be {@code null}
  * @param city             city; may be {@code null}
  * @param state                 state abbreviation (2 letters); may be {@code null}
+ * @param photoUrl              relative URL for accessing the photo; {@code null} when no photo
+ * @param photoContentType      photo MIME type; may be {@code null}
+ * @param photoSizeBytes        photo size in bytes; may be {@code null}
  * @param createdAt           record creation date and time (UTC)
  * @param updatedAt         date and time of the last change to the record (UTC)
  */
@@ -38,6 +41,9 @@ public record PersonResponseDTO(
         String neighborhood,
         String city,
         String state,
+        String photoUrl,
+        String photoContentType,
+        Long photoSizeBytes,
         Instant createdAt,
         Instant updatedAt
 ) {}
