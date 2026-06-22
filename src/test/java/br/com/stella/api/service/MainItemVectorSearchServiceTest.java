@@ -146,7 +146,7 @@ class ItemMestreVectorSearchServiceTest {
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any())).thenAnswer(invocation -> {
             RowMapper<?> mapper = invocation.getArgument(1);
             ResultSet rs = mock(ResultSet.class);
-            when(rs.getObject("item_mestre_id", UUID.class)).thenReturn(itemId);
+            when(rs.getObject("main_item_id", UUID.class)).thenReturn(itemId);
             when(rs.getDouble("similarity")).thenReturn(0.87654);
             return List.of(mapper.mapRow(rs, 0));
         });

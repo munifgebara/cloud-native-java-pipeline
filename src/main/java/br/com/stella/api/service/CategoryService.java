@@ -165,7 +165,7 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
 
     private String normalizeIcon(String icon) {
         String valor = BrValidations.trimToNull(icon);
-        if (!CategoryIcon.isChaveValida(valor)) {
+        if (!CategoryIcon.isValidKey(valor)) {
             throw new IllegalArgumentException("Invalid category icon.");
         }
         return valor;

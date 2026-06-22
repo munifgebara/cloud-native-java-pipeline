@@ -86,6 +86,9 @@ src/main/resources/static/app/
 # Visual Studio Code
 .vscode/
 
+# Claude local worktrees
+.claude/
+
 ########################################
 # Logs e arquivos temporários
 ########################################

@@ -11,7 +11,7 @@ import java.util.UUID;
 public class VectorSearchMetricsService {
 
     private static final String INSERT_SQL = """
-            insert into public.consulta_vetorial_metrica (id, query, quantidade_resultados)
+            insert into public.vector_search_metric (id, query, result_count)
             values (?, ?, ?)
             """;
 
@@ -33,7 +33,7 @@ public class VectorSearchMetricsService {
 
     @Transactional(readOnly = true)
     public long countQueries() {
-        Long total = jdbcTemplate.queryForObject("select count(*) from public.consulta_vetorial_metrica", Long.class);
+        Long total = jdbcTemplate.queryForObject("select count(*) from public.vector_search_metric", Long.class);
         return total == null ? 0 : total;
     }
 }

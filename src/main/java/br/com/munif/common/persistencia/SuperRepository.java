@@ -26,10 +26,10 @@ public interface SuperRepository<T extends BaseEntity> extends JpaRepository<T, 
      * Returns all records of the entity, both active and inactive.
      *
      * <p>By default, concrete repositories expose only records with
-     * {@code ativo = true}. This method bypasses that filter when it is necessary
+     * {@code active = true}. This method bypasses that filter when it is necessary
      * to view the full history, for example in administrative screens.</p>
      *
-     * @return list with all records, regardless of the {@code ativo} field
+     * @return list with all records, regardless of the {@code active} field
      */
     default List<T> findAllIncludingInactive() {
         return findAll();

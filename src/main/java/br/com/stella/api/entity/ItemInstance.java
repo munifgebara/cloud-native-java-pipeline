@@ -27,11 +27,11 @@ import org.hibernate.envers.Audited;
  * one in each meeting room of the company.</p>
  *
  * <p>This entity is audited by Hibernate Envers: all changes are recorded
- * in the {@code instancia_item_aud} table.</p>
+ * in the {@code item_instance_aud} table.</p>
  */
 @Entity
 @Audited
-@Table(name = "instancia_item")
+@Table(name = "item_instance")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -43,7 +43,7 @@ public class ItemInstance extends BaseEntity {
      * Loaded lazily to avoid unnecessary joins.
      */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "item_mestre_id", nullable = false)
+    @JoinColumn(name = "main_item_id", nullable = false)
     private MainItem mainItem;
 
     /**
@@ -52,7 +52,7 @@ public class ItemInstance extends BaseEntity {
      * Loaded lazily to avoid unnecessary joins.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "local_armazenamento_id")
+    @JoinColumn(name = "current_location_id")
     private StorageLocation currentLocation;
 
     /**
@@ -60,7 +60,7 @@ public class ItemInstance extends BaseEntity {
      * Alternative to {@link #assetTag} and {@link #serialNumber} for quick identification.
      * Up to 100 characters.
      */
-    @Column(name = "identificador", length = 100)
+    @Column(name = "identifier", length = 100)
     private String identifier;
 
     /**
@@ -68,7 +68,7 @@ public class ItemInstance extends BaseEntity {
      * Usually follows a sequential numbering controlled by the asset management department.
      * Up to 100 characters.
      */
-    @Column(name = "patrimonio", length = 100)
+    @Column(name = "asset_tag", length = 100)
     private String assetTag;
 
     /**
@@ -76,7 +76,7 @@ public class ItemInstance extends BaseEntity {
      * Used for identification with the manufacturer and for warranty purposes.
      * Up to 150 characters.
      */
-    @Column(name = "numero_serie", length = 150)
+    @Column(name = "serial_number", length = 150)
     private String serialNumber;
 
     /**
@@ -84,7 +84,7 @@ public class ItemInstance extends BaseEntity {
      * Initialized with {@link ItemInstanceStatus#DISPONIVEL} upon creation.
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "status_operacional", nullable = false, length = 30)
+    @Column(name = "operational_status", nullable = false, length = 30)
     private ItemInstanceStatus operationalStatus = ItemInstanceStatus.DISPONIVEL;
 
     /**
@@ -92,7 +92,7 @@ public class ItemInstance extends BaseEntity {
      * (e.g.: "Screen with scratch on the side", "Power adapter missing").
      * Up to 1000 characters.
      */
-    @Column(name = "observacoes", length = 1000)
+    @Column(name = "notes", length = 1000)
     private String notes;
 
     /**
@@ -100,7 +100,7 @@ public class ItemInstance extends BaseEntity {
      * Allows tracking how the instance was entered into the system.
      * Up to 50 characters.
      */
-    @Column(name = "origem_cadastro", length = 50)
+    @Column(name = "registration_origin", length = 50)
     private String registrationOrigin;
 
     /**

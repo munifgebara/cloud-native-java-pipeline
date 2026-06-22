@@ -27,13 +27,13 @@ erDiagram
 ## Persistence Strategy
 
 - PostgreSQL is the system of record for relational state.
-- Flyway migrations version schema changes.
+- Flyway migrations version schema changes. The prototype currently uses a clean English schema checkpoint instead of preserving the older Portuguese migration history.
 - MinIO stores binary image content; PostgreSQL stores metadata and object keys.
-- Future vector search should keep embeddings synchronized with item data changes.
+- Vector search embeddings are stored in PostgreSQL and kept synchronized with item data changes.
 
 ## PostgreSQL Notes
 
-PostgreSQL should remain the default durable store. If pgvector is adopted, vector columns and indexes should be introduced through Flyway migrations and documented here with update rules, indexing strategy and fallback behavior.
+PostgreSQL should remain the default durable store. Vector columns use pgvector in PostgreSQL and a text fallback in H2 tests. During the prototype phase, destructive resets may drop Stella operational data and image objects, but must not delete external Keycloak users or authentication data.
 
 ## Open Questions
 
