@@ -83,15 +83,15 @@ export class LocationService {
 
   atualizarImage(id: string, arquivo: File): Observable<LocationResponse> {
     const formData = new FormData();
-    formData.append('arquivo', arquivo);
+    formData.append('file', arquivo);
 
-    return this.http.post<LocationResponse>(`${this.baseUrl}/${id}/imagem`, formData).pipe(
+    return this.http.post<LocationResponse>(`${this.baseUrl}/${id}/image`, formData).pipe(
       map((local) => this.withAbsoluteImageUrl(local))
     );
   }
 
   removerImage(id: string): Observable<LocationResponse> {
-    return this.http.delete<LocationResponse>(`${this.baseUrl}/${id}/imagem`).pipe(
+    return this.http.delete<LocationResponse>(`${this.baseUrl}/${id}/image`).pipe(
       map((local) => this.withAbsoluteImageUrl(local))
     );
   }
