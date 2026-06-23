@@ -22,13 +22,10 @@ jobs:
 
       - name: Aplicar manifests base
         run: |
+          sed -i \
+            "s|image: ghcr.io/munifgebara/stella-api:main|image: ghcr.io/munifgebara/stella-api:${{ github.event.workflow_run.head_sha }}|" \
+            k8s/platform/stella-api/stella-api-deployment.yaml
           sudo k3s kubectl apply -R -f k8s/platform/
-
-      - name: Atualizar imagem para a SHA publicada
-        run: |
-          sudo k3s kubectl set image deployment/stella-api \
-            stella-api=ghcr.io/munifgebara/stella-api:${{ github.event.workflow_run.head_sha }} \
-            -n platform
 
       - name: Ver imagem aplicada
         run: |
@@ -37,4 +34,13 @@ jobs:
 
       - name: Aguardar rollout
         run: |
-          sudo k3s kubectl rollout status deployment/stella-api -n platform --timeout=180s
+          sudo k3s kubectl rollout status deployment/stella-api -n platform --timeout=420s
+
+      - name: Diagnóstico em caso de falha
+        if: failure()
+        run: |
+          sudo k3s kubectl get deployment stella-api -n platform -o wide
+          sudo k3s kubectl get pods -n platform -o wide
+          sudo k3s kubectl describe deployment stella-api -n platform
+          sudo k3s kubectl get events -n platform --sort-by=.lastTimestamp | tail -80
+          sudo k3s kubectl logs -n platform deployment/stella-api --all-containers=true --tail=200 || true
