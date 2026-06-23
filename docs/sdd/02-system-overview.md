@@ -21,13 +21,13 @@ mindmap
       Item instances
       Hierarchical locations
     Operations
-      Movements in/out/transfer
+      Movements in out transfer
       Loans and returns
-      Change auditing (Envers)
+      Change auditing via Envers
     Intelligence
-      Photo registration (AI)
-      Image generation (AI)
-      Semantic search (pgvector)
+      Photo registration with AI
+      Image generation with AI
+      Semantic search via pgvector
     Platform
       Docker / k3s
       CI/CD

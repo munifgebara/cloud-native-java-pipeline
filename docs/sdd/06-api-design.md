@@ -7,23 +7,24 @@
 
 ```mermaid
 flowchart LR
-    subgraph public[/api/public · no auth/]
-        L[POST /login]
-        IMG[GET images: main-items · locations · people]
+    Client[SPA / API client]
+    subgraph public["/api/public · no auth"]
+        L["POST /login"]
+        IMG["GET images: main-items · locations · people"]
     end
-    subgraph v0[/api/v0 · JWT required/]
-        DASH[dashboard/summary]
+    subgraph v0["/api/v0 · JWT required"]
+        DASH["dashboard/summary"]
         CAT[categories]
         LOC[locations]
-        MI[main-items<br/>+ semantic-search · image-ai]
+        MI["main-items<br/>+ semantic-search · image-ai"]
         INST[instances-item]
-        MOV[movements-item<br/>inbound · outbound · transfer]
-        LOAN[loans-item<br/>+ return]
+        MOV["movements-item<br/>inbound · outbound · transfer"]
+        LOAN["loans-item<br/>+ return"]
         PPL[people]
-        AI[ai/registration-photo]
+        AI["ai/registration-photo"]
         USR[users · admin only]
     end
-    Client[SPA / API client] --> public
+    Client --> public
     Client --> v0
 ```
 

@@ -133,6 +133,9 @@ La documentación técnica oficial está disponible en [`docs/`](docs/README.md)
 - [Pruebas y Calidad](docs/testing.md)
 - [Despliegue Kubernetes](docs/deployment.md)
 - [Operaciones](docs/operations.md)
+- [Backup y Restauración](docs/backup.md)
+- [Sistema de Diseño del Frontend](docs/frontend-design-system.md)
+- [Documento de Diseño de Software (SDD)](docs/sdd/README.md)
 
 ## Ejecución Local
 

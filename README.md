@@ -134,6 +134,9 @@ The official technical documentation is available in [`docs/`](docs/README.md):
 - [Testing and Quality](docs/testing.md)
 - [Kubernetes Deployment](docs/deployment.md)
 - [Operations](docs/operations.md)
+- [Backup and Restore](docs/backup.md)
+- [Frontend Design System](docs/frontend-design-system.md)
+- [Software Design Document (SDD)](docs/sdd/README.md)
 
 ## Local Development
 
