@@ -38,3 +38,22 @@ jobs:
 
       - name: Build and test
         run: ./mvnw clean verify
+
+      - name: Security scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+          format: table
+          output: trivy-report.txt
+          exit-code: '0'
+
+      - name: Upload security scan report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-security-report
+          path: trivy-report.txt
+          if-no-files-found: ignore
