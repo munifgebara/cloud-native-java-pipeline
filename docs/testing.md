@@ -78,7 +78,7 @@ STELLA_API_TOKEN='ey...' \
 ./scripts/api-blackbox-test.sh
 ```
 
-The script requires `curl` and `python3`. It exercises 42 scenarios against the (English) API: health, authentication (valid/invalid, 401 without token), `users/me`, full CRUD for main items, categories, storage locations, item instances and people (create, lookup, list, search/filter, update, revision history), instance history, duplicate tax-id conflict (409), dashboard summary, the error-handling contract (404 unknown route, 405 wrong method), optional semantic search, and cleanup. Any resource created by the test is deleted at the end through a shell trap whenever possible.
+The script requires `curl` and `python3`. It exercises HTTP scenarios against the (English) API: health, authentication (valid/invalid, 401 without token), `users/me`, full CRUD for main items, categories, storage locations, item instances and people (create, lookup, list, search/filter, update, revision history), instance history, duplicate tax-id conflict (409), dashboard summary, the error-handling contract (404 unknown route, 405 wrong method), optional AI flows, optional semantic search, and cleanup. Any resource created by the test is deleted at the end through a shell trap whenever possible.
 
 Configuration:
 
@@ -88,6 +88,8 @@ Configuration:
 - `STELLA_API_USERNAME` and `STELLA_API_PASSWORD`: credentials used with `/api/public/login` when no token is provided.
 - `STELLA_RUN_SEMANTIC_SEARCH`: set to `false` to skip semantic search. Defaults to `true`.
 - `STELLA_RUN_REINDEX`: set to `true` to call semantic reindexing before semantic search. Defaults to `false`.
+- `STELLA_RUN_PHOTO_REGISTRATION`: set to `false` to skip OpenAI photo registration suggestions. Defaults to `true`.
+- `STELLA_RUN_IMAGE_AI`: set to `true` to call `POST /api/v0/main-items/image-ai`. Defaults to `false` because it consumes OpenAI image-generation quota and requires access to the configured image model.
 
 ## Frontend Build
 
