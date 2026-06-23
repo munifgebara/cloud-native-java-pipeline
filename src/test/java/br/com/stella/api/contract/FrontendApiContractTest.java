@@ -30,8 +30,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * <p>It derives <b>both sides automatically</b>, so there are no UI selectors, payloads, or
  * hand-maintained endpoint lists to keep in sync:</p>
  * <ol>
- *   <li>The endpoints the front-end <i>calls</i> are extracted from the served bundle
- *       ({@code static/app/main-*.js}, matched by glob so it survives the content hash).</li>
+ *   <li>The endpoints the front-end <i>calls</i> are extracted from the served bundles
+ *       ({@code static/app/*.js}, matched by glob so it survives content hashes and lazy chunks).</li>
  *   <li>The endpoints the backend <i>exposes</i> are read from the live OpenAPI document
  *       ({@code /v3/api-docs}), which always reflects the actual controllers.</li>
  * </ol>
@@ -92,10 +92,10 @@ class FrontendApiContractTest {
         return prefixes;
     }
 
-    /** Scans the served front-end bundle for the {@code /api/...} resource prefixes it calls. */
+    /** Scans the served front-end bundles for the {@code /api/...} resource prefixes they call. */
     private Set<String> frontendApiCalls() throws IOException {
         Resource[] bundles = new PathMatchingResourcePatternResolver()
-                .getResources("classpath:static/app/main-*.js");
+                .getResources("classpath:static/app/*.js");
 
         Set<String> calls = new LinkedHashSet<>();
         for (Resource bundle : bundles) {
