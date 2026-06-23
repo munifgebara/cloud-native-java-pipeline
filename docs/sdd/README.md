@@ -6,6 +6,19 @@ The SDD complements the official guides in `docs/`. Those guides explain how to 
 
 ## Navigation
 
+```mermaid
+flowchart LR
+    I[01 Introduction] --> O[02 System Overview] --> A[03 Architecture]
+    A --> C[04 Components]
+    A --> D[05 Data Model]
+    A --> API[06 API Design]
+    A --> S[07 Security]
+    A --> DEP[08 Deployment]
+    DEP --> OBS[09 Observability]
+    A --> AI[10 AI and RAG]
+    A --> ADR[ADRs]
+```
+
 - [Introduction](01-introduction.md)
 - [System Overview](02-system-overview.md)
 - [Architecture](03-architecture.md)

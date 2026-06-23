@@ -1,5 +1,26 @@
 # Components
 
+> Part of the [Software Design Document](README.md). See also [Architecture](03-architecture.md).
+
+```mermaid
+flowchart TB
+    subgraph fe[Frontend · Angular SPA]
+        CORE[core: auth · interceptor · i18n · guards]
+        PAGES[pages: inventory · loans · users · dashboard]
+        DS[design-system components]
+    end
+    subgraph be[Backend · Spring Boot API]
+        CTRL[controllers /api/v0 · /api/public]
+        SVC[services + SuperService base]
+        REPO[repositories + SuperRepository]
+        PROV[AI / storage / identity providers]
+    end
+    PAGES --> CORE --> CTRL --> SVC --> REPO
+    SVC --> PROV
+    REPO --> DB[(PostgreSQL)]
+    PROV --> EXT[Keycloak · MinIO · OpenAI · Embeddings]
+```
+
 ## Backend
 
 The backend is a Spring Boot API responsible for:
@@ -48,7 +69,8 @@ Agentic workflows are planned. Initial design records should describe:
 
 | Service | Purpose |
 | --- | --- |
-| PostgreSQL | Relational persistence and future vector extension candidate. |
-| Kubernetes/K3S | Runtime platform for server deployment. |
-| Grafana/Loki or equivalent | Planned log visualization and operational analysis. |
-| Prometheus | Metrics scraping target for actuator metrics. |
+| PostgreSQL | Relational persistence with the pgvector extension for semantic search. |
+| stella-embeddings | Local sidecar turning text into 384-dim vectors (MiniLM). |
+| Kubernetes/k3s | Runtime platform for server deployment. |
+| Grafana + Loki + Promtail | Log aggregation and visualization (deployed). |
+| Prometheus | Scrapes actuator metrics via a ServiceMonitor; drives alerts. |
