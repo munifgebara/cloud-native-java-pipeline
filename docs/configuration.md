@@ -1,6 +1,21 @@
 # Configuration Reference
 
+> See also [Local Development](local-development.md), [Deployment](deployment.md) and the
+> SDD [Security](sdd/07-security.md) page.
+
 Stella uses Spring configuration with environment-variable overrides. Local defaults are intended for development only.
+
+```mermaid
+flowchart LR
+    DEF[application.yml<br/>dev defaults] --> EFF{Effective config}
+    ENV[Environment variables<br/>STELLA_* · OPENAI_* · AI_*] --> EFF
+    SEC[Kubernetes Secrets<br/>passwords · client secret · API keys] --> EFF
+    PROF[SPRING_PROFILES_ACTIVE=server<br/>application-server.yml] --> EFF
+    EFF --> APP[(Running API)]
+```
+
+Precedence: environment variables and the active profile override the `application.yml`
+defaults; secrets supply sensitive values in deployed environments.
 
 ## Application
 

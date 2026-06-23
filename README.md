@@ -43,6 +43,17 @@ This makes the repository useful both as a portfolio piece and as a teaching ref
 
 ## Architecture
 
+```mermaid
+flowchart LR
+    User([Browser]) --> SPA[Angular SPA · /app]
+    SPA -->|REST + Bearer JWT| API[Spring Boot API · :8080]
+    API -->|password grant + JWKS| KC[Keycloak]
+    API --> PG[(PostgreSQL + pgvector)]
+    API --> MINIO[(MinIO)]
+    API --> EMB[Embeddings service]
+    API -.-> OPENAI[OpenAI · optional]
+```
+
 ```text
 Browser
   -> Angular SPA (/app)

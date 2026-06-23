@@ -1,5 +1,19 @@
 # Operations
 
+> See also [Deployment](deployment.md), [Backup and Restore](backup.md) and the SDD
+> [Observability](sdd/09-observability.md) page.
+
+## Observability at a Glance
+
+```mermaid
+flowchart LR
+    API[stella-api] -->|/actuator/prometheus| PROM[Prometheus<br/>ns: monitoring]
+    API -->|stdout JSON| PT[Promtail<br/>ns: logging] --> LOKI[Loki]
+    PROM --> GRAF[Grafana<br/>monitoring-grafana]
+    LOKI --> GRAF
+    PROM --> AM[Alertmanager<br/>Stella alert rules]
+```
+
 ## Health and Metrics
 
 Useful API endpoints:

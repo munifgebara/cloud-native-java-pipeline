@@ -1,5 +1,25 @@
 # Local Development
 
+> See also [Configuration](configuration.md), [Testing](testing.md) and the full
+> [Build From Scratch guide](build-from-scratch/README.md).
+
+## Local Topology
+
+```mermaid
+flowchart LR
+    Dev([Developer]) --> NG[ng serve · :4200]
+    Dev --> APP[Spring Boot · :8080 · /app]
+    NG -->|/api proxy| APP
+    subgraph compose[docker compose]
+        PG[(PostgreSQL · :5432)]
+        KC[Keycloak · :9080]
+        MIN[(MinIO · :9000/:9001)]
+    end
+    APP --> PG
+    APP --> KC
+    APP --> MIN
+```
+
 ## Prerequisites
 
 - Java 25

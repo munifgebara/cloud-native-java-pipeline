@@ -43,6 +43,17 @@ Isso torna o repositório útil tanto como peça de portfólio quanto como refer
 
 ## Arquitetura
 
+```mermaid
+flowchart LR
+    User([Navegador]) --> SPA[SPA Angular · /app]
+    SPA -->|REST + Bearer JWT| API[API Spring Boot · :8080]
+    API -->|password grant + JWKS| KC[Keycloak]
+    API --> PG[(PostgreSQL + pgvector)]
+    API --> MINIO[(MinIO)]
+    API --> EMB[Serviço de embeddings]
+    API -.-> OPENAI[OpenAI · opcional]
+```
+
 ```text
 Navegador
   -> SPA Angular (/app)

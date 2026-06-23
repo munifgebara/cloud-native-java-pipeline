@@ -1,6 +1,20 @@
 # Architecture
 
+> See also the SDD [Architecture](sdd/03-architecture.md) and [Security](sdd/07-security.md)
+> pages, and the [Build From Scratch guide](build-from-scratch/README.md).
+
 ## Runtime View
+
+```mermaid
+flowchart LR
+    User([Browser]) --> SPA[Angular SPA · /app]
+    SPA -->|REST + Bearer JWT| API[Spring Boot API · :8080]
+    API -->|password grant + JWKS| KC[Keycloak]
+    API --> PG[(PostgreSQL + pgvector)]
+    API --> MINIO[(MinIO)]
+    API --> EMB[Embeddings service]
+    API -.-> OPENAI[OpenAI · optional]
+```
 
 ```text
 Browser
