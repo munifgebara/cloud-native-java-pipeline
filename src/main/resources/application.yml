@@ -101,10 +101,17 @@ management:
   endpoint:
     health:
       show-details: always
+      probes:
+        enabled: true
     metrics:
       access: read-only
     prometheus:
       access: read-only
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
   prometheus:
     metrics:
       export:
