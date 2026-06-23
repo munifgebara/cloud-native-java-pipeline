@@ -39,6 +39,8 @@ The Stella repository does not deploy Grafana, Loki, or Promtail. The manifests 
 
 - `stella-loki-datasource`: adds datasource `Stella Loki`
 - `stella-logs-dashboard`: adds dashboard `Stella Logs`
+- `stella-api`: adds a Prometheus `ServiceMonitor` for `/actuator/prometheus`
+- `stella-api-alerts`: adds Prometheus alert rules for the Stella API target, pod restarts, 5xx rate and JVM heap usage
 
 Apply or reapply the platform manifests:
 
@@ -131,6 +133,24 @@ Useful LogQL queries:
 ```logql
 {namespace="platform", pod=~".+"}
 ```
+
+## Alerts
+
+The Gimli monitoring stack loads Stella alert rules through the Prometheus Operator. The repository provides:
+
+```bash
+k8s/platform/observability/stella-api-servicemonitor.yaml
+k8s/platform/observability/stella-api-prometheus-rules.yaml
+```
+
+Prometheus selects these rules through the `release: monitoring` label. The current rules cover:
+
+- `StellaApiTargetDown`: Prometheus cannot scrape the Stella API target.
+- `StellaApiPodRestarting`: the Stella API container restarted more than twice in 10 minutes.
+- `StellaApiHigh5xxRate`: more than 5% of API requests returned 5xx for 5 minutes.
+- `StellaApiHighJvmHeapUsage`: JVM heap usage stayed above 80% for 5 minutes.
+
+Grafana currently has sidecars for dashboards and datasources, not alert provisioning. Log-only checks such as AI daily-limit blocks and vector-search failures should be investigated with the LogQL queries above until a Loki ruler or Grafana alert provisioning path is added to the monitoring stack.
 
 To inspect restart-related logs, start with the pod list and then query by pod name:
 

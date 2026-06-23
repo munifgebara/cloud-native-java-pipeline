@@ -1,0 +1,58 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: stella-api-alerts
+  namespace: monitoring
+  labels:
+    release: monitoring
+    app.kubernetes.io/name: stella-api-alerts
+    app.kubernetes.io/component: observability
+    app.kubernetes.io/part-of: stella
+spec:
+  groups:
+    - name: stella-api.rules
+      rules:
+        - alert: StellaApiTargetDown
+          expr: up{job="stella-api"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: Stella API metrics target is down.
+            description: Prometheus cannot scrape the Stella API target {{ $labels.instance }} in namespace {{ $labels.namespace }}.
+        - alert: StellaApiPodRestarting
+          expr: increase(kube_pod_container_status_restarts_total{namespace="platform", pod=~"stella-api-.*", container="stella-api"}[10m]) > 2
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: Stella API pod restarted repeatedly.
+            description: Pod {{ $labels.pod }} restarted more than twice in the last 10 minutes.
+        - alert: StellaApiHigh5xxRate
+          expr: |
+            (
+              sum(rate(http_server_requests_seconds_count{job="stella-api", status=~"5.."}[5m]))
+              /
+              sum(rate(http_server_requests_seconds_count{job="stella-api"}[5m]))
+            ) > 0.05
+            and
+            sum(rate(http_server_requests_seconds_count{job="stella-api"}[5m])) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Stella API has elevated 5xx responses.
+            description: More than 5% of Stella API requests returned 5xx responses during the last 5 minutes.
+        - alert: StellaApiHighJvmHeapUsage
+          expr: |
+            (
+              sum(jvm_memory_used_bytes{job="stella-api", area="heap"}) by (instance)
+              /
+              sum(jvm_memory_max_bytes{job="stella-api", area="heap"}) by (instance)
+            ) > 0.80
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Stella API JVM heap usage is high.
+            description: JVM heap usage on {{ $labels.instance }} has been above 80% for 5 minutes.

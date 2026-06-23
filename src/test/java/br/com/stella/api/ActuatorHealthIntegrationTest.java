@@ -2,7 +2,6 @@ package br.com.stella.api;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -46,14 +45,17 @@ class ActuatorHealthIntegrationTest {
     }
 
     @Test
-    void shouldRequireAuthenticationForMetricsEndpoints() throws Exception {
+    void shouldRequireAuthenticationForGenericMetricsEndpoint() throws Exception {
         mockMvc.perform(get("/actuator/metrics")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
+    }
 
+    @Test
+    void shouldAllowPrometheusScrapingWithoutAuthentication() throws Exception {
         mockMvc.perform(get("/actuator/prometheus")
                         .accept(MediaType.TEXT_PLAIN))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isOk());
     }
 
     @Test

@@ -11,7 +11,7 @@ Kubernetes assets live under `k8s/platform/`:
 | `keycloak/` | Keycloak deployment, service and realm config |
 | `minio/` | MinIO deployment, service and persistent volume claim |
 | `stella-embeddings/` | Local text embeddings service used by vector search |
-| `observability/` | Grafana datasource and dashboard ConfigMaps for the existing Gimli logging stack |
+| `observability/` | Grafana datasource/dashboard ConfigMaps plus Prometheus ServiceMonitor and alert rules for the existing Gimli monitoring stack |
 | `stella-api/` | Stella API deployment, service, ingress and configuration |
 
 ## CI/CD Flow
