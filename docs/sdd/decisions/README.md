@@ -1,8 +1,18 @@
 # Architecture Decisions
 
+> Part of the [Software Design Document](../README.md).
+
 This directory stores Stella architecture decision records using a lightweight ADR format.
 
 Use an ADR-lite entry when a decision is durable, costly to reverse, or important for future contributors to understand. Small implementation details can stay in code comments, tests or pull request descriptions.
+
+```mermaid
+flowchart LR
+    P[Proposed] --> A[Accepted]
+    A --> S[Superseded]
+    A --> D[Deprecated]
+    S -.->|links to| New[Newer ADR]
+```
 
 ## Naming
 

@@ -1,5 +1,21 @@
 # Testing and Quality
 
+> See also [Local Development](local-development.md) and the SDD pages.
+
+## Test Layers
+
+```mermaid
+flowchart TB
+    E2E[Playwright E2E<br/>real SPA + live stack] --> BB[Black-box API script<br/>42 scenarios over HTTP]
+    BB --> INT[Spring integration tests<br/>repositories · actuator · Testcontainers-style]
+    INT --> BDD[Cucumber BDD<br/>Gherkin scenarios]
+    BDD --> UNIT[Service / unit tests<br/>fast, isolated]
+    UNIT --> GATE{{./mvnw clean verify<br/>JaCoCo coverage gate}}
+```
+
+The gate `./mvnw clean verify` runs unit, BDD and integration tests and enforces coverage; the
+black-box script and Playwright E2E run against a live stack.
+
 ## Main Verification Command
 
 ```bash

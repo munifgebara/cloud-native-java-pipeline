@@ -1,5 +1,33 @@
 # API Design
 
+> Part of the [Software Design Document](README.md). The live, browsable contract is the
+> Scalar UI at `/scalar` (OpenAPI at `/v3/api-docs`).
+
+## Resource Map
+
+```mermaid
+flowchart LR
+    Client[SPA / API client]
+    subgraph public["/api/public · no auth"]
+        L["POST /login"]
+        IMG["GET images: main-items · locations · people"]
+    end
+    subgraph v0["/api/v0 · JWT required"]
+        DASH["dashboard/summary"]
+        CAT[categories]
+        LOC[locations]
+        MI["main-items<br/>+ semantic-search · image-ai"]
+        INST[instances-item]
+        MOV["movements-item<br/>inbound · outbound · transfer"]
+        LOAN["loans-item<br/>+ return"]
+        PPL[people]
+        AI["ai/registration-photo"]
+        USR[users · admin only]
+    end
+    Client --> public
+    Client --> v0
+```
+
 ## REST Conventions
 
 Stella APIs are versioned under `/api/v0` today. New APIs should preserve predictable resource naming, explicit request/response DTOs and consistent error responses.
@@ -32,4 +60,7 @@ Errors should be structured and stable enough for the frontend to display useful
 
 ## Authentication
 
-API requests are authenticated with bearer tokens issued by Keycloak. Authorization rules should be documented per endpoint family as role-based behavior matures.
+`/api/v0/**` requests are authenticated with a Bearer JWT. Tokens are obtained through the
+backend-mediated login (`POST /api/public/login`), not directly from Keycloak — see
+[Security](07-security.md). Administrative endpoints under `/api/v0/users` additionally require
+the `admin` role.

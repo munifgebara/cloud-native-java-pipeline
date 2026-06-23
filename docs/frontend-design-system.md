@@ -1,65 +1,67 @@
 # Stella Frontend Design System
 
-Este documento registra a base visual do frontend do Stella. Ele vale apenas para Angular/PrimeNG e nao altera backend, contratos de API ou regras de negocio.
+> Scope: the Angular/PrimeNG frontend only. It does not change the backend, API contracts or
+> business rules. See also [Architecture](architecture.md).
 
-## Principios
+This document records the visual foundation of the Stella frontend. PrimeNG remains the primary
+component library; Stella adds product tokens and classes on top of it.
 
-- Interface operacional, limpa e previsivel.
-- Base neutra para conteudo, com cor usada por papel semantico.
-- PrimeNG continua sendo a biblioteca principal; o Stella adiciona tokens e classes de produto por cima.
-- Recursos de IA, como busca vetorial e cadastro por foto, usam tratamento visual proprio, sem competir com erro, sucesso ou alerta.
+## Principles
 
-## Tokens
+- Operational, clean and predictable interface.
+- Neutral base for content, with colour used by **semantic role**.
+- AI features (vector search, photo registration) get their own visual treatment and must not
+  compete with error, success or warning colours.
 
-Os tokens globais ficam em `frontend/src/styles.css`.
+## Colour Token Roles
 
-- `--stella-color-bg`: fundo da aplicacao.
-- `--stella-color-surface`: cards, tabelas e paineis.
-- `--stella-color-surface-muted`: areas neutras e placeholders visuais.
-- `--stella-color-border`: divisorias e bordas comuns.
-- `--stella-color-text`: texto principal.
-- `--stella-color-text-muted`: subtitulos, metadados e labels auxiliares.
-- `--stella-color-brand`: marca, navegacao ativa e estrutura.
-- `--stella-color-info`: consulta, informacao e acoes operacionais.
-- `--stella-color-success`: sucesso, concluido e disponivel.
-- `--stella-color-warning`: atencao, pendente e incompleto.
-- `--stella-color-danger`: erro, falha, exclusao e bloqueio.
-- `--stella-color-ai`: IA, busca vetorial, sugestoes e descoberta.
+Global tokens live in `frontend/src/styles.css`.
 
-## Regras de cor
+```mermaid
+flowchart TB
+    BG[--stella-color-bg / surface<br/>neutral base] --> CONTENT[Content surfaces]
+    BRAND[--stella-color-brand<br/>navigation · structure] --> NAV[Active nav · shell]
+    INFO[--stella-color-info<br/>query · operational actions]
+    SUCCESS[--stella-color-success<br/>done · available]
+    WARNING[--stella-color-warning<br/>pending · incomplete]
+    DANGER[--stella-color-danger<br/>error · delete · block]
+    AI[--stella-color-ai<br/>AI · vector search · discovery]
+```
 
-- Nao usar hex direto em CSS novo quando houver token equivalente.
-- Nao usar verde para acao primaria generica; verde e reservado para sucesso.
-- Nao usar roxo fora de IA/descoberta.
-- Nao usar vermelho para texto comum ou alerta leve; vermelho e apenas erro, exclusao ou bloqueio.
-- Cor nao deve ser a unica comunicacao de estado; sempre combinar com texto, icone ou label.
+| Token | Role |
+| --- | --- |
+| `--stella-color-bg` / `--stella-color-surface` / `--stella-color-surface-muted` | Application background, panels/cards, neutral placeholders |
+| `--stella-color-border` | Dividers and common borders |
+| `--stella-color-text` / `--stella-color-text-muted` | Primary text; subtitles, metadata, auxiliary labels |
+| `--stella-color-brand` | Brand, active navigation, structure |
+| `--stella-color-info` | Query, information, operational actions |
+| `--stella-color-success` | Success, completed, available |
+| `--stella-color-warning` | Attention, pending, incomplete |
+| `--stella-color-danger` | Error, failure, deletion, blocking |
+| `--stella-color-ai` | AI, vector search, suggestions, discovery |
 
-## Componentes CSS
+## Colour Rules
 
-- `.page`: estrutura vertical padrao de tela.
-- `.page-header`: titulo, subtitulo e acao primaria.
-- `.toolbar` ou `.stella-toolbar`: busca, filtros e acoes secundarias.
-- `.stella-panel`: painel padrao com borda, superficie e sombra leve.
-- `.stella-card`: card simples para conteudo repetido.
-- `.stella-ai-panel`: bloco para IA, busca vetorial, cadastro por foto e sugestoes.
-- `.error-box` e `.success-box`: mensagens de estado ja padronizadas.
-- `.stella-state--info`, `.stella-state--warning`, `.stella-state--error`, `.stella-state--success`: estados semanticos adicionais.
+- Do not use raw hex in new CSS when an equivalent token exists.
+- Do not use green for a generic primary action; green is reserved for success.
+- Do not use purple outside AI/discovery.
+- Do not use red for ordinary text or light warnings; red is only error, deletion or blocking.
+- Colour must not be the only state signal; always pair it with text, icon or label.
 
-## Aplicacao inicial
+## CSS Components
 
-A primeira aplicacao dos tokens cobre:
+- `.page`: standard vertical screen structure.
+- `.page-header`: title, subtitle and primary action.
+- `.toolbar` / `.stella-toolbar`: search, filters and secondary actions.
+- `.stella-panel`: standard panel with border, surface and light shadow.
+- `.stella-card`: simple card for repeated content.
+- `.stella-ai-panel`: block for AI, vector search, photo registration and suggestions.
+- `.error-box`, `.success-box`: standardized state messages.
+- `.stella-state--info|warning|error|success`: additional semantic states.
 
-- shell da aplicacao;
-- sidebar, topbar e navegacao mobile;
-- login;
-- dashboard;
-- busca vetorial do dashboard;
-- listagem e busca semantica de itens mestre;
-- cadastro por foto.
+## Recommended Next Steps
 
-## Proximos passos recomendados
-
-- Migrar CSS local restante para tokens quando as telas forem alteradas.
-- Extrair componentes Angular compartilhados se os mesmos padroes continuarem se repetindo.
-- Revisar mobile de listas longas com cards dedicados, principalmente em itens e instancias.
-- Considerar modo escuro somente depois da migracao completa para tokens.
+- Migrate remaining local CSS to tokens as screens change.
+- Extract shared Angular components if the same patterns keep repeating.
+- Review long-list mobile views with dedicated cards (items and instances).
+- Consider a dark mode only after the token migration is complete.

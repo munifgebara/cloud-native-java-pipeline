@@ -35,3 +35,12 @@ The SDD covers:
 ## Relationship With Existing Documentation
 
 The root `README.md` gives a project overview and local entry points. The guides in `docs/` describe development, configuration, testing, deployment and operations. This SDD records the software design behind those guides and should link back to them when detailed procedures already exist elsewhere.
+
+```mermaid
+flowchart TB
+    README[Root README · EN/PT/ES] --> GUIDES[docs/ guides<br/>how to build, run, deploy, operate]
+    README --> SDD[docs/sdd · this SDD<br/>why the system is shaped this way]
+    GUIDES <--> SDD
+    SDD --> CODE[(source code + tests<br/>the ground truth)]
+    GUIDES --> CODE
+```

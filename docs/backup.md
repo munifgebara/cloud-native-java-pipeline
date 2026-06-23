@@ -1,6 +1,21 @@
 # Backup and Restore
 
+> See also [Operations](operations.md) and [Deployment](deployment.md).
+
 Stella backups are operational host tasks on Gimli. The repository provides scripts and templates, but credentials, private keys and the rclone configuration live only on the server.
+
+```mermaid
+flowchart LR
+    subgraph src[Sources on Gimli]
+        PG[(PostgreSQL<br/>all Stella DBs + Keycloak)]
+        MIN[(MinIO objects)]
+        K8S[k8s resources<br/>configmaps · secrets]
+    end
+    src --> BUNDLE[Versioned bundle<br/>+ checksums]
+    BUNDLE -->|age encrypt| ENC[Encrypted archive]
+    ENC -->|rclone| REMOTE[(Remote · Google Drive / S3 / NAS)]
+    REMOTE -. restore .-> src
+```
 
 ## Design
 

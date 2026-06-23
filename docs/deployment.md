@@ -1,5 +1,19 @@
 # Kubernetes Deployment
 
+> See also the SDD [Deployment](sdd/08-deployment.md) and [Operations](operations.md).
+
+## Pipeline at a Glance
+
+```mermaid
+flowchart LR
+    PUSH[git push to main] --> CI[CI<br/>mvnw clean verify + Trivy]
+    CI -->|success| PUB[Publish image<br/>GHCR: latest · main · sha]
+    PUB -->|success| CD[CD · self-hosted runner]
+    CD --> APPLY[kubectl apply -R k8s/platform/]
+    APPLY --> ROLL[set image sha + rollout]
+    ROLL --> LIVE[(stella-api in platform ns)]
+```
+
 ## Manifests
 
 Kubernetes assets live under `k8s/platform/`:

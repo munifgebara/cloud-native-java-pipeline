@@ -1,44 +1,51 @@
 # Observability
 
+> Part of the [Software Design Document](README.md). See also the official
+> [Operations guide](../operations.md).
+
+## Stack (as deployed)
+
+Metrics and logs are collected by a standard Kubernetes observability stack and visualized in
+Grafana. Alert rules and a ServiceMonitor for the API ship as manifests under
+`k8s/platform/observability/`.
+
+```mermaid
+flowchart LR
+    subgraph api[stella-api pod]
+        ACT[/actuator/prometheus/]
+        OUT[stdout · ECS JSON logs]
+    end
+
+    ACT -->|scrape| PROM[Prometheus<br/>kube-prometheus-stack]
+    OUT -->|tail| PT[Promtail] --> LOKI[Loki]
+    PROM --> GRAF[Grafana<br/>grafana.stella.local]
+    LOKI --> GRAF
+    PROM --> AM[Alertmanager]
+```
+
 ## Logs
 
-Local logs are optimized for readability. Server logs should be structured and written to stdout so the Kubernetes platform can collect them.
-
-Expected production path:
-
-```text
-Stella pod stdout -> log collector -> log backend -> Grafana or equivalent
-```
+Local runs use human-readable console logs. With `SPRING_PROFILES_ACTIVE=server`, the API emits
+**structured ECS JSON** to stdout. Promtail tails the pod logs into Loki, queried in Grafana.
+Business events (login, AI usage, security denials) are emitted through a structured logger.
 
 ## Metrics
 
-Spring Boot Actuator and Micrometer expose application metrics. Prometheus-compatible scraping is available through the actuator Prometheus endpoint.
-
-## Tracing
-
-Distributed tracing is not yet fully specified. Future design should define trace propagation, sampling and correlation IDs before introducing cross-service workflows.
-
-## Monitoring
-
-Initial monitoring should cover:
-
-- API health
-- request latency and error rate
-- JVM health
-- database connectivity
-- MinIO connectivity
-- external AI integration failures
+Spring Boot Actuator + Micrometer expose Prometheus metrics at `/actuator/prometheus`. A
+`ServiceMonitor` registers the API as a scrape target for the kube-prometheus-stack Prometheus.
 
 ## Alerts
 
-Alerting is planned. Alert rules should focus on user impact and operational risk instead of noisy internal details.
+Alert rules ship as `PrometheusRule` manifests (`stella-api-prometheus-rules.yaml`) and are
+evaluated by Prometheus/Alertmanager. Rules focus on user-facing impact (availability, error
+rate, latency) rather than noisy internals.
 
-## Future Integrations
+## Dashboards
 
-Candidate tools include:
+Grafana datasource and dashboard ConfigMaps are versioned in the repository, including a Stella
+logs dashboard wired to the Loki datasource.
 
-- OpenTelemetry for traces and metrics instrumentation
-- Prometheus for metrics collection
-- Grafana for dashboards
-- Loki, ELK or OpenSearch for logs
-- Grafana Alloy, Promtail or Fluent Bit for log collection
+## Tracing (future)
+
+Distributed tracing is not yet enabled. A future design should define trace propagation,
+sampling and correlation IDs (candidate: OpenTelemetry) before cross-service workflows grow.

@@ -24,4 +24,13 @@ authentication, PostgreSQL (with pgvector) for data and semantic search, MinIO f
 an embeddings sidecar, optional OpenAI integration, observability, and a CI/CD pipeline that
 deploys to Kubernetes (k3s).
 
-See the diagrams and step-by-step instructions in your language file above.
+```mermaid
+flowchart LR
+    UB([Clean Ubuntu Server]) --> TOOLS[Toolchain<br/>Java · Node · Docker]
+    TOOLS --> INFRA[docker compose<br/>Postgres · Keycloak · MinIO]
+    INFRA --> APP[Build + run<br/>Spring Boot + Angular]
+    APP --> K3S[Optional: k3s + CI/CD]
+    APP --> AGENT[Or: build it via an AI agent]
+```
+
+See the full diagrams and step-by-step instructions in your language file above.

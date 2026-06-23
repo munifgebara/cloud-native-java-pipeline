@@ -1,6 +1,6 @@
 # Stella
 
-[English](README.md) | Português (pt-BR)
+[English](README.md) | Português (pt-BR) | [Español](README.es.md)
 
 Stella é um projeto cloud-native de gestão de inventário pessoal criado para demonstrar uma plataforma Java full stack com autenticação moderna, infraestrutura local conteinerizada, deploy em Kubernetes e automação de CI/CD.
 
@@ -43,18 +43,31 @@ Isso torna o repositório útil tanto como peça de portfólio quanto como refer
 
 ## Arquitetura
 
+```mermaid
+flowchart LR
+    User([Navegador]) --> SPA[SPA Angular · /app]
+    SPA -->|REST + Bearer JWT| API[API Spring Boot · :8080]
+    API -->|password grant + JWKS| KC[Keycloak]
+    API --> PG[(PostgreSQL + pgvector)]
+    API --> MINIO[(MinIO)]
+    API --> EMB[Serviço de embeddings]
+    API -.-> OPENAI[OpenAI · opcional]
+```
+
 ```text
 Navegador
   -> SPA Angular (/app)
   -> API Spring Boot (:8080)
   -> PostgreSQL (:5432)
 
-Fluxo de autenticação
-  -> Usuário acessa a SPA
-  -> SPA redireciona para o Keycloak (:9080)
-  -> Keycloak autentica e emite tokens
+Fluxo de autenticação (mediado pelo backend; a SPA nunca chama o Keycloak diretamente)
+  -> Usuário informa usuário/senha na SPA
+  -> SPA envia as credenciais para a API
+  -> API troca as credenciais com o Keycloak (:9080) usando o password grant do OAuth2
+  -> Keycloak devolve os tokens access/refresh para a API
+  -> API devolve os tokens para a SPA
   -> SPA chama a API com bearer token
-  -> API valida o JWT e processa a requisição
+  -> API valida a assinatura do JWT (JWKS do Keycloak) e processa a requisição
 ```
 
 ## Stack Tecnológica
@@ -121,6 +134,9 @@ A documentação técnica oficial está disponível em [`docs/`](docs/README.md)
 - [Testes e Qualidade](docs/testing.md)
 - [Deploy Kubernetes](docs/deployment.md)
 - [Operações](docs/operations.md)
+- [Backup e Restauração](docs/backup.md)
+- [Design System do Frontend](docs/frontend-design-system.md)
+- [Documento de Design de Software (SDD)](docs/sdd/README.md)
 
 ## Execução Local
 
