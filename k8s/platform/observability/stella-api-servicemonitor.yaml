@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: stella-api
+  namespace: monitoring
+  labels:
+    release: monitoring
+    app.kubernetes.io/name: stella-api
+    app.kubernetes.io/component: observability
+    app.kubernetes.io/part-of: stella
+spec:
+  namespaceSelector:
+    matchNames:
+      - platform
+  selector:
+    matchLabels:
+      app: stella-api
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 30s
+      scrapeTimeout: 10s
