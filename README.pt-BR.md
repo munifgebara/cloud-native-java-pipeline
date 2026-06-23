@@ -1,6 +1,6 @@
 # Stella
 
-[English](README.md) | Português (pt-BR)
+[English](README.md) | Português (pt-BR) | [Español](README.es.md)
 
 Stella é um projeto cloud-native de gestão de inventário pessoal criado para demonstrar uma plataforma Java full stack com autenticação moderna, infraestrutura local conteinerizada, deploy em Kubernetes e automação de CI/CD.
 
@@ -49,12 +49,14 @@ Navegador
   -> API Spring Boot (:8080)
   -> PostgreSQL (:5432)
 
-Fluxo de autenticação
-  -> Usuário acessa a SPA
-  -> SPA redireciona para o Keycloak (:9080)
-  -> Keycloak autentica e emite tokens
+Fluxo de autenticação (mediado pelo backend; a SPA nunca chama o Keycloak diretamente)
+  -> Usuário informa usuário/senha na SPA
+  -> SPA envia as credenciais para a API
+  -> API troca as credenciais com o Keycloak (:9080) usando o password grant do OAuth2
+  -> Keycloak devolve os tokens access/refresh para a API
+  -> API devolve os tokens para a SPA
   -> SPA chama a API com bearer token
-  -> API valida o JWT e processa a requisição
+  -> API valida a assinatura do JWT (JWKS do Keycloak) e processa a requisição
 ```
 
 ## Stack Tecnológica

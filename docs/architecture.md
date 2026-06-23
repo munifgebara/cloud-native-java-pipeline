@@ -9,10 +9,12 @@ Browser
   -> PostgreSQL for relational state
   -> MinIO for uploaded images
 
-Identity
-  -> Keycloak issues OpenID Connect tokens
-  -> Angular sends bearer tokens to the API
-  -> Spring Security validates JWTs using the configured issuer
+Identity (backend-mediated; the SPA never calls Keycloak directly)
+  -> Angular posts username/password to the API
+  -> The API exchanges them with Keycloak using the OAuth2 password grant
+  -> Keycloak returns access/refresh tokens to the API, which relays them to the SPA
+  -> Angular sends the bearer token on every subsequent API call
+  -> Spring Security validates JWTs using the configured issuer (Keycloak JWKS)
   -> User administration uses the Keycloak Admin REST API
 ```
 

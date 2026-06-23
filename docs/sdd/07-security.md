@@ -2,7 +2,9 @@
 
 ## Authentication
 
-Stella uses Keycloak as the identity provider. The frontend authenticates users through OAuth2/OpenID Connect, and the backend validates JWT access tokens as a resource server.
+Stella uses Keycloak as the identity provider. Authentication is **backend-mediated**: the SPA never contacts Keycloak directly. The frontend posts the user's credentials to the API, which exchanges them with Keycloak using the OAuth2 password grant and relays the resulting tokens back to the SPA. The backend then validates JWT access tokens on every request as a resource server (signature checked against the configured issuer's JWKS).
+
+> Note: the password grant keeps the integration simple and didactic but is not the recommended browser flow for production. A future evolution may move to the Authorization Code flow with PKCE, where the browser is redirected to Keycloak directly.
 
 ## Authorization
 

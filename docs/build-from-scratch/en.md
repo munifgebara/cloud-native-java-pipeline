@@ -26,21 +26,26 @@ flowchart TD
     OPENAI[OpenAI API<br/>external · optional]
 
     User --> SPA
-    SPA -->|1. redirect to login| KC
-    KC -->|2. issues JWT| SPA
-    SPA -->|3. REST + Bearer JWT| API
-    API -->|validates JWT| KC
+    SPA -->|1. credentials| API
+    API -->|2. password grant| KC
+    KC -->|3. access + refresh tokens| API
+    API -->|4. returns tokens| SPA
+    SPA -->|5. REST + Bearer JWT| API
+    API -->|validates JWT signature JWKS| KC
     API -->|relational data + vectors| PG
     API -->|item images| MINIO
     API -->|text to vector| EMB
     API -.->|photo analysis / image gen| OPENAI
 ```
 
-**Reading the flow:** the browser loads the SPA, the SPA sends the user to Keycloak to log in,
-Keycloak returns a signed **JWT**, and every API call carries that token. The API is a
-**stateless resource server**: it validates the token's signature against Keycloak and never
-stores a session. Data lives in PostgreSQL; images in MinIO; semantic search uses vectors
-produced by a small embeddings service and stored via the `pgvector` extension.
+**Reading the flow:** the browser loads the SPA, and the SPA talks **only to the API** — it
+never contacts Keycloak directly. To log in, the SPA posts the username and password to the
+API; the API exchanges them with Keycloak using the OAuth2 **password grant** and returns the
+resulting **JWT** (access + refresh tokens) to the SPA. Every later call carries that token as
+a Bearer header. The API is a **stateless resource server**: it validates the token's signature
+against Keycloak's public keys (JWKS) and never stores a session. Data lives in PostgreSQL;
+images in MinIO; semantic search uses vectors produced by a small embeddings service and stored
+via the `pgvector` extension.
 
 ### Technology choices
 
