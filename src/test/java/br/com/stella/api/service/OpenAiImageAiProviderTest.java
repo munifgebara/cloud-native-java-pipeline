@@ -95,7 +95,20 @@ class OpenAiImageAiProviderTest {
 
         assertThatThrownBy(() -> provider.generateImage(new ImageAiRequestDTO("Furadeira", null, null)))
                 .isInstanceOf(ExternalIntegrationException.class) // -> 502, not a generic 500
-                .hasMessageContaining("OpenAI");
+                .hasMessage("Failed to generate the image via OpenAI: Could not connect to OpenAI to generate item image.");
+    }
+
+    @Test
+    void shouldExposeRootCauseWhenOpenAiDeniesImageModelAccess() {
+        RuntimeException openAiFailure = new RuntimeException(
+                "OpenAI request failed",
+                new IllegalStateException("Your organization must be verified to use the model gpt-image-1.")
+        );
+        when(imageModel.call(any(ImagePrompt.class))).thenThrow(openAiFailure);
+
+        assertThatThrownBy(() -> provider.generateImage(new ImageAiRequestDTO("Furadeira", null, null)))
+                .isInstanceOf(ExternalIntegrationException.class)
+                .hasMessage("Failed to generate the image via OpenAI: Your organization must be verified to use the model gpt-image-1.");
     }
 
     @Test

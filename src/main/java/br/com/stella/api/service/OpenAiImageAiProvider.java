@@ -63,7 +63,7 @@ public class OpenAiImageAiProvider implements ImageAiProvider {
             // An OpenAI/transport failure (e.g. model access denied) is an external integration
             // problem -> 502, not a generic 500.
             logFailure(model, inicio, ex);
-            throw new ExternalIntegrationException("Failed to generate the image via OpenAI.", ex);
+            throw new ExternalIntegrationException(externalFailureMessage(ex), ex);
         }
     }
 
@@ -111,6 +111,22 @@ public class OpenAiImageAiProvider implements ImageAiProvider {
 
     private long elapsedMillis(long inicio) {
         return (System.nanoTime() - inicio) / 1_000_000L;
+    }
+
+    private String externalFailureMessage(RuntimeException ex) {
+        String detail = rootCauseMessage(ex);
+        if (detail == null || detail.isBlank()) {
+            return "Failed to generate the image via OpenAI.";
+        }
+        return "Failed to generate the image via OpenAI: %s".formatted(detail);
+    }
+
+    private String rootCauseMessage(Throwable ex) {
+        Throwable current = ex;
+        while (current.getCause() != null) {
+            current = current.getCause();
+        }
+        return current.getMessage();
     }
 
     private record ImageGenerationRequest(String model, String size, String quality, String prompt) {
