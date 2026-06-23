@@ -1,5 +1,6 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from './auth';
 import { environment } from '../../environments/environment';
 
@@ -13,17 +14,43 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
-  const token = authService.getAccessToken();
+  return authService.accessTokenForRequest().pipe(
+    switchMap((token) => {
+      if (!token) {
+        authService.redirectToLogin('session-expired', req.urlWithParams);
+        return throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized', url: req.urlWithParams }));
+      }
 
-  if (!token) {
-    return next(req);
-  }
+      return next(withBearer(req, token)).pipe(
+        catchError((error: unknown) => {
+          if (!(error instanceof HttpErrorResponse) || error.status !== 401) {
+            return throwError(() => error);
+          }
 
-  const authReq = req.clone({
+          return authService.refreshAccessToken().pipe(
+            catchError((refreshError) => {
+              authService.redirectToLogin('session-expired', req.urlWithParams);
+              return throwError(() => refreshError);
+            }),
+            switchMap((response) => next(withBearer(req, response.accessToken)).pipe(
+              catchError((retryError: unknown) => {
+                if (retryError instanceof HttpErrorResponse && retryError.status === 401) {
+                  authService.redirectToLogin('session-expired', req.urlWithParams);
+                }
+                return throwError(() => retryError);
+              })
+            ))
+          );
+        })
+      );
+    })
+  );
+};
+
+function withBearer(req: HttpRequest<unknown>, token: string) {
+  return req.clone({
     setHeaders: {
       Authorization: `Bearer ${token}`,
     },
   });
-
-  return next(authReq);
-};
+}

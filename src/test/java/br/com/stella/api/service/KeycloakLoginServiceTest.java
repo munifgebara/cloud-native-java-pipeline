@@ -4,6 +4,7 @@ import br.com.stella.api.config.KeycloakProperties;
 import br.com.stella.api.exception.ExternalIntegrationException;
 import br.com.stella.api.exception.IdentityException;
 import br.com.stella.api.dto.LoginRequestDTO;
+import br.com.stella.api.dto.RefreshTokenRequestDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
@@ -58,6 +59,53 @@ class KeycloakLoginServiceTest {
         assertThat(response.tokenType()).isEqualTo("Bearer");
         assertThat(response.expiresIn()).isEqualTo(300L);
         server.verify();
+    }
+
+    @Test
+    void shouldRefreshTokenWithRefreshGrant() {
+        server.expect(once(), requestTo("http://keycloak/realms/stella/protocol/openid-connect/token"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().string("client_id=stella-cli&grant_type=refresh_token&refresh_token=refresh-old"))
+                .andRespond(withSuccess("""
+                        {
+                          "access_token": "access-new",
+                          "refresh_token": "refresh-new",
+                          "token_type": "Bearer",
+                          "expires_in": 300
+                        }
+                        """, MediaType.APPLICATION_JSON));
+
+        var response = service.refresh(new RefreshTokenRequestDTO("refresh-old"));
+
+        assertThat(response.accessToken()).isEqualTo("access-new");
+        assertThat(response.refreshToken()).isEqualTo("refresh-new");
+        assertThat(response.tokenType()).isEqualTo("Bearer");
+        assertThat(response.expiresIn()).isEqualTo(300L);
+        server.verify();
+    }
+
+    @Test
+    void shouldReturnUnauthorizedWhenRefreshTokenIsInvalid() {
+        server.expect(once(), requestTo("http://keycloak/realms/stella/protocol/openid-connect/token"))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
+
+        assertThatThrownBy(() -> service.refresh(new RefreshTokenRequestDTO("refresh-expired")))
+                .isInstanceOf(IdentityException.class)
+                .hasMessage("Refresh token expired or invalid.")
+                .extracting(ex -> ((IdentityException) ex).getStatus())
+                .isEqualTo(HttpStatus.UNAUTHORIZED);
+
+        server.verify();
+    }
+
+    @Test
+    void shouldRejectRefreshWithoutToken() {
+        assertThatThrownBy(() -> service.refresh(new RefreshTokenRequestDTO(" ")))
+                .isInstanceOf(IdentityException.class)
+                .hasMessage("Refresh token is required.")
+                .extracting(ex -> ((IdentityException) ex).getStatus())
+                .isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
     @Test

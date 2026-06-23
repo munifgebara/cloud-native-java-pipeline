@@ -16,6 +16,7 @@ import br.com.stella.api.dto.MainItemSummaryDTO;
 import br.com.stella.api.dto.StorageLocationResponseDTO;
 import br.com.stella.api.dto.StorageLocationSummaryDTO;
 import br.com.stella.api.dto.LoginResponseDTO;
+import br.com.stella.api.dto.RefreshTokenRequestDTO;
 import br.com.stella.api.dto.MyProfileResponseDTO;
 import br.com.stella.api.dto.ItemMovementResponseDTO;
 import br.com.stella.api.dto.PersonResponseDTO;
@@ -277,9 +278,12 @@ class ControllerUnitTest {
         KeycloakLoginService loginService = mock(KeycloakLoginService.class);
         var resumo = mock(DashboardSummaryDTO.class);
         var login = new LoginResponseDTO("access", "refresh", "Bearer", 300L);
+        var refreshRequest = new RefreshTokenRequestDTO("refresh");
+        var refreshed = new LoginResponseDTO("access-new", "refresh-new", "Bearer", 300L);
 
         when(dashboardService.carregarResumo()).thenReturn(resumo);
         when(loginService.login(null)).thenReturn(login);
+        when(loginService.refresh(refreshRequest)).thenReturn(refreshed);
 
         Map<String, Object> me = new AuthController().me(jwt("user-1"));
 
@@ -288,6 +292,7 @@ class ControllerUnitTest {
         assertThat(new DashboardController(dashboardService).resumo()).isEqualTo(resumo);
         assertThat(new HomeController().test()).contains("Stella API");
         assertThat(new PublicAuthController(loginService).login(null)).isEqualTo(login);
+        assertThat(new PublicAuthController(loginService).refresh(refreshRequest)).isEqualTo(refreshed);
     }
 
     @Test

@@ -116,6 +116,7 @@ public class KeycloakUserService {
                 firstNonBlank(jwt.getClaimAsString("family_name"), jwt.getClaimAsString("lastName")),
                 jwt.getClaimAsString("email"),
                 rolesFromJwt(jwt),
+                jwt.getClaimAsString("picture"),
                 keycloakProperties.accountUrl()
         );
     }
@@ -332,6 +333,7 @@ public class KeycloakUserService {
                 user.lastName(),
                 user.email(),
                 user.roles(),
+                null,
                 keycloakProperties.accountUrl()
         );
     }

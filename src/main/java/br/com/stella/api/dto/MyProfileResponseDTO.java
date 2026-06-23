@@ -9,5 +9,6 @@ public record MyProfileResponseDTO(
         String lastName,
         String email,
         List<String> roles,
+        String pictureUrl,
         String passwordChangeUrl
 ) {}

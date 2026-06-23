@@ -50,6 +50,7 @@ class UsuarioControllerIntegrationTest {
                 "Stella",
                 "user@example.location",
                 List.of("user"),
+                "https://avatar.example/user.png",
                 "http://keycloak/realms/stella/account"
         ));
 

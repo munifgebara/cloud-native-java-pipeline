@@ -30,6 +30,7 @@ public class AuthController {
         response.put("username", jwt.getClaimAsString("preferred_username"));
         response.put("name", jwt.getClaimAsString("name"));
         response.put("email", jwt.getClaimAsString("email"));
+        response.put("picture", jwt.getClaimAsString("picture"));
         response.put("realm_access", jwt.getClaim("realm_access"));
         return response;
     }

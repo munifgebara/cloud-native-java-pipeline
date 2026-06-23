@@ -2,6 +2,7 @@ package br.com.stella.api.controller;
 
 import br.com.stella.api.dto.LoginRequestDTO;
 import br.com.stella.api.dto.LoginResponseDTO;
+import br.com.stella.api.dto.RefreshTokenRequestDTO;
 import br.com.stella.api.service.KeycloakLoginService;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,5 +37,16 @@ public class PublicAuthController {
     @PostMapping("/login")
     public LoginResponseDTO login(@RequestBody LoginRequestDTO request) {
         return keycloakLoginService.login(request);
+    }
+
+    /**
+     * Refreshes a Keycloak session using a valid refresh token.
+     *
+     * @param request refresh-token payload
+     * @return DTO with a renewed access token and refresh token
+     */
+    @PostMapping("/refresh")
+    public LoginResponseDTO refresh(@RequestBody RefreshTokenRequestDTO request) {
+        return keycloakLoginService.refresh(request);
     }
 }

@@ -48,6 +48,13 @@ export const EN_TRANSLATIONS = {
   'login.submit': 'Sign in',
   'login.required': 'Enter username and password.',
   'login.invalid': 'Invalid username or password.',
+  'login.or': 'or',
+  'login.google': 'Sign in with Google',
+  'login.github': 'Sign in with GitHub',
+  'login.sessionExpired': 'Your session expired. Sign in again to continue.',
+  'login.socialStartError': 'Could not start social sign-in.',
+  'login.socialCallbackLoading': 'Completing authentication...',
+  'login.socialCallbackError': 'Could not complete social sign-in.',
 
   'users.title': 'Users',
   'users.subtitle': 'Manage authenticated accounts in Keycloak',

@@ -10,6 +10,7 @@ API_PREFIX="${STELLA_API_PREFIX:-/api/v0}"
 USERNAME="${STELLA_API_USERNAME:-}"
 PASSWORD="${STELLA_API_PASSWORD:-}"
 TOKEN="${STELLA_API_TOKEN:-}"
+REFRESH_TOKEN=""
 RUN_SEMANTIC_SEARCH="${STELLA_RUN_SEMANTIC_SEARCH:-true}"
 RUN_REINDEX="${STELLA_RUN_REINDEX:-false}"
 RUN_PHOTO_REGISTRATION="${STELLA_RUN_PHOTO_REGISTRATION:-true}"
@@ -318,6 +319,7 @@ authenticate() {
   payload="$(json_object username "$USERNAME" password "$PASSWORD")"
   response="$(request "POST" "/api/public/login" "200" "$payload")"
   TOKEN="$(json_get_field accessToken <<<"$response")" || fail "login did not return accessToken"
+  REFRESH_TOKEN="$(json_get_field refreshToken <<<"$response")" || fail "login did not return refreshToken"
 }
 
 main() {
@@ -342,6 +344,16 @@ main() {
   scenario "login with valid credentials returns accessToken"
   authenticate
   ok
+
+  if [[ -n "$REFRESH_TOKEN" ]]; then
+    scenario "refresh token returns a renewed accessToken"
+    local refresh_payload refresh_response
+    refresh_payload="$(json_object refreshToken "$REFRESH_TOKEN")"
+    refresh_response="$(request "POST" "/api/public/refresh" "200" "$refresh_payload")"
+    TOKEN="$(json_get_field accessToken <<<"$refresh_response")" || fail "refresh did not return accessToken"
+    REFRESH_TOKEN="$(json_get_field refreshToken <<<"$refresh_response")" || fail "refresh did not return refreshToken"
+    ok
+  fi
 
   scenario "protected endpoint without token returns 401"
   local saved_token="$TOKEN"

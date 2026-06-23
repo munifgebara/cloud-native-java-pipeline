@@ -26,6 +26,14 @@ export class AppTopbarComponent {
     return this.authService.hasRole('admin');
   }
 
+  username(): string {
+    return this.authService.username();
+  }
+
+  avatarUrl(): string {
+    return this.authService.avatarUrl();
+  }
+
   toggleMobileMenu(): void {
     this.mobileMenuOpen.update((open) => !open);
   }
