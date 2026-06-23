@@ -22,7 +22,12 @@ A aplicação combina:
 - workflows do GitHub Actions para CI, publicação de imagem e deploy
 - métricas via Actuator prontas para Prometheus
 
-Hoje, o principal fluxo de negócio já implementado é o gerenciamento de pessoas (`pessoas`) dentro do contexto de inventário pessoal, junto com login, proteção de rotas e a base do dashboard. A estrutura do repositório e da infraestrutura já prepara o projeto para crescer para módulos mais amplos de inventário, propriedade de itens, categorização e rastreamento.
+Hoje a aplicação é uma plataforma de inventário pessoal em funcionamento. Os fluxos implementados incluem cadastro hierárquico de locais de armazenagem, itens mestres e instâncias físicas de itens, movimentações e empréstimos, cadastro de pessoas, busca semântica (vetorial) no catálogo, cadastro assistido por IA a partir de uma foto e geração de imagem por IA, auditoria completa de mudanças (Hibernate Envers) e internacionalização (pt-BR / en / es). Autenticação, proteção de rotas e dashboards já existem. A arquitetura está preparada para propriedade de dados por usuário, que é o próximo passo planejado (ver [Propriedade de Dados](#propriedade-de-dados-planejado)).
+
+> **Novo no projeto?** Comece pelo guia didático de ponta a ponta
+> [Construir um Projeto Similar do Zero (Ubuntu Server)](docs/build-from-scratch/README.md),
+> disponível em inglês, português e espanhol, com diagramas de arquitetura, modelo de dados e
+> CI/CD.
 
 ## Por Que Este Projeto Importa
 
@@ -56,35 +61,38 @@ Fluxo de autenticação
 
 | Camada | Tecnologia |
 | --- | --- |
-| Backend | Spring Boot 4, Spring Security, Spring Data JPA, Flyway, Actuator |
-| Frontend | Angular 21, PrimeNG, TypeScript |
+| Backend | Spring Boot 4, Spring Security, Spring Data JPA, Flyway, Hibernate Envers, Actuator |
+| Frontend | Angular 21, PrimeNG, TypeScript, design system próprio |
 | Identidade | Keycloak, OAuth2, OpenID Connect, JWT |
-| Banco de dados | PostgreSQL |
-| Observabilidade | Micrometer, endpoint Prometheus |
-| Infraestrutura | Docker Compose, Kubernetes |
-| CI/CD | GitHub Actions, GHCR |
+| Banco de dados | PostgreSQL 17 com pgvector (busca vetorial) |
+| Object storage | MinIO (compatível com S3) para imagens dos itens |
+| IA | OpenAI (análise de foto, geração de imagem), sidecar local de embeddings (MiniLM, 384 dims) |
+| Observabilidade | Micrometer, regras Prometheus + ServiceMonitor, logs estruturados Grafana/Loki |
+| Infraestrutura | Docker Compose, Kubernetes (k3s) |
+| CI/CD | GitHub Actions, GHCR, scan de segurança Trivy |
 
 ## Escopo Funcional Atual
 
-Já implementado ou visível no código:
+Implementado e visível no código:
 
-- fluxo de login integrado ao Keycloak
-- rotas protegidas no Angular
-- telas de listagem e edição de pessoas
-- API REST Spring Boot protegida como resource server
-- migrações de banco com Flyway
-- ambiente local baseado em Docker
-- artefatos de deploy em Kubernetes
-- base de workflow para CI/CD
-- exposição de métricas via Actuator e Prometheus
+- login integrado ao Keycloak e rotas protegidas no Angular
+- API REST Spring Boot protegida como OAuth2 resource server (JWT)
+- locais hierárquicos, categorias, itens mestres e instâncias de itens
+- movimentações (entrada/saída/transferência) e empréstimos para pessoas
+- armazenamento de imagens no MinIO, incluindo cadastro assistido por IA via foto e geração de imagem por IA
+- busca semântica (vetorial) no catálogo com pgvector e serviço local de embeddings
+- auditoria completa de mudanças com Hibernate Envers
+- internacionalização (pt-BR / en / es) e design system próprio
+- migrações com Flyway e checkpoint de esquema limpo em inglês
+- ambiente local em Docker e artefatos de deploy em Kubernetes (k3s)
+- workflows de CI/CD (build/teste, publicação de imagem, deploy) e scan de segurança Trivy
+- métricas via Actuator, regras Prometheus, ServiceMonitor e logging Grafana/Loki
 
 Evoluções planejadas visíveis no backlog:
 
-- módulos mais amplos de inventário
-- internacionalização
-- melhoria de logging e observabilidade
-- preenchimento automático de endereço por CEP
-- refinamento da documentação e onboarding
+- propriedade de dados por usuário (autorização horizontal) — ver [Propriedade de Dados](#propriedade-de-dados-planejado)
+- limites globais (entre réplicas) de uso de IA e autoescalonamento (HPA)
+- listagens paginadas e infinite scroll no frontend para inventários grandes
 
 ## Estrutura do Repositório
 
@@ -106,6 +114,7 @@ Evoluções planejadas visíveis no backlog:
 
 A documentação técnica oficial está disponível em [`docs/`](docs/README.md):
 
+- [Construir um Projeto Similar do Zero (Ubuntu Server)](docs/build-from-scratch/README.md) — EN / PT / ES, com diagramas
 - [Arquitetura](docs/architecture.md)
 - [Desenvolvimento Local](docs/local-development.md)
 - [Referência de Configuração](docs/configuration.md)
@@ -252,11 +261,29 @@ Estudantes e avaliadores podem usar este repositório para explorar:
 - como GitHub Actions pode separar responsabilidades entre CI, publicação e deploy
 - como preocupações de observabilidade começam com métricas e disciplina operacional
 
+## Propriedade de Dados (planejado)
+
+> **Status: planejado — ainda não implementado. O banco já está preparado para isso.**
+
+Hoje o sistema é **single-tenant**: qualquer usuário autenticado vê e altera todos os dados de
+inventário. O próximo passo planejado é a **propriedade de dados por usuário** (autorização
+horizontal), de modo que cada usuário só veja os próprios registros.
+
+A entidade base compartilhada já provê uma coluna `external_id` indexada em toda tabela de
+negócio (por exemplo, `ix_person_external_id` existe na migration inicial do Flyway). Essa
+coluna é o slot reservado para carregar o **dono** — o subject Keycloak do usuário que criou o
+registro. A estrutura existe; o que falta é a semântica (preencher o dono a partir do JWT
+autenticado) e o enforcement (escopar toda leitura e escrita ao dono). Até essa feature existir,
+trate qualquer deploy como single-tenant.
+
+Descrição completa e diagrama em
+[Construir um Projeto Similar do Zero §10](docs/build-from-scratch/pt-BR.md#10-feature-planejada-ownership-de-dados-por-usuário).
+
 ## Roadmap
 
-- expandir o domínio além do fluxo atual de pessoas
 - evoluir o suporte multilíngue na interface
 - refinar logging no servidor e integração com Grafana
+- implementar propriedade de dados por usuário (ver seção acima)
 - fortalecer a documentação para contribuidores e estudantes
 - continuar endurecendo a pipeline para cenários mais próximos de produção
 

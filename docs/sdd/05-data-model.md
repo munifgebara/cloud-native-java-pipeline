@@ -24,6 +24,31 @@ erDiagram
 | Location | Place where items can be stored or managed. |
 | Image | Metadata and object-storage reference for uploaded or generated images. |
 
+## Base Entity Columns
+
+Every business table inherits a common set of infrastructure columns from a shared base entity:
+`id` (UUID), `active` (soft delete), `created_at`, `updated_at`, `version` (optimistic lock),
+plus the generic extension fields `extra` and `external_id`. The `external_id` column is indexed
+(for example `ix_person_external_id`) and is the reserved slot for the planned data-ownership
+feature described below.
+
+## Data Ownership (planned)
+
+**Status: planned — not yet implemented. The schema is already prepared for it.**
+
+The system is currently single-tenant: any authenticated user can read and write all records.
+The planned evolution is per-user data ownership (horizontal authorization), where each record
+belongs to the Keycloak subject that created it and is only visible/mutable by that owner.
+
+- **Already in place:** the indexed `external_id` column on every business table is the reserved
+  carrier for the owner identifier. No schema change is required to start storing the owner.
+- **Still missing:** the semantics (populating the owner from the authenticated JWT on create)
+  and the enforcement (scoping reads and writes — including semantic search — to the owner, with
+  an explicit, audited admin path for cross-owner visibility).
+
+A dedicated `owner_subject` column may be preferred over reusing `external_id` to keep the
+ownership semantics separate from integration identifiers; this is an open design decision.
+
 ## Persistence Strategy
 
 - PostgreSQL is the system of record for relational state.

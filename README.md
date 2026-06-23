@@ -22,7 +22,12 @@ The application combines:
 - GitHub Actions workflows for CI, image publishing, and deployment
 - Prometheus-ready actuator metrics for observability
 
-Today, the main implemented business flow is the management of people (`pessoas`) within the personal inventory context, alongside login, route protection, and dashboard basics. The repository structure and infrastructure already prepare the project for expanding into broader inventory modules such as item ownership, categorization, and tracking.
+Today the application is a working personal inventory platform. Implemented flows include a hierarchical storage-location registry, master items and physical item instances, item movements and loans, people registration, semantic (vector) search over the catalog, AI-assisted registration from a photo and AI image generation, full change auditing (Hibernate Envers), and internationalization (pt-BR / en / es). Authentication, route protection, and dashboards are in place. The architecture is prepared for per-user data ownership, which is the next planned step (see [Data Ownership](#data-ownership-planned)).
+
+> **New to the project?** Start with the didactic, end-to-end guide
+> [Build a Similar Project From Scratch (Ubuntu Server)](docs/build-from-scratch/README.md),
+> available in English, Portuguese, and Spanish, with architecture, data-model, and CI/CD
+> diagrams.
 
 ## Why This Project Matters
 
@@ -56,35 +61,38 @@ Authentication flow
 
 | Layer | Technology |
 | --- | --- |
-| Backend | Spring Boot 4, Spring Security, Spring Data JPA, Flyway, Actuator |
-| Frontend | Angular 21, PrimeNG, TypeScript |
+| Backend | Spring Boot 4, Spring Security, Spring Data JPA, Flyway, Hibernate Envers, Actuator |
+| Frontend | Angular 21, PrimeNG, TypeScript, custom design system |
 | Identity | Keycloak, OAuth2, OpenID Connect, JWT |
-| Database | PostgreSQL |
-| Observability | Micrometer, Prometheus endpoint |
-| Infra | Docker Compose, Kubernetes |
-| CI/CD | GitHub Actions, GHCR |
+| Database | PostgreSQL 17 with pgvector (vector search) |
+| Object storage | MinIO (S3-compatible) for item images |
+| AI | OpenAI (photo analysis, image generation), local embeddings sidecar (MiniLM, 384 dims) |
+| Observability | Micrometer, Prometheus rules + ServiceMonitor, Grafana/Loki structured logs |
+| Infra | Docker Compose, Kubernetes (k3s) |
+| CI/CD | GitHub Actions, GHCR, Trivy security scan |
 
 ## Current Functional Scope
 
-Implemented or already visible in the codebase:
+Implemented and visible in the codebase:
 
-- login flow integrated with Keycloak
-- protected Angular routes
-- people listing and editing screens
-- Spring Boot REST API secured as a resource server
-- database migrations with Flyway
-- Docker-based local environment
-- Kubernetes deployment assets
-- CI/CD workflow foundation
-- actuator and Prometheus metrics exposure
+- login flow integrated with Keycloak and protected Angular routes
+- Spring Boot REST API secured as an OAuth2 resource server (JWT)
+- hierarchical storage locations, categories, master items and item instances
+- item movements (in/out/transfer) and loans to people
+- image storage in MinIO, including AI-assisted registration from a photo and AI image generation
+- semantic (vector) search over the catalog using pgvector and a local embeddings service
+- full change auditing with Hibernate Envers
+- internationalization (pt-BR / en / es) and a custom design system
+- database migrations with Flyway and a clean English schema checkpoint
+- Docker-based local environment and Kubernetes (k3s) deployment assets
+- CI/CD workflows (build/test, image publish, deploy) and Trivy security scanning
+- actuator metrics, Prometheus rules, ServiceMonitor and Grafana/Loki logging
 
 Planned evolution visible in the backlog:
 
-- broader inventory modules
-- internationalization
-- improved logging and observability integration
-- CEP-based address autofill
-- documentation and onboarding refinements
+- per-user data ownership (horizontal authorization) — see [Data Ownership](#data-ownership-planned)
+- global (cross-replica) AI usage limits and autoscaling (HPA)
+- paginated listings and frontend infinite scroll for large inventories
 
 ## Repository Structure
 
@@ -106,6 +114,7 @@ Planned evolution visible in the backlog:
 
 The official technical documentation is available in [`docs/`](docs/README.md):
 
+- [Build a Similar Project From Scratch (Ubuntu Server)](docs/build-from-scratch/README.md) — EN / PT / ES, with diagrams
 - [Architecture](docs/architecture.md)
 - [Local Development](docs/local-development.md)
 - [Configuration Reference](docs/configuration.md)
@@ -280,56 +289,20 @@ Munif Gebara Junior
 
 If you are evaluating this repository as a portfolio project, the strongest signals are the combination of application code, infrastructure, authentication, observability, and delivery workflow in a single learning-oriented system.
 
+## Data Ownership (planned)
 
-## Roadmap de Implementação do Módulo de Inventário
+> **Status: planned — not yet implemented. The database is already prepared for it.**
 
-A implementação deve priorizar sempre a menor fase aberta e, dentro dela, as issues marcadas como `ready`.
+The system is currently **single-tenant**: any authenticated user can see and modify all
+inventory data. The next planned step is **per-user data ownership** (horizontal
+authorization), so each user only sees their own records.
 
-### Ordem Recomendada
+The shared base entity already provides an indexed `external_id` column on every business table
+(for example, `ix_person_external_id` exists in the initial Flyway migration). This column is
+the reserved slot intended to carry the **owner** — the Keycloak subject of the user who created
+the record. The structure exists; the missing parts are the semantics (populating the owner from
+the authenticated JWT) and the enforcement (scoping every read and write to the owner). Until
+this feature ships, treat any deployment as single-tenant.
 
-1. `#26` Criar cadastro de locais hierárquicos para armazenagem dos itens
-2. `#27` Criar cadastro de item mestre do inventário
-3. `#31` Criar cadastro de instâncias de item
-4. `#33` Definir status operacional das instâncias de item
-5. `#32` Criar listagem e filtros de itens e instâncias
-6. `#34` Implementar movimentações de entrada de instâncias
-7. `#35` Implementar movimentações de saída de instâncias
-8. `#36` Implementar transferência de instâncias entre locais
-9. `#38` Implementar empréstimo de instâncias para pessoas
-10. `#39` Implementar devolução de instâncias emprestadas
-11. `#37` Criar histórico consolidado da instância do item
-12. `#40` Validar regras de negócio de inventário, movimentação e empréstimo
-13. `#29` Integrar o Stella ao MinIO para armazenamento de imagens dos itens
-14. `#30` Adicionar imagem principal ao cadastro de item mestre
-15. `#41` Expandir o dashboard com indicadores do inventário
-16. `#28` Adicionar ícones predefinidos ao cadastro de categorias
-17. `#42` Adicionar testes automatizados ao módulo de inventário
-
-### Implementação por Fases
-
-#### Fase 1 - Núcleo do Inventário
-- `#26` Criar cadastro de locais hierárquicos para armazenagem dos itens
-- `#27` Criar cadastro de item mestre do inventário
-- `#31` Criar cadastro de instâncias de item
-- `#33` Definir status operacional das instâncias de item
-- `#32` Criar listagem e filtros de itens e instâncias
-
-#### Fase 2 - Movimentações
-- `#34` Implementar movimentações de entrada de instâncias
-- `#35` Implementar movimentações de saída de instâncias
-- `#36` Implementar transferência de instâncias entre locais
-
-#### Fase 3 - Empréstimos e Regras
-- `#38` Implementar empréstimo de instâncias para pessoas
-- `#39` Implementar devolução de instâncias emprestadas
-- `#37` Criar histórico consolidado da instância do item
-- `#40` Validar regras de negócio de inventário, movimentação e empréstimo
-
-#### Fase 4 - Mídia com MinIO
-- `#29` Integrar o Stella ao MinIO para armazenamento de imagens dos itens
-- `#30` Adicionar imagem principal ao cadastro de item mestre
-
-#### Fase 5 - Dashboard e Qualidade
-- `#41` Expandir o dashboard com indicadores do inventário
-- `#28` Adicionar ícones predefinidos ao cadastro de categorias
-- `#42` Adicionar testes automatizados ao módulo de inventário
+See the full description and diagram in
+[Build a Similar Project From Scratch §10](docs/build-from-scratch/en.md#10-planned-feature-per-user-data-ownership).

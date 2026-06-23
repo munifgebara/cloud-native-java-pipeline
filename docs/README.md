@@ -4,6 +4,7 @@ This directory is the official technical documentation for Stella. It complement
 
 ## Guides
 
+- [Build a Similar Project From Scratch (Ubuntu Server)](build-from-scratch/README.md) — didactic EN / PT / ES walkthrough, manual and agent-assisted, with diagrams
 - [Architecture](architecture.md)
 - [Local Development](local-development.md)
 - [Configuration Reference](configuration.md)
