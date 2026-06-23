@@ -90,6 +90,7 @@ Configuration:
 - `STELLA_RUN_REINDEX`: set to `true` to call semantic reindexing before semantic search. Defaults to `false`.
 - `STELLA_RUN_PHOTO_REGISTRATION`: set to `false` to skip OpenAI photo registration suggestions. Defaults to `true`.
 - `STELLA_RUN_IMAGE_AI`: set to `true` to call `POST /api/v0/main-items/image-ai`. Defaults to `false` because it consumes OpenAI image-generation quota and requires access to the configured image model.
+- `STELLA_IMAGE_AI_EXPECTED_STATUS`: expected HTTP status for the image generation call. Defaults to `200`; use `502` in environments where the configured OpenAI image model is intentionally unavailable.
 
 ## Frontend Build
 
