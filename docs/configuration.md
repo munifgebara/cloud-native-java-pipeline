@@ -71,6 +71,8 @@ In production, configure `STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET` and use a dedicat
 
 When `AI_ENABLED=false`, the API rejects AI operations without calling OpenAI. Daily limits are counted in memory and reset by local date; they are intentionally simple and can later move to database persistence. A limit of `0` blocks that operation type, while an unset or negative limit is treated as unlimited.
 
+Image generation uses `gpt-image-1` by default. If `/api/v0/main-items/image-ai` returns `502` while photo analysis still works, check whether the OpenAI organization is verified and allowed to use the configured image model. When the account does not have access to `gpt-image-1`, set `STELLA_OPENAI_IMAGE_MODEL` to an image model enabled for that organization and redeploy the API.
+
 ## Vector Search
 
 | Variable | Default | Description |

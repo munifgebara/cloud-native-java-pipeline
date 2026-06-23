@@ -13,6 +13,7 @@ TOKEN="${STELLA_API_TOKEN:-}"
 RUN_SEMANTIC_SEARCH="${STELLA_RUN_SEMANTIC_SEARCH:-true}"
 RUN_REINDEX="${STELLA_RUN_REINDEX:-false}"
 RUN_PHOTO_REGISTRATION="${STELLA_RUN_PHOTO_REGISTRATION:-true}"
+RUN_IMAGE_AI="${STELLA_RUN_IMAGE_AI:-false}"
 
 ITEM_ID=""
 CATEGORY_ID=""
@@ -508,6 +509,17 @@ main() {
     local photo_suggestions
     photo_suggestions="$(request_multipart_file "POST" "${API_PREFIX}/ai/registration-photo/suggestions" "200" "$TEST_IMAGE_PATH")"
     python3 -c 'import json, sys; data = json.load(sys.stdin); sys.exit(0 if isinstance(data.get("items"), list) else 1)' <<<"$photo_suggestions" || fail "photo registration did not return an items list"
+    ok
+  fi
+
+  # ── AI-assisted image generation (optional, consumes OpenAI API) ──────────────
+
+  if [[ "$RUN_IMAGE_AI" == "true" ]]; then
+    scenario "image AI generation returns a data URL"
+    local image_ai_payload image_ai_response
+    image_ai_payload="$(python3 -c 'import json, sys; print(json.dumps({"name": sys.argv[1], "category": sys.argv[2], "description": sys.argv[3]}))' "$ITEM_NAME" "$CATEGORY_NAME" "$ITEM_DESCRIPTION")"
+    image_ai_response="$(request "POST" "${API_PREFIX}/main-items/image-ai" "200" "$image_ai_payload")"
+    python3 -c 'import json, sys; d = json.load(sys.stdin); data_url = d.get("dataUrl", ""); sys.exit(0 if data_url.startswith("data:image/") and ";base64," in data_url and d.get("contentType", "").startswith("image/") and d.get("provider") else 1)' <<<"$image_ai_response" || fail "image AI generation did not return the expected image payload"
     ok
   fi
 
