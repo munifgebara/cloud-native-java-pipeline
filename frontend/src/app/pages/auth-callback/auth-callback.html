@@ -1,0 +1,7 @@
+<div class="auth-callback-page">
+  @if (failed()) {
+    <p>{{ 'login.socialCallbackError' | translate }}</p>
+  } @else {
+    <p>{{ 'login.socialCallbackLoading' | translate }}</p>
+  }
+</div>

@@ -23,11 +23,12 @@ Browser
   -> PostgreSQL for relational state
   -> MinIO for uploaded images
 
-Identity (backend-mediated; the SPA never calls Keycloak directly)
-  -> Angular posts username/password to the API
-  -> The API exchanges them with Keycloak using the OAuth2 password grant
-  -> Keycloak returns access/refresh tokens to the API, which relays them to the SPA
-  -> Angular sends the bearer token on every subsequent API call
+Identity (hybrid Keycloak integration)
+  -> Username/password login posts credentials to the API
+  -> The API exchanges them with Keycloak using the OAuth2 password grant and refresh-token grant
+  -> Social login redirects the browser to Keycloak with Authorization Code + PKCE
+  -> Keycloak brokers Google/GitHub login and returns tokens to the SPA callback
+  -> Angular sends the bearer token on every subsequent API call and refreshes once on 401
   -> Spring Security validates JWTs using the configured issuer (Keycloak JWKS)
   -> User administration uses the Keycloak Admin REST API
 ```

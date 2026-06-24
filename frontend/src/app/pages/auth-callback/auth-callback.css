@@ -1,0 +1,8 @@
+.auth-callback-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: var(--stella-color-text-muted);
+  background: var(--stella-color-surface-muted);
+}

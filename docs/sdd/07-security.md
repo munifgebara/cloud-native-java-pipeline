@@ -5,13 +5,17 @@
 
 ## Authentication
 
-Stella uses Keycloak as the identity provider. Authentication is **backend-mediated**: the SPA
-never contacts Keycloak directly. The frontend posts the user's credentials to
-`POST /api/public/login`, the API exchanges them with Keycloak using the OAuth2 password grant
-and relays the resulting tokens back to the SPA, which stores them in `localStorage`. Every
-later request to `/api/v0/**` carries the access token as a Bearer header; an Angular HTTP
-interceptor attaches it automatically. The backend validates the JWT signature on each request
-as a resource server, against the configured issuer's public keys (JWKS).
+Stella uses Keycloak as the identity provider. Two login paths are supported:
+
+- username/password remains backend-mediated through `POST /api/public/login`, with silent renewal
+  through `POST /api/public/refresh`;
+- social login redirects the browser to Keycloak using Authorization Code + PKCE, then Keycloak
+  brokers the login with Google or GitHub and returns tokens to the SPA callback.
+
+Every later request to `/api/v0/**` carries the access token as a Bearer header; an Angular HTTP
+interceptor attaches it automatically and refreshes once before retrying a `401`. The backend
+validates the JWT signature on each request as a resource server, against the configured issuer's
+public keys (JWKS).
 
 ```mermaid
 sequenceDiagram
@@ -31,11 +35,16 @@ sequenceDiagram
     SPA->>API: GET /api/v0/... (Authorization: Bearer JWT)
     API->>API: validate signature via cached Keycloak JWKS
     API-->>SPA: 200 + data
+
+    SPA->>API: POST /api/public/refresh
+    API->>KC: token request (grant_type=refresh_token)
+    KC-->>API: renewed tokens
+    API-->>SPA: renewed tokens
 ```
 
-> Note: the password grant keeps the integration simple and didactic but is not the recommended
-> browser flow for production. A future evolution may move to the Authorization Code flow with
-> PKCE, where the browser is redirected to Keycloak directly.
+For social login, the browser follows the OIDC redirect flow directly with Keycloak. New brokered
+users receive the realm default `usuario` role and the provider avatar is mapped to the `picture`
+claim when the provider supplies it. OAuth app secrets are never stored in Git.
 
 ## Authorization
 

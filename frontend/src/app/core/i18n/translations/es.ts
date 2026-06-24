@@ -48,6 +48,13 @@ export const ES_TRANSLATIONS = {
   'login.submit': 'Entrar',
   'login.required': 'Ingresa usuario y contrasena.',
   'login.invalid': 'Usuario o contrasena invalidos.',
+  'login.or': 'o',
+  'login.google': 'Entrar con Google',
+  'login.github': 'Entrar con GitHub',
+  'login.sessionExpired': 'Tu sesion expiro. Ingresa nuevamente para continuar.',
+  'login.socialStartError': 'No fue posible iniciar el login social.',
+  'login.socialCallbackLoading': 'Completando autenticacion...',
+  'login.socialCallbackError': 'No fue posible completar el login social.',
 
   'users.title': 'Usuarios',
   'users.subtitle': 'Gestion de cuentas autenticadas en Keycloak',

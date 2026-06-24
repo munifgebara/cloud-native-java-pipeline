@@ -13,6 +13,9 @@ data:
       "editUsernameAllowed": false,
       "bruteForceProtected": true,
       "sslRequired": "external",
+      "defaultRoles": [
+        "usuario"
+      ],
       "roles": {
         "realm": [
           {
@@ -58,9 +61,100 @@ data:
           "protocol": "openid-connect",
           "enabled": true,
           "publicClient": true,
-          "standardFlowEnabled": false,
+          "standardFlowEnabled": true,
           "directAccessGrantsEnabled": true,
-          "serviceAccountsEnabled": false
+          "serviceAccountsEnabled": false,
+          "redirectUris": [
+            "http://localhost:4200/auth/callback",
+            "http://127.0.0.1:4200/auth/callback",
+            "http://localhost:8080/app/auth/callback",
+            "http://127.0.0.1:8080/app/auth/callback",
+            "https://stella.gebaralabs.dev/app/auth/callback"
+          ],
+          "webOrigins": [
+            "http://localhost:4200",
+            "http://127.0.0.1:4200",
+            "http://localhost:8080",
+            "http://127.0.0.1:8080",
+            "https://stella.gebaralabs.dev"
+          ],
+          "attributes": {
+            "pkce.code.challenge.method": "S256"
+          },
+          "protocolMappers": [
+            {
+              "name": "picture",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-usermodel-attribute-mapper",
+              "consentRequired": false,
+              "config": {
+                "user.attribute": "picture",
+                "claim.name": "picture",
+                "jsonType.label": "String",
+                "id.token.claim": "true",
+                "access.token.claim": "true",
+                "userinfo.token.claim": "true"
+              }
+            }
+          ]
+        }
+      ],
+      "identityProviders": [
+        {
+          "alias": "google",
+          "displayName": "Google",
+          "providerId": "google",
+          "enabled": true,
+          "trustEmail": true,
+          "storeToken": false,
+          "addReadTokenRoleOnCreate": false,
+          "authenticateByDefault": false,
+          "linkOnly": false,
+          "firstBrokerLoginFlowAlias": "first broker login",
+          "config": {
+            "clientId": "${STELLA_GOOGLE_CLIENT_ID}",
+            "clientSecret": "${STELLA_GOOGLE_CLIENT_SECRET}",
+            "syncMode": "IMPORT"
+          }
+        },
+        {
+          "alias": "github",
+          "displayName": "GitHub",
+          "providerId": "github",
+          "enabled": true,
+          "trustEmail": true,
+          "storeToken": false,
+          "addReadTokenRoleOnCreate": false,
+          "authenticateByDefault": false,
+          "linkOnly": false,
+          "firstBrokerLoginFlowAlias": "first broker login",
+          "config": {
+            "clientId": "${STELLA_GITHUB_CLIENT_ID}",
+            "clientSecret": "${STELLA_GITHUB_CLIENT_SECRET}",
+            "syncMode": "IMPORT"
+          }
+        }
+      ],
+      "identityProviderMappers": [
+        {
+          "name": "google-picture",
+          "identityProviderAlias": "google",
+          "identityProviderMapper": "oidc-user-attribute-idp-mapper",
+          "config": {
+            "claim": "picture",
+            "user.attribute": "picture",
+            "syncMode": "INHERIT"
+          }
+        },
+        {
+          "name": "github-avatar",
+          "identityProviderAlias": "github",
+          "identityProviderMapper": "oidc-user-attribute-idp-mapper",
+          "config": {
+            "claim": "avatar_url",
+            "user.attribute": "picture",
+            "syncMode": "INHERIT"
+          }
         }
       ],
       "users": [

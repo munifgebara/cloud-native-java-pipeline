@@ -40,8 +40,31 @@
       <p-button
         [label]="'login.submit' | translate"
         icon="pi pi-sign-in"
+        [loading]="loading()"
         (onClick)="entrar()">
       </p-button>
+
+      <div class="login-divider">
+        <span>{{ 'login.or' | translate }}</span>
+      </div>
+
+      <div class="social-actions">
+        <p-button
+          [label]="'login.google' | translate"
+          icon="pi pi-google"
+          severity="secondary"
+          [loading]="socialLoading() === 'google'"
+          (onClick)="entrarCom('google')">
+        </p-button>
+
+        <p-button
+          [label]="'login.github' | translate"
+          icon="pi pi-github"
+          severity="secondary"
+          [loading]="socialLoading() === 'github'"
+          (onClick)="entrarCom('github')">
+        </p-button>
+      </div>
     </div>
   </p-card>
 </div>

@@ -26,6 +26,14 @@
         routerLink="/profile">
       </p-button>
 
+      <a class="avatar-link" routerLink="/profile" [attr.aria-label]="'layout.profile' | translate">
+        @if (avatarUrl()) {
+          <img [src]="avatarUrl()" [alt]="username()" referrerpolicy="no-referrer" />
+        } @else {
+          <span>{{ username().slice(0, 1).toUpperCase() || '?' }}</span>
+        }
+      </a>
+
       <p-button
         styleClass="topbar-action"
         [label]="'layout.logout' | translate"

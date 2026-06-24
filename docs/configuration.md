@@ -41,8 +41,10 @@ defaults; secrets supply sensitive values in deployed environments.
 | `STELLA_KEYCLOAK_ADMIN_USERNAME` | `admin` | Local fallback admin username |
 | `STELLA_KEYCLOAK_ADMIN_PASSWORD` | `admin` | Local fallback admin password |
 | `STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET` | empty | Production confidential client secret |
+| `STELLA_GOOGLE_CLIENT_ID` / `STELLA_GOOGLE_CLIENT_SECRET` | empty | Google OAuth app credentials used by the Keycloak broker |
+| `STELLA_GITHUB_CLIENT_ID` / `STELLA_GITHUB_CLIENT_SECRET` | empty | GitHub OAuth app credentials used by the Keycloak broker |
 
-In production, configure `STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET` and use a dedicated confidential client with only the required realm-management roles.
+In production, configure `STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET` and use a dedicated confidential client with only the required realm-management roles. Social login also requires exposing Keycloak to the browser, registering the Keycloak broker redirect URIs in Google/GitHub, and providing the OAuth app credentials through Kubernetes Secrets. The SPA uses Authorization Code + PKCE for social login and keeps `/api/public/login` plus `/api/public/refresh` for the backend-mediated username/password flow.
 
 ## MinIO
 
