@@ -13,11 +13,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -50,13 +52,10 @@ class DashboardServiceTest {
         var categories = List.of(new DashboardCategoryQuantityDTO(categoryId, "Livros", 7));
 
         when(personService.countActivePeople()).thenReturn(4L);
-        when(mainItemRepository.countByActiveTrue()).thenReturn(10L);
-        when(mainItemRepository.countByActiveTrueAndImageObjectKeyIsNull()).thenReturn(2L);
+        when(mainItemRepository.count(any(Specification.class))).thenReturn(10L, 2L);
         when(mainItemRepository.countItemsRegisteredByAi()).thenReturn(3L);
-        when(itemInstanceRepository.countByActiveTrue()).thenReturn(25L);
-        when(itemInstanceRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.DISPONIVEL)).thenReturn(18L);
-        when(itemInstanceRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.EMPRESTADO)).thenReturn(5L);
-        when(storageLocationRepository.countByActiveTrue()).thenReturn(3L);
+        when(itemInstanceRepository.count(any(Specification.class))).thenReturn(25L, 18L, 5L);
+        when(storageLocationRepository.count(any(Specification.class))).thenReturn(3L);
         when(vectorSearchMetricsService.countQueries()).thenReturn(11L);
         when(itemInstanceRepository.findLocationsWithMostItems(org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(locais);
         when(mainItemRepository.findCategoriesWithMostItems(org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(categories);

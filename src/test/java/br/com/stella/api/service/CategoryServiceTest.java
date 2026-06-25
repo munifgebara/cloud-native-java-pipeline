@@ -11,6 +11,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +40,7 @@ class CategoriaServiceTest {
     void shouldCreateCategoryNormalizingFields() {
         when(repository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var response = service.create(new CategoryCreateDTO("  Eletronicos  ", "  Items eletronicos  ", " eletronicos ", true));
+        var response = service.create(new CategoryCreateDTO("  Eletronicos  ", "  Items eletronicos  ", " eletronicos ", true, null));
 
         ArgumentCaptor<Category> captor = ArgumentCaptor.forClass(Category.class);
         verify(repository).save(captor.capture());
@@ -56,7 +58,7 @@ class CategoriaServiceTest {
     void shouldAllowCreateCategoryInactive() {
         when(repository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var response = service.create(new CategoryCreateDTO("Livros", null, null, false));
+        var response = service.create(new CategoryCreateDTO("Livros", null, null, false, null));
 
         assertThat(response.active()).isFalse();
     }
@@ -74,7 +76,7 @@ class CategoriaServiceTest {
         when(repository.findById(id)).thenReturn(Optional.of(category));
         when(repository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var response = service.update(id, new CategoryUpdateDTO("  Nova  ", "  Nova description  ", " moveis ", false));
+        var response = service.update(id, new CategoryUpdateDTO("  Nova  ", "  Nova description  ", " moveis ", false, null));
 
         assertThat(response.name()).isEqualTo("Nova");
         assertThat(response.description()).isEqualTo("Nova description");
@@ -84,7 +86,7 @@ class CategoriaServiceTest {
 
     @Test
     void shouldRejectIconOutsideOfListControlled() {
-        assertThatThrownBy(() -> service.create(new CategoryCreateDTO("Livros", null, "classe-css-livre", true)))
+        assertThatThrownBy(() -> service.create(new CategoryCreateDTO("Livros", null, "classe-css-livre", true, null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Invalid category icon");
     }
@@ -97,7 +99,7 @@ class CategoriaServiceTest {
         category.setDescription(null);
         category.setActive(true);
 
-        when(repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc("Liv")).thenReturn(List.of(category));
+        when(repository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of(category));
 
         assertThat(service.findByName("  ")).isEmpty();
         assertThat(service.findByName(" Liv ")).hasSize(1);

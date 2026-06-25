@@ -109,7 +109,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
      */
     @Transactional(readOnly = true)
     public List<MainItemSummaryDTO> listSummary() {
-        return repository.findByActiveTrueOrderByNameAsc().stream()
+        return repository.findAllActive(Sort.by("name")).stream()
                 .map(MainItemMapper::toResumoDTO)
                 .toList();
     }
@@ -139,7 +139,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
             return List.of();
         }
 
-        return repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(normalizedName).stream()
+        return repository.findAll(MainItemRepository.filterActive(normalizedName, null), Sort.by("name")).stream()
                 .map(MainItemMapper::toResumoDTO)
                 .toList();
     }

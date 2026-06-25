@@ -9,7 +9,10 @@ BASE_URL="${STELLA_API_BASE_URL:-http://localhost:8080}"
 API_PREFIX="${STELLA_API_PREFIX:-/api/v0}"
 USERNAME="${STELLA_API_USERNAME:-}"
 PASSWORD="${STELLA_API_PASSWORD:-}"
+USERNAME_B="${STELLA_API_USERNAME_B:-}"
+PASSWORD_B="${STELLA_API_PASSWORD_B:-}"
 TOKEN="${STELLA_API_TOKEN:-}"
+TOKEN_B="${STELLA_API_TOKEN_B:-}"
 REFRESH_TOKEN=""
 RUN_SEMANTIC_SEARCH="${STELLA_RUN_SEMANTIC_SEARCH:-true}"
 RUN_REINDEX="${STELLA_RUN_REINDEX:-false}"
@@ -19,6 +22,8 @@ IMAGE_AI_EXPECTED_STATUS="${STELLA_IMAGE_AI_EXPECTED_STATUS:-200}"
 
 ITEM_ID=""
 CATEGORY_ID=""
+PRIVATE_CATEGORY_ID=""
+PUBLIC_CATEGORY_ID=""
 LOCATION_ID=""
 INSTANCE_ID=""
 PERSON_ID=""
@@ -289,6 +294,8 @@ cleanup() {
     "${API_PREFIX}/instances-item/${INSTANCE_ID}" \
     "${API_PREFIX}/main-items/${ITEM_ID}" \
     "${API_PREFIX}/categories/${CATEGORY_ID}" \
+    "${API_PREFIX}/categories/${PRIVATE_CATEGORY_ID}" \
+    "${API_PREFIX}/categories/${PUBLIC_CATEGORY_ID}" \
     "${API_PREFIX}/locations/${LOCATION_ID}" \
     "${API_PREFIX}/people/${PERSON_ID}"; do
     local id="${resource_path##*/}"
@@ -320,6 +327,24 @@ authenticate() {
   response="$(request "POST" "/api/public/login" "200" "$payload")"
   TOKEN="$(json_get_field accessToken <<<"$response")" || fail "login did not return accessToken"
   REFRESH_TOKEN="$(json_get_field refreshToken <<<"$response")" || fail "login did not return refreshToken"
+}
+
+authenticate_second_owner() {
+  if [[ -n "$TOKEN_B" ]]; then
+    return 0
+  fi
+  if [[ -z "$USERNAME_B" || -z "$PASSWORD_B" ]]; then
+    return 1
+  fi
+
+  local saved_token="$TOKEN"
+  local payload response
+  TOKEN=""
+  payload="$(json_object username "$USERNAME_B" password "$PASSWORD_B")"
+  response="$(request "POST" "/api/public/login" "200" "$payload")"
+  TOKEN_B="$(json_get_field accessToken <<<"$response")" || fail "second owner login did not return accessToken"
+  TOKEN="$saved_token"
+  return 0
 }
 
 main() {
@@ -373,6 +398,34 @@ main() {
   me="$(request "GET" "${API_PREFIX}/users/me" "200")"
   json_get_field username <<<"$me" >/dev/null || fail "me did not return username"
   ok
+
+  if authenticate_second_owner; then
+    scenario "owner isolation hides private category from a second authenticated owner"
+    local owner_a_token="$TOKEN"
+    local owner_b_token="$TOKEN_B"
+    local private_payload private_created
+    private_payload="$(python3 -c 'import json, sys; print(json.dumps({"name": sys.argv[1], "description": "Private owner isolation category", "icon": "outros", "active": True, "ownerPublic": False}))' "Private Category ${TEST_SUFFIX}")"
+    private_created="$(request "POST" "${API_PREFIX}/categories" "201" "$private_payload")"
+    PRIVATE_CATEGORY_ID="$(json_get_field id <<<"$private_created")" || fail "private category creation did not return id"
+    TOKEN="$owner_b_token"
+    request "GET" "${API_PREFIX}/categories/${PRIVATE_CATEGORY_ID}" "404" >/dev/null
+    TOKEN="$owner_a_token"
+    ok
+
+    scenario "owner public category is readable but not mutable by a second owner"
+    local public_payload public_created public_update_payload
+    public_payload="$(python3 -c 'import json, sys; print(json.dumps({"name": sys.argv[1], "description": "Public owner isolation category", "icon": "outros", "active": True, "ownerPublic": True}))' "Public Category ${TEST_SUFFIX}")"
+    public_created="$(request "POST" "${API_PREFIX}/categories" "201" "$public_payload")"
+    PUBLIC_CATEGORY_ID="$(json_get_field id <<<"$public_created")" || fail "public category creation did not return id"
+    TOKEN="$owner_b_token"
+    request "GET" "${API_PREFIX}/categories/${PUBLIC_CATEGORY_ID}" "200" >/dev/null
+    public_update_payload="$(python3 -c 'import json, sys; print(json.dumps({"name": sys.argv[1], "description": "Cross-owner update attempt", "icon": "outros", "active": True, "ownerPublic": True}))' "Public Category ${TEST_SUFFIX} changed")"
+    request "PUT" "${API_PREFIX}/categories/${PUBLIC_CATEGORY_ID}" "404" "$public_update_payload" >/dev/null
+    TOKEN="$owner_a_token"
+    ok
+  else
+    log "second owner credentials not provided; skipping owner isolation black-box scenarios"
+  fi
 
   # ── Main item ────────────────────────────────────────────────────────────────
 

@@ -12,6 +12,8 @@ import br.com.stella.api.entity.CategoryIcon;
 import br.com.stella.api.mapper.CategoryMapper;
 import br.com.stella.api.repository.CategoryRepository;
 import jakarta.persistence.EntityManager;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,7 +83,7 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
      */
     @Transactional(readOnly = true)
     public List<CategorySummaryDTO> listSummary() {
-        return repository.findByActiveTrueOrderByNameAsc().stream()
+        return repository.findAllActive(Sort.by("name")).stream()
                 .map(CategoryMapper::toResumoDTO)
                 .toList();
     }
@@ -111,7 +113,7 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
             return List.of();
         }
 
-        return repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(normalizedName).stream()
+        return repository.findAll(activeNameContains(normalizedName), Sort.by("name")).stream()
                 .map(CategoryMapper::toResumoDTO)
                 .toList();
     }
@@ -169,5 +171,12 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
             throw new IllegalArgumentException("Invalid category icon.");
         }
         return valor;
+    }
+
+    private Specification<Category> activeNameContains(String name) {
+        return (root, query, cb) -> cb.and(
+                cb.isTrue(root.get("active")),
+                cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%")
+        );
     }
 }

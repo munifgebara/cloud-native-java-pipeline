@@ -36,6 +36,14 @@ public interface ItemInstanceRepository extends SuperRepository<ItemInstance>, J
             where instance.active = true
               and mainItem.active = true
               and mainItem.id in :mainItemIds
+              and (
+                ?#{T(br.com.munif.common.owner.OwnerContext).isUnrestricted()} = true
+                or instance.ownerPublic = true
+                or (
+                    instance.ownerEmail = ?#{T(br.com.munif.common.owner.OwnerContext).currentEmailOrNull()}
+                    and instance.ownerIssuer = ?#{T(br.com.munif.common.owner.OwnerContext).currentIssuerOrNull()}
+                )
+              )
             order by mainItem.name asc, instance.identifier asc, instance.assetTag asc, instance.serialNumber asc
             """)
     List<ItemInstance> findActiveByMainItemIds(@Param("mainItemIds") List<UUID> mainItemIds);
@@ -103,6 +111,14 @@ public interface ItemInstanceRepository extends SuperRepository<ItemInstance>, J
             join instance.currentLocation location
             where instance.active = true
               and location.active = true
+              and (
+                ?#{T(br.com.munif.common.owner.OwnerContext).isUnrestricted()} = true
+                or instance.ownerPublic = true
+                or (
+                    instance.ownerEmail = ?#{T(br.com.munif.common.owner.OwnerContext).currentEmailOrNull()}
+                    and instance.ownerIssuer = ?#{T(br.com.munif.common.owner.OwnerContext).currentIssuerOrNull()}
+                )
+              )
             group by location.id, location.name
             order by count(instance) desc, location.name asc
             """)

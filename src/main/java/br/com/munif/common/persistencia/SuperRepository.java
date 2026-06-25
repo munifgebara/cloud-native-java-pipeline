@@ -1,6 +1,8 @@
 package br.com.munif.common.persistencia;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import java.util.List;
@@ -20,7 +22,7 @@ import java.util.UUID;
  * @param <T> type of the entity managed by this repository
  */
 @NoRepositoryBean
-public interface SuperRepository<T extends BaseEntity> extends JpaRepository<T, UUID> {
+public interface SuperRepository<T extends BaseEntity> extends JpaRepository<T, UUID>, JpaSpecificationExecutor<T> {
 
     /**
      * Returns all records of the entity, both active and inactive.
@@ -33,5 +35,13 @@ public interface SuperRepository<T extends BaseEntity> extends JpaRepository<T, 
      */
     default List<T> findAllIncludingInactive() {
         return findAll();
+    }
+
+    default List<T> findAllActive(Sort sort) {
+        return findAll(sort);
+    }
+
+    default long countActive() {
+        return count();
     }
 }

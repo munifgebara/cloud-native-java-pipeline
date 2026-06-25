@@ -12,6 +12,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
@@ -89,7 +91,7 @@ class LocalArmazenamentoServiceTest {
         StorageLocation gaveta = location(UUID.randomUUID(), "Gaveta 2", escritorio);
         StorageLocation deposito = location(UUID.randomUUID(), "Deposito", null);
 
-        when(repository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(deposito, gaveta, escritorio, casa));
+        when(repository.findAllActive(any(Sort.class))).thenReturn(List.of(deposito, gaveta, escritorio, casa));
 
         var locais = service.listSummary();
 
@@ -122,7 +124,7 @@ class LocalArmazenamentoServiceTest {
     void shouldFindByNameOnlyWhenFilterProvided() {
         StorageLocation location = location(UUID.randomUUID(), "Deposito Central", null);
 
-        when(repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc("Deposito")).thenReturn(List.of(location));
+        when(repository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of(location));
 
         assertThat(service.findByName("  ")).isEmpty();
         assertThat(service.findByName(" Deposito ")).hasSize(1);

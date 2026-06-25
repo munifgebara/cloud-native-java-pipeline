@@ -243,7 +243,7 @@ class InstanciaItemServiceTest {
     void shouldFindByIdentifierOnlyWhenFilterProvided() {
         ItemInstance instance = instance(UUID.randomUUID(), "NB-001", mainItem(UUID.randomUUID(), "Notebook", true));
 
-        when(repository.findByActiveTrueAndIdentifierContainingIgnoreCaseOrderByIdentifierAsc("NB")).thenReturn(List.of(instance));
+        when(repository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of(instance));
 
         assertThat(service.findByIdentifier("  ")).isEmpty();
         assertThat(service.findByIdentifier(" NB ")).hasSize(1);
