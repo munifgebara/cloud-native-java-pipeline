@@ -79,12 +79,12 @@ class InventoryMapperTest {
         assertThat(CategoryMapper.toResponseDTO(null)).isNull();
         assertThat(CategoryMapper.toResumoDTO(null)).isNull();
 
-        Category category = CategoryMapper.toEntity(new CategoryCreateDTO("Livros", "Acervo", "livros", false));
+        Category category = CategoryMapper.toEntity(new CategoryCreateDTO("Livros", "Acervo", "livros", false, null));
         category.setId(UUID.randomUUID());
 
         assertThat(category.isActive()).isFalse();
 
-        CategoryMapper.updateEntity(category, new CategoryUpdateDTO("Biblioteca", "Livros fisicos", "book", true));
+        CategoryMapper.updateEntity(category, new CategoryUpdateDTO("Biblioteca", "Livros fisicos", "book", true, null));
 
         var response = CategoryMapper.toResponseDTO(category);
         var resumo = CategoryMapper.toResumoDTO(category);
@@ -97,10 +97,10 @@ class InventoryMapperTest {
 
     @Test
     void shouldPreserveActiveOnMapCategoryWhenFieldVierNull() {
-        Category category = CategoryMapper.toEntity(new CategoryCreateDTO("Livros", null, null, null));
+        Category category = CategoryMapper.toEntity(new CategoryCreateDTO("Livros", null, null, null, null));
         category.setActive(false);
 
-        CategoryMapper.updateEntity(category, new CategoryUpdateDTO("Livros", "Atualizada", null, null));
+        CategoryMapper.updateEntity(category, new CategoryUpdateDTO("Livros", "Atualizada", null, null, null));
 
         assertThat(category.isActive()).isFalse();
         assertThat(category.getDescription()).isEqualTo("Atualizada");

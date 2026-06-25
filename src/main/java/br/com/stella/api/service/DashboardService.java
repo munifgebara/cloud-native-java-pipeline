@@ -1,11 +1,15 @@
 package br.com.stella.api.service;
 
 import br.com.stella.api.dto.DashboardSummaryDTO;
+import br.com.stella.api.entity.ItemInstance;
 import br.com.stella.api.entity.ItemInstanceStatus;
+import br.com.stella.api.entity.MainItem;
+import br.com.stella.api.entity.StorageLocation;
 import br.com.stella.api.repository.ItemInstanceRepository;
 import br.com.stella.api.repository.MainItemRepository;
 import br.com.stella.api.repository.StorageLocationRepository;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,16 +56,37 @@ public class DashboardService {
     public DashboardSummaryDTO carregarResumo() {
         return new DashboardSummaryDTO(
                 personService.countActivePeople(),
-                mainItemRepository.countByActiveTrue(),
-                itemInstanceRepository.countByActiveTrue(),
-                itemInstanceRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.DISPONIVEL),
-                itemInstanceRepository.countByActiveTrueAndOperationalStatus(ItemInstanceStatus.EMPRESTADO),
-                storageLocationRepository.countByActiveTrue(),
-                mainItemRepository.countByActiveTrueAndImageObjectKeyIsNull(),
+                mainItemRepository.count(activeMainItem()),
+                itemInstanceRepository.count(activeInstance(null)),
+                itemInstanceRepository.count(activeInstance(ItemInstanceStatus.DISPONIVEL)),
+                itemInstanceRepository.count(activeInstance(ItemInstanceStatus.EMPRESTADO)),
+                storageLocationRepository.count(activeLocation()),
+                mainItemRepository.count(activeMainItemWithoutImage()),
                 mainItemRepository.countItemsRegisteredByAi(),
                 vectorSearchMetricsService.countQueries(),
                 itemInstanceRepository.findLocationsWithMostItems(PageRequest.of(0, LIMITE_LOCAIS_COM_MAIS_ITENS)),
                 mainItemRepository.findCategoriesWithMostItems(PageRequest.of(0, LIMITE_CATEGORIAS_COM_MAIS_ITENS))
         );
+    }
+
+    private Specification<MainItem> activeMainItem() {
+        return (root, query, cb) -> cb.isTrue(root.get("active"));
+    }
+
+    private Specification<MainItem> activeMainItemWithoutImage() {
+        return (root, query, cb) -> cb.and(
+                cb.isTrue(root.get("active")),
+                cb.isNull(root.get("imageObjectKey"))
+        );
+    }
+
+    private Specification<ItemInstance> activeInstance(ItemInstanceStatus status) {
+        return (root, query, cb) -> status == null
+                ? cb.isTrue(root.get("active"))
+                : cb.and(cb.isTrue(root.get("active")), cb.equal(root.get("operationalStatus"), status));
+    }
+
+    private Specification<StorageLocation> activeLocation() {
+        return (root, query, cb) -> cb.isTrue(root.get("active"));
     }
 }

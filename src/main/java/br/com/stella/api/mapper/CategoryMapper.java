@@ -36,6 +36,9 @@ public final class CategoryMapper {
         if (dto.active() != null) {
             category.setActive(dto.active());
         }
+        if (dto.ownerPublic() != null) {
+            category.setOwnerPublic(dto.ownerPublic());
+        }
         return category;
     }
 
@@ -58,6 +61,9 @@ public final class CategoryMapper {
         entity.setIcon(dto.icon());
         if (dto.active() != null) {
             entity.setActive(dto.active());
+        }
+        if (dto.ownerPublic() != null) {
+            entity.setOwnerPublic(dto.ownerPublic());
         }
     }
 

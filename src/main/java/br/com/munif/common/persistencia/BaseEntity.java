@@ -101,6 +101,27 @@ public abstract class BaseEntity implements Serializable {
     private String externalId;
 
     /**
+     * Canonical email of the owner that created and controls the record.
+     * The value is derived from the authenticated token, never from client payload.
+     */
+    @Column(name = "owner_email", length = 150)
+    private String ownerEmail;
+
+    /**
+     * OIDC issuer that produced the owner identity.
+     * Used together with {@link #ownerEmail} as the logical ownership key.
+     */
+    @Column(name = "owner_issuer", length = 300)
+    private String ownerIssuer;
+
+    /**
+     * Allows authenticated users other than the owner to read the record.
+     * Mutations remain restricted to the owner.
+     */
+    @Column(name = "owner_public", nullable = false)
+    private boolean ownerPublic = false;
+
+    /**
      * JPA callback executed immediately before the first persistence of the record.
      *
      * <p>Responsibilities:</p>

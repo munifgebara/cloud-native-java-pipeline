@@ -13,6 +13,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.Instant;
 import java.util.List;
@@ -116,7 +118,7 @@ class PessoaServiceTest {
         person.setId(UUID.randomUUID());
         person.setName("Maria Silva");
 
-        when(repository.findByActiveTrueAndNameContainingIgnoreCase("Maria")).thenReturn(List.of(person));
+        when(repository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of(person));
 
         assertThat(service.findByName("  ")).isEmpty();
         assertThat(service.findByName(" Maria ")).hasSize(1);

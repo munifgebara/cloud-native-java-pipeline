@@ -34,7 +34,7 @@ public class CategorySteps {
 
     @Given("that a category registration exists with name {string} and icon {string}")
     public void categoryRegistrationExistsWithNameAndIcon(String name, String icon) {
-        request = new CategoryCreateDTO(name, null, icon, true);
+        request = new CategoryCreateDTO(name, null, icon, true, null);
     }
 
     @When("the category is saved")

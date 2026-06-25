@@ -1,5 +1,6 @@
 package br.com.stella.api.repository;
 
+import br.com.munif.common.persistencia.BaseEntity;
 import br.com.stella.api.entity.Category;
 import br.com.stella.api.entity.ItemLoan;
 import br.com.stella.api.entity.ItemInstance;
@@ -30,6 +31,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class InventoryRepositoryIntegrationTest {
+
+    private static final String TEST_OWNER_EMAIL = "integration@example.local";
+    private static final String TEST_OWNER_ISSUER = "https://issuer.example.local/realms/test";
 
     @Autowired
     private EntityManager entityManager;
@@ -259,6 +263,10 @@ class InventoryRepositoryIntegrationTest {
 
     private void persistir(Object... entidades) {
         for (Object entity : entidades) {
+            if (entity instanceof BaseEntity baseEntity) {
+                baseEntity.setOwnerEmail(TEST_OWNER_EMAIL);
+                baseEntity.setOwnerIssuer(TEST_OWNER_ISSUER);
+            }
             entityManager.persist(entity);
         }
     }

@@ -72,6 +72,18 @@ public class MRevisionEntity implements Serializable {
     private String username;
 
     /**
+     * Canonical email of the authenticated user that produced the revision.
+     */
+    @Column(name = "owner_email", length = 150)
+    private String ownerEmail;
+
+    /**
+     * Issuer of the authenticated user that produced the revision.
+     */
+    @Column(name = "owner_issuer", length = 300)
+    private String ownerIssuer;
+
+    /**
      * Field reserved for future extensibility.
      */
     @Column(name = "external_id", length = 100)

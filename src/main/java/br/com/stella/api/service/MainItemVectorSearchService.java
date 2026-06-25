@@ -1,6 +1,7 @@
 package br.com.stella.api.service;
 
 import br.com.munif.common.utils.validacoes.BrValidations;
+import br.com.munif.common.owner.OwnerContext;
 import br.com.stella.api.config.EmbeddingsProperties;
 import br.com.stella.api.config.VectorSearchProperties;
 import br.com.stella.api.dto.SemanticSearchInstanceDTO;
@@ -15,6 +16,7 @@ import br.com.stella.api.observability.StructuredBusinessLogger;
 import br.com.stella.api.repository.ItemInstanceRepository;
 import br.com.stella.api.repository.MainItemRepository;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +64,11 @@ public class MainItemVectorSearchService {
             join public.main_item i on i.id = e.main_item_id
             where e.active = true
               and i.active = true
+              and (
+                ? = true
+                or i.owner_public = true
+                or (i.owner_email = ? and i.owner_issuer = ?)
+              )
             order by e.embedding <=> ?::vector
             limit ?
             """;
@@ -185,7 +192,7 @@ public class MainItemVectorSearchService {
         }
 
         long inicio = System.nanoTime();
-        List<MainItem> items = mainItemRepository.findByActiveTrueOrderByNameAsc();
+        List<MainItem> items = mainItemRepository.findAllActive(Sort.by("name"));
         try {
             items.forEach(this::synchronize);
             StructuredBusinessLogger.info(log, "vector-search", "items-reindexed", StructuredBusinessLogger.fields(
@@ -228,6 +235,9 @@ public class MainItemVectorSearchService {
                             rs.getObject("main_item_id", UUID.class),
                             rs.getDouble("similarity")
                     ),
+                    OwnerContext.isUnrestricted(),
+                    OwnerContext.currentEmailOrNull(),
+                    OwnerContext.currentIssuerOrNull(),
                     literal,
                     literal,
                     vectorSearchProperties.maxResults()

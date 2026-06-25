@@ -18,6 +18,8 @@ import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.RevisionType;
 import org.hibernate.envers.query.AuditEntity;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -102,7 +104,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
      */
     @Transactional(readOnly = true)
     public List<PersonSummaryDTO> listSummary() {
-        return repository.findByActiveTrueOrderByNameAsc().stream()
+        return repository.findAllActive(Sort.by("name")).stream()
                 .map(PersonMapper::toResumoDTO)
                 .toList();
     }
@@ -219,7 +221,7 @@ public class PersonService extends SuperService<Person, PersonRepository> {
             return List.of();
         }
 
-        return repository.findByActiveTrueAndNameContainingIgnoreCase(normalizedName).stream()
+        return repository.findAll(activeNameContains(normalizedName), Sort.by("name")).stream()
                 .map(PersonMapper::toResumoDTO)
                 .toList();
     }
@@ -262,7 +264,14 @@ public class PersonService extends SuperService<Person, PersonRepository> {
      */
     @Transactional(readOnly = true)
     public long countActivePeople() {
-        return repository.countByActiveTrue();
+        return repository.countActive();
+    }
+
+    private Specification<Person> activeNameContains(String name) {
+        return (root, query, cb) -> cb.and(
+                cb.isTrue(root.get("active")),
+                cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%")
+        );
     }
 
     private void validarCreate(PersonCreateDTO dto) {

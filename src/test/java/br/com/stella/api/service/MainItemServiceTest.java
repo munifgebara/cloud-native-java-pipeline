@@ -217,7 +217,7 @@ class ItemMestreServiceTest {
         MainItem inactive = item(UUID.randomUUID(), "Arquivo legado", null);
         inactive.setActive(false);
 
-        when(repository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(active));
+        when(repository.findAllActive(any(Sort.class))).thenReturn(List.of(active));
         when(repository.findAllIncludingInactive()).thenReturn(List.of(active, inactive));
 
         assertThat(service.listSummary()).extracting("name").containsExactly("Notebook");
@@ -228,7 +228,7 @@ class ItemMestreServiceTest {
     void shouldFindByNameOnlyWhenFilterProvided() {
         MainItem item = item(UUID.randomUUID(), "Furadeira Bosch", null);
 
-        when(repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc("Furadeira")).thenReturn(List.of(item));
+        when(repository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of(item));
 
         assertThat(service.findByName("  ")).isEmpty();
         assertThat(service.findByName(" Furadeira ")).hasSize(1);

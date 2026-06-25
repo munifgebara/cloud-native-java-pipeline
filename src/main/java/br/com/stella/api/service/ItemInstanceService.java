@@ -137,7 +137,10 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
      */
     @Transactional(readOnly = true)
     public List<ItemInstanceSummaryDTO> listSummary() {
-        return repository.findByActiveTrueOrderByIdentifierAscAssetTagAscSerialNumberAsc().stream()
+        return repository.findAll(
+                        ItemInstanceRepository.filterActive(null, null, null, null),
+                        Sort.by(Sort.Order.asc("identifier").nullsLast(), Sort.Order.asc("assetTag").nullsLast(), Sort.Order.asc("serialNumber").nullsLast())
+                ).stream()
                 .map(ItemInstanceMapper::toResumoDTO)
                 .toList();
     }
@@ -167,7 +170,10 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
             return List.of();
         }
 
-        return repository.findByActiveTrueAndIdentifierContainingIgnoreCaseOrderByIdentifierAsc(valor).stream()
+        return repository.findAll(
+                        ItemInstanceRepository.filterActive(valor, null, null, null),
+                        Sort.by(Sort.Order.asc("identifier").nullsLast())
+                ).stream()
                 .map(ItemInstanceMapper::toResumoDTO)
                 .toList();
     }

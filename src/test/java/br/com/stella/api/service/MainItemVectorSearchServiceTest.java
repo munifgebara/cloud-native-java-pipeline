@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -143,7 +144,7 @@ class ItemMestreVectorSearchServiceTest {
         instance.setIdentifier("GPU 1");
 
         when(embeddingProvider.generateEmbedding("onde encontro placa de computador")).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
-        when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any())).thenAnswer(invocation -> {
+        when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any(), any(), any(), any())).thenAnswer(invocation -> {
             RowMapper<?> mapper = invocation.getArgument(1);
             ResultSet rs = mock(ResultSet.class);
             when(rs.getObject("main_item_id", UUID.class)).thenReturn(itemId);
@@ -177,7 +178,7 @@ class ItemMestreVectorSearchServiceTest {
     @Test
     void shouldReturnListEmptyWhenQueryNotHasResults() {
         when(embeddingProvider.generateEmbedding("placa de video")).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
-        when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any())).thenReturn(List.of());
+        when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any(), any(), any(), any())).thenReturn(List.of());
 
         var result = service(true).search("placa de video");
 
@@ -190,7 +191,7 @@ class ItemMestreVectorSearchServiceTest {
         String consultaLonga = "placa ".repeat(60);
         RuntimeException falha = new RuntimeException("query failure");
         when(embeddingProvider.generateEmbedding(consultaLonga.trim())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
-        when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any())).thenThrow(falha);
+        when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any(), any(), any(), any())).thenThrow(falha);
 
         assertThatThrownBy(() -> service(true).search(consultaLonga))
                 .isSameAs(falha);
@@ -199,7 +200,7 @@ class ItemMestreVectorSearchServiceTest {
     @Test
     void shouldWrapDatabaseFailureOnFindSemanticallyAsExternalIntegration() {
         when(embeddingProvider.generateEmbedding("placa de video")).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
-        when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any()))
+        when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any(), any(), any(), any()))
                 .thenThrow(new DataAccessResourceFailureException("database unavailable"));
 
         assertThatThrownBy(() -> service(true).search("placa de video"))
@@ -209,7 +210,7 @@ class ItemMestreVectorSearchServiceTest {
 
     @Test
     void shouldReindexItemsActiveWhenEnabled() {
-        when(mainItemRepository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(item(UUID.randomUUID(), true), item(UUID.randomUUID(), true)));
+        when(mainItemRepository.findAllActive(any(Sort.class))).thenReturn(List.of(item(UUID.randomUUID(), true), item(UUID.randomUUID(), true)));
         when(embeddingProvider.generateEmbedding(anyString())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
 
         int total = service(true).reindexActiveItems();
@@ -228,7 +229,7 @@ class ItemMestreVectorSearchServiceTest {
 
     @Test
     void shouldPropagateFailureOnReindexItemsActive() {
-        when(mainItemRepository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(item(UUID.randomUUID(), true)));
+        when(mainItemRepository.findAllActive(any(Sort.class))).thenReturn(List.of(item(UUID.randomUUID(), true)));
         when(embeddingProvider.generateEmbedding(anyString())).thenReturn(new float[]{0.1f});
 
         assertThatThrownBy(() -> service(true).reindexActiveItems())
@@ -238,7 +239,7 @@ class ItemMestreVectorSearchServiceTest {
 
     @Test
     void shouldWrapDatabaseFailureOnReindexItemsActiveAsExternalIntegration() {
-        when(mainItemRepository.findByActiveTrueOrderByNameAsc()).thenReturn(List.of(item(UUID.randomUUID(), true)));
+        when(mainItemRepository.findAllActive(any(Sort.class))).thenReturn(List.of(item(UUID.randomUUID(), true)));
         when(embeddingProvider.generateEmbedding(anyString())).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
         doThrow(new DataAccessResourceFailureException("database unavailable"))
                 .when(jdbcTemplate).update(anyString(), any(), any(), any(), any(), any(), any());

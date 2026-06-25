@@ -125,6 +125,7 @@ public abstract class SuperService<T extends BaseEntity, R extends SuperReposito
      *         empty list if there is no history
      */
     public List<RevisionDTO<T>> listPreviousVersions(UUID id) {
+        findById(id);
         AuditReader auditReader = AuditReaderFactory.get(entityManager);
         List<Number> revisions = auditReader.getRevisions(entityClass, id);
 

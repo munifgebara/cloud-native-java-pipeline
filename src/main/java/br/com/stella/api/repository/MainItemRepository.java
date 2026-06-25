@@ -34,6 +34,14 @@ public interface MainItemRepository extends SuperRepository<MainItem>, JpaSpecif
             select count(item)
             from MainItem item
             where item.active = true
+              and (
+                ?#{T(br.com.munif.common.owner.OwnerContext).isUnrestricted()} = true
+                or item.ownerPublic = true
+                or (
+                    item.ownerEmail = ?#{T(br.com.munif.common.owner.OwnerContext).currentEmailOrNull()}
+                    and item.ownerIssuer = ?#{T(br.com.munif.common.owner.OwnerContext).currentIssuerOrNull()}
+                )
+              )
               and (item.registrationOrigin = 'CADASTRO_IA_FOTO' or item.imageGeneratedByAi = true)
             """)
     long countItemsRegisteredByAi();
@@ -48,6 +56,14 @@ public interface MainItemRepository extends SuperRepository<MainItem>, JpaSpecif
             join item.category category
             where item.active = true
               and category.active = true
+              and (
+                ?#{T(br.com.munif.common.owner.OwnerContext).isUnrestricted()} = true
+                or item.ownerPublic = true
+                or (
+                    item.ownerEmail = ?#{T(br.com.munif.common.owner.OwnerContext).currentEmailOrNull()}
+                    and item.ownerIssuer = ?#{T(br.com.munif.common.owner.OwnerContext).currentIssuerOrNull()}
+                )
+              )
             group by category.id, category.name
             order by count(item) desc, category.name asc
             """)
@@ -83,6 +99,14 @@ public interface MainItemRepository extends SuperRepository<MainItem>, JpaSpecif
             from MainItem item
             left join fetch item.category
             where item.id in :ids
+              and (
+                ?#{T(br.com.munif.common.owner.OwnerContext).isUnrestricted()} = true
+                or item.ownerPublic = true
+                or (
+                    item.ownerEmail = ?#{T(br.com.munif.common.owner.OwnerContext).currentEmailOrNull()}
+                    and item.ownerIssuer = ?#{T(br.com.munif.common.owner.OwnerContext).currentIssuerOrNull()}
+                )
+              )
             """)
     List<MainItem> findWithCategoryByIds(@Param("ids") List<UUID> ids);
 }

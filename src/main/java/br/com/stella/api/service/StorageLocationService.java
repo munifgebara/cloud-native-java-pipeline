@@ -15,6 +15,8 @@ import br.com.stella.api.repository.StorageLocationRepository;
 import jakarta.persistence.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -102,7 +104,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
      */
     @Transactional(readOnly = true)
     public List<StorageLocationSummaryDTO> listSummary() {
-        return buildHierarchy(repository.findByActiveTrueOrderByNameAsc());
+        return buildHierarchy(repository.findAllActive(Sort.by("name")));
     }
 
     /**
@@ -129,7 +131,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
             return List.of();
         }
 
-        return buildHierarchy(repository.findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(normalizedName));
+        return buildHierarchy(repository.findAll(activeNameContains(normalizedName), Sort.by("name")));
     }
 
     /**
@@ -298,6 +300,13 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
             addToHierarchy(root, root.getName(), 0, childrenByParent, result, visited);
         }
         return result;
+    }
+
+    private Specification<StorageLocation> activeNameContains(String name) {
+        return (root, query, cb) -> cb.and(
+                cb.isTrue(root.get("active")),
+                cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%")
+        );
     }
 
     private void addToHierarchy(

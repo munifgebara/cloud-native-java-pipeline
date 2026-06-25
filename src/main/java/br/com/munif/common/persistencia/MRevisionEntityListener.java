@@ -1,5 +1,6 @@
 package br.com.munif.common.persistencia;
 
+import br.com.munif.common.owner.OwnerContext;
 import org.hibernate.envers.RevisionListener;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,6 +31,10 @@ public class MRevisionEntityListener implements RevisionListener {
         if (revisionEntity instanceof MRevisionEntity revision) {
             revision.setUsername(resolveUsername());
             revision.setIp(resolveIp());
+            OwnerContext.current().ifPresent(owner -> {
+                revision.setOwnerEmail(owner.email());
+                revision.setOwnerIssuer(owner.issuer());
+            });
         }
     }
 
