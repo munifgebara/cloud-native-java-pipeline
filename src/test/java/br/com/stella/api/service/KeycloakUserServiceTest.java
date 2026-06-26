@@ -45,7 +45,7 @@ class KeycloakUsuarioServiceTest {
         RestClient.Builder builder = RestClient.builder();
         server = MockRestServiceServer.bindTo(builder).build();
         service = new KeycloakUserService(
-                new KeycloakProperties("http://keycloak", "stella", "stella-cli", "master", "admin-cli", "admin", "admin", null),
+                new KeycloakProperties("http://keycloak", "stella", "stella-cli", "master", "admin-cli", "admin", "admin", null, null, null),
                 builder
         );
     }
@@ -206,7 +206,7 @@ class KeycloakUsuarioServiceTest {
     @Test
     void shouldTranslateFailureOfConnectionWithKeycloakAsServiceUnavailable() {
         KeycloakUserService servicoIndisponivel = new KeycloakUserService(
-                new KeycloakProperties("http://127.0.0.1:1", "stella", "stella-cli", "master", "admin-cli", "admin", "admin", null),
+                new KeycloakProperties("http://127.0.0.1:1", "stella", "stella-cli", "master", "admin-cli", "admin", "admin", null, null, null),
                 RestClient.builder()
         );
 
@@ -222,7 +222,7 @@ class KeycloakUsuarioServiceTest {
         RestClient.Builder builder = RestClient.builder();
         server = MockRestServiceServer.bindTo(builder).build();
         service = new KeycloakUserService(
-                new KeycloakProperties("http://keycloak", "stella", "stella-cli", "stella", "stella-api-admin", null, null, "secret-tecnico"),
+                new KeycloakProperties("http://keycloak", "stella", "stella-cli", "stella", "stella-api-admin", null, null, "secret-tecnico", null, null),
                 builder
         );
 
@@ -456,7 +456,7 @@ class KeycloakUsuarioServiceTest {
         RestClient.Builder builder = RestClient.builder();
         server = MockRestServiceServer.bindTo(builder).build();
         service = new KeycloakUserService(
-                new KeycloakProperties("http://keycloak", "stella", "stella-cli", "master", "admin-cli", null, " ", null),
+                new KeycloakProperties("http://keycloak", "stella", "stella-cli", "master", "admin-cli", null, " ", null, null, null),
                 builder
         );
 

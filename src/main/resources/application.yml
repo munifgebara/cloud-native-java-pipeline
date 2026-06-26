@@ -51,7 +51,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${stella.keycloak.base-url}/realms/${stella.keycloak.realm}
+          issuer-uri: ${stella.keycloak.issuer-url}
 
 stella:
   cors:
@@ -67,6 +67,8 @@ stella:
     admin-username: ${STELLA_KEYCLOAK_ADMIN_USERNAME:admin}
     admin-password: ${STELLA_KEYCLOAK_ADMIN_PASSWORD:admin}
     admin-client-secret: ${STELLA_KEYCLOAK_ADMIN_CLIENT_SECRET:}
+    issuer-url: ${STELLA_KEYCLOAK_ISSUER_URL:${stella.keycloak.base-url}/realms/${stella.keycloak.realm}}
+    jwk-set-url: ${STELLA_KEYCLOAK_JWK_SET_URL:${stella.keycloak.base-url}/realms/${stella.keycloak.realm}/protocol/openid-connect/certs}
   minio:
     endpoint: ${STELLA_MINIO_ENDPOINT:http://127.0.0.1:9000}
     access-key: ${STELLA_MINIO_ACCESS_KEY:minioadmin}
