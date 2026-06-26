@@ -33,7 +33,7 @@ class KeycloakLoginServiceTest {
         RestClient.Builder builder = RestClient.builder();
         server = MockRestServiceServer.bindTo(builder).build();
         service = new KeycloakLoginService(
-                new KeycloakProperties("http://keycloak", "stella", "stella-cli", "master", "admin-cli", "admin", "admin", null),
+                new KeycloakProperties("http://keycloak", "stella", "stella-cli", "master", "admin-cli", "admin", "admin", null, null, null),
                 builder
         );
     }
@@ -139,7 +139,7 @@ class KeycloakLoginServiceTest {
     @Test
     void shouldTranslateFailureOfConnectionWithKeycloakAsServiceUnavailable() {
         KeycloakLoginService servicoIndisponivel = new KeycloakLoginService(
-                new KeycloakProperties("http://127.0.0.1:1", "stella", "stella-cli", "master", "admin-cli", "admin", "admin", null),
+                new KeycloakProperties("http://127.0.0.1:1", "stella", "stella-cli", "master", "admin-cli", "admin", "admin", null, null, null),
                 RestClient.builder()
         );
 

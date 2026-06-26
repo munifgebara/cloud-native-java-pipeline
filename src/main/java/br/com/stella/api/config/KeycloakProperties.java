@@ -11,11 +11,17 @@ public record KeycloakProperties(
         String adminClientId,
         String adminUsername,
         String adminPassword,
-        String adminClientSecret
+        String adminClientSecret,
+        String issuerUrl,
+        String jwkSetUrl
 ) {
     public KeycloakProperties {
         adminRealm = adminRealm == null || adminRealm.isBlank() ? "master" : adminRealm;
         adminClientId = adminClientId == null || adminClientId.isBlank() ? "admin-cli" : adminClientId;
+        issuerUrl = issuerUrl == null || issuerUrl.isBlank() ? baseUrl + "/realms/" + realm : issuerUrl;
+        jwkSetUrl = jwkSetUrl == null || jwkSetUrl.isBlank()
+                ? baseUrl + "/realms/" + realm + "/protocol/openid-connect/certs"
+                : jwkSetUrl;
     }
 
     public String tokenUrl() {
