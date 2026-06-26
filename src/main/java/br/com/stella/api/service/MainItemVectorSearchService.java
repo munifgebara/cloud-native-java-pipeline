@@ -235,10 +235,10 @@ public class MainItemVectorSearchService {
                             rs.getObject("main_item_id", UUID.class),
                             rs.getDouble("similarity")
                     ),
+                    literal,
                     OwnerContext.isUnrestricted(),
                     OwnerContext.currentEmailOrNull(),
                     OwnerContext.currentIssuerOrNull(),
-                    literal,
                     literal,
                     vectorSearchProperties.maxResults()
             ).stream()
