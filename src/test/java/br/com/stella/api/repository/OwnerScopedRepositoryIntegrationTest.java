@@ -10,6 +10,7 @@ import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,6 +61,35 @@ class OwnerScopedRepositoryIntegrationTest {
         assertThat(visible.isOwnerPublic()).isTrue();
         assertThatThrownBy(() -> categoryRepository.saveAndFlush(visible))
                 .isInstanceOfAny(EntityNotFoundException.class, JpaObjectRetrievalFailureException.class);
+    }
+
+    @Test
+    void shouldListOwnedAndPublicActiveRecordsButHidePrivateRecordsFromOtherOwners() {
+        OwnerContext.set(OWNER_A);
+        categoryRepository.saveAndFlush(category("Owner A private category", false));
+        categoryRepository.saveAndFlush(category("Owner A public category", true));
+
+        OwnerContext.set(OWNER_B);
+        categoryRepository.saveAndFlush(category("Owner B private category", false));
+
+        assertThat(categoryRepository.findAllActive(Sort.by("name")))
+                .extracting(Category::getName)
+                .containsExactly(
+                        "Owner A public category",
+                        "Owner B private category"
+                );
+    }
+
+    @Test
+    void shouldPreserveExplicitOwnerWhenSystemBackfillCreatesRecordsWithoutContext() {
+        Category category = category("Backfilled category", false);
+        category.setOwnerEmail("admin@example.local");
+        category.setOwnerIssuer("https://issuer-a/realms/stella");
+
+        Category saved = categoryRepository.saveAndFlush(category);
+
+        assertThat(saved.getOwnerEmail()).isEqualTo("admin@example.local");
+        assertThat(saved.getOwnerIssuer()).isEqualTo("https://issuer-a/realms/stella");
     }
 
     private Category category(String name, boolean ownerPublic) {

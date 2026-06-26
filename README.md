@@ -210,7 +210,7 @@ The Maven build installs frontend dependencies, builds the Angular app, and pack
 ./mvnw -Dtest=CucumberBddTest test
 ```
 
-BDD scenarios are written in Gherkin under `src/test/resources/features`, with step definitions in `src/test/java`.
+BDD scenarios are written in Gherkin under `src/test/resources/features`, with step definitions in `src/test/java`. They also run automatically as part of `./mvnw clean verify`.
 
 ## Authentication and Demo Access
 
