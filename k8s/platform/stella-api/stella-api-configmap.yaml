@@ -7,6 +7,8 @@ data:
   STELLA_DATASOURCE_URL: jdbc:postgresql://postgres.platform.svc.cluster.local:5432/stella_dev
   STELLA_DATASOURCE_USERNAME: stella
   STELLA_KEYCLOAK_BASE_URL: http://keycloak.platform.svc.cluster.local:8080
+  STELLA_KEYCLOAK_ISSUER_URL: https://keycloak.gebaralabs.dev/realms/stella
+  STELLA_KEYCLOAK_JWK_SET_URL: http://keycloak.platform.svc.cluster.local:8080/realms/stella/protocol/openid-connect/certs
   STELLA_KEYCLOAK_REALM: stella
   STELLA_KEYCLOAK_PUBLIC_CLIENT_ID: stella-cli
   STELLA_KEYCLOAK_ADMIN_REALM: stella
