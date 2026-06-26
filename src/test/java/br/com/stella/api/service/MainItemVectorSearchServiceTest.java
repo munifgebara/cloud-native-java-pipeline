@@ -1,5 +1,7 @@
 package br.com.stella.api.service;
 
+import br.com.munif.common.owner.OwnerContext;
+import br.com.munif.common.owner.OwnerIdentity;
 import br.com.stella.api.config.AiProperties;
 import br.com.stella.api.config.EmbeddingsProperties;
 import br.com.stella.api.config.OpenAiLimitsProperties;
@@ -184,6 +186,30 @@ class ItemMestreVectorSearchServiceTest {
 
         assertThat(result).isEmpty();
         verify(vectorSearchMetricsService).recordQuery("placa de video", 0);
+    }
+
+    @Test
+    void shouldSendVectorAndOwnerArgumentsInSqlPlaceholderOrder() {
+        OwnerContext.set(new OwnerIdentity("social.user@example.com", "https://keycloak.example/realms/stella"));
+        try {
+            when(embeddingProvider.generateEmbedding("placa de video")).thenReturn(new float[]{0.1f, 0.2f, 0.3f});
+            when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(), any(), any(), any(), any(), any())).thenReturn(List.of());
+
+            service(true).search("placa de video");
+
+            verify(jdbcTemplate).query(
+                    anyString(),
+                    any(RowMapper.class),
+                    eq("[0.10000000,0.20000000,0.30000001]"),
+                    eq(false),
+                    eq("social.user@example.com"),
+                    eq("https://keycloak.example/realms/stella"),
+                    eq("[0.10000000,0.20000000,0.30000001]"),
+                    eq(10)
+            );
+        } finally {
+            OwnerContext.clear();
+        }
     }
 
     @Test
