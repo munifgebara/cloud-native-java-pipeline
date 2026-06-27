@@ -294,7 +294,7 @@
         icon="pi pi-check"
         [label]="'photoRegistration.createApproved' | translate"
         [loading]="cadastrando()"
-        [disabled]="analisando()"
+        [disabled]="analisando() || !localPadraoId"
         (click)="cadastrarSelecionados()">
       </button>
     </section>
