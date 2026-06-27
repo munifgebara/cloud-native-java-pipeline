@@ -171,6 +171,11 @@ export class PhotoUploadComponent implements OnInit {
       return;
     }
 
+    if (!this.localPadraoId) {
+      this.errorMessage.set(this.i18n.translate('photoRegistration.locationRequired'));
+      return;
+    }
+
     this.cadastrando.set(true);
     this.errorMessage.set('');
     this.successMessage.set('');
@@ -304,7 +309,7 @@ export class PhotoUploadComponent implements OnInit {
       .filter((instance) => instance.approved)
       .map((instance, index) => ({
         mainItemId: salvo.id,
-        currentLocationId: this.localPadraoId || null,
+        currentLocationId: this.localPadraoId,
         identifier: this.nullIfBlank(instance.identifier) ?? `${salvo.name} ${index + 1}`,
         assetTag: this.nullIfBlank(instance.assetTag),
         serialNumber: this.nullIfBlank(instance.serialNumber),
