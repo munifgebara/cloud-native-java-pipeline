@@ -84,12 +84,7 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
         instance.setCurrentLocation(findActiveLocation(dto.currentLocationId()));
         ItemInstanceRules.validateStatusLocationConsistency(instance);
 
-        ItemInstance salva = save(instance);
-        if (Boolean.FALSE.equals(dto.active())) {
-            repository.flush();
-            salva.setActive(false);
-            salva = save(salva);
-        }
+        ItemInstance salva = saveWithRequestedActiveState(instance, dto.active());
         StructuredBusinessLogger.info(log, "inventory", "instance-created", StructuredBusinessLogger.fields(
                 "instance_id", salva.getId(),
                 "item_id", salva.getMainItem() == null ? null : salva.getMainItem().getId(),

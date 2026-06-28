@@ -69,6 +69,30 @@ public abstract class SuperService<T extends BaseEntity, R extends SuperReposito
     }
 
     /**
+     * Persists a new entity and applies an explicitly requested inactive state after
+     * the initial insert.
+     *
+     * <p>{@link BaseEntity#prePersist()} always makes a new entity active. When callers
+     * request {@code false}, the insert must therefore be flushed before the entity is
+     * logically deactivated and saved again. A {@code true} or {@code null} request keeps
+     * the default active state and requires only the initial persistence.</p>
+     *
+     * @param entity entity to persist
+     * @param requestedActive requested initial state; only {@code false} triggers deactivation
+     * @return persisted entity with the requested state applied
+     */
+    protected T saveWithRequestedActiveState(T entity, Boolean requestedActive) {
+        T saved = save(entity);
+        if (!Boolean.FALSE.equals(requestedActive)) {
+            return saved;
+        }
+
+        repository.flush();
+        saved.deleteLogically();
+        return save(saved);
+    }
+
+    /**
      * Returns all active records of the entity.
      *
      * @return list of active entities, ordering defined by the concrete repository

@@ -70,12 +70,7 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
         normalizeFields(location);
         location.setParent(findActiveParent(dto.parentId()));
 
-        StorageLocation salvo = save(location);
-        if (Boolean.FALSE.equals(dto.active())) {
-            repository.flush();
-            salvo.setActive(false);
-            salvo = save(salvo);
-        }
+        StorageLocation salvo = saveWithRequestedActiveState(location, dto.active());
         StructuredBusinessLogger.info(log, "inventory", "location-created", StructuredBusinessLogger.fields(
                 "location_id", salvo.getId(),
                 "location_name", salvo.getName(),

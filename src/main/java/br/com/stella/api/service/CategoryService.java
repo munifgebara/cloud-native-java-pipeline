@@ -55,12 +55,7 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
         Category category = CategoryMapper.toEntity(dto);
         normalizeFields(category);
 
-        Category salva = save(category);
-        if (Boolean.FALSE.equals(dto.active())) {
-            repository.flush();
-            salva.setActive(false);
-            salva = save(salva);
-        }
+        Category salva = saveWithRequestedActiveState(category, dto.active());
         return CategoryMapper.toResponseDTO(salva);
     }
 
