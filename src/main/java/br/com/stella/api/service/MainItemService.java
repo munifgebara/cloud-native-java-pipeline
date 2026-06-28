@@ -21,8 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
@@ -33,11 +31,11 @@ import java.util.UUID;
  * Service responsible for business operations on {@link MainItem}.
  *
  * <p>Manages the lifecycle of inventory main items, including persistence,
- * main image upload to MinIO, and synchronization of the semantic search index
- * (pgvector) after each change.</p>
+ * main image upload to MinIO, and dispatch of semantic search index updates
+ * after each change.</p>
  *
- * <p>Vector synchronization is executed <em>after the transaction commit</em> to ensure
- * that the index only reflects data already confirmed in the relational database.</p>
+ * <p>Index updates use the transactional outbox when messaging is enabled. The fallback
+ * executes vector synchronization after commit when messaging is disabled.</p>
  */
 @Service
 public class MainItemService extends SuperCrudService<
@@ -53,19 +51,19 @@ public class MainItemService extends SuperCrudService<
 
     private final CategoryRepository categoryRepository;
     private final MainItemImageStorageService imageStorageService;
-    private final MainItemVectorSearchService vectorSearchService;
+    private final EmbeddingIndexDispatcher embeddingIndexDispatcher;
 
     public MainItemService(
             MainItemRepository repository,
             EntityManager entityManager,
             CategoryRepository categoryRepository,
             MainItemImageStorageService imageStorageService,
-            MainItemVectorSearchService vectorSearchService
+            EmbeddingIndexDispatcher embeddingIndexDispatcher
     ) {
         super(repository, entityManager, MainItem.class);
         this.categoryRepository = categoryRepository;
         this.imageStorageService = imageStorageService;
-        this.vectorSearchService = vectorSearchService;
+        this.embeddingIndexDispatcher = embeddingIndexDispatcher;
     }
 
     /**
@@ -82,7 +80,7 @@ public class MainItemService extends SuperCrudService<
         item.setCategory(findActiveCategory(dto.categoryId()));
 
         MainItem salvo = saveWithRequestedActiveState(item, dto.active());
-        syncVectorIndexSilently(salvo, "item-index-sync-after-create");
+        embeddingIndexDispatcher.dispatchUpsert(salvo, "item-index-sync-after-create");
         StructuredBusinessLogger.info(log, "inventory", "item-created", StructuredBusinessLogger.fields(
                 "item_id", salvo.getId(),
                 "item_name", salvo.getName(),
@@ -147,7 +145,7 @@ public class MainItemService extends SuperCrudService<
         item.setCategory(category);
 
         MainItem salvo = save(item);
-        syncVectorIndexSilently(salvo, "item-index-sync-after-update");
+        embeddingIndexDispatcher.dispatchUpsert(salvo, "item-index-sync-after-update");
         StructuredBusinessLogger.info(log, "inventory", "item-updated", StructuredBusinessLogger.fields(
                 "item_id", salvo.getId(),
                 "item_name", salvo.getName(),
@@ -197,7 +195,7 @@ public class MainItemService extends SuperCrudService<
         item.setImageProvider(generatedByAi ? BrValidations.trimToNull(provider) : null);
 
         MainItem salvo = save(item);
-        syncVectorIndexSilently(salvo, "item-index-sync-after-image-update");
+        embeddingIndexDispatcher.dispatchUpsert(salvo, "item-index-sync-after-image-update");
         imageStorageService.removeSilently(bucketAnterior, objectKeyAnterior);
         StructuredBusinessLogger.info(log, "inventory", "item-image-updated", StructuredBusinessLogger.fields(
                 "item_id", salvo.getId(),
@@ -256,7 +254,7 @@ public class MainItemService extends SuperCrudService<
     public void deleteLogically(UUID id) {
         MainItem item = findById(id);
         delete(id);
-        removeVectorIndexSilently(id, item.getName());
+        embeddingIndexDispatcher.dispatchRemove(item);
         StructuredBusinessLogger.info(log, "inventory", "item-deactivated", StructuredBusinessLogger.fields(
                 "item_id", id,
                 "item_name", item.getName(),
@@ -272,7 +270,7 @@ public class MainItemService extends SuperCrudService<
      */
     @Transactional(readOnly = true)
     public List<SemanticSearchItemDTO> searchSemantically(String query) {
-        return vectorSearchService.search(query);
+        return embeddingIndexDispatcher.search(query);
     }
 
     /**
@@ -283,7 +281,7 @@ public class MainItemService extends SuperCrudService<
      */
     @Transactional
     public int reindexSemanticSearch() {
-        return vectorSearchService.reindexActiveItems();
+        return embeddingIndexDispatcher.dispatchReindex();
     }
 
     @Override
@@ -315,39 +313,4 @@ public class MainItemService extends SuperCrudService<
         item.setNotes(BrValidations.trimToNull(item.getNotes()));
     }
 
-    private void syncVectorIndexSilently(MainItem item, String action) {
-        runAfterCommit(action, item == null ? null : item.getId(), item == null ? null : item.getName(),
-                () -> vectorSearchService.synchronize(item));
-    }
-
-    private void removeVectorIndexSilently(UUID id, String name) {
-        runAfterCommit("item-index-remove-after-delete", id, name, () -> vectorSearchService.remove(id));
-    }
-
-    private void runAfterCommit(String action, UUID itemId, String itemName, Runnable operation) {
-        Runnable guardedOperation = () -> {
-            try {
-                operation.run();
-            } catch (RuntimeException ex) {
-                StructuredBusinessLogger.warn(log, "vector-search", action, StructuredBusinessLogger.fields(
-                        "item_id", itemId,
-                        "item_name", itemName,
-                        "success", false,
-                        "failure_type", ex.getClass().getSimpleName()
-                ));
-            }
-        };
-
-        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-            guardedOperation.run();
-            return;
-        }
-
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                guardedOperation.run();
-            }
-        });
-    }
 }
