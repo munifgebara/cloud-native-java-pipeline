@@ -1,7 +1,7 @@
 package br.com.stella.api.service;
 
 import br.com.munif.common.dto.RevisionDTO;
-import br.com.munif.common.service.SuperService;
+import br.com.munif.common.service.SuperCrudService;
 import br.com.munif.common.utils.validacoes.BrValidations;
 import br.com.stella.api.dto.StorageLocationCreateDTO;
 import br.com.stella.api.dto.MainItemImageDTO;
@@ -42,7 +42,14 @@ import java.util.stream.Collectors;
  * with the full path of each node to facilitate display in hierarchical lists.</p>
  */
 @Service
-public class StorageLocationService extends SuperService<StorageLocation, StorageLocationRepository> {
+public class StorageLocationService extends SuperCrudService<
+        StorageLocation,
+        StorageLocationRepository,
+        StorageLocationSummaryDTO,
+        StorageLocationResponseDTO,
+        StorageLocationCreateDTO,
+        StorageLocationUpdateDTO,
+        RevisionDTO<StorageLocation>> {
 
     private static final Logger log = LoggerFactory.getLogger(StorageLocationService.class);
 
@@ -78,38 +85,6 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
                 "success", true
         ));
         return StorageLocationMapper.toResponseDTO(salvo);
-    }
-
-    /**
-     * Returns the full DTO of a location by its identifier.
-     *
-     * @param id UUID of the location
-     * @return full DTO of the location
-     * @throws jakarta.persistence.EntityNotFoundException if the location does not exist
-     */
-    @Transactional(readOnly = true)
-    public StorageLocationResponseDTO findResponseById(UUID id) {
-        return StorageLocationMapper.toResponseDTO(findById(id));
-    }
-
-    /**
-     * Lists all active locations in hierarchical order (DFS), with the path and level of each node.
-     *
-     * @return list of summary DTOs of active locations
-     */
-    @Transactional(readOnly = true)
-    public List<StorageLocationSummaryDTO> listSummary() {
-        return buildHierarchy(repository.findAllActive(Sort.by("name")));
-    }
-
-    /**
-     * Lists all locations, including deactivated ones, in hierarchical order (DFS).
-     *
-     * @return list of summary DTOs of all locations
-     */
-    @Transactional(readOnly = true)
-    public List<StorageLocationSummaryDTO> listSummaryIncludingInactive() {
-        return buildHierarchy(findAllIncludingInactive());
     }
 
     /**
@@ -268,15 +243,19 @@ public class StorageLocationService extends SuperService<StorageLocation, Storag
         ));
     }
 
-    /**
-     * Returns the previous revision history of a location (Hibernate Envers).
-     *
-     * @param id UUID of the location
-     * @return list of revisions in chronological order; empty list if there is no history
-     */
-    @Transactional(readOnly = true)
-    public List<RevisionDTO<StorageLocation>> listRevisions(UUID id) {
-        return listPreviousVersions(id);
+    @Override
+    protected List<StorageLocationSummaryDTO> toSummaries(List<StorageLocation> entities) {
+        return buildHierarchy(entities);
+    }
+
+    @Override
+    protected StorageLocationSummaryDTO toSummary(StorageLocation entity) {
+        return StorageLocationMapper.toResumoDTO(entity, entity.getName(), 0);
+    }
+
+    @Override
+    protected StorageLocationResponseDTO toResponse(StorageLocation entity) {
+        return StorageLocationMapper.toResponseDTO(entity);
     }
 
     private List<StorageLocationSummaryDTO> buildHierarchy(List<StorageLocation> locations) {

@@ -78,6 +78,7 @@ class OwnerScopedRepositoryIntegrationTest {
                         "Owner A public category",
                         "Owner B private category"
                 );
+        assertThat(categoryRepository.countActive()).isEqualTo(2);
     }
 
     @Test

@@ -1,7 +1,7 @@
 package br.com.stella.api.service;
 
 import br.com.munif.common.dto.RevisionDTO;
-import br.com.munif.common.service.SuperService;
+import br.com.munif.common.service.SuperCrudService;
 import br.com.munif.common.utils.validacoes.BrValidations;
 import br.com.stella.api.dto.CategoryCreateDTO;
 import br.com.stella.api.dto.CategoryResponseDTO;
@@ -27,7 +27,14 @@ import java.util.UUID;
  * {@link CategoryRepository} and {@link CategoryMapper} as needed.</p>
  */
 @Service
-public class CategoryService extends SuperService<Category, CategoryRepository> {
+public class CategoryService extends SuperCrudService<
+        Category,
+        CategoryRepository,
+        CategorySummaryDTO,
+        CategoryResponseDTO,
+        CategoryCreateDTO,
+        CategoryUpdateDTO,
+        RevisionDTO<Category>> {
 
     /**
      * Constructs the service injecting the repository and the {@code EntityManager}.
@@ -57,42 +64,6 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
 
         Category salva = saveWithRequestedActiveState(category, dto.active());
         return CategoryMapper.toResponseDTO(salva);
-    }
-
-    /**
-     * Returns the full DTO of a category by its identifier.
-     *
-     * @param id UUID of the category
-     * @return full DTO of the category
-     * @throws jakarta.persistence.EntityNotFoundException if the category does not exist
-     */
-    @Transactional(readOnly = true)
-    public CategoryResponseDTO findResponseById(UUID id) {
-        return CategoryMapper.toResponseDTO(findById(id));
-    }
-
-    /**
-     * Lists all active categories in alphabetical order by name.
-     *
-     * @return list of summary DTOs of active categories
-     */
-    @Transactional(readOnly = true)
-    public List<CategorySummaryDTO> listSummary() {
-        return repository.findAllActive(Sort.by("name")).stream()
-                .map(CategoryMapper::toResumoDTO)
-                .toList();
-    }
-
-    /**
-     * Lists all categories, including inactive ones.
-     *
-     * @return list of summary DTOs of all categories
-     */
-    @Transactional(readOnly = true)
-    public List<CategorySummaryDTO> listSummaryIncludingInactive() {
-        return findAllIncludingInactive().stream()
-                .map(CategoryMapper::toResumoDTO)
-                .toList();
     }
 
     /**
@@ -132,26 +103,14 @@ public class CategoryService extends SuperService<Category, CategoryRepository> 
         return CategoryMapper.toResponseDTO(salva);
     }
 
-    /**
-     * Logically deactivates a category (sets {@code active = false}).
-     *
-     * @param id UUID of the category to deactivate
-     * @throws jakarta.persistence.EntityNotFoundException if the category does not exist
-     */
-    @Transactional
-    public void deleteLogically(UUID id) {
-        delete(id);
+    @Override
+    protected CategorySummaryDTO toSummary(Category entity) {
+        return CategoryMapper.toResumoDTO(entity);
     }
 
-    /**
-     * Returns the previous revision history of a category (Hibernate Envers).
-     *
-     * @param id UUID of the category
-     * @return list of revisions in chronological order; empty list if there is no history
-     */
-    @Transactional(readOnly = true)
-    public List<RevisionDTO<Category>> listRevisions(UUID id) {
-        return listPreviousVersions(id);
+    @Override
+    protected CategoryResponseDTO toResponse(Category entity) {
+        return CategoryMapper.toResponseDTO(entity);
     }
 
     private void normalizeFields(Category category) {

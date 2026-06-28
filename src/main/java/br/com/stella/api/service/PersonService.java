@@ -1,7 +1,7 @@
 package br.com.stella.api.service;
 
 import br.com.munif.common.persistencia.MRevisionEntity;
-import br.com.munif.common.service.SuperService;
+import br.com.munif.common.service.SuperCrudService;
 import br.com.munif.common.utils.validacoes.BrValidations;
 import br.com.stella.api.dto.MainItemImageDTO;
 import br.com.stella.api.dto.PersonCreateDTO;
@@ -39,7 +39,14 @@ import java.util.UUID;
  * fields changed between versions.</p>
  */
 @Service
-public class PersonService extends SuperService<Person, PersonRepository> {
+public class PersonService extends SuperCrudService<
+        Person,
+        PersonRepository,
+        PersonSummaryDTO,
+        PersonResponseDTO,
+        PersonCreateDTO,
+        PersonUpdateDTO,
+        PersonRevisionDTO> {
 
     private final MainItemImageStorageService imageStorageService;
 
@@ -83,42 +90,6 @@ public class PersonService extends SuperService<Person, PersonRepository> {
 
         Person salva = save(person);
         return PersonMapper.toResponseDTO(salva);
-    }
-
-    /**
-     * Returns the full DTO of a person by their identifier.
-     *
-     * @param id UUID of the person
-     * @return full DTO of the person
-     * @throws jakarta.persistence.EntityNotFoundException if the person does not exist
-     */
-    @Transactional(readOnly = true)
-    public PersonResponseDTO findResponseById(UUID id) {
-        return PersonMapper.toResponseDTO(findById(id));
-    }
-
-    /**
-     * Lists all active persons in alphabetical order by name.
-     *
-     * @return list of summary DTOs of active persons
-     */
-    @Transactional(readOnly = true)
-    public List<PersonSummaryDTO> listSummary() {
-        return repository.findAllActive(Sort.by("name")).stream()
-                .map(PersonMapper::toResumoDTO)
-                .toList();
-    }
-
-    /**
-     * Lists all persons, including inactive ones.
-     *
-     * @return list of summary DTOs of all persons
-     */
-    @Transactional(readOnly = true)
-    public List<PersonSummaryDTO> listSummaryIncludingInactive() {
-        return findAllIncludingInactive().stream()
-                .map(PersonMapper::toResumoDTO)
-                .toList();
     }
 
     /**
@@ -198,17 +169,6 @@ public class PersonService extends SuperService<Person, PersonRepository> {
     }
 
     /**
-     * Logically deactivates a person (sets {@code active = false}).
-     *
-     * @param id UUID of the person to deactivate
-     * @throws jakarta.persistence.EntityNotFoundException if the person does not exist
-     */
-    @Transactional
-    public void deleteLogically(UUID id) {
-        delete(id);
-    }
-
-    /**
      * Finds active persons whose name contains the given text (partial, case-insensitive search).
      *
      * @param name text to search; returns empty list if blank
@@ -265,6 +225,16 @@ public class PersonService extends SuperService<Person, PersonRepository> {
     @Transactional(readOnly = true)
     public long countActivePeople() {
         return repository.countActive();
+    }
+
+    @Override
+    protected PersonSummaryDTO toSummary(Person entity) {
+        return PersonMapper.toResumoDTO(entity);
+    }
+
+    @Override
+    protected PersonResponseDTO toResponse(Person entity) {
+        return PersonMapper.toResponseDTO(entity);
     }
 
     private Specification<Person> activeNameContains(String name) {

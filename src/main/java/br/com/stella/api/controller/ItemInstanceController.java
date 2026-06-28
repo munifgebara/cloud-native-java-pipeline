@@ -10,15 +10,9 @@ import br.com.stella.api.dto.ItemInstanceUpdateDTO;
 import br.com.stella.api.entity.ItemInstance;
 import br.com.stella.api.entity.ItemInstanceStatus;
 import br.com.stella.api.service.ItemInstanceService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,7 +32,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/v0/instances-item")
-public class ItemInstanceController extends SuperController<ItemInstanceSummaryDTO, ItemInstanceResponseDTO, ItemInstanceCreateDTO, ItemInstanceUpdateDTO, ItemInstance> {
+public class ItemInstanceController extends SuperController<ItemInstanceSummaryDTO, ItemInstanceResponseDTO, ItemInstanceCreateDTO, ItemInstanceUpdateDTO, RevisionDTO<ItemInstance>> {
 
     private final ItemInstanceService service;
 
@@ -48,19 +42,8 @@ public class ItemInstanceController extends SuperController<ItemInstanceSummaryD
      * @param service item instance service
      */
     public ItemInstanceController(ItemInstanceService service) {
+        super(service);
         this.service = service;
-    }
-
-    @Override
-    @PostMapping
-    public ResponseEntity<ItemInstanceResponseDTO> create(@RequestBody @Valid ItemInstanceCreateDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
-    }
-
-    @Override
-    @GetMapping("/{id}")
-    public ResponseEntity<ItemInstanceResponseDTO> findById(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.findResponseById(id));
     }
 
     /**
@@ -72,12 +55,6 @@ public class ItemInstanceController extends SuperController<ItemInstanceSummaryD
     @GetMapping("/{id}/history")
     public ResponseEntity<ItemInstanceHistoryDTO> findHistory(@PathVariable UUID id) {
         return ResponseEntity.ok(service.findHistory(id));
-    }
-
-    @Override
-    @GetMapping
-    public ResponseEntity<List<ItemInstanceSummaryDTO>> list() {
-        return ResponseEntity.ok(service.listSummary());
     }
 
     /**
@@ -111,28 +88,4 @@ public class ItemInstanceController extends SuperController<ItemInstanceSummaryD
         return ResponseEntity.ok(service.filter(identification, mainItem, categoryId, operationalStatus));
     }
 
-    @Override
-    @PutMapping("/{id}")
-    public ResponseEntity<ItemInstanceResponseDTO> update(@PathVariable UUID id, @RequestBody @Valid ItemInstanceUpdateDTO dto) {
-        return ResponseEntity.ok(service.update(id, dto));
-    }
-
-    @Override
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        service.deleteLogically(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Override
-    @GetMapping("/all")
-    public ResponseEntity<List<ItemInstanceSummaryDTO>> findAllIncludingInactive() {
-        return ResponseEntity.ok(service.listSummaryIncludingInactive());
-    }
-
-    @Override
-    @GetMapping("/{id}/revisions")
-    public ResponseEntity<List<RevisionDTO<ItemInstance>>> listPreviousVersions(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.listRevisions(id));
-    }
 }
