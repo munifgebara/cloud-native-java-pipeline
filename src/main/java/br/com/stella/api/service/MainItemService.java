@@ -74,12 +74,7 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
         normalizeFields(item);
         item.setCategory(findActiveCategory(dto.categoryId()));
 
-        MainItem salvo = save(item);
-        if (Boolean.FALSE.equals(dto.active())) {
-            repository.flush();
-            salvo.setActive(false);
-            salvo = save(salvo);
-        }
+        MainItem salvo = saveWithRequestedActiveState(item, dto.active());
         syncVectorIndexSilently(salvo, "item-index-sync-after-create");
         StructuredBusinessLogger.info(log, "inventory", "item-created", StructuredBusinessLogger.fields(
                 "item_id", salvo.getId(),
