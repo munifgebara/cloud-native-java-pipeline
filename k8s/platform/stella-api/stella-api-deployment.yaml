@@ -141,6 +141,13 @@ spec:
                 secretKeyRef:
                   name: rabbitmq-secret
                   key: STELLA_RABBITMQ_PASSWORD
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness

@@ -43,4 +43,22 @@ jobs:
           sudo k3s kubectl get pods -n platform -o wide
           sudo k3s kubectl describe deployment stella-api -n platform
           sudo k3s kubectl get events -n platform --sort-by=.lastTimestamp | tail -80
-          sudo k3s kubectl logs -n platform deployment/stella-api --all-containers=true --tail=200 || true
+
+          NEW_RS="$(sudo k3s kubectl get replicasets -n platform \
+            -l app=stella-api \
+            --sort-by=.metadata.creationTimestamp \
+            -o jsonpath='{.items[-1:].metadata.name}')"
+          POD_HASH="$(sudo k3s kubectl get replicaset "$NEW_RS" -n platform \
+            -o jsonpath='{.metadata.labels.pod-template-hash}')"
+
+          echo "ReplicaSet novo: $NEW_RS"
+          sudo k3s kubectl describe replicaset "$NEW_RS" -n platform
+
+          for pod in $(sudo k3s kubectl get pods -n platform \
+            -l "app=stella-api,pod-template-hash=$POD_HASH" \
+            -o name); do
+            echo "Diagnóstico de $pod"
+            sudo k3s kubectl describe -n platform "$pod"
+            sudo k3s kubectl logs -n platform "$pod" --all-containers=true --tail=200 || true
+            sudo k3s kubectl logs -n platform "$pod" --all-containers=true --previous --tail=200 || true
+          done

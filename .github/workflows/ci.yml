@@ -44,11 +44,13 @@ jobs:
         with:
           scan-type: fs
           scan-ref: .
+          skip-dirs: .claude
           vuln-type: os,library
           severity: CRITICAL,HIGH
           format: table
           output: trivy-report.txt
-          exit-code: '0'
+          ignore-unfixed: true
+          exit-code: '1'
 
       - name: Upload security scan report
         uses: actions/upload-artifact@v4
