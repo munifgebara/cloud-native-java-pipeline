@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -21,6 +22,8 @@ import java.util.UUID;
  * by name, filters with {@link Specification}, and projections for the dashboard.</p>
  */
 public interface MainItemRepository extends SuperRepository<MainItem>, JpaSpecificationExecutor<MainItem> {
+
+    Optional<MainItem> findByIdAndOwnerEmailAndOwnerIssuer(UUID id, String ownerEmail, String ownerIssuer);
 
     @Query("""
             select count(item)

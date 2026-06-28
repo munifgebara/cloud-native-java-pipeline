@@ -1,7 +1,6 @@
 package br.com.stella.api.service;
 
 import br.com.stella.api.dto.MainItemCreateDTO;
-import br.com.stella.api.exception.ExternalIntegrationException;
 import br.com.stella.api.dto.MainItemImageDTO;
 import br.com.stella.api.dto.MainItemUpdateDTO;
 import br.com.stella.api.entity.Category;
@@ -18,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
@@ -28,7 +26,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,7 +43,7 @@ class ItemMestreServiceTest {
     private MainItemImageStorageService imageStorageService;
 
     @Mock
-    private MainItemVectorSearchService vectorSearchService;
+    private EmbeddingIndexDispatcher embeddingIndexDispatcher;
 
     @Mock
     private EntityManager entityManager;
@@ -82,7 +79,7 @@ class ItemMestreServiceTest {
         assertThat(response.categoryId()).isEqualTo(categoryId);
         assertThat(response.categoryName()).isEqualTo("Eletronicos");
         assertThat(response.categoryIcon()).isEqualTo("eletronicos");
-        verify(vectorSearchService).synchronize(itemSalvo);
+        verify(embeddingIndexDispatcher).dispatchUpsert(itemSalvo, "item-index-sync-after-create");
     }
 
     @Test
@@ -94,40 +91,6 @@ class ItemMestreServiceTest {
         assertThat(response.name()).isEqualTo("Cadeira ergonomica");
         assertThat(response.categoryId()).isNull();
         verify(categoryRepository, never()).findById(any(UUID.class));
-    }
-
-    @Test
-    void shouldCreateItemMainSameWhenIndexVectorFailure() {
-        when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        doThrow(new ExternalIntegrationException("pgvector unavailable"))
-                .when(vectorSearchService).synchronize(any(MainItem.class));
-
-        var response = service.create(new MainItemCreateDTO("Cadeira ergonomica", null, null, null, null, true));
-
-        assertThat(response.name()).isEqualTo("Cadeira ergonomica");
-        verify(repository).save(any(MainItem.class));
-        verify(vectorSearchService).synchronize(any(MainItem.class));
-    }
-
-    @Test
-    void shouldSynchronizeIndexVectorOnlyAfterCommit() {
-        when(repository.save(any(MainItem.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        TransactionSynchronizationManager.initSynchronization();
-        try {
-            service.create(new MainItemCreateDTO("Cadeira ergonomica", null, null, null, null, true));
-
-            verify(vectorSearchService, never()).synchronize(any(MainItem.class));
-
-            var synchronizations = TransactionSynchronizationManager.getSynchronizations();
-            assertThat(synchronizations).hasSize(1);
-
-            synchronizations.getFirst().afterCommit();
-
-            verify(vectorSearchService).synchronize(any(MainItem.class));
-        } finally {
-            TransactionSynchronizationManager.clearSynchronization();
-        }
     }
 
     @Test
@@ -164,7 +127,7 @@ class ItemMestreServiceTest {
         assertThat(response.description()).isEqualTo("Cadeira de escritorio");
         assertThat(response.categoryName()).isEqualTo("Moveis");
         assertThat(response.active()).isFalse();
-        verify(vectorSearchService).synchronize(item);
+        verify(embeddingIndexDispatcher).dispatchUpsert(item, "item-index-sync-after-update");
     }
 
     @Test
@@ -299,22 +262,7 @@ class ItemMestreServiceTest {
         service.deleteLogically(id);
 
         assertThat(item.isActive()).isFalse();
-        verify(vectorSearchService).remove(id);
-    }
-
-    @Test
-    void shouldDeleteLogicallySameWhenRemovalOfIndexVectorFailure() {
-        UUID id = UUID.randomUUID();
-        MainItem item = item(id, "Notebook", null);
-
-        when(repository.findById(id)).thenReturn(Optional.of(item));
-        when(repository.save(item)).thenReturn(item);
-        doThrow(new ExternalIntegrationException("pgvector unavailable")).when(vectorSearchService).remove(id);
-
-        service.deleteLogically(id);
-
-        assertThat(item.isActive()).isFalse();
-        verify(vectorSearchService).remove(id);
+        verify(embeddingIndexDispatcher).dispatchRemove(item);
     }
 
     @Test

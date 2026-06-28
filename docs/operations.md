@@ -163,6 +163,9 @@ Prometheus selects these rules through the `release: monitoring` label. The curr
 - `StellaApiPodRestarting`: the Stella API container restarted more than twice in 10 minutes.
 - `StellaApiHigh5xxRate`: more than 5% of API requests returned 5xx for 5 minutes.
 - `StellaApiHighJvmHeapUsage`: JVM heap usage stayed above 80% for 5 minutes.
+- `StellaEmbeddingOutboxStalled`: the oldest pending embedding event is older than five minutes.
+- `StellaEmbeddingOutboxFailed`: an embedding event exhausted publisher attempts.
+- `StellaEmbeddingDeadLetterQueueNotEmpty`: the embedding DLQ contains messages requiring inspection.
 
 Grafana currently has sidecars for dashboards and datasources, not alert provisioning. Log-only checks such as AI daily-limit blocks and vector-search failures should be investigated with the LogQL queries above until a Loki ruler or Grafana alert provisioning path is added to the monitoring stack.
 
@@ -185,6 +188,14 @@ Avoid logging:
 - SQL bind values in production
 
 ## Common Checks
+
+Embedding queue checks:
+
+```bash
+sudo k3s kubectl exec deployment/rabbitmq -n platform -- rabbitmqctl list_queues name messages_ready messages_unacknowledged
+```
+
+The API exposes `stella_embedding_outbox_published_total`, `stella_embedding_outbox_publish_failures_total`, `stella_embedding_queue_consumed_total`, `stella_embedding_queue_retries_total`, `stella_embedding_outbox_events`, `stella_embedding_outbox_oldest_pending_seconds`, and `stella_embedding_queue_dead_letter_messages`. A message in the DLQ is not replayed automatically: diagnose the payload/provider failure first, then use the RabbitMQ management interface or tooling to republish it to `stella.embedding` with routing key `embedding.index`.
 
 Check the deployed image:
 

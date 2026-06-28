@@ -131,6 +131,16 @@ spec:
                 secretKeyRef:
                   name: minio-secret
                   key: STELLA_MINIO_SECRET_KEY
+            - name: STELLA_RABBITMQ_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-secret
+                  key: STELLA_RABBITMQ_USERNAME
+            - name: STELLA_RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-secret
+                  key: STELLA_RABBITMQ_PASSWORD
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness

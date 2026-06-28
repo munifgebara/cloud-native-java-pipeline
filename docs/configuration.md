@@ -89,6 +89,24 @@ Image generation uses `gpt-image-1` by default. If `/api/v0/main-items/image-ai`
 
 The database vector column is `vector(384)`, so changing to a model with different dimensions requires a migration and full reindex.
 
+## Embedding Queue
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `STELLA_MESSAGING_ENABLED` | `false` | Enables asynchronous embedding indexing through RabbitMQ and the transactional outbox |
+| `STELLA_RABBITMQ_HOST` | `127.0.0.1` | RabbitMQ host |
+| `STELLA_RABBITMQ_PORT` | `5672` | AMQP port |
+| `STELLA_RABBITMQ_USERNAME` | `stella` | RabbitMQ username; supply it as a secret in production |
+| `STELLA_RABBITMQ_PASSWORD` | `stella` | RabbitMQ password; supply it as a secret in production |
+| `STELLA_EMBEDDING_EXCHANGE` | `stella.embedding` | Direct exchange for embedding events |
+| `STELLA_EMBEDDING_QUEUE` | `stella.embedding.index` | Main indexing queue |
+| `STELLA_EMBEDDING_DLQ` | `stella.embedding.index.dlq` | Dead-letter queue after consumer retries are exhausted |
+| `STELLA_EMBEDDING_RELAY_BATCH_SIZE` | `50` | Maximum pending outbox events published per relay execution |
+| `STELLA_EMBEDDING_RELAY_DELAY_MS` | `1000` | Delay between outbox relay executions |
+| `STELLA_EMBEDDING_PUBLISH_MAX_ATTEMPTS` | `10` | Maximum publisher attempts before an outbox event becomes `FAILED` |
+
+When messaging is disabled, Stella retains the synchronous post-commit index update. See [Embedding Messaging](messaging.md) for delivery semantics and operations.
+
 ## Logging
 
 | Variable | Default | Description |

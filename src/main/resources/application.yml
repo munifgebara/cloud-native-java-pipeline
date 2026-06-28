@@ -2,6 +2,22 @@ server:
   port: 8080
 
 spring:
+  rabbitmq:
+    host: ${STELLA_RABBITMQ_HOST:127.0.0.1}
+    port: ${STELLA_RABBITMQ_PORT:5672}
+    username: ${STELLA_RABBITMQ_USERNAME:stella}
+    password: ${STELLA_RABBITMQ_PASSWORD:stella}
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    listener:
+      simple:
+        default-requeue-rejected: false
+        retry:
+          enabled: true
+          initial-interval: 1s
+          multiplier: 2
+          max-interval: 10s
+          max-attempts: 5
   application:
     name: stella-api
   servlet:
@@ -84,6 +100,18 @@ stella:
     base-url: ${STELLA_EMBEDDINGS_BASE_URL:http://stella-embeddings:8000}
     model: ${STELLA_EMBEDDINGS_MODEL:sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
     dimensions: ${STELLA_EMBEDDINGS_DIMENSIONS:384}
+  messaging:
+    enabled: ${STELLA_MESSAGING_ENABLED:false}
+    exchange: ${STELLA_EMBEDDING_EXCHANGE:stella.embedding}
+    queue: ${STELLA_EMBEDDING_QUEUE:stella.embedding.index}
+    routing-key: ${STELLA_EMBEDDING_ROUTING_KEY:embedding.index}
+    dead-letter-exchange: ${STELLA_EMBEDDING_DLX:stella.embedding.dlx}
+    dead-letter-queue: ${STELLA_EMBEDDING_DLQ:stella.embedding.index.dlq}
+    dead-letter-routing-key: ${STELLA_EMBEDDING_DLQ_ROUTING_KEY:embedding.index.failed}
+    relay-batch-size: ${STELLA_EMBEDDING_RELAY_BATCH_SIZE:50}
+    relay-delay-ms: ${STELLA_EMBEDDING_RELAY_DELAY_MS:1000}
+    publish-max-attempts: ${STELLA_EMBEDDING_PUBLISH_MAX_ATTEMPTS:10}
+    confirm-timeout-seconds: ${STELLA_EMBEDDING_CONFIRM_TIMEOUT_SECONDS:5}
 
 ai:
   enabled: ${AI_ENABLED:true}
@@ -113,6 +141,8 @@ management:
     prometheus:
       access: read-only
   health:
+    rabbit:
+      enabled: ${STELLA_MESSAGING_ENABLED:false}
     livenessstate:
       enabled: true
     readinessstate:

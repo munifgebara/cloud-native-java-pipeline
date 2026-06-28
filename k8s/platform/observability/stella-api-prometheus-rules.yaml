@@ -56,3 +56,27 @@ spec:
           annotations:
             summary: Stella API JVM heap usage is high.
             description: JVM heap usage on {{ $labels.instance }} has been above 80% for 5 minutes.
+        - alert: StellaEmbeddingOutboxStalled
+          expr: stella_embedding_outbox_oldest_pending_seconds{job="stella-api"} > 300
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Stella embedding outbox publication is stalled.
+            description: The oldest pending embedding event has waited more than five minutes.
+        - alert: StellaEmbeddingOutboxFailed
+          expr: stella_embedding_outbox_events{job="stella-api", status="failed"} > 0
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: Stella embedding outbox contains failed events.
+            description: At least one embedding event exhausted its publisher attempts.
+        - alert: StellaEmbeddingDeadLetterQueueNotEmpty
+          expr: stella_embedding_queue_dead_letter_messages{job="stella-api"} > 0
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: Stella embedding dead-letter queue is not empty.
+            description: At least one embedding indexing message requires operator inspection.

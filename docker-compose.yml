@@ -84,9 +84,29 @@ services:
     networks:
       - stella-net
 
+  rabbitmq:
+    image: rabbitmq:4.1-management-alpine
+    container_name: stella-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${STELLA_RABBITMQ_USERNAME:-stella}
+      RABBITMQ_DEFAULT_PASS: ${STELLA_RABBITMQ_PASSWORD:-stella}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmqdata:/var/lib/rabbitmq
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - stella-net
+
 volumes:
   pgdata:
   miniodata:
+  rabbitmqdata:
 
 networks:
   stella-net:

@@ -24,6 +24,7 @@ Kubernetes assets live under `k8s/platform/`:
 | `postgres/` | PostgreSQL stateful workload and service |
 | `keycloak/` | Keycloak deployment, service and realm config |
 | `minio/` | MinIO deployment, service and persistent volume claim |
+| `rabbitmq/` | RabbitMQ deployment, service and persistent volume claim for asynchronous embedding updates |
 | `stella-embeddings/` | Local text embeddings service used by vector search |
 | `observability/` | Grafana datasource/dashboard ConfigMaps plus Prometheus ServiceMonitor and alert rules for the existing Gimli monitoring stack |
 | `stella-api/` | Stella API deployment, service, ingress and configuration |
@@ -73,6 +74,7 @@ Required production-sensitive values include:
 - database credentials
 - Keycloak admin client secret
 - MinIO credentials
+- RabbitMQ credentials (`rabbitmq-secret`)
 - registry pull secret when using private GHCR images
 
 The server profile is activated with:
@@ -82,6 +84,14 @@ SPRING_PROFILES_ACTIVE=server
 ```
 
 In this profile, logs are emitted as ECS JSON to stdout for collection by the cluster logging stack.
+
+Create the RabbitMQ secret before applying the workloads. Generate the password outside shell history and do not commit it:
+
+```bash
+sudo k3s kubectl create secret generic rabbitmq-secret -n platform \
+  --from-literal=STELLA_RABBITMQ_USERNAME=stella \
+  --from-literal=STELLA_RABBITMQ_PASSWORD='<generated-password>'
+```
 
 ## Post-Deploy Checks
 
