@@ -1,7 +1,7 @@
 package br.com.stella.api.service;
 
 import br.com.munif.common.dto.RevisionDTO;
-import br.com.munif.common.service.SuperService;
+import br.com.munif.common.service.SuperCrudService;
 import br.com.munif.common.utils.validacoes.BrValidations;
 import br.com.stella.api.dto.SemanticSearchItemDTO;
 import br.com.stella.api.dto.MainItemCreateDTO;
@@ -40,7 +40,14 @@ import java.util.UUID;
  * that the index only reflects data already confirmed in the relational database.</p>
  */
 @Service
-public class MainItemService extends SuperService<MainItem, MainItemRepository> {
+public class MainItemService extends SuperCrudService<
+        MainItem,
+        MainItemRepository,
+        MainItemSummaryDTO,
+        MainItemResponseDTO,
+        MainItemCreateDTO,
+        MainItemUpdateDTO,
+        RevisionDTO<MainItem>> {
 
     private static final Logger log = LoggerFactory.getLogger(MainItemService.class);
 
@@ -83,42 +90,6 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
                 "success", true
         ));
         return MainItemMapper.toResponseDTO(salvo);
-    }
-
-    /**
-     * Returns the full DTO of a main item by its identifier.
-     *
-     * @param id UUID of the main item
-     * @return full DTO of the item
-     * @throws jakarta.persistence.EntityNotFoundException if the item does not exist
-     */
-    @Transactional(readOnly = true)
-    public MainItemResponseDTO findResponseById(UUID id) {
-        return MainItemMapper.toResponseDTO(findById(id));
-    }
-
-    /**
-     * Lists all active main items in alphabetical order by name.
-     *
-     * @return list of summary DTOs of active items
-     */
-    @Transactional(readOnly = true)
-    public List<MainItemSummaryDTO> listSummary() {
-        return repository.findAllActive(Sort.by("name")).stream()
-                .map(MainItemMapper::toResumoDTO)
-                .toList();
-    }
-
-    /**
-     * Lists all main items, including deactivated ones.
-     *
-     * @return list of summary DTOs of all items
-     */
-    @Transactional(readOnly = true)
-    public List<MainItemSummaryDTO> listSummaryIncludingInactive() {
-        return findAllIncludingInactive().stream()
-                .map(MainItemMapper::toResumoDTO)
-                .toList();
     }
 
     /**
@@ -315,15 +286,14 @@ public class MainItemService extends SuperService<MainItem, MainItemRepository> 
         return vectorSearchService.reindexActiveItems();
     }
 
-    /**
-     * Returns the previous revision history of a main item (Hibernate Envers).
-     *
-     * @param id UUID of the main item
-     * @return list of revisions in chronological order; empty list if there is no history
-     */
-    @Transactional(readOnly = true)
-    public List<RevisionDTO<MainItem>> listRevisions(UUID id) {
-        return listPreviousVersions(id);
+    @Override
+    protected MainItemSummaryDTO toSummary(MainItem entity) {
+        return MainItemMapper.toResumoDTO(entity);
+    }
+
+    @Override
+    protected MainItemResponseDTO toResponse(MainItem entity) {
+        return MainItemMapper.toResponseDTO(entity);
     }
 
     private Category findActiveCategory(UUID categoryId) {

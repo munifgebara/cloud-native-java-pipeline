@@ -24,10 +24,6 @@ import java.util.UUID;
  */
 public interface ItemInstanceRepository extends SuperRepository<ItemInstance>, JpaSpecificationExecutor<ItemInstance> {
 
-    List<ItemInstance> findByActiveTrueOrderByIdentifierAscAssetTagAscSerialNumberAsc();
-
-    List<ItemInstance> findByActiveTrueAndIdentifierContainingIgnoreCaseOrderByIdentifierAsc(String identifier);
-
     @Query("""
             select instance
             from ItemInstance instance
@@ -47,10 +43,6 @@ public interface ItemInstanceRepository extends SuperRepository<ItemInstance>, J
             order by mainItem.name asc, instance.identifier asc, instance.assetTag asc, instance.serialNumber asc
             """)
     List<ItemInstance> findActiveByMainItemIds(@Param("mainItemIds") List<UUID> mainItemIds);
-
-    long countByActiveTrue();
-
-    long countByActiveTrueAndOperationalStatus(ItemInstanceStatus operationalStatus);
 
     /**
      * Builds a {@link Specification} to filter active instances with multiple optional criteria.

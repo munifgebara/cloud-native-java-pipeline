@@ -13,14 +13,11 @@ import br.com.stella.api.entity.MainItem;
 import br.com.stella.api.service.ImageAiService;
 import br.com.stella.api.service.MainItemService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,7 +39,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/v0/main-items")
-public class MainItemController extends SuperController<MainItemSummaryDTO, MainItemResponseDTO, MainItemCreateDTO, MainItemUpdateDTO, MainItem> {
+public class MainItemController extends SuperController<MainItemSummaryDTO, MainItemResponseDTO, MainItemCreateDTO, MainItemUpdateDTO, RevisionDTO<MainItem>> {
 
     private final MainItemService service;
     private final ImageAiService imageAiService;
@@ -54,26 +51,9 @@ public class MainItemController extends SuperController<MainItemSummaryDTO, Main
      * @param imageAiService AI image generation service
      */
     public MainItemController(MainItemService service, ImageAiService imageAiService) {
+        super(service);
         this.service = service;
         this.imageAiService = imageAiService;
-    }
-
-    @Override
-    @PostMapping
-    public ResponseEntity<MainItemResponseDTO> create(@RequestBody @Valid MainItemCreateDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
-    }
-
-    @Override
-    @GetMapping("/{id}")
-    public ResponseEntity<MainItemResponseDTO> findById(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.findResponseById(id));
-    }
-
-    @Override
-    @GetMapping
-    public ResponseEntity<List<MainItemSummaryDTO>> list() {
-        return ResponseEntity.ok(service.listSummary());
     }
 
     /**
@@ -153,28 +133,4 @@ public class MainItemController extends SuperController<MainItemSummaryDTO, Main
         return ResponseEntity.ok(imageAiService.generateImage(dto));
     }
 
-    @Override
-    @PutMapping("/{id}")
-    public ResponseEntity<MainItemResponseDTO> update(@PathVariable UUID id, @RequestBody @Valid MainItemUpdateDTO dto) {
-        return ResponseEntity.ok(service.update(id, dto));
-    }
-
-    @Override
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        service.deleteLogically(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Override
-    @GetMapping("/all")
-    public ResponseEntity<List<MainItemSummaryDTO>> findAllIncludingInactive() {
-        return ResponseEntity.ok(service.listSummaryIncludingInactive());
-    }
-
-    @Override
-    @GetMapping("/{id}/revisions")
-    public ResponseEntity<List<RevisionDTO<MainItem>>> listPreviousVersions(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.listRevisions(id));
-    }
 }

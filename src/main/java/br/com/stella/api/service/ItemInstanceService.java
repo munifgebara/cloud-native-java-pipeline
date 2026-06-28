@@ -1,7 +1,7 @@
 package br.com.stella.api.service;
 
 import br.com.munif.common.dto.RevisionDTO;
-import br.com.munif.common.service.SuperService;
+import br.com.munif.common.service.SuperCrudService;
 import br.com.munif.common.utils.validacoes.BrValidations;
 import br.com.stella.api.dto.ItemInstanceCreateDTO;
 import br.com.stella.api.dto.ItemInstanceHistoryDTO;
@@ -42,7 +42,14 @@ import java.util.UUID;
  * delegated to the {@link ItemInstanceRules} class.</p>
  */
 @Service
-public class ItemInstanceService extends SuperService<ItemInstance, ItemInstanceRepository> {
+public class ItemInstanceService extends SuperCrudService<
+        ItemInstance,
+        ItemInstanceRepository,
+        ItemInstanceSummaryDTO,
+        ItemInstanceResponseDTO,
+        ItemInstanceCreateDTO,
+        ItemInstanceUpdateDTO,
+        RevisionDTO<ItemInstance>> {
 
     private static final Logger log = LoggerFactory.getLogger(ItemInstanceService.class);
 
@@ -95,18 +102,6 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
     }
 
     /**
-     * Returns the full DTO of an instance by its identifier.
-     *
-     * @param id UUID of the instance
-     * @return full DTO of the instance
-     * @throws jakarta.persistence.EntityNotFoundException if the instance does not exist
-     */
-    @Transactional(readOnly = true)
-    public ItemInstanceResponseDTO findResponseById(UUID id) {
-        return ItemInstanceMapper.toResponseDTO(findById(id));
-    }
-
-    /**
      * Returns the full movement history of an instance.
      *
      * @param id UUID of the instance
@@ -123,33 +118,6 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
                 ItemInstanceMapper.toResponseDTO(instance),
                 movements
         );
-    }
-
-    /**
-     * Lists all active instances ordered by identifier, asset number, and serial number.
-     *
-     * @return list of summary DTOs of active instances
-     */
-    @Transactional(readOnly = true)
-    public List<ItemInstanceSummaryDTO> listSummary() {
-        return repository.findAll(
-                        ItemInstanceRepository.filterActive(null, null, null, null),
-                        Sort.by(Sort.Order.asc("identifier").nullsLast(), Sort.Order.asc("assetTag").nullsLast(), Sort.Order.asc("serialNumber").nullsLast())
-                ).stream()
-                .map(ItemInstanceMapper::toResumoDTO)
-                .toList();
-    }
-
-    /**
-     * Lists all instances, including logically deactivated ones.
-     *
-     * @return list of summary DTOs of all instances
-     */
-    @Transactional(readOnly = true)
-    public List<ItemInstanceSummaryDTO> listSummaryIncludingInactive() {
-        return findAllIncludingInactive().stream()
-                .map(ItemInstanceMapper::toResumoDTO)
-                .toList();
     }
 
     /**
@@ -250,9 +218,23 @@ public class ItemInstanceService extends SuperService<ItemInstance, ItemInstance
         ));
     }
 
-    @Transactional(readOnly = true)
-    public List<RevisionDTO<ItemInstance>> listRevisions(UUID id) {
-        return listPreviousVersions(id);
+    @Override
+    protected Sort defaultSort() {
+        return Sort.by(
+                Sort.Order.asc("identifier").nullsLast(),
+                Sort.Order.asc("assetTag").nullsLast(),
+                Sort.Order.asc("serialNumber").nullsLast()
+        );
+    }
+
+    @Override
+    protected ItemInstanceSummaryDTO toSummary(ItemInstance entity) {
+        return ItemInstanceMapper.toResumoDTO(entity);
+    }
+
+    @Override
+    protected ItemInstanceResponseDTO toResponse(ItemInstance entity) {
+        return ItemInstanceMapper.toResponseDTO(entity);
     }
 
     private MainItem findActiveMainItem(UUID mainItemId) {

@@ -8,8 +8,6 @@ import br.com.stella.api.dto.PersonSummaryDTO;
 import br.com.stella.api.dto.PersonUpdateDTO;
 import br.com.stella.api.entity.Person;
 import br.com.stella.api.service.PersonService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +24,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/v0/people")
-public class PersonController extends SuperController<PersonSummaryDTO, PersonResponseDTO, PersonCreateDTO, PersonUpdateDTO, Person> {
+public class PersonController extends SuperController<PersonSummaryDTO, PersonResponseDTO, PersonCreateDTO, PersonUpdateDTO, PersonRevisionDTO> {
 
     private final PersonService service;
 
@@ -36,25 +34,8 @@ public class PersonController extends SuperController<PersonSummaryDTO, PersonRe
      * @param service person service
      */
     public PersonController(PersonService service) {
+        super(service);
         this.service = service;
-    }
-
-    @Override
-    @PostMapping
-    public ResponseEntity<PersonResponseDTO> create(@RequestBody @Valid PersonCreateDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
-    }
-
-    @Override
-    @GetMapping("/{id}")
-    public ResponseEntity<PersonResponseDTO> findById(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.findResponseById(id));
-    }
-
-    @Override
-    @GetMapping
-    public ResponseEntity<List<PersonSummaryDTO>> list() {
-        return ResponseEntity.ok(service.listSummary());
     }
 
     /**
@@ -68,12 +49,6 @@ public class PersonController extends SuperController<PersonSummaryDTO, PersonRe
         return ResponseEntity.ok(service.findByName(name));
     }
 
-    @Override
-    @PutMapping("/{id}")
-    public ResponseEntity<PersonResponseDTO> update(@PathVariable UUID id, @RequestBody @Valid PersonUpdateDTO dto) {
-        return ResponseEntity.ok(service.update(id, dto));
-    }
-
     @PostMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PersonResponseDTO> updatePhoto(@PathVariable UUID id, @RequestParam("file") MultipartFile file) {
         return ResponseEntity.ok(service.updatePhoto(id, file));
@@ -84,22 +59,4 @@ public class PersonController extends SuperController<PersonSummaryDTO, PersonRe
         return ResponseEntity.ok(service.removePhoto(id));
     }
 
-    @Override
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        service.deleteLogically(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Override
-    @GetMapping("/all")
-    public ResponseEntity<List<PersonSummaryDTO>> findAllIncludingInactive() {
-        return ResponseEntity.ok(service.listSummaryIncludingInactive());
-    }
-
-    @Override
-    @GetMapping("/{id}/revisions")
-    public ResponseEntity<List<PersonRevisionDTO>> listPreviousVersions(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.listRevisions(id));
-    }
 }

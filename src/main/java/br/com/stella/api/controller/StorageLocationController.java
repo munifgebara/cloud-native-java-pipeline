@@ -8,16 +8,12 @@ import br.com.stella.api.dto.StorageLocationSummaryDTO;
 import br.com.stella.api.dto.StorageLocationUpdateDTO;
 import br.com.stella.api.entity.StorageLocation;
 import br.com.stella.api.service.StorageLocationService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,7 +33,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/v0/locations")
-public class StorageLocationController extends SuperController<StorageLocationSummaryDTO, StorageLocationResponseDTO, StorageLocationCreateDTO, StorageLocationUpdateDTO, StorageLocation> {
+public class StorageLocationController extends SuperController<StorageLocationSummaryDTO, StorageLocationResponseDTO, StorageLocationCreateDTO, StorageLocationUpdateDTO, RevisionDTO<StorageLocation>> {
 
     private final StorageLocationService service;
 
@@ -47,25 +43,8 @@ public class StorageLocationController extends SuperController<StorageLocationSu
      * @param service location business service
      */
     public StorageLocationController(StorageLocationService service) {
+        super(service);
         this.service = service;
-    }
-
-    @Override
-    @PostMapping
-    public ResponseEntity<StorageLocationResponseDTO> create(@RequestBody @Valid StorageLocationCreateDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
-    }
-
-    @Override
-    @GetMapping("/{id}")
-    public ResponseEntity<StorageLocationResponseDTO> findById(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.findResponseById(id));
-    }
-
-    @Override
-    @GetMapping
-    public ResponseEntity<List<StorageLocationSummaryDTO>> list() {
-        return ResponseEntity.ok(service.listSummary());
     }
 
     /**
@@ -103,28 +82,4 @@ public class StorageLocationController extends SuperController<StorageLocationSu
         return ResponseEntity.ok(service.removeImage(id));
     }
 
-    @Override
-    @PutMapping("/{id}")
-    public ResponseEntity<StorageLocationResponseDTO> update(@PathVariable UUID id, @RequestBody @Valid StorageLocationUpdateDTO dto) {
-        return ResponseEntity.ok(service.update(id, dto));
-    }
-
-    @Override
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        service.deleteLogically(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Override
-    @GetMapping("/all")
-    public ResponseEntity<List<StorageLocationSummaryDTO>> findAllIncludingInactive() {
-        return ResponseEntity.ok(service.listSummaryIncludingInactive());
-    }
-
-    @Override
-    @GetMapping("/{id}/revisions")
-    public ResponseEntity<List<RevisionDTO<StorageLocation>>> listPreviousVersions(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.listRevisions(id));
-    }
 }

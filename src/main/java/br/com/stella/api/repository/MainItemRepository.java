@@ -22,14 +22,6 @@ import java.util.UUID;
  */
 public interface MainItemRepository extends SuperRepository<MainItem>, JpaSpecificationExecutor<MainItem> {
 
-    List<MainItem> findByActiveTrueOrderByNameAsc();
-
-    List<MainItem> findByActiveTrueAndNameContainingIgnoreCaseOrderByNameAsc(String name);
-
-    long countByActiveTrue();
-
-    long countByActiveTrueAndImageObjectKeyIsNull();
-
     @Query("""
             select count(item)
             from MainItem item
